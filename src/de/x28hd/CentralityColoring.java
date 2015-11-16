@@ -2,14 +2,17 @@ package de.x28hd;
 
 import java.awt.Color;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+
 import edu.uci.ics.jung.algorithms.importance.BetweennessCentrality;
 import edu.uci.ics.jung.algorithms.importance.NodeRanking;
 import edu.uci.ics.jung.graph.Vertex;
 import edu.uci.ics.jung.graph.decorators.StringLabeller;
 import edu.uci.ics.jung.graph.decorators.StringLabeller.UniqueLabelException;
+//import edu.uci.ics.jung.graph.impl.*;
 import edu.uci.ics.jung.graph.impl.UndirectedSparseEdge;
 import edu.uci.ics.jung.graph.impl.UndirectedSparseGraph;
 import edu.uci.ics.jung.graph.impl.UndirectedSparseVertex;
@@ -62,6 +65,7 @@ public class CentralityColoring {
 			if (debug) {
 				try {
 					labeller.setLabel(v, nodeID + " " + node.getLabel());
+//					System.out.println(v + " " + node.getLabel());
 				} catch (UniqueLabelException e1) {
 				}
 			}
@@ -71,6 +75,7 @@ public class CentralityColoring {
 //		Write Edges into the Graph		
 		
 		int edgeID = 0;
+		HashSet<String> uniqEdges = new HashSet<String>();
 		while (edgesEnum.hasMoreElements()) {
 			edgeID++;
 			GraphEdge edge = edgesEnum.nextElement();	
@@ -79,8 +84,24 @@ public class CentralityColoring {
 			edge.setColor("#d8d8d8");
 			int n1 = edge.getN1();
 			int n2 = edge.getN2();
+			
+			//	Avoid duplicate edges with uci.jung
+			String uniqID = null;
+			if (n1 < n2) {
+				uniqID = n1 + "-" + n2;
+			} else {
+				uniqID = n2 + "-" + n1;
+			}
+			if (uniqEdges.contains(uniqID)) {
+				System.out.println("CC: Duplicate skipped");
+				continue;
+			} else {
+				uniqEdges.add(uniqID);
+			}
+			
 			GraphNode node1 = nodes.get(n1);
 			GraphNode node2 = nodes.get(n2);
+			
 			node1.addEdge(edge);
 			node2.addEdge(edge);
 			UndirectedSparseVertex v1 = vertices.get(n1);
