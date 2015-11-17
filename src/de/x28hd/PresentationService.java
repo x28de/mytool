@@ -975,6 +975,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		edges = new Hashtable<Integer, GraphEdge>();
 		graphPanel.setModel(nodes, edges);
 		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
+		about = (new AboutBuild()).getAbout();
 
 		createMainWindow("Main Window");
 		System.out.println("PS: Initialized");
