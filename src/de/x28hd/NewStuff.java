@@ -425,9 +425,9 @@ public class NewStuff {
 				String filename = entry.getName();
 				System.out.println("----------- " + filename);
 				filename = filename.replace('\\', '/');		
-//				if (filename.indexOf("/") != -1) {
-//					continue;
-//				} else	{
+				if (filename.indexOf("icons/") != -1) {	// very old deepamehta2 format
+					continue;
+				} else	{
 					if (entryCount == 0) {
 						filelist = filename;	// to avoid leading newline
 					} else {
@@ -436,7 +436,7 @@ public class NewStuff {
 					System.out.println("NewStuff.unpack found " + filename + ", hopefully not more");
 					stream = zfile.getInputStream(entry);
 					entryCount++;
-//				}
+				}
 			}
 			if (entryCount == 1) {
 				success = true;
