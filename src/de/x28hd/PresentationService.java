@@ -490,7 +490,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 				+ "in Tunnelbahnhöfen mit elektrischer Oberleitung unverpackt "
 				+ "<a href=\"http://x28hd.de\">mitzuführen</a>.</html>");
 		isDirty = dirtyBefore;
-		edi.getTextComponent().setCaretPosition(18);
+//		edi.getTextComponent().setCaretPosition(18);
 		
 		splitPane.setRightComponent(rightPanel);
 		splitPane.repaint();
@@ -1131,7 +1131,8 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		selectedTopic = node;
 		edi.setText((selectedTopic).getDetail());
 		edi.setDirty(false);
-		edi.getTextComponent().setCaretPosition(0);
+//		edi.getTextComponent().setCaretPosition(0);
+		edi.getTextComponent().requestFocus();
 		String labelText = selectedTopic.getLabel();
 		labelField.setText(labelText);
 		edi.repaint();
@@ -1176,6 +1177,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 			updateBounds();
 			graphPanel.nodeSelected(topic);
 			graphPanel.repaint();
+//			edi.setDirty(false);
 			setDirty(true);
 			return topic;
 		} else {
@@ -1345,9 +1347,9 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		setDefaultCursor();
 	}
 	
-    public void caretUpdate(CaretEvent arg0) {
-		System.out.println("PS dot " + arg0.getDot());
-	}
+//    public void caretUpdate(CaretEvent arg0) {
+//		System.out.println("PS dot " + arg0.getDot());
+//	}
 	
 //
 //	Misc and temp

@@ -30,6 +30,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Caret;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.JTextComponent;
@@ -55,6 +56,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	int offset = -1;
 	String EndOfLineStringProperty = "NOCH NIX";
 	String peekEndOfLineStringProperty;
+	boolean breakIsTrailing;
 	
 //
 //	Accessory for saving line breaks permanently in the HTML (find them in
@@ -65,11 +67,8 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
     Runnable insertBreak = new Runnable() {
         public void run() {
 			String text = textComponent.getText();
-//			if (EndOfLineStringProperty.equals("\r")) peekEndOfLineStringProperty = "\\R"; 
-//			if (EndOfLineStringProperty.equals("\n")) peekEndOfLineStringProperty = "\\N"; 
-//			if (EndOfLineStringProperty.equals("\r\n")) peekEndOfLineStringProperty = "\\R\\N"; 
-//			System.out.println("------------>" + peekEndOfLineStringProperty + "<--------");
 			int pos = textComponent.getCaretPosition();
+//			int savedPos = pos;
 			String headText = "";
 			String tailText = "";
 			int headOffset = text.indexOf("<body>");
@@ -80,11 +79,6 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 			} else {
 				headOffset = 0;
 			}
-			if (tailOffset > -1) {
-				tailText = text.substring(tailOffset);
-			} else  {
-				tailOffset = text.length() - headOffset;
-			}
 			String middleText = text.substring(headOffset, tailOffset);
 			String fixedText = middleText.replace(EndOfLineStringProperty + "    ", "");
 			fixedText = fixedText.replace(EndOfLineStringProperty, "<br />");
@@ -92,8 +86,13 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 			System.out.println(headOffset + " " + tailOffset + " " + 
 					"middle: \r\n" + middleText + "\r\nfixed: \r\n" + fixedText);
 			setText(fixedText);
+			System.out.println("breakIsTrailing ? " + breakIsTrailing);
+			if (breakIsTrailing) {
+				textComponent.setCaretPosition(pos);
+			} else {
+				textComponent.setCaretPosition(pos - 1);
+			}
 			repaint();
-			textComponent.setCaretPosition(pos - 1);
 		}
     };       
 	
@@ -231,6 +230,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		public void caretUpdate(CaretEvent e) {
 			selMark = e.getMark();
 			selDot = e.getDot();
+			System.out.println("Dot = " + selDot + ", Mark = " + selMark );
 			processClicks();
 		}
 	}
@@ -292,21 +292,35 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	public void insertUpdate(DocumentEvent e) {
 		offset = e.getOffset();
 		int length = e.getDocument().getLength();
-		System.out.println("offset " + offset);
-		String insText = null;
+		System.out.println("insert, offset = " + offset + ", length = " + length);
+		String insText1 = null;
+		String insText2 = null;
 		try {
-			insText = doc.getText(offset, 1);
+			insText1 = doc.getText(offset, 1);
+			System.out.println("insText1 = >" + insText1 + "<");
 		} catch (BadLocationException e1) {
-			System.out.println("Error TE102 " + e);
+			System.out.println("Error TE102a " + e);
 		}
-		if (insText.equals("\n")) {
-			if (offset > 0 && offset < length - 1) {
+		try {
+			insText2 = doc.getText(offset, 2);
+			System.out.println("insText2 = >" + insText2 + "<");
+		} catch (BadLocationException e1) {
+			System.out.println("Error TE102b " + e);
+		}
+		if (offset > 0 && offset < length) {
+			if (insText2.startsWith("\n")) {
+				breakIsTrailing = false;
 				System.out.println("Success!");
-			    SwingUtilities.invokeLater(insertBreak);
+				if (insText2.equals("\n\n")) {
+					System.out.println("at the end");
+					breakIsTrailing = true;
+				}
+				SwingUtilities.invokeLater(insertBreak);
+			} else  {
+				System.out.println("Failure, string = -->" + insText1 + "<--");
 			}
-		} else {
-			System.out.println("Failure, string = -->" + insText + "<--");
 		}
+		
 		setDirty(true);
 	}
 
@@ -316,7 +330,9 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 
 	public void setDirty(boolean toggle) {
 		if (isDirty != toggle) {
-			if (toggle) controler.setDirty(toggle);
+			if (toggle) {
+				controler.setDirty(toggle);
+			}
 			isDirty = toggle;
 		}
 	}
@@ -329,6 +345,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 //	Main Methods
 	
 	public void setText(String text) {
+		textComponent.setCaretPosition(selDot);
 		textComponent.setText(text);
 		EndOfLineStringProperty = doc.getProperty(DefaultEditorKit.EndOfLineStringProperty).toString();
 	}
