@@ -35,9 +35,9 @@ public class MakeHTML {
 				+ "div#demo { \r\n"
 				+ "margin-left: 870px; \r\n"
 				+ "} \r\n"
-				+ "div#brand { \r\n"
-				+ "margin-left: 10px; margin-top: 510px; font-size: 75%;\r\n"
-				+ "} \r\n"
+//				+ "div#brand { \r\n"
+//				+ "margin-left: 10px; margin-top: 510px; font-size: 75%;\r\n"
+//				+ "} \r\n"
 				+ "canvas { \r\n"
 				+ "display: block; border: 1px solid #000; float: left; \r\n"
 				+ "} \r\n"
@@ -54,9 +54,9 @@ public class MakeHTML {
 				list.write(
 				  "<div id=\"demo\"><em>Drag the clipping to pan the map. <br />&nbsp;"
 				+ "<br />Click a circle on "
-				+ "the left pane to see details in the right pane. </em></div> \r\n"
-				+ "\r\n" 
-				+ "<div id=\"brand\"><em>Powered by <a href=\"http://x28hd.de/tool/\">MyTool</a></em></div>"
+				+ "the left pane to see details in the right pane. </em> \r\n"
+				+ "\r\n&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br />" 
+				+ "<em>&nbsp;Powered by <a href=\"http://x28hd.de/tool/\">MyTool</a></em></div>"
 				
 				);
 		}

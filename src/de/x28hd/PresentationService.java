@@ -63,7 +63,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 	public Container cp;	// Content Pane
 	JPanel labelBox = null;
 	JTextField labelField = null;
-	JTextComponent textDisplay = null;
+//	JTextComponent textDisplay = null;
 	private JButton OK;	
 	
 	JMenuBar myMenuBar = null;
@@ -416,13 +416,13 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		mainWindow = new JFrame(title) {
 			private static final long serialVersionUID = 1L;
 
-			public void paint(Graphics g) {
-				try {
-					super.paint(g);
-				} catch (Throwable t) {
-					System.out.println("Error PS103 " + t);
-				}
-			}
+//			public void paint(Graphics g) {
+//				try {
+//					super.paint(g);
+//				} catch (Throwable t) {
+//					System.out.println("Error PS103 " + t);
+//				}
+//			}
 		};
 		
 		mainWindow.setSize(960, 580);

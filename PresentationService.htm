@@ -1,0 +1,1424 @@
+<html> 
+<!DOCTYPE html>
+<meta charset="iso8859-1"> 
+
+<style> 
+div#demo { 
+margin-left: 870px; 
+} 
+canvas { 
+display: block; border: 1px solid #000; float: left; 
+} 
+</style>
+
+</head> 
+<body onLoad="main()";> 
+
+<canvas id="myCanvas" width="860" height="580"> 
+Your browser does not support the HTML5 canvas tag. 
+</canvas>
+<div id="demo"><em>Drag the clipping to pan the map. <br />&nbsp;<br />Click a circle on the left pane to see details in the right pane. </em> 
+
+&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br /><em>&nbsp;Powered by <a href="http://x28hd.de/tool/">MyTool</a></em></div>
+<div id="153" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    // Core of the <b>data model </b>are the two Hashtables nodes and edges<br>// 
+    Synopsis of GraphNode/ GraphEdge fields<br>//<br>// 1. id (node and edge)<br>// 
+    in constructor,<br>// redundant (same as key in Hashtable)<br>// get/set 
+    by getID() / setID()<br>// loaded/ stored (new format): nodeid as 
+    attribute,edgeid not in xml<br>// imported (old format) as attribute<br>//<br>// 
+    2. xy (node only)<br>// in constructor,<br>// not redundant<br>// get/set 
+    by getXY() / setXY()<br>// loaded/ stored (new format): as attributes x, y<br>// 
+    imported (old format) as attributes x, y<br>//<br>// 3. node1 / node2 
+    (edge only)<br>// in constructor<br>// not redundant,<br>// get by 
+    getNode1/2, no set<br>// not loaded/ stored (new format), see n1, n2 
+    instead<br>// not imported (old format), see n1, n2 instead<br>//<br>// 4. 
+    color (node and edge)<br>// in constructor,<br>// not redundant,<br>// 
+    get/set by getColor(Color) / setColor (String)<br>// loaded/ stored (new 
+    format): as attribute (String)<br>// imported (old format) as attributes 
+    r, g, b<br>//<br>// 5. label (node)<br>// in constructor<br>// not 
+    redundant,<br>// get/set by getLabel / setLabel<br>// loaded/ stored (new 
+    format) as cdata<br>// imported (old format) as topname&gt;\&lt;basename&gt;\cdata<br>//<br>// 
+    6. detail (node and edge)<br>// in constructor<br>// not redundant,<br>// 
+    get/set by getDetail / setDetail<br>// loaded/ stored (new format) as cdata<br>// 
+    imported (old format) as &lt;description&gt;\cdata<br>//<br>// 7. n1 / n2 
+    (edge only)<br>// not in constructor<br>// redundant, see node1 / node2<br>// 
+    get by getN1/2, no set<br>// loaded/ stored (new format) as attributes<br>// 
+    imported (old format) as &lt;assocrl anchrole=tt-topic[12]&gt;\cdata<br>//<br>// 
+    8. associations (node only)<br>// not in constructor<br>// redundant, see 
+    egdes<br>// get by getEdges, relatedNode; set by addEdge, removeEdge<br>// 
+    not loaded/ stored (new format)<br>// not imported (old format)<br>//<br>
+  </body>
+</html>
+</div>
+<div id="152" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="151" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="150" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="149" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="148" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="147" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="146" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="145" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="144" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="143" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    //Main fields<br>
+  </body>
+</html>
+</div>
+<div id="142" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Hashtable<integer graphnode="#DEFAULT"><br>
+  </body>
+</html>
+</div>
+<div id="141" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Hashtable<integer graphedge="#DEFAULT"><br>
+  </body>
+</html>
+</div>
+<div id="140" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    <u>GraphPanel</u><br>
+  </body>
+</html>
+</div>
+<div id="139" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    TextEditorPanel<br>&quot;= new <u>TextEditorPanel</u>(this);&quot;
+  </body>
+</html>
+</div>
+<div id="138" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="137" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    // User Interface<br>
+  </body>
+</html>
+</div>
+<div id="136" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    public JFrame<br>
+  </body>
+</html>
+</div>
+<div id="135" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    public Container<br>Content Pane
+  </body>
+</html>
+</div>
+<div id="134" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    JPanel<br>&quot;= null;&quot;
+  </body>
+</html>
+</div>
+<div id="133" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    JTextField<br>&quot;= null;&quot;
+  </body>
+</html>
+</div>
+<div id="132" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    private<br>
+  </body>
+</html>
+</div>
+<div id="131" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    JMenuBar<br>&quot;= null;&quot;
+  </body>
+</html>
+</div>
+<div id="130" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    int<br>
+  </body>
+</html>
+</div>
+<div id="129" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    boolean<br>&quot;= true;&quot;
+  </body>
+</html>
+</div>
+<div id="128" style="display: none;">JMenuItem<br />"= null;"
+</div>
+<div id="127" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    JCheckBoxMenuItem<br>&quot;= null;&quot;
+  </body>
+</html>
+</div>
+<div id="126" style="display: none;">JCheckBoxMenuItem<br />"= null;"
+</div>
+<div id="125" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    JCheckBoxMenuItem<br>&quot;= null;&quot;
+  </body>
+</html>
+</div>
+<div id="124" style="display: none;">JCheckBoxMenuItem<br />"= null;"
+</div>
+<div id="123" style="display: none;">JCheckBoxMenuItem<br />"= null;"
+</div>
+<div id="122" style="display: none;">JCheckBoxMenuItem<br />"= null;"
+</div>
+<div id="121" style="display: none;">JCheckBoxMenuItem<br />"= null;"
+</div>
+<div id="120" style="display: none;">JCheckBoxMenuItem<br />"= null;"
+</div>
+<div id="119" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    String []<br>&quot;= { &quot;&quot;Click to disable editing in the detail pane but enable 
+    hyperlinks&quot;&quot;,&quot;&quot;Click to enable editing in the detail pane but disable 
+    hyperlinks&quot;&quot;};&quot;
+  </body>
+</html>
+</div>
+<div id="118" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    String []<br>&quot;= { &quot;&quot;Click to disable hyperlinks but enable editing in the 
+    detail pane&quot;&quot;,&quot;&quot;Click to enable hyperlinks but disable editing in the 
+    detail pane&quot;&quot;};&quot;
+  </body>
+</html>
+</div>
+<div id="117" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    String []<br>&quot;= {&quot;&quot;Editing is now enabled. But unfortunately,\n&quot;&quot; 
+    +&quot;&quot;hyperlinks will not work any more.&quot;&quot;,&quot;&quot;Hyperlinks are now enabled. But 
+    unfortunately,\n&quot;&quot; +&quot;&quot;editing the detail text is now impossible.&quot;&quot;};&quot;
+  </body>
+</html>
+</div>
+<div id="116" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    String []<br>&quot;= {&quot;&quot;off&quot;&quot;, &quot;&quot;on&quot;&quot;};&quot;
+  </body>
+</html>
+</div>
+<div id="115" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    String []<br>&quot;= {&quot;&quot;Hide&quot;&quot;, &quot;&quot;Show&quot;&quot;};&quot;
+  </body>
+</html>
+</div>
+<div id="114" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    public String<br>&quot;= &quot;&quot; ******** Provisional BANNER ********* &quot;&quot; +&quot;&quot;\r\n 
+    This is My Tool, Release 18 &quot;&quot; + &quot;&quot;\r\n running on Java version &quot;&quot; + 
+    System.getProperty(&quot;&quot;java.version&quot;&quot;) +&quot;&quot;\r\n using components of 
+    de.deepamehta &quot;&quot; + &quot;&quot;\r\n and edu.uci.ics.jung under GPL&quot;&quot; +&quot;&quot;\r\n 
+    ******** Pro&quot;
+  </body>
+</html>
+</div>
+<div id="113" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    public String<br>&quot;= &quot;&quot;No preferences yet (no installation)&quot;&quot;;&quot;
+  </body>
+</html>
+</div>
+<div id="112" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    //Graphics accessories<br>
+  </body>
+</html>
+</div>
+<div id="111" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    String [][]<br>&quot;= {{&quot;&quot;#b200b2&quot;&quot;, &quot;&quot;#0000ff&quot;&quot;, &quot;&quot;#00ff00&quot;&quot;, &quot;&quot;#ffff00&quot;&quot;, // 
+    purple, blue, green, yellow&quot;&quot;#ffc800&quot;&quot;, &quot;&quot;#ff0000&quot;&quot;, &quot;&quot;#c0c0c0&quot;&quot;, 
+    &quot;&quot;#808080&quot;&quot;},// orange, red, pale, dark{&quot;&quot;#d2bbd2&quot;&quot;, &quot;&quot;#bbbbff&quot;&quot;, 
+    &quot;&quot;#bbffbb&quot;&quot;, &quot;&quot;#ffff99&quot;&quot;, &quot;&quot;#ffe8aa&quot;&quot;, &quot;&quot;#ffbbbb&quot;&quot;, &quot;&quot;#eeeeee&quot;&quot;, 
+    &quot;&quot;#ccdddd&quot;&quot;}};//&quot;&quot;#ffe8aa&quot;&quot;, &quot;&quot;#ff&quot;
+  </body>
+</html>
+</div>
+<div id="110" style="display: none;">String [][]<br />"= {{""#b200b2"", ""#0000ff"", ""#00ff00"", ""#ffff00"", ""#ffc800"", ""#ff0000"", ""#d8d8d8"", ""#a0a0a0""},""{""#d2bbd2"", ""#bbbbff"", ""#bbffbb"", ""#ffff99"", ""#ffe8aa"", ""#ffbbbb"", ""#f0f0f0"", ""#c0c0c0""}};"<br />
+</div>
+<div id="109" style="display: none;">String [][]<br />"= {{""#b200b2"", ""#0000ff"", ""#00ff00"", ""#ffff00"", ""#ffc800"", ""#ff0000"", ""#c0c0c0"", ""#808080""},""{""#b277b2"", ""#7777ff"", ""#77ff77"", ""#ffff77"", ""#ffc877"", ""#ff7777"", ""#d8d8d8"", ""#b0b0b0""}};"<br />
+</div>
+<div id="108" style="display: none;">Point<br />"= null;"
+</div>
+<div id="107" style="display: none;">Point<br />"= new Point(0, 0);"
+</div>
+<div id="106" style="display: none;">Point<br />"= new Point(2, 2);"
+</div>
+<div id="105" style="display: none;">Point<br />"= new Point(3, 0);"
+</div>
+<div id="104" style="display: none;">Point<br />"= null;"
+</div>
+<div id="103" style="display: none;">Rectangle<br />"= new Rectangle(2, 2, 2, 2);"
+</div>
+<div id="102" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    <u>CentralityColoring</u><br>
+  </body>
+</html>
+</div>
+<div id="101" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    // Input/ output accessories<br>
+  </body>
+</html>
+</div>
+<div id="100" style="display: none;">NewStuff<br />"= null;"
+</div>
+<div id="99" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    <u>CompositionWindow</u><br>&quot;= null;&quot;
+  </body>
+</html>
+</div>
+<div id="98" style="display: none;">String<br />"= """";"
+</div>
+<div id="97" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    int<br>&quot;= 0;&quot;
+  </body>
+</html>
+</div>
+<div id="96" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    String<br><br><br><br>
+  </body>
+</html>
+</div>
+<div id="95" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    String = &quot;&quot;;<br>
+  </body>
+</html>
+</div>
+<div id="94" style="display: none;">String<br />"= """";"
+</div>
+<div id="93" style="display: none;">String<br />"= """";"
+</div>
+<div id="92" style="display: none;">boolean<br />"= true;"
+</div>
+<div id="91" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    //Toggles<br>
+  </body>
+</html>
+</div>
+<div id="90" style="display: none;">=> hide classicMenu 
+</div>
+<div id="89" style="display: none;">boolean<br />"= false;"
+</div>
+<div id="88" style="display: none;">boolean<br />"= false;"
+</div>
+<div id="87" style="display: none;">boolean<br />"= true;"
+</div>
+<div id="86" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    int<br>&quot;= 1;&quot;
+  </body>
+</html>
+</div>
+<div id="85" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    // Placeholders<br>
+  </body>
+</html>
+</div>
+<div id="84" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    GraphNode<br>&quot;= new GraphNode(-1, null, null, null, null);&quot;
+  </body>
+</html>
+</div>
+<div id="83" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    GraphNode<br>&quot;= dummyNode;// TODO integrate into Selection()&quot;
+  </body>
+</html>
+</div>
+<div id="82" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    GraphEdge<br>&quot;= new GraphEdge(-1, dummyNode, dummyNode, null, null);&quot;
+  </body>
+</html>
+</div>
+<div id="81" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    GraphEdge<br>&quot;= dummyEdge;&quot;
+  </body>
+</html>
+</div>
+<div id="80" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    &quot;=\&quot;&quot;gray\&quot;&quot;&gt;&quot;&quot; +&quot;&quot;<em>Click 
+    a node for its details, ALT+drag &quot;&quot; +&quot;&quot;a node to connect it.&quot;&quot; + &quot;&quot;<br>&#160;<br>For 
+    help, right-click &quot;&quot; + &quot;&quot;the canvas background.</em>
+  </body>
+</html>
+</div>
+<div id="79" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Selection<br>&quot;= null;&quot;
+  </body>
+</html>
+</div>
+<div id="78" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    The overall structure is a JSplitPane.<br><br>The left pane is the <b>GraphPanel</b>.<br><br>The 
+    right pane constists of<br>-- a <b>labelBox</b> with the labelField<br>-- 
+    a <b>detailBox</b> carrying a <u>TextEditorPanel()</u>
+  </body>
+</html>
+</div>
+<div id="77" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    This is the Bold + special function. Read the tooltip of the &quot;B+&quot; button 
+    in the lower right.
+  </body>
+</html>
+</div>
+<div id="76" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="75" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="74" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="73" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="72" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="71" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="70" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="69" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="68" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="67" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="66" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="65" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="64" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="63" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="62" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="61" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="60" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Process menu clicks
+  </body>
+</html>
+</div>
+<div id="59" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Main window<br>
+  </body>
+</html>
+</div>
+<div id="58" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    () {...}
+  </body>
+</html>
+</div>
+<div id="57" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (Graphics)
+  </body>
+</html>
+</div>
+<div id="56" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    () {...}
+  </body>
+</html>
+</div>
+<div id="55" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (WindowEvent)
+  </body>
+</html>
+</div>
+<div id="54" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="53" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="52" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (String, int, int)
+  </body>
+</html>
+</div>
+<div id="51" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (PopupMenuEvent)
+  </body>
+</html>
+</div>
+<div id="50" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (PopupMenuEvent)
+  </body>
+</html>
+</div>
+<div id="49" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (PopupMenuEvent)
+  </body>
+</html>
+</div>
+<div id="48" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (boolean)
+  </body>
+</html>
+</div>
+<div id="47" style="display: none;">(int, String, String, boolean)</div>
+<div id="46" style="display: none;">(String)</div>
+<div id="45" style="display: none;">()</div>
+<div id="44" style="display: none;">(int)</div>
+<div id="43" style="display: none;">()</div>
+<div id="42" style="display: none;">()</div>
+<div id="41" style="display: none;">(boolean)</div>
+<div id="40" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    just for optics
+  </body>
+</html>
+</div>
+<div id="39" style="display: none;">()</div>
+<div id="38" style="display: none;">(String, int)</div>
+<div id="37" style="display: none;">()</div>
+<div id="36" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (String)
+  </body>
+</html>
+</div>
+<div id="35" style="display: none;">(String)</div>
+<div id="34" style="display: none;">()</div>
+<div id="33" style="display: none;">()</div>
+<div id="32" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphNode)
+  </body>
+</html>
+</div>
+<div id="31" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphEdge)
+  </body>
+</html>
+</div>
+<div id="30" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphNode)
+  </body>
+</html>
+</div>
+<div id="29" style="display: none;">(GraphEdge)</div>
+<div id="28" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="27" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    just for optics
+  </body>
+</html>
+</div>
+<div id="26" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (Point)
+  </body>
+</html>
+</div>
+<div id="25" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphNode, GraphNode)
+  </body>
+</html>
+</div>
+<div id="24" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (Set<integer>)
+  </body>
+</html>
+</div>
+<div id="23" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphNode)
+  </body>
+</html>
+</div>
+<div id="22" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphEdge)
+  </body>
+</html>
+</div>
+<div id="21" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphEdge, boolean)
+  </body>
+</html>
+</div>
+<div id="20" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="19" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="18" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (String)
+  </body>
+</html>
+</div>
+<div id="17" style="display: none;">()</div>
+<div id="16" style="display: none;">()</div>
+<div id="15" style="display: none;">()</div>
+<div id="14" style="display: none;">()</div>
+<div id="13" style="display: none;">()</div>
+<div id="12" style="display: none;">()</div>
+<div id="11" style="display: none;">(int)</div>
+<div id="10" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="9" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="8" style="display: none;">()</div>
+<div id="7" style="display: none;">(int)</div>
+<div id="6" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="5" style="display: none;">()</div>
+<div id="4" style="display: none;">()</div>
+<div id="3" style="display: none;">()</div>
+<div id="2" style="display: none;">()</div>
+<div id="1" style="display: none;">(boolean)</div><script> 
+function main() { 
+var nodes = [ 
+{x: 543, y: 499, rgb: '#ffff00', label: '', id: '153'},  
+{x: 629, y: 409, rgb: '#bbffbb', label: 'Containers', id: '152'},  
+{x: 653, y: 1026, rgb: '#bbffbb', label: 'Text constants', id: '151'},  
+{x: 1176, y: 729, rgb: '#bbffbb', label: 'output', id: '150'},  
+{x: 1178, y: 512, rgb: '#bbffbb', label: 'input', id: '149'},  
+{x: 1492, y: 742, rgb: '#bbffbb', label: 'Points', id: '148'},  
+{x: 1480, y: 551, rgb: '#bbffbb', label: 'colors', id: '147'},  
+{x: 224, y: 363, rgb: '#bbffbb', label: 'Fields grouping', id: '146'},  
+{x: 666, y: 864, rgb: '#bbffbb', label: 'Toggles', id: '145'},  
+{x: 620, y: 780, rgb: '#bbffbb', label: 'Menu Accessories', id: '144'},  
+{x: 369, y: 577, rgb: '#00ff00', label: 'Main fields', id: '143'},  
+{x: 469, y: 479, rgb: '#ccdddd', label: '"nodes;"', id: '142'},  
+{x: 470, y: 536, rgb: '#ccdddd', label: '"edges;"', id: '141'},  
+{x: 472, y: 615, rgb: '#ccdddd', label: '"graphPanel;"', id: '140'},  
+{x: 472, y: 676, rgb: '#ccdddd', label: 'edi ', id: '139'},  
+{x: 572, y: 569, rgb: '#bbffbb', label: 'GUI', id: '138'},  
+{x: 691, y: 385, rgb: '#ccdddd', label: 'User Interface', id: '137'},  
+{x: 772, y: 372, rgb: '#ccdddd', label: '"mainWindow;"', id: '136'},  
+{x: 841, y: 360, rgb: '#ccdddd', label: '"cp;"', id: '135'},  
+{x: 897, y: 349, rgb: '#ccdddd', label: 'labelBox ', id: '134'},  
+{x: 963, y: 332, rgb: '#ccdddd', label: 'labelField ', id: '133'},  
+{x: 725, y: 517, rgb: '#ccdddd', label: '"JButton OK;"', id: '132'},  
+{x: 731, y: 638, rgb: '#ccdddd', label: 'myMenuBar ', id: '131'},  
+{x: 722, y: 747, rgb: '#ccdddd', label: '"shortcutMask;"', id: '130'},  
+{x: 746, y: 847, rgb: '#ccdddd', label: 'showMenuBar ', id: '129'},  
+{x: 861, y: 433, rgb: '#ccdddd', label: 'menuItem21 ', id: '128'},  
+{x: 861, y: 483, rgb: '#ccdddd', label: 'menuItem22 ', id: '127'},  
+{x: 861, y: 533, rgb: '#ccdddd', label: 'menuItem23 ', id: '126'},  
+{x: 860, y: 589, rgb: '#ccdddd', label: 'menuItem41 ', id: '125'},  
+{x: 863, y: 643, rgb: '#ccdddd', label: 'menuItem42 ', id: '124'},  
+{x: 863, y: 693, rgb: '#ccdddd', label: 'menuItem43 ', id: '123'},  
+{x: 863, y: 743, rgb: '#ccdddd', label: 'menuItem45 ', id: '122'},  
+{x: 863, y: 793, rgb: '#ccdddd', label: 'menuItem51 ', id: '121'},  
+{x: 863, y: 843, rgb: '#ccdddd', label: 'menuItem52 ', id: '120'},  
+{x: 977, y: 481, rgb: '#ccdddd', label: 'tooltip22 ', id: '119'},  
+{x: 969, y: 588, rgb: '#ccdddd', label: 'tooltip41 ', id: '118'},  
+{x: 970, y: 531, rgb: '#ccdddd', label: 'popupHyp ', id: '117'},  
+{x: 747, y: 955, rgb: '#ccdddd', label: 'onOff ', id: '116'},  
+{x: 745, y: 900, rgb: '#ccdddd', label: 'showHide ', id: '115'},  
+{x: 745, y: 1006, rgb: '#ccdddd', label: 'about ', id: '114'},  
+{x: 745, y: 1056, rgb: '#ccdddd', label: 'preferences ', id: '113'},  
+{x: 1429, y: 644, rgb: '#bbffbb', label: 'Graphics accessories', id: '112'},  
+{x: 1565, y: 477, rgb: '#ccdddd', label: 'nodePalette ', id: '111'},  
+{x: 1565, y: 527, rgb: '#ccdddd', label: 'edgePalette ', id: '110'},  
+{x: 1565, y: 577, rgb: '#ccdddd', label: 'menuPalette ', id: '109'},  
+{x: 1565, y: 627, rgb: '#ccdddd', label: 'clickedSpot ', id: '108'},  
+{x: 1565, y: 677, rgb: '#ccdddd', label: 'translation ', id: '107'},  
+{x: 1566, y: 733, rgb: '#ccdddd', label: 'roomNeeded ', id: '106'},  
+{x: 1566, y: 783, rgb: '#ccdddd', label: 'upperLeft ', id: '105'},  
+{x: 1566, y: 833, rgb: '#ccdddd', label: 'insertion ', id: '104'},  
+{x: 1566, y: 883, rgb: '#ccdddd', label: 'bounds ', id: '103'},  
+{x: 1474, y: 848, rgb: '#ccdddd', label: '"centralityColoring;"', id: '102'},  
+{x: 1110, y: 620, rgb: '#bbffbb', label: 'Input/ output accessories', id: '101'},  
+{x: 1263, y: 445, rgb: '#ccdddd', label: 'newStuff ', id: '100'},  
+{x: 1263, y: 495, rgb: '#ccdddd', label: 'compositionWindow ', id: '99'},  
+{x: 1263, y: 545, rgb: '#ccdddd', label: 'dataString ', id: '98'},  
+{x: 1265, y: 598, rgb: '#ccdddd', label: 'inputType ', id: '97'},  
+{x: 1265, y: 648, rgb: '#ccdddd', label: '"baseDir;"', id: '96'},  
+{x: 1265, y: 699, rgb: '#ccdddd', label: 'filename', id: '95'},  
+{x: 1265, y: 748, rgb: '#ccdddd', label: 'confirmedFilename ', id: '94'},  
+{x: 1265, y: 798, rgb: '#ccdddd', label: 'lastHTMLFilename ', id: '93'},  
+{x: 1265, y: 848, rgb: '#ccdddd', label: 'maybeJustPeek ', id: '92'},  
+{x: 1732, y: 557, rgb: '#bbffbb', label: 'Toggles', id: '91'},  
+{x: 1835, y: 429, rgb: '#ccdddd', label: 'toggle4 ', id: '90'},  
+{x: 1835, y: 479, rgb: '#ccdddd', label: 'isDirty ', id: '89'},  
+{x: 1834, y: 537, rgb: '#ccdddd', label: 'presoSizedMode ', id: '88'},  
+{x: 1834, y: 587, rgb: '#ccdddd', label: 'contextPasteAllowed ', id: '87'},  
+{x: 1834, y: 637, rgb: '#ccdddd', label: 'paletteID ', id: '86'},  
+{x: 1731, y: 821, rgb: '#bbffbb', label: 'Placeholders', id: '85'},  
+{x: 1831, y: 795, rgb: '#ccdddd', label: 'dummyNode ', id: '84'},  
+{x: 1906, y: 781, rgb: '#ccdddd', label: 'selectedTopic ', id: '83'},  
+{x: 1832, y: 859, rgb: '#ccdddd', label: 'dummyEdge ', id: '82'},  
+{x: 1911, y: 861, rgb: '#ccdddd', label: 'selectedAssoc ', id: '81'},  
+{x: 1828, y: 925, rgb: '#ccdddd', label: 'initText ', id: '80'},  
+{x: 1800, y: 692, rgb: '#ccdddd', label: 'selection ', id: '79'},  
+{x: 587, y: 55, rgb: '#ffff00', label: '', id: '78'},  
+{x: 1571, y: 158, rgb: '#ffff00', label: '', id: '77'},  
+{x: 227, y: 413, rgb: '#ffff00', label: 'Notes', id: '76'},  
+{x: 227, y: 256, rgb: '#ffbbbb', label: 'Methods grouping', id: '75'},  
+{x: 225, y: 308, rgb: '#ccdddd', label: 'Methods and Fields', id: '74'},  
+{x: 147, y: 311, rgb: '#eeeeee', label: 'Legend:', id: '73'},  
+{x: 1900, y: 357, rgb: '#ffbbbb', label: 'Communication with other clases', id: '72'},  
+{x: 1897, y: 146, rgb: '#ffbbbb', label: 'Misc and temp', id: '71'},  
+{x: 1891, y: -210, rgb: '#ffbbbb', label: 'Accessories for cursors and carets', id: '70'},  
+{x: 1520, y: -11, rgb: '#ff0000', label: 'Start of non-trivial processing	', id: '69'},  
+{x: 1173, y: 212, rgb: '#ffbbbb', label: 'Selection processing ', id: '68'},  
+{x: 1164, y: -46, rgb: '#ffbbbb', label: 'Saving and Finishing', id: '67'},  
+{x: 1159, y: -228, rgb: '#ff0000', label: 'Starts here', id: '66'},  
+{x: 783, y: -18, rgb: '#ffbbbb', label: 'Toggles', id: '65'},  
+{x: 775, y: -222, rgb: '#ffbbbb', label: 'Accessories', id: '64'},  
+{x: 350, y: 134, rgb: '#ffbbbb', label: 'Menus', id: '63'},  
+{x: 349, y: -54, rgb: '#ffbbbb', label: 'Main Window', id: '62'},  
+{x: 345, y: -228, rgb: '#ffbbbb', label: 'Process menu clicks', id: '61'},  
+{x: 485, y: -227, rgb: '#ccdddd', label: 'actionPerformed', id: '60'},  
+{x: 473, y: -111, rgb: '#ccdddd', label: 'createMainWindow', id: '59'},  
+{x: 512, y: -148, rgb: '#ccdddd', label: 'new JFrame', id: '58'},  
+{x: 567, y: -171, rgb: '#ccdddd', label: 'paint', id: '57'},  
+{x: 515, y: -66, rgb: '#ccdddd', label: 'new WindowAdapter', id: '56'},  
+{x: 556, y: -24, rgb: '#ccdddd', label: 'windowClosing', id: '55'},  
+{x: 469, y: 9, rgb: '#ccdddd', label: 'createMainGUI', id: '54'},  
+{x: 474, y: 85, rgb: '#ccdddd', label: 'createMenuBar', id: '53'},  
+{x: 478, y: 167, rgb: '#ccdddd', label: 'displayContextMenu', id: '52'},  
+{x: 530, y: 134, rgb: '#ccdddd', label: 'popupMenuCanceled', id: '51'},  
+{x: 535, y: 208, rgb: '#ccdddd', label: 'popupMenuWillBecomeInvisible', id: '50'},  
+{x: 536, y: 261, rgb: '#ccdddd', label: 'popupMenuWillBecomeVisible', id: '49'},  
+{x: 913, y: -296, rgb: '#ccdddd', label: 'setSystemUI', id: '48'},  
+{x: 913, y: -246, rgb: '#ccdddd', label: 'styleSwitcher', id: '47'},  
+{x: 913, y: -196, rgb: '#ccdddd', label: 'displayPopup', id: '46'},  
+{x: 913, y: -146, rgb: '#ccdddd', label: 'displayHelp', id: '45'},  
+{x: 909, y: -89, rgb: '#ccdddd', label: 'toggleHyp', id: '44'},  
+{x: 909, y: -39, rgb: '#ccdddd', label: 'toggleClassicMenu', id: '43'},  
+{x: 909, y: 11, rgb: '#ccdddd', label: 'openComposition', id: '42'},  
+{x: 909, y: 61, rgb: '#ccdddd', label: 'setDirty', id: '41'},  
+{x: 787, y: 121, rgb: '#ccdddd', label: 'ssssssssssseparator1', id: '40'},  
+{x: 1296, y: -276, rgb: '#ccdddd', label: 'run', id: '39'},  
+{x: 1296, y: -226, rgb: '#ccdddd', label: 'setFilename', id: '38'},  
+{x: 1296, y: -176, rgb: '#ccdddd', label: 'initialize', id: '37'},  
+{x: 1299, y: -115, rgb: '#ccdddd', label: 'askForFilename', id: '36'},  
+{x: 1299, y: -65, rgb: '#ccdddd', label: 'startStoring', id: '35'},  
+{x: 1299, y: -15, rgb: '#ccdddd', label: 'startExport', id: '34'},  
+{x: 1299, y: 35, rgb: '#ccdddd', label: 'close', id: '33'},  
+{x: 1298, y: 96, rgb: '#ccdddd', label: 'deselect', id: '32'},  
+{x: 1298, y: 146, rgb: '#ccdddd', label: 'deselect', id: '31'},  
+{x: 1294, y: 207, rgb: '#ccdddd', label: 'nodeSelected', id: '30'},  
+{x: 1294, y: 257, rgb: '#ccdddd', label: 'edgeSelected', id: '29'},  
+{x: 1294, y: 321, rgb: '#ccdddd', label: 'graphSelected', id: '28'},  
+{x: 1179, y: 386, rgb: '#ccdddd', label: 'ssssssssssseparator2', id: '27'},  
+{x: 1619, y: -190, rgb: '#ccdddd', label: 'createNode', id: '26'},  
+{x: 1622, y: -123, rgb: '#ccdddd', label: 'createEdge', id: '25'},  
+{x: 1701, y: -201, rgb: '#ccdddd', label: 'newKey', id: '24'},  
+{x: 1622, y: -33, rgb: '#ccdddd', label: 'deleteNode', id: '23'},  
+{x: 1623, y: 34, rgb: '#ccdddd', label: 'deleteEdge', id: '22'},  
+{x: 1676, y: 80, rgb: '#ccdddd', label: 'deleteEdge', id: '21'},  
+{x: 1705, y: -144, rgb: '#ccdddd', label: 'getBounds', id: '20'},  
+{x: 1704, y: -81, rgb: '#ccdddd', label: 'updateBounds', id: '19'},  
+{x: 1629, y: 139, rgb: '#ccdddd', label: 'addToLabel', id: '18'},  
+{x: 2006, y: -376, rgb: '#ccdddd', label: 'beginTranslation', id: '17'},  
+{x: 2006, y: -326, rgb: '#ccdddd', label: 'beginCreatingEdge', id: '16'},  
+{x: 2006, y: -276, rgb: '#ccdddd', label: 'setWaitCursor', id: '15'},  
+{x: 2006, y: -226, rgb: '#ccdddd', label: 'setHandCursor', id: '14'},  
+{x: 2006, y: -176, rgb: '#ccdddd', label: 'setCrosshairCursor', id: '13'},  
+{x: 2006, y: -126, rgb: '#ccdddd', label: 'setDefaultCursor', id: '12'},  
+{x: 2006, y: -76, rgb: '#ccdddd', label: 'setMouseCursor', id: '11'},  
+{x: 2007, y: -21, rgb: '#ccdddd', label: 'beginLongTask', id: '10'},  
+{x: 2007, y: 29, rgb: '#ccdddd', label: 'endTask', id: '9'},  
+{x: 2010, y: 89, rgb: '#ccdddd', label: 'findAboutFocus', id: '8'},  
+{x: 2010, y: 139, rgb: '#ccdddd', label: 'manip', id: '7'},  
+{x: 2010, y: 189, rgb: '#ccdddd', label: 'launchSibling', id: '6'},  
+{x: 2010, y: 239, rgb: '#ccdddd', label: 'getNSInstance', id: '5'},  
+{x: 2010, y: 289, rgb: '#ccdddd', label: 'getCWInstance', id: '4'},  
+{x: 2010, y: 339, rgb: '#ccdddd', label: 'finishCompositionMode', id: '3'},  
+{x: 2010, y: 389, rgb: '#ccdddd', label: 'getNewNodeColor', id: '2'},  
+{x: 2010, y: 439, rgb: '#ccdddd', label: 'triggerUpdate', id: '1'} 
+]; 
+var edges = [ 
+{n1: 0, n2: 12, rgb: '#ffff00'},  
+{n1: 0, n2: 11, rgb: '#ffff00'},  
+{n1: 10, n2: 15, rgb: '#bbffbb'},  
+{n1: 62, n2: 68, rgb: '#bbffbb'},  
+{n1: 41, n2: 62, rgb: '#bbffbb'},  
+{n1: 52, n2: 41, rgb: '#bbffbb'},  
+{n1: 15, n2: 52, rgb: '#bbffbb'},  
+{n1: 15, n2: 9, rgb: '#bbffbb'},  
+{n1: 15, n2: 1, rgb: '#bbffbb'},  
+{n1: 1, n2: 16, rgb: '#c0c0c0'},  
+{n1: 9, n2: 2, rgb: '#bbffbb'},  
+{n1: 2, n2: 40, rgb: '#c0c0c0'},  
+{n1: 2, n2: 39, rgb: '#c0c0c0'},  
+{n1: 68, n2: 73, rgb: '#c0c0c0'},  
+{n1: 62, n2: 74, rgb: '#c0c0c0'},  
+{n1: 71, n2: 72, rgb: '#c0c0c0'},  
+{n1: 68, n2: 71, rgb: '#c0c0c0'},  
+{n1: 69, n2: 70, rgb: '#c0c0c0'},  
+{n1: 68, n2: 69, rgb: '#c0c0c0'},  
+{n1: 62, n2: 67, rgb: '#c0c0c0'},  
+{n1: 62, n2: 66, rgb: '#c0c0c0'},  
+{n1: 62, n2: 65, rgb: '#c0c0c0'},  
+{n1: 52, n2: 3, rgb: '#bbffbb'},  
+{n1: 62, n2: 64, rgb: '#c0c0c0'},  
+{n1: 62, n2: 63, rgb: '#c0c0c0'},  
+{n1: 3, n2: 61, rgb: '#c0c0c0'},  
+{n1: 3, n2: 60, rgb: '#c0c0c0'},  
+{n1: 3, n2: 59, rgb: '#c0c0c0'},  
+{n1: 3, n2: 58, rgb: '#c0c0c0'},  
+{n1: 3, n2: 57, rgb: '#c0c0c0'},  
+{n1: 4, n2: 56, rgb: '#c0c0c0'},  
+{n1: 4, n2: 55, rgb: '#c0c0c0'},  
+{n1: 52, n2: 4, rgb: '#bbffbb'},  
+{n1: 4, n2: 54, rgb: '#c0c0c0'},  
+{n1: 4, n2: 53, rgb: '#c0c0c0'},  
+{n1: 41, n2: 51, rgb: '#c0c0c0'},  
+{n1: 41, n2: 5, rgb: '#bbffbb'},  
+{n1: 5, n2: 50, rgb: '#c0c0c0'},  
+{n1: 5, n2: 49, rgb: '#c0c0c0'},  
+{n1: 5, n2: 48, rgb: '#c0c0c0'},  
+{n1: 5, n2: 47, rgb: '#c0c0c0'},  
+{n1: 5, n2: 46, rgb: '#c0c0c0'},  
+{n1: 5, n2: 45, rgb: '#c0c0c0'},  
+{n1: 41, n2: 6, rgb: '#bbffbb'},  
+{n1: 6, n2: 44, rgb: '#c0c0c0'},  
+{n1: 6, n2: 43, rgb: '#c0c0c0'},  
+{n1: 6, n2: 42, rgb: '#c0c0c0'},  
+{n1: 80, n2: 7, rgb: '#c0c0c0'},  
+{n1: 9, n2: 8, rgb: '#bbffbb'},  
+{n1: 15, n2: 21, rgb: '#c0c0c0'},  
+{n1: 8, n2: 38, rgb: '#c0c0c0'},  
+{n1: 8, n2: 37, rgb: '#c0c0c0'},  
+{n1: 8, n2: 24, rgb: '#c0c0c0'},  
+{n1: 23, n2: 9, rgb: '#c0c0c0'},  
+{n1: 15, n2: 22, rgb: '#c0c0c0'},  
+{n1: 28, n2: 36, rgb: '#c0c0c0'},  
+{n1: 26, n2: 36, rgb: '#c0c0c0'},  
+{n1: 28, n2: 35, rgb: '#c0c0c0'},  
+{n1: 26, n2: 34, rgb: '#c0c0c0'},  
+{n1: 22, n2: 33, rgb: '#c0c0c0'},  
+{n1: 22, n2: 32, rgb: '#c0c0c0'},  
+{n1: 22, n2: 31, rgb: '#c0c0c0'},  
+{n1: 22, n2: 30, rgb: '#c0c0c0'},  
+{n1: 22, n2: 29, rgb: '#c0c0c0'},  
+{n1: 22, n2: 28, rgb: '#c0c0c0'},  
+{n1: 22, n2: 27, rgb: '#c0c0c0'},  
+{n1: 22, n2: 26, rgb: '#c0c0c0'},  
+{n1: 22, n2: 25, rgb: '#c0c0c0'},  
+{n1: 18, n2: 19, rgb: '#c0c0c0'},  
+{n1: 19, n2: 20, rgb: '#c0c0c0'},  
+{n1: 17, n2: 18, rgb: '#c0c0c0'},  
+{n1: 16, n2: 17, rgb: '#c0c0c0'},  
+{n1: 10, n2: 14, rgb: '#c0c0c0'},  
+{n1: 10, n2: 13, rgb: '#c0c0c0'},  
+{n1: 10, n2: 12, rgb: '#c0c0c0'},  
+{n1: 10, n2: 11, rgb: '#c0c0c0'},  
+{n1: 75, n2: 99, rgb: '#ffff00'},  
+{n1: 76, n2: 135, rgb: '#ffff00'},  
+{n1: 77, n2: 80, rgb: '#ffff00'},  
+{n1: 80, n2: 78, rgb: '#c0c0c0'},  
+{n1: 80, n2: 79, rgb: '#c0c0c0'},  
+{n1: 126, n2: 84, rgb: '#ffbbbb'},  
+{n1: 84, n2: 83, rgb: '#ffbbbb'},  
+{n1: 90, n2: 89, rgb: '#ffbbbb'},  
+{n1: 92, n2: 91, rgb: '#ffbbbb'},  
+{n1: 113, n2: 87, rgb: '#ffbbbb'},  
+{n1: 88, n2: 113, rgb: '#ffbbbb'},  
+{n1: 89, n2: 88, rgb: '#ffbbbb'},  
+{n1: 91, n2: 90, rgb: '#ffbbbb'},  
+{n1: 85, n2: 126, rgb: '#ffbbbb'},  
+{n1: 83, n2: 82, rgb: '#ffbbbb'},  
+{n1: 82, n2: 81, rgb: '#ffbbbb'},  
+{n1: 86, n2: 85, rgb: '#ffbbbb'},  
+{n1: 87, n2: 86, rgb: '#ffbbbb'},  
+{n1: 81, n2: 152, rgb: '#c0c0c0'},  
+{n1: 81, n2: 151, rgb: '#c0c0c0'},  
+{n1: 81, n2: 150, rgb: '#c0c0c0'},  
+{n1: 81, n2: 149, rgb: '#c0c0c0'},  
+{n1: 81, n2: 148, rgb: '#c0c0c0'},  
+{n1: 82, n2: 147, rgb: '#c0c0c0'},  
+{n1: 82, n2: 146, rgb: '#c0c0c0'},  
+{n1: 82, n2: 145, rgb: '#c0c0c0'},  
+{n1: 83, n2: 144, rgb: '#c0c0c0'},  
+{n1: 83, n2: 143, rgb: '#c0c0c0'},  
+{n1: 83, n2: 142, rgb: '#c0c0c0'},  
+{n1: 83, n2: 141, rgb: '#c0c0c0'},  
+{n1: 83, n2: 140, rgb: '#c0c0c0'},  
+{n1: 83, n2: 139, rgb: '#c0c0c0'},  
+{n1: 83, n2: 138, rgb: '#c0c0c0'},  
+{n1: 83, n2: 137, rgb: '#c0c0c0'},  
+{n1: 83, n2: 136, rgb: '#c0c0c0'},  
+{n1: 84, n2: 135, rgb: '#c0c0c0'},  
+{n1: 128, n2: 134, rgb: '#c0c0c0'},  
+{n1: 128, n2: 133, rgb: '#c0c0c0'},  
+{n1: 84, n2: 131, rgb: '#c0c0c0'},  
+{n1: 127, n2: 129, rgb: '#c0c0c0'},  
+{n1: 131, n2: 132, rgb: '#c0c0c0'},  
+{n1: 84, n2: 130, rgb: '#c0c0c0'},  
+{n1: 128, n2: 129, rgb: '#c0c0c0'},  
+{n1: 84, n2: 128, rgb: '#c0c0c0'},  
+{n1: 84, n2: 127, rgb: '#c0c0c0'},  
+{n1: 85, n2: 122, rgb: '#c0c0c0'},  
+{n1: 85, n2: 121, rgb: '#c0c0c0'},  
+{n1: 85, n2: 125, rgb: '#c0c0c0'},  
+{n1: 85, n2: 124, rgb: '#c0c0c0'},  
+{n1: 85, n2: 123, rgb: '#c0c0c0'},  
+{n1: 86, n2: 120, rgb: '#c0c0c0'},  
+{n1: 86, n2: 119, rgb: '#c0c0c0'},  
+{n1: 86, n2: 118, rgb: '#c0c0c0'},  
+{n1: 86, n2: 117, rgb: '#c0c0c0'},  
+{n1: 87, n2: 116, rgb: '#c0c0c0'},  
+{n1: 87, n2: 115, rgb: '#c0c0c0'},  
+{n1: 87, n2: 114, rgb: '#c0c0c0'},  
+{n1: 88, n2: 112, rgb: '#c0c0c0'},  
+{n1: 88, n2: 111, rgb: '#c0c0c0'},  
+{n1: 88, n2: 110, rgb: '#c0c0c0'},  
+{n1: 88, n2: 109, rgb: '#c0c0c0'},  
+{n1: 89, n2: 108, rgb: '#c0c0c0'},  
+{n1: 89, n2: 107, rgb: '#c0c0c0'},  
+{n1: 89, n2: 106, rgb: '#c0c0c0'},  
+{n1: 89, n2: 105, rgb: '#c0c0c0'},  
+{n1: 101, n2: 104, rgb: '#c0c0c0'},  
+{n1: 101, n2: 103, rgb: '#c0c0c0'},  
+{n1: 101, n2: 102, rgb: '#c0c0c0'},  
+{n1: 90, n2: 101, rgb: '#c0c0c0'},  
+{n1: 90, n2: 100, rgb: '#c0c0c0'},  
+{n1: 91, n2: 100, rgb: '#c0c0c0'},  
+{n1: 91, n2: 99, rgb: '#c0c0c0'},  
+{n1: 91, n2: 94, rgb: '#c0c0c0'},  
+{n1: 92, n2: 93, rgb: '#c0c0c0'},  
+{n1: 97, n2: 98, rgb: '#c0c0c0'},  
+{n1: 94, n2: 97, rgb: '#c0c0c0'},  
+{n1: 96, n2: 95, rgb: '#c0c0c0'},  
+{n1: 94, n2: 95, rgb: '#c0c0c0'} 
+]; 
+
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'), 
+dragging = false, 
+lastX = 0, 
+lastY = 0, 
+translatedX = 0, 
+translatedY = 0; 
+ctx.font = "12px Arial"; 
+
+can.addEventListener('click', function(e) { 
+var evt = e || event; 
+absoluteX = evt.pageX - translatedX - 9; 
+absoluteY = evt.pageY - translatedY - 15; 
+findClicked(absoluteX, absoluteY); 
+}); 
+
+can.addEventListener('mousedown', function(e){ 
+var evt = e || event; 
+dragging = true, 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+}); 
+
+can.addEventListener('mousemove', function(e){ 
+var evt = e || event; 
+if (dragging){ 
+var deltaX = evt.pageX - lastX; 
+var deltaY = evt.pageY - lastY; 
+translatedX += deltaX; 
+translatedY += deltaY; 
+ctx.translate(deltaX, deltaY); 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+draw(); // redraw 
+} 
+}); 
+
+can.addEventListener('mouseup', function(e){ 
+dragging = false; 
+}); 
+
+function draw() { 
+ctx.clearRect(-translatedX, -translatedY, 860, 580); 
+for (var i = 0; i < edges.length; i++) { 
+ctx.strokeStyle = edges[i].rgb; 
+ctx.beginPath(); 
+ctx.moveTo(nodes[edges[i].n1].x, nodes[edges[i].n1].y); 
+ctx.lineTo(nodes[edges[i].n2].x, nodes[edges[i].n2].y); 
+ctx.stroke(); 
+} 
+for (var i = 0; i < nodes.length; i++) { 
+ctx.beginPath(); 
+ctx.fillStyle = nodes[i].rgb; 
+ctx.arc(nodes[i].x, nodes[i].y, 9, 0, 2 * Math.PI); 
+ctx.fill(); 
+ctx.fillStyle = "#000000"; 
+ctx.fillText(nodes[i].label, nodes[i].x - 9, nodes[i].y + 23); 
+} 
+} 
+
+function findClicked(x, y) { 
+for (var i = 0; i < nodes.length; i++) { 
+if (Math.abs(x - nodes[i].x) < 11 && Math.abs(y - nodes[i].y) < 11) { 
+draw(); 
+ctx.strokeStyle = "#ff0000"; 
+ctx.strokeRect(nodes[i].x - 11, nodes[i].y - 11, 22, 22); 
+myFunction(nodes[i].id); 
+} 
+} 
+} 
+
+draw(); 
+} 
+function myDraw(x1, y1, x2, y2) { 
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'); 
+ctx.moveTo(x1, y1); 
+ctx.lineTo(x2, y2); 
+ctx.stroke(); 
+} 
+function myFunction(detail) { 
+var x = document.getElementById(detail).innerHTML; 
+document.getElementById("demo").innerHTML = x; 
+} 
+</script> 
+</body></html> 
