@@ -1,0 +1,327 @@
+<html> 
+<meta charset="iso8859-1"> 
+
+<style> 
+div#demo { 
+margin-left: 870px; 
+} 
+canvas { 
+display: block; border: 1px solid #000; float: left; 
+} 
+</style>
+
+</head> 
+<body onLoad="main()";> 
+
+<canvas id="myCanvas" width="860" height="580"> 
+Your browser does not support the HTML5 canvas tag. 
+</canvas>
+<div id="demo"><em>Drag the clipping to pan the map.</em></div> 
+
+
+<div id="18" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    cotains the About text including the Build number
+  </body>
+</html>
+</div>
+<div id="17" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Adds many kinds of input as drop or paste.<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/NewStuff.java">NewStuff.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="16" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Displays and manipulates the detail text of the currently selected item. 
+    Includes the special function &quot;bold +&quot;.<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/TextEditorPanel.java">TextEditorPanel.java</a><br><br><br>
+  </body>
+</html>
+</div>
+<div id="15" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Generates an HTML5 canvas that can be interactively read<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/MakeHTML.java">MakeHTML.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="14" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Peculiarities required by Mac OSX.<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/AppleHandler.java">AppleHandler.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="13" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    The central building block is a node<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/GraphNode.java">GraphNode.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="12" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Interface<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/GraphPanelControler.java">GraphPanelControler.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="11" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Makes room for new nodes, if appropriate, and adds them to the central 
+    Hashtable<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/IntegrateNodes.java">IntegrateNodes.java</a><br><br><br>
+  </body>
+</html>
+</div>
+<div id="10" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Keeps track of what is currently selected, a node, an edge, or the 
+    background canvas.<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/Selection.java">Selection.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="9" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Saves the map in the old (before release 18) format.<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/TopicMapExporter.java">TopicMapExporter.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="8" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Connects two GraphNodes<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/GraphEdge.java">GraphEdge.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="7" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Looks for newlines to separate the individual items that will become new 
+    nodes, and looks for tab characters that separate their labels from their 
+    detail text.<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/SplitIntoNew.java">SplitIntoNew.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="6" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    A special window where multiple paste and drop inputs may be combined, and 
+    also typed input.<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/CompositionWindow.java">CompositionWindow.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="5" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Starts the program<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/MyTool.java">MyTool.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="4" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Saves the map. Previously in DeepaMehta 2 this was called &quot;export 
+    topicmap&quot;, but is was not a standardized format to be used by other 
+    applications. The new format &quot;x28map&quot; is extremely lean XML documented 
+    here <a href="http://x28hd.de/tool/devel/index.htm">http://x28hd.de/tool/devel/index.htm</a>.<br><br>Open 
+    file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/TopicMapStorer.java">TopicMapStorer.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="3" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Central control for coordinating the two panes GraphPanel (on the keft) 
+    and TextEditorPanel (on the right).<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/PresentationService.java">PresentationService.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="2" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Using the UCI JUNG library, it shows betweenness centrality in heatmap 
+    colors<br><br>Open file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/CentralityColoring.java">CentralityColoring.java</a><br><br>
+  </body>
+</html>
+</div>
+<div id="1" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Displays and manipulates the GraphNodes and GraphEdges. The core methods 
+    are largely unaltered parts from DeepaMehta 2 by J&#246;rg Richter.<br><br>Open 
+    file <a href="file:/C:/Users/Matthias/workspace/fromscratch/src/GraphPanel.java">GraphPanel.java</a><br><br>
+  </body>
+</html>
+</div><script> 
+function main() { 
+var nodes = [ 
+{x: 390, y: 355, rgb: '#eeeeee', label: 'AboutBuild', id: '18'},  
+{x: 455, y: 34, rgb: '#bbbbff', label: 'NewStuff.java', id: '17'},  
+{x: 741, y: 285, rgb: '#00ff00', label: 'TextEditorPanel.java', id: '16'},  
+{x: 423, y: 494, rgb: '#ccdddd', label: 'MakeHTML.java', id: '15'},  
+{x: 564, y: 339, rgb: '#eeeeee', label: 'AppleHandler.java', id: '14'},  
+{x: 42, y: 233, rgb: '#ffbbbb', label: 'GraphNode.java', id: '13'},  
+{x: 301, y: 286, rgb: '#d2bbd2', label: 'GraphPanelControler.java', id: '12'},  
+{x: 515, y: 218, rgb: '#bbbbff', label: 'IntegrateNodes.java', id: '11'},  
+{x: 206, y: 343, rgb: '#eeeeee', label: 'Selection.java', id: '10'},  
+{x: 551, y: 514, rgb: '#eeeeee', label: 'TopicMapExporter.java', id: '9'},  
+{x: 41, y: 325, rgb: '#ffbbbb', label: 'GraphEdge.java', id: '8'},  
+{x: 561, y: 147, rgb: '#bbbbff', label: 'SplitIntoNew.java', id: '7'},  
+{x: 600, y: 74, rgb: '#bbbbff', label: 'CompositionWindow.java', id: '6'},  
+{x: 329, y: 10, rgb: '#808080', label: 'MyTool.java', id: '5'},  
+{x: 516, y: 432, rgb: '#ccdddd', label: 'TopicMapStorer.java', id: '4'},  
+{x: 470, y: 284, rgb: '#0000ff', label: 'PresentationService.java', id: '3'},  
+{x: 143, y: 451, rgb: '#ffbbbb', label: 'CentralityColoring.java', id: '2'},  
+{x: 151, y: 287, rgb: '#ff0000', label: 'GraphPanel.java', id: '1'} 
+]; 
+var edges = [ 
+{n1: 0, n2: 15, rgb: '#f0f0f0'},  
+{n1: 13, n2: 1, rgb: '#c0c0c0'},  
+{n1: 15, n2: 3, rgb: '#c0c0c0'},  
+{n1: 14, n2: 9, rgb: '#f0f0f0'},  
+{n1: 15, n2: 14, rgb: '#c0c0c0'},  
+{n1: 17, n2: 16, rgb: '#c0c0c0'},  
+{n1: 7, n2: 15, rgb: '#c0c0c0'},  
+{n1: 15, n2: 2, rgb: '#c0c0c0'},  
+{n1: 13, n2: 15, rgb: '#c0c0c0'},  
+{n1: 1, n2: 7, rgb: '#c0c0c0'},  
+{n1: 11, n2: 7, rgb: '#c0c0c0'},  
+{n1: 17, n2: 8, rgb: '#f0f0f0'},  
+{n1: 17, n2: 10, rgb: '#c0c0c0'},  
+{n1: 17, n2: 5, rgb: '#c0c0c0'},  
+{n1: 6, n2: 17, rgb: '#c0c0c0'},  
+{n1: 15, n2: 6, rgb: '#c0c0c0'},  
+{n1: 11, n2: 12, rgb: '#c0c0c0'},  
+{n1: 1, n2: 11, rgb: '#c0c0c0'},  
+{n1: 12, n2: 1, rgb: '#c0c0c0'},  
+{n1: 15, n2: 4, rgb: '#f0f0f0'} 
+]; 
+
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'), 
+dragging = false, 
+lastX = 0, 
+lastY = 0, 
+translatedX = 0, 
+translatedY = 0; 
+ctx.font = "12px Arial"; 
+
+can.addEventListener('click', function(e) { 
+var evt = e || event; 
+absoluteX = evt.pageX - translatedX - 9; 
+absoluteY = evt.pageY - translatedY - 15; 
+findClicked(absoluteX, absoluteY); 
+}); 
+
+can.addEventListener('mousedown', function(e){ 
+var evt = e || event; 
+dragging = true, 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+}); 
+
+can.addEventListener('mousemove', function(e){ 
+var evt = e || event; 
+if (dragging){ 
+var deltaX = evt.pageX - lastX; 
+var deltaY = evt.pageY - lastY; 
+translatedX += deltaX; 
+translatedY += deltaY; 
+ctx.translate(deltaX, deltaY); 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+draw(); // redraw 
+} 
+}); 
+
+can.addEventListener('mouseup', function(e){ 
+dragging = false; 
+}); 
+
+function draw() { 
+ctx.clearRect(-translatedX, -translatedY, 860, 580); 
+for (var i = 0; i < edges.length; i++) { 
+ctx.strokeStyle = edges[i].rgb; 
+ctx.beginPath(); 
+ctx.moveTo(nodes[edges[i].n1].x, nodes[edges[i].n1].y); 
+ctx.lineTo(nodes[edges[i].n2].x, nodes[edges[i].n2].y); 
+ctx.stroke(); 
+} 
+for (var i = 0; i < nodes.length; i++) { 
+ctx.beginPath(); 
+ctx.fillStyle = nodes[i].rgb; 
+ctx.arc(nodes[i].x, nodes[i].y, 9, 0, 2 * Math.PI); 
+ctx.fill(); 
+ctx.fillStyle = "#000000"; 
+ctx.fillText(nodes[i].label, nodes[i].x - 9, nodes[i].y + 23); 
+} 
+} 
+
+function findClicked(x, y) { 
+for (var i = 0; i < nodes.length; i++) { 
+if (Math.abs(x - nodes[i].x) < 11 && Math.abs(y - nodes[i].y) < 11) { 
+draw(); 
+ctx.strokeStyle = "#ff0000"; 
+ctx.strokeRect(nodes[i].x - 11, nodes[i].y - 11, 22, 22); 
+myFunction(nodes[i].id); 
+} 
+} 
+} 
+
+draw(); 
+} 
+function myDraw(x1, y1, x2, y2) { 
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'); 
+ctx.moveTo(x1, y1); 
+ctx.lineTo(x2, y2); 
+ctx.stroke(); 
+} 
+function myFunction(detail) { 
+var x = document.getElementById(detail).innerHTML; 
+document.getElementById("demo").innerHTML = x; 
+} 
+</script> 
+</body></html> 
