@@ -28,12 +28,15 @@ public class MakeHTML {
 	try {
 		list = new FileWriter(filename);
 		list.write("<html> \r\n"
-				+ "<meta charset=\"iso8859-1\"> \r\n"
+				+ "<!DOCTYPE html>\r\n<meta charset=\"iso8859-1\"> \r\n"
 				+ "\r\n"
 
 				+ "<style> \r\n"
 				+ "div#demo { \r\n"
 				+ "margin-left: 870px; \r\n"
+				+ "} \r\n"
+				+ "div#brand { \r\n"
+				+ "margin-left: 10px; margin-top: 510px; font-size: 75%;\r\n"
 				+ "} \r\n"
 				+ "canvas { \r\n"
 				+ "display: block; border: 1px solid #000; float: left; \r\n"
@@ -46,11 +49,17 @@ public class MakeHTML {
 				+ "<body onLoad=\"main()\";> \r\n\n"
 				+ "<canvas id=\"myCanvas\" width=\"" + width + "\" height=\"" + height + "\"> \r\n"
 				+ "Your browser does not support the HTML5 canvas tag. \r\n"
-				+ "</canvas>\r\n"
-				+ "<div id=\"demo\"><em>Drag the clipping to pan the map.</em></div> \r\n"
-				+ "\r\n"
+				+ "</canvas>\r\n");
+		if (!graphOnly) {
+				list.write(
+				  "<div id=\"demo\"><em>Drag the clipping to pan the map. <br />&nbsp;"
+				+ "<br />Click a circle on "
+				+ "the left pane to see details in the right pane. </em></div> \r\n"
+				+ "\r\n" 
+				+ "<div id=\"brand\"><em>Powered by <a href=\"http://x28hd.de/tool/\">MyTool</a></em></div>"
 				
 				);
+		}
 	} catch (IOException e1) {
 		System.out.println("Error MH101 " + e1);
 	} 
@@ -72,7 +81,7 @@ public class MakeHTML {
 		i2++;
 		GraphNode node = topics.nextElement();
 		nodenum++;
-		System.out.println(i2 + ": " + node.getLabel());
+//		System.out.println(i2 + ": " + node.getLabel());
 		topicid = node.getID();
 		nodeids.put(topicid, nodenum);
 		Point xy = node.getXY();
@@ -122,11 +131,11 @@ public class MakeHTML {
 		System.out.println("Error MH103 " + e1);
 	}
 
-	System.out.println("nodenum = " + nodenum);
+//	System.out.println("nodenum = " + nodenum);
 
 	for (int i = 0; i < nodenum + 1; i++) {
-		System.out.println("---- x = " + nodesOut[i][0] + ", y = " + nodesOut[i][1] + ", rgb = " + nodesOut[i][2] 
-				+ ", label = " + nodesOut[i][3] + ", id = " + nodesOut[i][4]);
+//		System.out.println("---- x = " + nodesOut[i][0] + ", y = " + nodesOut[i][1] + ", rgb = " + nodesOut[i][2] 
+//				+ ", label = " + nodesOut[i][3] + ", id = " + nodesOut[i][4]);
 		String comma = ", ";
 		if (i == nodenum) comma = "";
 		try {
@@ -147,10 +156,10 @@ public class MakeHTML {
 		System.out.println("Error MH105 " + e1);
 	}
 
-	System.out.println("edgenum = " + edgenum);
+//	System.out.println("edgenum = " + edgenum);
 
 	for (int i = 0; i < edgenum + 1; i++) {
-		System.out.println("---- n1 = " + edgesOut[i][0] + ", n2 = " + edgesOut[i][1] + ", rgb = " + edgesOut[i][2]);
+//		System.out.println("---- n1 = " + edgesOut[i][0] + ", n2 = " + edgesOut[i][1] + ", rgb = " + edgesOut[i][2]);
 		String comma = ", ";
 		if (i == edgenum) comma = "";
 		try {
