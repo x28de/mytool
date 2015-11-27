@@ -92,7 +92,9 @@ public class MakeHTML {
 		b = node.getColor().getBlue();
 		colorString = String.format("#%02x%02x%02x", r, g, b);
 		nodesOut[nodenum][2] = colorString;
-		nodesOut[nodeids.get(topicid)][3] = node.getLabel();
+		String label = node.getLabel();
+		label = label.replace("\n", "");
+		nodesOut[nodeids.get(topicid)][3] = label;
 		nodesOut[nodeids.get(topicid)][4] = topicid + "";
 		try {
 			list.write("\r\n<div id=\"" + topicid + "\" style=\"display: none;\">" + 
