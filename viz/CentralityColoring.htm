@@ -1,0 +1,346 @@
+<html> 
+<!DOCTYPE html>
+<meta charset="iso8859-1"> 
+
+<style> 
+div#demo { 
+margin-left: 870px; 
+} 
+canvas { 
+display: block; border: 1px solid #000; float: left; 
+} 
+</style>
+
+</head> 
+<body onLoad="main()";> 
+
+<canvas id="myCanvas" width="860" height="580"> 
+Your browser does not support the HTML5 canvas tag. 
+</canvas>
+<div id="demo"><em>Drag the clipping to pan the map. <br />&nbsp;<br />Click a circle on the left pane to see details in the right pane. </em> 
+
+&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br /><em>&nbsp;Powered by <a href="http://x28hd.de/tool/">MyTool</a></em></div>
+<div id="22" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="21" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="20" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="19" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="18" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="17" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="16" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="15" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="14" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="13" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="12" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="11" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="10" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="9" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="8" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="7" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="6" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    : Hashtable<integer graphnode="#DEFAULT">
+  </body>
+</html>
+</div>
+<div id="5" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    : Hashtable<integer graphedge="#DEFAULT">
+  </body>
+</html>
+</div>
+<div id="4" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    : Hashtable<integer color="#DEFAULT">
+  </body>
+</html>
+</div>
+<div id="3" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    : Hashtable<integer color="#DEFAULT">
+  </body>
+</html>
+</div>
+<div id="2" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="1" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div><script> 
+function main() { 
+var nodes = [ 
+{x: 243, y: 408, rgb: '#ccdddd', label: 'JUNG library', id: '22'},  
+{x: 242, y: 458, rgb: '#ccdddd', label: 'Processes', id: '21'},  
+{x: 239, y: 361, rgb: '#ccdddd', label: 'Data', id: '20'},  
+{x: 147, y: 481, rgb: '#ffbbbb', label: '', id: '19'},  
+{x: 151, y: 438, rgb: '#d2bbd2', label: '', id: '18'},  
+{x: 152, y: 398, rgb: '#bbbbff', label: '', id: '17'},  
+{x: 151, y: 357, rgb: '#bbffbb', label: '', id: '16'},  
+{x: 56, y: 411, rgb: '#eeeeee', label: 'Legend:', id: '15'},  
+{x: 416, y: 379, rgb: '#bbbbff', label: 'List<NodeRanking>', id: '14'},  
+{x: 556, y: 440, rgb: '#ffbbbb', label: 'Find best-ranked neighbor to color the Edge', id: '13'},  
+{x: 553, y: 362, rgb: '#ffbbbb', label: 'Color Nodes by Rank', id: '12'},  
+{x: 387, y: 298, rgb: '#b200b2', label: 'Call the Ranker program', id: '11'},  
+{x: 350, y: 222, rgb: '#bbbbff', label: 'new UndirectedSparseGraph()', id: '10'},  
+{x: 188, y: 241, rgb: '#ffbbbb', label: 'Write Edges into the Graph', id: '9'},  
+{x: 190, y: 177, rgb: '#ffbbbb', label: 'Write vertices into the Graph', id: '8'},  
+{x: 191, y: 99, rgb: '#ffbbbb', label: 'Read our Nodes & Edges', id: '7'},  
+{x: 82, y: 70, rgb: '#bbffbb', label: 'nodes', id: '6'},  
+{x: 84, y: 120, rgb: '#bbffbb', label: 'edges', id: '5'},  
+{x: 357, y: 66, rgb: '#bbffbb', label: 'nodesSavedColors', id: '4'},  
+{x: 355, y: 113, rgb: '#bbffbb', label: 'edgesSavedColors', id: '3'},  
+{x: 148, y: 28, rgb: '#ff0000', label: 'changeColors', id: '2'},  
+{x: 545, y: 91, rgb: '#ff0000', label: 'revertColors', id: '1'} 
+]; 
+var edges = [ 
+{n1: 0, n2: 4, rgb: '#c0c0c0'},  
+{n1: 0, n2: 5, rgb: '#c0c0c0'},  
+{n1: 3, n2: 1, rgb: '#c0c0c0'},  
+{n1: 4, n2: 1, rgb: '#c0c0c0'},  
+{n1: 5, n2: 2, rgb: '#c0c0c0'},  
+{n1: 6, n2: 2, rgb: '#c0c0c0'},  
+{n1: 7, n2: 3, rgb: '#c0c0c0'},  
+{n1: 7, n2: 4, rgb: '#c0c0c0'},  
+{n1: 7, n2: 5, rgb: '#c0c0c0'},  
+{n1: 7, n2: 6, rgb: '#c0c0c0'},  
+{n1: 19, n2: 21, rgb: '#c0c0c0'},  
+{n1: 18, n2: 21, rgb: '#c0c0c0'},  
+{n1: 8, n2: 9, rgb: '#c0c0c0'},  
+{n1: 8, n2: 10, rgb: '#c0c0c0'},  
+{n1: 11, n2: 8, rgb: '#d2bbd2'},  
+{n1: 12, n2: 11, rgb: '#d2bbd2'},  
+{n1: 15, n2: 19, rgb: '#c0c0c0'},  
+{n1: 15, n2: 18, rgb: '#c0c0c0'},  
+{n1: 10, n2: 9, rgb: '#ffbbbb'},  
+{n1: 11, n2: 10, rgb: '#ffbbbb'},  
+{n1: 13, n2: 11, rgb: '#ffbbbb'},  
+{n1: 20, n2: 15, rgb: '#c0c0c0'},  
+{n1: 14, n2: 13, rgb: '#ffbbbb'},  
+{n1: 15, n2: 14, rgb: '#ffbbbb'},  
+{n1: 13, n2: 12, rgb: '#c0c0c0'},  
+{n1: 14, n2: 12, rgb: '#c0c0c0'},  
+{n1: 17, n2: 15, rgb: '#c0c0c0'},  
+{n1: 16, n2: 15, rgb: '#c0c0c0'} 
+]; 
+
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'), 
+dragging = false, 
+lastX = 0, 
+lastY = 0, 
+translatedX = 0, 
+translatedY = 0; 
+ctx.font = "12px Arial"; 
+
+can.addEventListener('click', function(e) { 
+var evt = e || event; 
+absoluteX = evt.pageX - translatedX - 9; 
+absoluteY = evt.pageY - translatedY - 15; 
+findClicked(absoluteX, absoluteY); 
+}); 
+
+can.addEventListener('mousedown', function(e){ 
+var evt = e || event; 
+dragging = true, 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+}); 
+
+can.addEventListener('mousemove', function(e){ 
+var evt = e || event; 
+if (dragging){ 
+var deltaX = evt.pageX - lastX; 
+var deltaY = evt.pageY - lastY; 
+translatedX += deltaX; 
+translatedY += deltaY; 
+ctx.translate(deltaX, deltaY); 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+draw(); // redraw 
+} 
+}); 
+
+can.addEventListener('mouseup', function(e){ 
+dragging = false; 
+}); 
+
+function draw() { 
+ctx.clearRect(-translatedX, -translatedY, 860, 580); 
+for (var i = 0; i < edges.length; i++) { 
+ctx.strokeStyle = edges[i].rgb; 
+ctx.beginPath(); 
+ctx.moveTo(nodes[edges[i].n1].x, nodes[edges[i].n1].y); 
+ctx.lineTo(nodes[edges[i].n2].x, nodes[edges[i].n2].y); 
+ctx.stroke(); 
+} 
+for (var i = 0; i < nodes.length; i++) { 
+ctx.beginPath(); 
+ctx.fillStyle = nodes[i].rgb; 
+ctx.arc(nodes[i].x, nodes[i].y, 9, 0, 2 * Math.PI); 
+ctx.fill(); 
+ctx.fillStyle = "#000000"; 
+ctx.fillText(nodes[i].label, nodes[i].x - 9, nodes[i].y + 23); 
+} 
+} 
+
+function findClicked(x, y) { 
+for (var i = 0; i < nodes.length; i++) { 
+if (Math.abs(x - nodes[i].x) < 11 && Math.abs(y - nodes[i].y) < 11) { 
+draw(); 
+ctx.strokeStyle = "#ff0000"; 
+ctx.strokeRect(nodes[i].x - 11, nodes[i].y - 11, 22, 22); 
+myFunction(nodes[i].id); 
+} 
+} 
+} 
+
+draw(); 
+} 
+function myDraw(x1, y1, x2, y2) { 
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'); 
+ctx.moveTo(x1, y1); 
+ctx.lineTo(x2, y2); 
+ctx.stroke(); 
+} 
+function myFunction(detail) { 
+var x = document.getElementById(detail).innerHTML; 
+document.getElementById("demo").innerHTML = x; 
+} 
+</script> 
+</body></html> 

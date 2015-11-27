@@ -1,0 +1,645 @@
+<html> 
+<!DOCTYPE html>
+<meta charset="iso8859-1"> 
+
+<style> 
+div#demo { 
+margin-left: 870px; 
+} 
+canvas { 
+display: block; border: 1px solid #000; float: left; 
+} 
+</style>
+
+</head> 
+<body onLoad="main()";> 
+
+<canvas id="myCanvas" width="860" height="580"> 
+Your browser does not support the HTML5 canvas tag. 
+</canvas>
+<div id="demo"><em>Drag the clipping to pan the map. <br />&nbsp;<br />Click a circle on the left pane to see details in the right pane. </em> 
+
+&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br /><em>&nbsp;Powered by <a href="http://x28hd.de/tool/">MyTool</a></em></div>
+<div id="81" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="80" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    DataString or Map are now ready.<br>Create new nodes from the splitted 
+    string, and then trigger the caller to merge these new nodes or the new 
+    map with the existing or empty map<br>
+  </body>
+</html>
+</div>
+<div id="79" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="78" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="77" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    simple method to determine if it is valid zip or xml: just try it and 
+    ignore errors if not
+  </body>
+</html>
+</div>
+<div id="76" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    in particular see whether it is a ready map in some xml format.
+  </body>
+</html>
+</div>
+<div id="75" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    in 3 different dataFlavors
+  </body>
+</html>
+</div>
+<div id="74" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    canImport and importData are called by drop from GraphPanel and 
+    CompositionWindow, readClipboard is called from Paste operations in 
+    PresentationService and CompositionWindow.
+  </body>
+</html>
+</div>
+<div id="73" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="72" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="71" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="70" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    topics and assoc(iation)s are different words for nodes and edges, from 
+    older versions, and still useful to avoid confusion with XML nodes.<br>
+  </body>
+</html>
+</div>
+<div id="69" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="68" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="67" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="66" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="65" style="display: none;"></div>
+<div id="64" style="display: none;"></div>
+<div id="63" style="display: none;"></div>
+<div id="62" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="61" style="display: none;"></div>
+<div id="60" style="display: none;"></div>
+<div id="59" style="display: none;"></div>
+<div id="58" style="display: none;"></div>
+<div id="57" style="display: none;"></div>
+<div id="56" style="display: none;"></div>
+<div id="55" style="display: none;"></div>
+<div id="54" style="display: none;"></div>
+<div id="53" style="display: none;"></div>
+<div id="52" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="51" style="display: none;"></div>
+<div id="50" style="display: none;"></div>
+<div id="49" style="display: none;"></div>
+<div id="48" style="display: none;"></div>
+<div id="47" style="display: none;"></div>
+<div id="46" style="display: none;"></div>
+<div id="45" style="display: none;"></div>
+<div id="44" style="display: none;"></div>
+<div id="43" style="display: none;"></div>
+<div id="42" style="display: none;"></div>
+<div id="41" style="display: none;"></div>
+<div id="40" style="display: none;"></div>
+<div id="39" style="display: none;"></div>
+<div id="38" style="display: none;"></div>
+<div id="37" style="display: none;"></div>
+<div id="36" style="display: none;"></div>
+<div id="35" style="display: none;"></div>
+<div id="34" style="display: none;"></div>
+<div id="33" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphPanelControler)
+  </body>
+</html>
+</div>
+<div id="32" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (TransferSupport, String)
+  </body>
+</html>
+</div>
+<div id="31" style="display: none;">(TransferSupport, String)
+</div>
+<div id="30" style="display: none;">()
+</div>
+<div id="29" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (Transferable)
+  </body>
+</html>
+</div>
+<div id="28" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (InputStream)
+  </body>
+</html>
+</div>
+<div id="27" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="26" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="25" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="24" style="display: none;">(InputStream)
+</div>
+<div id="23" style="display: none;">(String)
+</div>
+<div id="22" style="display: none;">(Element)
+</div>
+<div id="21" style="display: none;">(Element)
+</div>
+<div id="20" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="19" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (Node, String, String)
+  </body>
+</html>
+</div>
+<div id="18" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (String)
+  </body>
+</html>
+</div>
+<div id="17" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    () {...}
+  </body>
+</html>
+</div>
+<div id="16" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="15" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="14" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="13" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="12" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (Hashtable<integer graphnode="#DEFAULT">)
+  </body>
+</html>
+</div>
+<div id="11" style="display: none;">(CompositionWindow)
+</div>
+<div id="10" style="display: none;">(boolean)
+</div>
+<div id="9" style="display: none;">(String, int)
+</div>
+<div id="8" style="display: none;">()
+</div>
+<div id="7" style="display: none;">()
+</div>
+<div id="6" style="display: none;">()
+</div>
+<div id="5" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="4" style="display: none;">()
+</div>
+<div id="3" style="display: none;">()
+</div>
+<div id="2" style="display: none;">()
+</div>
+<div id="1" style="display: none;">()
+</div><script> 
+function main() { 
+var nodes = [ 
+{x: 760, y: 502, rgb: '#ffbbbb', label: 'Minor exchange', id: '81'},  
+{x: 707, y: 49, rgb: '#ffbbbb', label: 'Process ready map or dataSTring', id: '80'},  
+{x: 744, y: 208, rgb: '#ffbbbb', label: 'Communication with other clases', id: '79'},  
+{x: 438, y: 393, rgb: '#ffbbbb', label: 'Stuff from html lists', id: '78'},  
+{x: 598, y: -1, rgb: '#ffff00', label: '', id: '77'},  
+{x: 357, y: 175, rgb: '#ff0000', label: 'Process the input', id: '76'},  
+{x: 127, y: 361, rgb: '#ffbbbb', label: 'Obtain input ', id: '75'},  
+{x: 125, y: 177, rgb: '#ff0000', label: 'dropped and pasted stuff', id: '74'},  
+{x: 1453, y: 436, rgb: '#bbffbb', label: 'HTML exploitation', id: '73'},  
+{x: 1465, y: 113, rgb: '#bbffbb', label: 'Get bounds in passing ', id: '72'},  
+{x: 1255, y: 412, rgb: '#bbffbb', label: 'Map loading', id: '71'},  
+{x: 1266, y: 66, rgb: '#ffff00', label: '', id: '70'},  
+{x: 1263, y: 151, rgb: '#bbffbb', label: 'Map loading old format)', id: '69'},  
+{x: 1037, y: 430, rgb: '#bbffbb', label: 'Input', id: '68'},  
+{x: 1036, y: 203, rgb: '#bbffbb', label: 'About neighbor classes', id: '67'},  
+{x: 1035, y: 38, rgb: '#00ff00', label: 'Main Fields', id: '66'},  
+{x: 1142, y: -8, rgb: '#ccdddd', label: 'dataString', id: '65'},  
+{x: 1142, y: 42, rgb: '#ccdddd', label: 'newNodes', id: '64'},  
+{x: 1142, y: 92, rgb: '#ccdddd', label: 'newEdges', id: '63'},  
+{x: 1141, y: 550, rgb: '#ccdddd', label: 'insertion', id: '62'},  
+{x: 1146, y: 186, rgb: '#ccdddd', label: 'controler', id: '61'},  
+{x: 1146, y: 236, rgb: '#ccdddd', label: 'compositionMode', id: '60'},  
+{x: 1146, y: 286, rgb: '#ccdddd', label: 'firstComposition', id: '59'},  
+{x: 1148, y: 345, rgb: '#ccdddd', label: 'htmlSelectionFlavor', id: '58'},  
+{x: 1148, y: 395, rgb: '#ccdddd', label: 'inputType', id: '57'},  
+{x: 1148, y: 445, rgb: '#ccdddd', label: 'stream', id: '56'},  
+{x: 1151, y: 500, rgb: '#ccdddd', label: 'advisableFilename', id: '55'},  
+{x: 1356, y: 43, rgb: '#ccdddd', label: 'readyMap', id: '54'},  
+{x: 1356, y: 93, rgb: '#ccdddd', label: 'topicnum', id: '53'},  
+{x: 1355, y: 137, rgb: '#ccdddd', label: 'assocnum ', id: '52'},  
+{x: 1356, y: 193, rgb: '#ccdddd', label: 'root', id: '51'},  
+{x: 1356, y: 243, rgb: '#ccdddd', label: 'isAssoc', id: '50'},  
+{x: 1356, y: 311, rgb: '#ccdddd', label: 'nodenum', id: '49'},  
+{x: 1356, y: 361, rgb: '#ccdddd', label: 'edgenum', id: '48'},  
+{x: 1354, y: 411, rgb: '#ccdddd', label: 'nodesArray', id: '47'},  
+{x: 1354, y: 461, rgb: '#ccdddd', label: 'edgesArray', id: '46'},  
+{x: 1351, y: 515, rgb: '#ccdddd', label: 'nodeids', id: '45'},  
+{x: 1351, y: 565, rgb: '#ccdddd', label: 'edgeids', id: '44'},  
+{x: 1544, y: 50, rgb: '#ccdddd', label: 'minX', id: '43'},  
+{x: 1544, y: 100, rgb: '#ccdddd', label: 'maxX', id: '42'},  
+{x: 1544, y: 150, rgb: '#ccdddd', label: 'minY', id: '41'},  
+{x: 1544, y: 200, rgb: '#ccdddd', label: 'maxY', id: '40'},  
+{x: 1536, y: 324, rgb: '#ccdddd', label: 'htmlOut', id: '39'},  
+{x: 1536, y: 374, rgb: '#ccdddd', label: 'listItem', id: '38'},  
+{x: 1536, y: 424, rgb: '#ccdddd', label: 'tableRow', id: '37'},  
+{x: 1536, y: 474, rgb: '#ccdddd', label: 'tableCell', id: '36'},  
+{x: 1539, y: 531, rgb: '#ccdddd', label: 'firstColumn', id: '35'},  
+{x: 1539, y: 581, rgb: '#ccdddd', label: 'dataStringResort', id: '34'},  
+{x: 802, y: 90, rgb: '#ccdddd', label: 'NewStuff', id: '33'},  
+{x: 195, y: 149, rgb: '#ccdddd', label: 'canImport', id: '32'},  
+{x: 191, y: 213, rgb: '#ccdddd', label: 'importData', id: '31'},  
+{x: 191, y: 263, rgb: '#ccdddd', label: 'readClipboard', id: '30'},  
+{x: 181, y: 401, rgb: '#ccdddd', label: 'transferTransferable', id: '29'},  
+{x: 236, y: 442, rgb: '#ccdddd', label: 'convertStreamToString', id: '28'},  
+{x: 433, y: 43, rgb: '#ccdddd', label: 'step2', id: '27'},  
+{x: 435, y: 120, rgb: '#ccdddd', label: 'processInput', id: '26'},  
+{x: 517, y: -2, rgb: '#ccdddd', label: 'unpack', id: '25'},  
+{x: 517, y: 53, rgb: '#ccdddd', label: 'getParsedDocument', id: '24'},  
+{x: 517, y: 103, rgb: '#ccdddd', label: 'getParsedDocument', id: '23'},  
+{x: 517, y: 153, rgb: '#ccdddd', label: 'importTopic', id: '22'},  
+{x: 517, y: 203, rgb: '#ccdddd', label: 'importAssoc', id: '21'},  
+{x: 517, y: 253, rgb: '#ccdddd', label: 'otherXML', id: '20'},  
+{x: 547, y: 301, rgb: '#ccdddd', label: 'nest', id: '19'},  
+{x: 480, y: 365, rgb: '#ccdddd', label: 'filterHTML', id: '18'},  
+{x: 533, y: 347, rgb: '#ccdddd', label: '.new ParserCallback', id: '17'},  
+{x: 480, y: 433, rgb: '#ccdddd', label: 'MyHTMLEditorKit ', id: '16'},  
+{x: 533, y: 474, rgb: '#ccdddd', label: '.getParser', id: '15'},  
+{x: 433, y: 520, rgb: '#ccdddd', label: 'processSimpleFiles', id: '14'},  
+{x: 804, y: -18, rgb: '#ccdddd', label: 'step3', id: '13'},  
+{x: 802, y: 25, rgb: '#ccdddd', label: 'fetchToCenter', id: '12'},  
+{x: 809, y: 141, rgb: '#ccdddd', label: 'scoopCompositionWindow', id: '11'},  
+{x: 809, y: 191, rgb: '#ccdddd', label: 'setCompositionMode', id: '10'},  
+{x: 809, y: 241, rgb: '#ccdddd', label: 'setInput', id: '9'},  
+{x: 809, y: 291, rgb: '#ccdddd', label: 'getString', id: '8'},  
+{x: 809, y: 341, rgb: '#ccdddd', label: 'getNodes', id: '7'},  
+{x: 809, y: 391, rgb: '#ccdddd', label: 'getEdges', id: '6'},  
+{x: 811, y: 438, rgb: '#ccdddd', label: 'getAdvisableFilename', id: '5'},  
+{x: 811, y: 488, rgb: '#ccdddd', label: 'getInsertion', id: '4'},  
+{x: 811, y: 538, rgb: '#ccdddd', label: 'tmpInit', id: '3'},  
+{x: 811, y: 588, rgb: '#ccdddd', label: 'roomNeeded', id: '2'},  
+{x: 811, y: 638, rgb: '#ccdddd', label: 'upperleft', id: '1'} 
+]; 
+var edges = [ 
+{n1: 13, n2: 8, rgb: '#bbffbb'},  
+{n1: 13, n2: 9, rgb: '#bbffbb'},  
+{n1: 13, n2: 10, rgb: '#bbffbb'},  
+{n1: 13, n2: 12, rgb: '#bbffbb'},  
+{n1: 14, n2: 13, rgb: '#bbffbb'},  
+{n1: 15, n2: 14, rgb: '#bbffbb'},  
+{n1: 5, n2: 1, rgb: '#ffbbbb'},  
+{n1: 7, n2: 5, rgb: '#ffbbbb'},  
+{n1: 2, n2: 0, rgb: '#ffbbbb'},  
+{n1: 0, n2: 80, rgb: '#c0c0c0'},  
+{n1: 0, n2: 79, rgb: '#c0c0c0'},  
+{n1: 0, n2: 78, rgb: '#c0c0c0'},  
+{n1: 0, n2: 77, rgb: '#c0c0c0'},  
+{n1: 0, n2: 76, rgb: '#c0c0c0'},  
+{n1: 2, n2: 75, rgb: '#c0c0c0'},  
+{n1: 2, n2: 74, rgb: '#c0c0c0'},  
+{n1: 2, n2: 73, rgb: '#c0c0c0'},  
+{n1: 2, n2: 72, rgb: '#c0c0c0'},  
+{n1: 2, n2: 71, rgb: '#c0c0c0'},  
+{n1: 2, n2: 70, rgb: '#c0c0c0'},  
+{n1: 1, n2: 2, rgb: '#ffbbbb'},  
+{n1: 1, n2: 69, rgb: '#c0c0c0'},  
+{n1: 1, n2: 68, rgb: '#c0c0c0'},  
+{n1: 5, n2: 67, rgb: '#c0c0c0'},  
+{n1: 2, n2: 48, rgb: '#c0c0c0'},  
+{n1: 5, n2: 3, rgb: '#ffbbbb'},  
+{n1: 65, n2: 66, rgb: '#c0c0c0'},  
+{n1: 3, n2: 65, rgb: '#c0c0c0'},  
+{n1: 63, n2: 64, rgb: '#c0c0c0'},  
+{n1: 3, n2: 63, rgb: '#c0c0c0'},  
+{n1: 61, n2: 62, rgb: '#c0c0c0'},  
+{n1: 55, n2: 61, rgb: '#c0c0c0'},  
+{n1: 55, n2: 60, rgb: '#c0c0c0'},  
+{n1: 55, n2: 59, rgb: '#c0c0c0'},  
+{n1: 4, n2: 56, rgb: '#ffff00'},  
+{n1: 4, n2: 57, rgb: '#ffff00'},  
+{n1: 55, n2: 58, rgb: '#c0c0c0'},  
+{n1: 55, n2: 57, rgb: '#c0c0c0'},  
+{n1: 55, n2: 56, rgb: '#c0c0c0'},  
+{n1: 5, n2: 55, rgb: '#c0c0c0'},  
+{n1: 5, n2: 54, rgb: '#c0c0c0'},  
+{n1: 7, n2: 6, rgb: '#ffbbbb'},  
+{n1: 52, n2: 53, rgb: '#c0c0c0'},  
+{n1: 7, n2: 51, rgb: '#c0c0c0'},  
+{n1: 6, n2: 52, rgb: '#c0c0c0'},  
+{n1: 7, n2: 50, rgb: '#c0c0c0'},  
+{n1: 7, n2: 49, rgb: '#c0c0c0'},  
+{n1: 8, n2: 47, rgb: '#c0c0c0'},  
+{n1: 8, n2: 46, rgb: '#c0c0c0'},  
+{n1: 8, n2: 45, rgb: '#c0c0c0'},  
+{n1: 8, n2: 44, rgb: '#c0c0c0'},  
+{n1: 8, n2: 43, rgb: '#c0c0c0'},  
+{n1: 8, n2: 42, rgb: '#c0c0c0'},  
+{n1: 9, n2: 41, rgb: '#c0c0c0'},  
+{n1: 9, n2: 40, rgb: '#c0c0c0'},  
+{n1: 9, n2: 39, rgb: '#c0c0c0'},  
+{n1: 9, n2: 38, rgb: '#c0c0c0'},  
+{n1: 10, n2: 37, rgb: '#c0c0c0'},  
+{n1: 10, n2: 36, rgb: '#c0c0c0'},  
+{n1: 10, n2: 35, rgb: '#c0c0c0'},  
+{n1: 10, n2: 34, rgb: '#c0c0c0'},  
+{n1: 10, n2: 33, rgb: '#c0c0c0'},  
+{n1: 10, n2: 32, rgb: '#c0c0c0'},  
+{n1: 11, n2: 12, rgb: '#ffff00'},  
+{n1: 12, n2: 31, rgb: '#c0c0c0'},  
+{n1: 12, n2: 30, rgb: '#c0c0c0'},  
+{n1: 12, n2: 29, rgb: '#c0c0c0'},  
+{n1: 12, n2: 28, rgb: '#c0c0c0'},  
+{n1: 12, n2: 27, rgb: '#c0c0c0'},  
+{n1: 13, n2: 19, rgb: '#c0c0c0'},  
+{n1: 13, n2: 26, rgb: '#c0c0c0'},  
+{n1: 13, n2: 25, rgb: '#c0c0c0'},  
+{n1: 13, n2: 24, rgb: '#c0c0c0'},  
+{n1: 13, n2: 23, rgb: '#c0c0c0'},  
+{n1: 14, n2: 22, rgb: '#c0c0c0'},  
+{n1: 14, n2: 21, rgb: '#c0c0c0'},  
+{n1: 14, n2: 20, rgb: '#c0c0c0'},  
+{n1: 15, n2: 18, rgb: '#c0c0c0'},  
+{n1: 15, n2: 17, rgb: '#c0c0c0'},  
+{n1: 15, n2: 16, rgb: '#c0c0c0'} 
+]; 
+
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'), 
+dragging = false, 
+lastX = 0, 
+lastY = 0, 
+translatedX = 0, 
+translatedY = 0; 
+ctx.font = "12px Arial"; 
+
+can.addEventListener('click', function(e) { 
+var evt = e || event; 
+absoluteX = evt.pageX - translatedX - 9; 
+absoluteY = evt.pageY - translatedY - 15; 
+findClicked(absoluteX, absoluteY); 
+}); 
+
+can.addEventListener('mousedown', function(e){ 
+var evt = e || event; 
+dragging = true, 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+}); 
+
+can.addEventListener('mousemove', function(e){ 
+var evt = e || event; 
+if (dragging){ 
+var deltaX = evt.pageX - lastX; 
+var deltaY = evt.pageY - lastY; 
+translatedX += deltaX; 
+translatedY += deltaY; 
+ctx.translate(deltaX, deltaY); 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+draw(); // redraw 
+} 
+}); 
+
+can.addEventListener('mouseup', function(e){ 
+dragging = false; 
+}); 
+
+function draw() { 
+ctx.clearRect(-translatedX, -translatedY, 860, 580); 
+for (var i = 0; i < edges.length; i++) { 
+ctx.strokeStyle = edges[i].rgb; 
+ctx.beginPath(); 
+ctx.moveTo(nodes[edges[i].n1].x, nodes[edges[i].n1].y); 
+ctx.lineTo(nodes[edges[i].n2].x, nodes[edges[i].n2].y); 
+ctx.stroke(); 
+} 
+for (var i = 0; i < nodes.length; i++) { 
+ctx.beginPath(); 
+ctx.fillStyle = nodes[i].rgb; 
+ctx.arc(nodes[i].x, nodes[i].y, 9, 0, 2 * Math.PI); 
+ctx.fill(); 
+ctx.fillStyle = "#000000"; 
+ctx.fillText(nodes[i].label, nodes[i].x - 9, nodes[i].y + 23); 
+} 
+} 
+
+function findClicked(x, y) { 
+for (var i = 0; i < nodes.length; i++) { 
+if (Math.abs(x - nodes[i].x) < 11 && Math.abs(y - nodes[i].y) < 11) { 
+draw(); 
+ctx.strokeStyle = "#ff0000"; 
+ctx.strokeRect(nodes[i].x - 11, nodes[i].y - 11, 22, 22); 
+myFunction(nodes[i].id); 
+} 
+} 
+} 
+
+draw(); 
+} 
+function myDraw(x1, y1, x2, y2) { 
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'); 
+ctx.moveTo(x1, y1); 
+ctx.lineTo(x2, y2); 
+ctx.stroke(); 
+} 
+function myFunction(detail) { 
+var x = document.getElementById(detail).innerHTML; 
+document.getElementById("demo").innerHTML = x; 
+} 
+</script> 
+</body></html> 

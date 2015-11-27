@@ -1,0 +1,1064 @@
+<html> 
+<!DOCTYPE html>
+<meta charset="iso8859-1"> 
+
+<style> 
+div#demo { 
+margin-left: 870px; 
+} 
+canvas { 
+display: block; border: 1px solid #000; float: left; 
+} 
+</style>
+
+</head> 
+<body onLoad="main()";> 
+
+<canvas id="myCanvas" width="860" height="580"> 
+Your browser does not support the HTML5 canvas tag. 
+</canvas>
+<div id="demo"><em>Drag the clipping to pan the map. <br />&nbsp;<br />Click a circle on the left pane to see details in the right pane. </em> 
+
+&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br /><em>&nbsp;Powered by <a href="http://x28hd.de/tool/">MyTool</a></em></div>
+<div id="120" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="119" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="118" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="117" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="116" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="115" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="114" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    private GraphPanelControler<br>
+  </body>
+</html>
+</div>
+<div id="113" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    JComponent<br>
+  </body>
+</html>
+</div>
+<div id="112" style="display: none;">Hashtable<Integer, GraphNode><br />
+</div>
+<div id="111" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Hashtable<integer graphedge="#DEFAULT"><br>
+  </body>
+</html>
+</div>
+<div id="110" style="display: none;">private Vector<br />
+</div>
+<div id="109" style="display: none;">private int<br />
+</div>
+<div id="108" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    private Selection<br>
+  </body>
+</html>
+</div>
+<div id="107" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    boolean<br>false;
+  </body>
+</html>
+</div>
+<div id="106" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Font<br>new Font(&quot;monospace&quot;, Font.PLAIN, 12);
+  </body>
+</html>
+</div>
+<div id="105" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    NewStuff<br>null;
+  </body>
+</html>
+</div>
+<div id="104" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    //<br>
+  </body>
+</html>
+</div>
+<div id="103" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    int<br>0;
+  </body>
+</html>
+</div>
+<div id="102" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    boolean<br>false;
+  </body>
+</html>
+</div>
+<div id="101" style="display: none;">String<br /> "";
+</div>
+<div id="100" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    // directly from jri<br>
+  </body>
+</html>
+</div>
+<div id="99" style="display: none;">private boolean<br />// true if dragged before released
+</div>
+<div id="98" style="display: none;">private boolean<br />// \
+</div>
+<div id="97" style="display: none;">private boolean<br />// | max one is set
+</div>
+<div id="96" style="display: none;">private boolean<br />// |
+</div>
+<div id="95" style="display: none;">private boolean<br />// /
+</div>
+<div id="94" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    private Hashtable<br>// cluster of associated nodes
+  </body>
+</html>
+</div>
+<div id="93" style="display: none;">private GraphNode<br />// used while edgeInProgress
+</div>
+<div id="92" style="display: none;">private int<br />// used while edgeInProgress
+</div>
+<div id="91" style="display: none;">private int<br />// last mouse position
+</div>
+<div id="90" style="display: none;">private Point<br />
+</div>
+<div id="89" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Rectangle ;<br>
+  </body>
+</html>
+</div>
+<div id="88" style="display: none;">private int<br />
+</div>
+<div id="87" style="display: none;">private Image<br />
+</div>
+<div id="86" style="display: none;">private Image<br />
+</div>
+<div id="85" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    private Image ;<br>
+  </body>
+</html>
+</div>
+<div id="84" style="display: none;">private Image<br />
+</div>
+<div id="83" style="display: none;">final static int<br /> 84;  
+</div>
+<div id="82" style="display: none;">final static int<br /> 12;
+</div>
+<div id="81" style="display: none;">boolean<br /> false;
+</div>
+<div id="80" style="display: none;">boolean<br /> false;
+</div>
+<div id="79" style="display: none;">boolean<br /> true;
+</div>
+<div id="78" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="77" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="76" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="75" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="74" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="73" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="72" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="71" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="70" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="69" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="68" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="67" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="66" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="65" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="64" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="63" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="62" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="61" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (TransferHandler.TransferSupport support)
+  </body>
+</html>
+</div>
+<div id="60" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (TransferHandler.TransferSupport support)
+  </body>
+</html>
+</div>
+<div id="59" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="58" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="57" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="56" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="55" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (JComponent)
+  </body>
+</html>
+</div>
+<div id="54" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (JComponent)
+  </body>
+</html>
+</div>
+<div id="53" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (JComponent, Transferable, int)
+  </body>
+</html>
+</div>
+<div id="52" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphPanelControler)
+  </body>
+</html>
+</div>
+<div id="51" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    () {...}
+  </body>
+</html>
+</div>
+<div id="50" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (Graphics)
+  </body>
+</html>
+</div>
+<div id="49" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (Graphics)
+  </body>
+</html>
+</div>
+<div id="48" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (Graphics)
+  </body>
+</html>
+</div>
+<div id="47" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (Graphics)
+  </body>
+</html>
+</div>
+<div id="46" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    () {...}
+  </body>
+</html>
+</div>
+<div id="45" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (MouseEvent)
+  </body>
+</html>
+</div>
+<div id="44" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (MouseEvent)
+  </body>
+</html>
+</div>
+<div id="43" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    () {...}
+  </body>
+</html>
+</div>
+<div id="42" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (MouseEvent)
+  </body>
+</html>
+</div>
+<div id="41" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    () {...}
+  </body>
+</html>
+</div>
+<div id="40" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (ComponentEvent)
+  </body>
+</html>
+</div>
+<div id="39" style="display: none;">(Hashtable<Integer, GraphNode>, Hashtable<Integer, GraphEdge>)
+</div>
+<div id="38" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphNode, Graphics)
+  </body>
+</html>
+</div>
+<div id="37" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphEdge, Graphics)
+  </body>
+</html>
+</div>
+<div id="36" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (Graphics, int, int, int, int, boolean)
+  </body>
+</html>
+</div>
+<div id="35" style="display: none;">()
+</div>
+<div id="34" style="display: none;">()
+</div>
+<div id="33" style="display: none;">()
+</div>
+<div id="32" style="display: none;">()
+</div>
+<div id="31" style="display: none;">()
+</div>
+<div id="30" style="display: none;">(Rectangle)
+</div>
+<div id="29" style="display: none;">(String)
+</div>
+<div id="28" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (int, int)
+  </body>
+</html>
+</div>
+<div id="27" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (Point, Point, Point)
+  </body>
+</html>
+</div>
+<div id="26" style="display: none;">(int, int, boolean)
+</div>
+<div id="25" style="display: none;">(int, int)
+</div>
+<div id="24" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (MouseEvent)
+  </body>
+</html>
+</div>
+<div id="23" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphNode)
+  </body>
+</html>
+</div>
+<div id="22" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphNode, Hashtable<integer graphnode="#DEFAULT">)
+  </body>
+</html>
+</div>
+<div id="21" style="display: none;">(MouseEvent)
+</div>
+<div id="20" style="display: none;">(MouseEvent)
+</div>
+<div id="19" style="display: none;">(MouseEvent)
+</div>
+<div id="18" style="display: none;">(GraphNode, MouseEvent)
+</div>
+<div id="17" style="display: none;">(GraphEdge, MouseEvent)
+</div>
+<div id="16" style="display: none;">(MouseEvent)
+</div>
+<div id="15" style="display: none;">()
+</div>
+<div id="14" style="display: none;">(GraphNode)
+</div>
+<div id="13" style="display: none;">(GraphEdge)
+</div>
+<div id="12" style="display: none;">()
+</div>
+<div id="11" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (boolean)
+  </body>
+</html>
+</div>
+<div id="10" style="display: none;">(int, int)
+</div>
+<div id="9" style="display: none;">(GraphNode, int, int)
+</div>
+<div id="8" style="display: none;">(int, int)
+</div>
+<div id="7" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="6" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (MouseEvent)
+  </body>
+</html>
+</div>
+<div id="5" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (MouseEvent)
+  </body>
+</html>
+</div>
+<div id="4" style="display: none;">(MouseEvent)
+</div>
+<div id="3" style="display: none;">()
+</div>
+<div id="2" style="display: none;">()
+</div>
+<div id="1" style="display: none;">()
+</div><script> 
+function main() { 
+var nodes = [ 
+{x: 342, y: 885, rgb: '#bbffbb', label: 'Misc', id: '120'},  
+{x: 341, y: 729, rgb: '#bbffbb', label: 'find & select', id: '119'},  
+{x: 342, y: 594, rgb: '#bbffbb', label: 'Pointers to classes', id: '118'},  
+{x: 826, y: 705, rgb: '#bbffbb', label: 'Borders & bounds', id: '117'},  
+{x: 605, y: 1064, rgb: '#bbffbb', label: 'Toggles', id: '116'},  
+{x: 342, y: 485, rgb: '#00ff00', label: 'Main fields', id: '115'},  
+{x: 446, y: 568, rgb: '#ccdddd', label: 'controler;', id: '114'},  
+{x: 446, y: 628, rgb: '#ccdddd', label: 'graphPanel;', id: '113'},  
+{x: 443, y: 457, rgb: '#ccdddd', label: 'nodes;', id: '112'},  
+{x: 442, y: 508, rgb: '#ccdddd', label: 'edges;', id: '111'},  
+{x: 445, y: 684, rgb: '#ccdddd', label: 'currentBunch;', id: '110'},  
+{x: 445, y: 734, rgb: '#ccdddd', label: 'currentBunchIndex;', id: '109'},  
+{x: 445, y: 783, rgb: '#ccdddd', label: 'selection;', id: '108'},  
+{x: 686, y: 1155, rgb: '#ccdddd', label: 'labelUpdate ', id: '107'},  
+{x: 438, y: 900, rgb: '#ccdddd', label: 'font ', id: '106'},  
+{x: 446, y: 848, rgb: '#ccdddd', label: 'newStuff ', id: '105'},  
+{x: 343, y: 1009, rgb: '#bbffbb', label: 'Drag accessories', id: '104'},  
+{x: 442, y: 949, rgb: '#ccdddd', label: 'bundleDelay ', id: '103'},  
+{x: 442, y: 998, rgb: '#ccdddd', label: 'bundleInProgress ', id: '102'},  
+{x: 442, y: 1060, rgb: '#ccdddd', label: 'myTransferable ', id: '101'},  
+{x: 603, y: 663, rgb: '#bbffbb', label: 'directly from @jri', id: '100'},  
+{x: 689, y: 436, rgb: '#ccdddd', label: 'dragInProgress; ', id: '99'},  
+{x: 689, y: 489, rgb: '#ccdddd', label: 'translateInProgress;', id: '98'},  
+{x: 689, y: 539, rgb: '#ccdddd', label: 'moveInProgress; ', id: '97'},  
+{x: 689, y: 589, rgb: '#ccdddd', label: 'edgeInProgress; ', id: '96'},  
+{x: 689, y: 639, rgb: '#ccdddd', label: 'clusterInProgress; ', id: '95'},  
+{x: 689, y: 739, rgb: '#ccdddd', label: 'cluster;  ', id: '94'},  
+{x: 689, y: 789, rgb: '#ccdddd', label: 'targetNode; ', id: '93'},  
+{x: 689, y: 839, rgb: '#ccdddd', label: 'ex, ey;   ', id: '92'},  
+{x: 689, y: 889, rgb: '#ccdddd', label: 'mX, mY;   ', id: '91'},  
+{x: 689, y: 939, rgb: '#ccdddd', label: 'translation;', id: '90'},  
+{x: 914, y: 514, rgb: '#ccdddd', label: 'bounds', id: '89'},  
+{x: 914, y: 564, rgb: '#ccdddd', label: 'width, height;', id: '88'},  
+{x: 914, y: 614, rgb: '#ccdddd', label: 'topImage;', id: '87'},  
+{x: 914, y: 664, rgb: '#ccdddd', label: 'bottomImage;', id: '86'},  
+{x: 914, y: 715, rgb: '#ccdddd', label: 'leftImage', id: '85'},  
+{x: 918, y: 766, rgb: '#ccdddd', label: 'rightImage;', id: '84'},  
+{x: 918, y: 816, rgb: '#ccdddd', label: 'BORDER_IMAGE_WIDTH ', id: '83'},  
+{x: 918, y: 866, rgb: '#ccdddd', label: 'BORDER_IMAGE_HEIGHT ', id: '82'},  
+{x: 689, y: 992, rgb: '#ccdddd', label: 'x28PresoSizedMode ', id: '81'},  
+{x: 688, y: 1050, rgb: '#ccdddd', label: 'borderOrientation ', id: '80'},  
+{x: 688, y: 1100, rgb: '#ccdddd', label: 'antiAliasing ', id: '79'},  
+{x: 148, y: 274, rgb: '#ffff00', label: 'Notes', id: '78'},  
+{x: 148, y: 117, rgb: '#ffbbbb', label: 'Methods grouping', id: '77'},  
+{x: 146, y: 169, rgb: '#ccdddd', label: 'Methods and Fields', id: '76'},  
+{x: 68, y: 172, rgb: '#eeeeee', label: 'Legend:', id: '75'},  
+{x: 145, y: 224, rgb: '#bbffbb', label: 'Fields grouping', id: '74'},  
+{x: 1280, y: -163, rgb: '#ffbbbb', label: 'Right-clicking etc', id: '73'},  
+{x: 1282, y: -6, rgb: '#ffbbbb', label: 'Toggles', id: '72'},  
+{x: 1282, y: -377, rgb: '#ffbbbb', label: 'Dragging', id: '71'},  
+{x: 1012, y: -2, rgb: '#ffbbbb', label: 'Selection', id: '70'},  
+{x: 1010, y: -193, rgb: '#ffbbbb', label: 'Clicking', id: '69'},  
+{x: 1011, y: -338, rgb: '#ffbbbb', label: 'Mouse', id: '68'},  
+{x: 703, y: 325, rgb: '#ffbbbb', label: 'Clusters', id: '67'},  
+{x: 699, y: 136, rgb: '#ff0000', label: 'Find methods and classes  ', id: '66'},  
+{x: 697, y: -134, rgb: '#ffbbbb', label: 'Border Image accessories', id: '65'},  
+{x: 696, y: -419, rgb: '#ff0000', label: 'Paint methods', id: '64'},  
+{x: 344, y: 198, rgb: '#ffbbbb', label: 'Accessories for Mouse and window ', id: '63'},  
+{x: 342, y: -117, rgb: '#ff0000', label: 'Main graphics activity', id: '62'},  
+{x: 548, y: -399, rgb: '#ccdddd', label: 'importData', id: '61'},  
+{x: 550, y: -468, rgb: '#ccdddd', label: 'canImport', id: '60'},  
+{x: 344, y: -342, rgb: '#ffbbbb', label: 'Accessories for drag', id: '59'},  
+{x: 487, y: -443, rgb: '#ccdddd', label: 'TransferHandler', id: '58'},  
+{x: 350, y: -442, rgb: '#ffbbbb', label: 'Accessories for drop', id: '57'},  
+{x: 493, y: -344, rgb: '#ccdddd', label: 'MyTransferHandler', id: '56'},  
+{x: 547, y: -363, rgb: '#ccdddd', label: 'createTransferable', id: '55'},  
+{x: 548, y: -308, rgb: '#ccdddd', label: 'getSourceActions', id: '54'},  
+{x: 548, y: -258, rgb: '#ccdddd', label: 'exportDone', id: '53'},  
+{x: 405, y: -14, rgb: '#ccdddd', label: 'GraphPanel', id: '52'},  
+{x: 487, y: -120, rgb: '#ccdddd', label: 'new JComponent', id: '51'},  
+{x: 533, y: -188, rgb: '#ccdddd', label: 'paint', id: '50'},  
+{x: 537, y: -141, rgb: '#ccdddd', label: 'paintNodes', id: '49'},  
+{x: 531, y: -78, rgb: '#ccdddd', label: 'paintEdges', id: '48'},  
+{x: 531, y: -27, rgb: '#ccdddd', label: 'paintBorderImages', id: '47'},  
+{x: 491, y: 49, rgb: '#ccdddd', label: 'new MouseAdapter', id: '46'},  
+{x: 534, y: 25, rgb: '#ccdddd', label: 'mousePressed', id: '45'},  
+{x: 535, y: 94, rgb: '#ccdddd', label: 'mouseReleased', id: '44'},  
+{x: 484, y: 131, rgb: '#ccdddd', label: 'new MouseMotionAdapter', id: '43'},  
+{x: 509, y: 179, rgb: '#ccdddd', label: 'mouseDragged', id: '42'},  
+{x: 469, y: 244, rgb: '#ccdddd', label: 'new ComponentAdapter', id: '41'},  
+{x: 503, y: 287, rgb: '#ccdddd', label: 'componentResized', id: '40'},  
+{x: 836, y: -487, rgb: '#ccdddd', label: 'setModel', id: '39'},  
+{x: 836, y: -429, rgb: '#ccdddd', label: 'paintNode', id: '38'},  
+{x: 835, y: -376, rgb: '#ccdddd', label: 'paintEdge', id: '37'},  
+{x: 902, y: -353, rgb: '#ccdddd', label: 'paintLine', id: '36'},  
+{x: 832, y: -296, rgb: '#ccdddd', label: 'showTopImage', id: '35'},  
+{x: 832, y: -246, rgb: '#ccdddd', label: 'showBottomImage', id: '34'},  
+{x: 832, y: -196, rgb: '#ccdddd', label: 'showLeftImage', id: '33'},  
+{x: 832, y: -146, rgb: '#ccdddd', label: 'showRightImage', id: '32'},  
+{x: 832, y: -96, rgb: '#ccdddd', label: 'isEmpty', id: '31'},  
+{x: 832, y: -46, rgb: '#ccdddd', label: 'setBounds', id: '30'},  
+{x: 832, y: 4, rgb: '#ccdddd', label: 'getImage', id: '29'},  
+{x: 833, y: 65, rgb: '#ccdddd', label: 'findAllNodes', id: '28'},  
+{x: 832, y: 113, rgb: '#ccdddd', label: 'edgeHit', id: '27'},  
+{x: 832, y: 175, rgb: '#ccdddd', label: 'findNode', id: '26'},  
+{x: 832, y: 225, rgb: '#ccdddd', label: 'findEdge', id: '25'},  
+{x: 830, y: 282, rgb: '#ccdddd', label: 'getToolTipText', id: '24'},  
+{x: 827, y: 331, rgb: '#ccdddd', label: 'createNodeCluster', id: '23'},  
+{x: 828, y: 376, rgb: '#ccdddd', label: 'nodeCluster', id: '22'},  
+{x: 1110, y: -398, rgb: '#ccdddd', label: 'thisPanelPressed', id: '21'},  
+{x: 1110, y: -348, rgb: '#ccdddd', label: 'thisPanelDragged', id: '20'},  
+{x: 1110, y: -298, rgb: '#ccdddd', label: 'thisPanelReleased', id: '19'},  
+{x: 1108, y: -240, rgb: '#ccdddd', label: 'nodeClicked', id: '18'},  
+{x: 1111, y: -184, rgb: '#ccdddd', label: 'edgeClicked', id: '17'},  
+{x: 1111, y: -134, rgb: '#ccdddd', label: 'graphClicked', id: '16'},  
+{x: 1102, y: -74, rgb: '#ccdddd', label: 'getSelectionInstance', id: '15'},  
+{x: 1102, y: -24, rgb: '#ccdddd', label: 'nodeSelected', id: '14'},  
+{x: 1102, y: 26, rgb: '#ccdddd', label: 'edgeSelected', id: '13'},  
+{x: 1102, y: 76, rgb: '#ccdddd', label: 'graphSelected', id: '12'},  
+{x: 1396, y: -534, rgb: '#ccdddd', label: 'labelUpdateToggle', id: '11'},  
+{x: 1403, y: -464, rgb: '#ccdddd', label: 'translateGraph', id: '10'},  
+{x: 1403, y: -414, rgb: '#ccdddd', label: 'translateNode', id: '9'},  
+{x: 1403, y: -364, rgb: '#ccdddd', label: 'translateCluster', id: '8'},  
+{x: 1403, y: -311, rgb: '#ccdddd', label: 'getTranslation', id: '7'},  
+{x: 1405, y: -252, rgb: '#ccdddd', label: 'bundleForDrag', id: '6'},  
+{x: 1408, y: -179, rgb: '#ccdddd', label: 'isSpecial', id: '5'},  
+{x: 1408, y: -129, rgb: '#ccdddd', label: 'isPopupTrigger', id: '4'},  
+{x: 1404, y: -49, rgb: '#ccdddd', label: 'togglePreso', id: '3'},  
+{x: 1404, y: 1, rgb: '#ccdddd', label: 'toggleBorders', id: '2'},  
+{x: 1404, y: 51, rgb: '#ccdddd', label: 'toggleAntiAliasing', id: '1'} 
+]; 
+var edges = [ 
+{n1: 20, n2: 4, rgb: '#bbffbb'},  
+{n1: 5, n2: 20, rgb: '#bbffbb'},  
+{n1: 20, n2: 3, rgb: '#bbffbb'},  
+{n1: 5, n2: 2, rgb: '#bbffbb'},  
+{n1: 0, n2: 16, rgb: '#bbffbb'},  
+{n1: 1, n2: 0, rgb: '#bbffbb'},  
+{n1: 2, n2: 1, rgb: '#bbffbb'},  
+{n1: 0, n2: 14, rgb: '#c0c0c0'},  
+{n1: 4, n2: 13, rgb: '#c0c0c0'},  
+{n1: 2, n2: 12, rgb: '#c0c0c0'},  
+{n1: 2, n2: 15, rgb: '#c0c0c0'},  
+{n1: 1, n2: 12, rgb: '#c0c0c0'},  
+{n1: 1, n2: 11, rgb: '#c0c0c0'},  
+{n1: 1, n2: 10, rgb: '#c0c0c0'},  
+{n1: 2, n2: 7, rgb: '#c0c0c0'},  
+{n1: 2, n2: 6, rgb: '#c0c0c0'},  
+{n1: 3, n2: 38, rgb: '#c0c0c0'},  
+{n1: 3, n2: 37, rgb: '#c0c0c0'},  
+{n1: 3, n2: 36, rgb: '#c0c0c0'},  
+{n1: 3, n2: 35, rgb: '#c0c0c0'},  
+{n1: 3, n2: 34, rgb: '#c0c0c0'},  
+{n1: 3, n2: 33, rgb: '#c0c0c0'},  
+{n1: 3, n2: 32, rgb: '#c0c0c0'},  
+{n1: 3, n2: 31, rgb: '#c0c0c0'},  
+{n1: 20, n2: 30, rgb: '#c0c0c0'},  
+{n1: 20, n2: 29, rgb: '#c0c0c0'},  
+{n1: 20, n2: 28, rgb: '#c0c0c0'},  
+{n1: 4, n2: 39, rgb: '#c0c0c0'},  
+{n1: 4, n2: 41, rgb: '#c0c0c0'},  
+{n1: 4, n2: 40, rgb: '#c0c0c0'},  
+{n1: 20, n2: 27, rgb: '#c0c0c0'},  
+{n1: 20, n2: 26, rgb: '#c0c0c0'},  
+{n1: 20, n2: 25, rgb: '#c0c0c0'},  
+{n1: 20, n2: 24, rgb: '#c0c0c0'},  
+{n1: 20, n2: 23, rgb: '#c0c0c0'},  
+{n1: 20, n2: 22, rgb: '#c0c0c0'},  
+{n1: 20, n2: 21, rgb: '#c0c0c0'},  
+{n1: 16, n2: 19, rgb: '#c0c0c0'},  
+{n1: 16, n2: 18, rgb: '#c0c0c0'},  
+{n1: 16, n2: 17, rgb: '#c0c0c0'},  
+{n1: 5, n2: 9, rgb: '#c0c0c0'},  
+{n1: 5, n2: 8, rgb: '#c0c0c0'},  
+{n1: 50, n2: 49, rgb: '#ffbbbb'},  
+{n1: 45, n2: 46, rgb: '#c0c0c0'},  
+{n1: 42, n2: 45, rgb: '#ffff00'},  
+{n1: 45, n2: 43, rgb: '#c0c0c0'},  
+{n1: 45, n2: 44, rgb: '#c0c0c0'},  
+{n1: 57, n2: 56, rgb: '#ffbbbb'},  
+{n1: 53, n2: 52, rgb: '#ffbbbb'},  
+{n1: 55, n2: 54, rgb: '#ffbbbb'},  
+{n1: 48, n2: 109, rgb: '#c0c0c0'},  
+{n1: 47, n2: 48, rgb: '#ffbbbb'},  
+{n1: 49, n2: 47, rgb: '#ffbbbb'},  
+{n1: 51, n2: 50, rgb: '#ffbbbb'},  
+{n1: 52, n2: 51, rgb: '#ffbbbb'},  
+{n1: 49, n2: 114, rgb: '#c0c0c0'},  
+{n1: 47, n2: 116, rgb: '#c0c0c0'},  
+{n1: 47, n2: 115, rgb: '#c0c0c0'},  
+{n1: 48, n2: 119, rgb: '#c0c0c0'},  
+{n1: 48, n2: 118, rgb: '#c0c0c0'},  
+{n1: 48, n2: 117, rgb: '#c0c0c0'},  
+{n1: 49, n2: 113, rgb: '#c0c0c0'},  
+{n1: 49, n2: 112, rgb: '#c0c0c0'},  
+{n1: 49, n2: 111, rgb: '#c0c0c0'},  
+{n1: 49, n2: 110, rgb: '#c0c0c0'},  
+{n1: 50, n2: 108, rgb: '#c0c0c0'},  
+{n1: 50, n2: 107, rgb: '#c0c0c0'},  
+{n1: 50, n2: 106, rgb: '#c0c0c0'},  
+{n1: 50, n2: 105, rgb: '#c0c0c0'},  
+{n1: 51, n2: 104, rgb: '#c0c0c0'},  
+{n1: 51, n2: 103, rgb: '#c0c0c0'},  
+{n1: 51, n2: 102, rgb: '#c0c0c0'},  
+{n1: 54, n2: 53, rgb: '#ffbbbb'},  
+{n1: 56, n2: 55, rgb: '#ffbbbb'},  
+{n1: 58, n2: 57, rgb: '#ffbbbb'},  
+{n1: 61, n2: 58, rgb: '#ffbbbb'},  
+{n1: 63, n2: 61, rgb: '#ffbbbb'},  
+{n1: 52, n2: 101, rgb: '#c0c0c0'},  
+{n1: 52, n2: 100, rgb: '#c0c0c0'},  
+{n1: 52, n2: 99, rgb: '#c0c0c0'},  
+{n1: 52, n2: 96, rgb: '#f0f0f0'},  
+{n1: 53, n2: 98, rgb: '#c0c0c0'},  
+{n1: 53, n2: 97, rgb: '#c0c0c0'},  
+{n1: 54, n2: 95, rgb: '#c0c0c0'},  
+{n1: 54, n2: 94, rgb: '#c0c0c0'},  
+{n1: 54, n2: 93, rgb: '#c0c0c0'},  
+{n1: 54, n2: 92, rgb: '#c0c0c0'},  
+{n1: 55, n2: 91, rgb: '#c0c0c0'},  
+{n1: 55, n2: 90, rgb: '#c0c0c0'},  
+{n1: 55, n2: 89, rgb: '#c0c0c0'},  
+{n1: 55, n2: 88, rgb: '#c0c0c0'},  
+{n1: 55, n2: 87, rgb: '#c0c0c0'},  
+{n1: 55, n2: 86, rgb: '#c0c0c0'},  
+{n1: 55, n2: 85, rgb: '#c0c0c0'},  
+{n1: 83, n2: 84, rgb: '#c0c0c0'},  
+{n1: 56, n2: 83, rgb: '#c0c0c0'},  
+{n1: 56, n2: 82, rgb: '#c0c0c0'},  
+{n1: 56, n2: 81, rgb: '#c0c0c0'},  
+{n1: 57, n2: 79, rgb: '#c0c0c0'},  
+{n1: 57, n2: 77, rgb: '#c0c0c0'},  
+{n1: 57, n2: 74, rgb: '#c0c0c0'},  
+{n1: 58, n2: 69, rgb: '#c0c0c0'},  
+{n1: 61, n2: 64, rgb: '#c0c0c0'},  
+{n1: 63, n2: 62, rgb: '#c0c0c0'},  
+{n1: 62, n2: 59, rgb: '#c0c0c0'},  
+{n1: 62, n2: 60, rgb: '#c0c0c0'},  
+{n1: 77, n2: 68, rgb: '#c0c0c0'},  
+{n1: 74, n2: 68, rgb: '#c0c0c0'},  
+{n1: 80, n2: 79, rgb: '#c0c0c0'},  
+{n1: 78, n2: 77, rgb: '#c0c0c0'},  
+{n1: 76, n2: 74, rgb: '#c0c0c0'},  
+{n1: 75, n2: 74, rgb: '#c0c0c0'},  
+{n1: 73, n2: 69, rgb: '#c0c0c0'},  
+{n1: 72, n2: 69, rgb: '#c0c0c0'},  
+{n1: 71, n2: 69, rgb: '#c0c0c0'},  
+{n1: 70, n2: 69, rgb: '#c0c0c0'},  
+{n1: 69, n2: 68, rgb: '#c0c0c0'},  
+{n1: 67, n2: 64, rgb: '#c0c0c0'},  
+{n1: 66, n2: 64, rgb: '#c0c0c0'},  
+{n1: 65, n2: 64, rgb: '#c0c0c0'} 
+]; 
+
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'), 
+dragging = false, 
+lastX = 0, 
+lastY = 0, 
+translatedX = 0, 
+translatedY = 0; 
+ctx.font = "12px Arial"; 
+
+can.addEventListener('click', function(e) { 
+var evt = e || event; 
+absoluteX = evt.pageX - translatedX - 9; 
+absoluteY = evt.pageY - translatedY - 15; 
+findClicked(absoluteX, absoluteY); 
+}); 
+
+can.addEventListener('mousedown', function(e){ 
+var evt = e || event; 
+dragging = true, 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+}); 
+
+can.addEventListener('mousemove', function(e){ 
+var evt = e || event; 
+if (dragging){ 
+var deltaX = evt.pageX - lastX; 
+var deltaY = evt.pageY - lastY; 
+translatedX += deltaX; 
+translatedY += deltaY; 
+ctx.translate(deltaX, deltaY); 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+draw(); // redraw 
+} 
+}); 
+
+can.addEventListener('mouseup', function(e){ 
+dragging = false; 
+}); 
+
+function draw() { 
+ctx.clearRect(-translatedX, -translatedY, 860, 580); 
+for (var i = 0; i < edges.length; i++) { 
+ctx.strokeStyle = edges[i].rgb; 
+ctx.beginPath(); 
+ctx.moveTo(nodes[edges[i].n1].x, nodes[edges[i].n1].y); 
+ctx.lineTo(nodes[edges[i].n2].x, nodes[edges[i].n2].y); 
+ctx.stroke(); 
+} 
+for (var i = 0; i < nodes.length; i++) { 
+ctx.beginPath(); 
+ctx.fillStyle = nodes[i].rgb; 
+ctx.arc(nodes[i].x, nodes[i].y, 9, 0, 2 * Math.PI); 
+ctx.fill(); 
+ctx.fillStyle = "#000000"; 
+ctx.fillText(nodes[i].label, nodes[i].x - 9, nodes[i].y + 23); 
+} 
+} 
+
+function findClicked(x, y) { 
+for (var i = 0; i < nodes.length; i++) { 
+if (Math.abs(x - nodes[i].x) < 11 && Math.abs(y - nodes[i].y) < 11) { 
+draw(); 
+ctx.strokeStyle = "#ff0000"; 
+ctx.strokeRect(nodes[i].x - 11, nodes[i].y - 11, 22, 22); 
+myFunction(nodes[i].id); 
+} 
+} 
+} 
+
+draw(); 
+} 
+function myDraw(x1, y1, x2, y2) { 
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'); 
+ctx.moveTo(x1, y1); 
+ctx.lineTo(x2, y2); 
+ctx.stroke(); 
+} 
+function myFunction(detail) { 
+var x = document.getElementById(detail).innerHTML; 
+document.getElementById("demo").innerHTML = x; 
+} 
+</script> 
+</body></html> 

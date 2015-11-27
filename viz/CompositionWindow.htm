@@ -1,0 +1,332 @@
+<html> 
+<!DOCTYPE html>
+<meta charset="iso8859-1"> 
+
+<style> 
+div#demo { 
+margin-left: 870px; 
+} 
+canvas { 
+display: block; border: 1px solid #000; float: left; 
+} 
+</style>
+
+</head> 
+<body onLoad="main()";> 
+
+<canvas id="myCanvas" width="860" height="580"> 
+Your browser does not support the HTML5 canvas tag. 
+</canvas>
+<div id="demo"><em>Drag the clipping to pan the map. <br />&nbsp;<br />Click a circle on the left pane to see details in the right pane. </em> 
+
+&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br /><em>&nbsp;Powered by <a href="http://x28hd.de/tool/">MyTool</a></em></div>
+<div id="34" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="33" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Waiting for input text that is typed in or inserted from paste or drop 
+  </body>
+</html>
+</div>
+<div id="32" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    Receive input per drop &amp; paste and insert it into text doc
+  </body>
+</html>
+</div>
+<div id="31" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (WindowEvent)
+  </body>
+</html>
+</div>
+<div id="30" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="29" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="28" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="27" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="26" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="25" style="display: none;"></div>
+<div id="24" style="display: none;"><html>
+  <head>
+
+  </head>
+  <body>
+    
+  </body>
+</html>
+</div>
+<div id="23" style="display: none;"></div>
+<div id="22" style="display: none;"></div>
+<div id="21" style="display: none;"></div>
+<div id="20" style="display: none;"></div>
+<div id="19" style="display: none;"></div>
+<div id="18" style="display: none;"></div>
+<div id="17" style="display: none;"></div>
+<div id="16" style="display: none;"></div>
+<div id="15" style="display: none;"></div>
+<div id="14" style="display: none;"></div>
+<div id="13" style="display: none;"></div>
+<div id="12" style="display: none;"></div>
+<div id="11" style="display: none;"></div>
+<div id="10" style="display: none;"></div>
+<div id="9" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (GraphPanelControler)
+  </body>
+</html>
+</div>
+<div id="8" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    () {...}
+  </body>
+</html>
+</div>
+<div id="7" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (String)
+  </body>
+</html>
+</div>
+<div id="6" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    ()
+  </body>
+</html>
+</div>
+<div id="5" style="display: none;">()
+</div>
+<div id="4" style="display: none;">(DocumentEvent)
+</div>
+<div id="3" style="display: none;">(DocumentEvent)
+</div>
+<div id="2" style="display: none;">(DocumentEvent)
+</div>
+<div id="1" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (ActionEvent)
+  </body>
+</html>
+</div><script> 
+function main() { 
+var nodes = [ 
+{x: 372, y: 337, rgb: '#ffbbbb', label: 'Proceed', id: '34'},  
+{x: 377, y: 151, rgb: '#ffbbbb', label: 'Wait for changes', id: '33'},  
+{x: 82, y: 375, rgb: '#ff0000', label: 'Main processiing', id: '32'},  
+{x: 231, y: 281, rgb: '#ccdddd', label: '.windowClosing', id: '31'},  
+{x: 85, y: 198, rgb: '#ffbbbb', label: 'Accessory for window', id: '30'},  
+{x: 798, y: 292, rgb: '#bbffbb', label: 'UI', id: '29'},  
+{x: 598, y: 366, rgb: '#bbffbb', label: 'Neighbor classes', id: '28'},  
+{x: 600, y: 191, rgb: '#00ff00', label: 'Main Fields', id: '27'},  
+{x: 87, y: 148, rgb: '#ffbbbb', label: 'Accessories for drop & paste', id: '26'},  
+{x: 175, y: 129, rgb: '#ccdddd', label: 'handler', id: '25'},  
+{x: 705, y: 147, rgb: '#ccdddd', label: 'dataString', id: '24'},  
+{x: 704, y: 313, rgb: '#ccdddd', label: 'controler', id: '23'},  
+{x: 704, y: 363, rgb: '#ccdddd', label: 'newStuff', id: '22'},  
+{x: 704, y: 413, rgb: '#ccdddd', label: 'compositionWindow', id: '21'},  
+{x: 707, y: 194, rgb: '#ccdddd', label: 'textDisplay', id: '20'},  
+{x: 707, y: 244, rgb: '#ccdddd', label: 'doc', id: '19'},  
+{x: 885, y: 111, rgb: '#ccdddd', label: 'caretPos', id: '18'},  
+{x: 885, y: 161, rgb: '#ccdddd', label: 'toolbar', id: '17'},  
+{x: 885, y: 211, rgb: '#ccdddd', label: 'pasteButton', id: '16'},  
+{x: 888, y: 267, rgb: '#ccdddd', label: 'pasteAction', id: '15'},  
+{x: 888, y: 317, rgb: '#ccdddd', label: 'continueButton', id: '14'},  
+{x: 888, y: 367, rgb: '#ccdddd', label: 'or', id: '13'},  
+{x: 888, y: 417, rgb: '#ccdddd', label: 'or2', id: '12'},  
+{x: 888, y: 467, rgb: '#ccdddd', label: 'dropFile', id: '11'},  
+{x: 888, y: 517, rgb: '#ccdddd', label: 'cancelButton', id: '10'},  
+{x: 163, y: 349, rgb: '#ccdddd', label: 'CompositionWindow', id: '9'},  
+{x: 155, y: 233, rgb: '#ccdddd', label: 'CompositionWindow', id: '8'},  
+{x: 166, y: 418, rgb: '#ccdddd', label: 'insertSnippet', id: '7'},  
+{x: 450, y: 295, rgb: '#ccdddd', label: 'cancel', id: '6'},  
+{x: 449, y: 348, rgb: '#ccdddd', label: 'close', id: '5'},  
+{x: 445, y: 136, rgb: '#ccdddd', label: 'insertUpdate', id: '4'},  
+{x: 445, y: 186, rgb: '#ccdddd', label: 'removeUpdate', id: '3'},  
+{x: 445, y: 236, rgb: '#ccdddd', label: 'changedUpdate', id: '2'},  
+{x: 451, y: 394, rgb: '#ccdddd', label: 'actionPerformed', id: '1'} 
+]; 
+var edges = [ 
+{n1: 2, n2: 1, rgb: '#ffbbbb'},  
+{n1: 1, n2: 0, rgb: '#ffbbbb'},  
+{n1: 0, n2: 33, rgb: '#c0c0c0'},  
+{n1: 0, n2: 29, rgb: '#c0c0c0'},  
+{n1: 0, n2: 28, rgb: '#c0c0c0'},  
+{n1: 1, n2: 32, rgb: '#c0c0c0'},  
+{n1: 1, n2: 31, rgb: '#c0c0c0'},  
+{n1: 1, n2: 30, rgb: '#c0c0c0'},  
+{n1: 4, n2: 2, rgb: '#ffbbbb'},  
+{n1: 8, n2: 4, rgb: '#ffbbbb'},  
+{n1: 26, n2: 3, rgb: '#c0c0c0'},  
+{n1: 2, n2: 27, rgb: '#c0c0c0'},  
+{n1: 2, n2: 25, rgb: '#c0c0c0'},  
+{n1: 6, n2: 5, rgb: '#bbffbb'},  
+{n1: 7, n2: 6, rgb: '#bbffbb'},  
+{n1: 4, n2: 26, rgb: '#c0c0c0'},  
+{n1: 5, n2: 24, rgb: '#c0c0c0'},  
+{n1: 5, n2: 23, rgb: '#c0c0c0'},  
+{n1: 5, n2: 22, rgb: '#c0c0c0'},  
+{n1: 5, n2: 21, rgb: '#c0c0c0'},  
+{n1: 5, n2: 20, rgb: '#c0c0c0'},  
+{n1: 5, n2: 19, rgb: '#c0c0c0'},  
+{n1: 5, n2: 18, rgb: '#c0c0c0'},  
+{n1: 5, n2: 16, rgb: '#c0c0c0'},  
+{n1: 5, n2: 17, rgb: '#c0c0c0'},  
+{n1: 7, n2: 15, rgb: '#c0c0c0'},  
+{n1: 7, n2: 14, rgb: '#c0c0c0'},  
+{n1: 6, n2: 13, rgb: '#c0c0c0'},  
+{n1: 6, n2: 12, rgb: '#c0c0c0'},  
+{n1: 6, n2: 11, rgb: '#c0c0c0'},  
+{n1: 7, n2: 10, rgb: '#c0c0c0'},  
+{n1: 8, n2: 9, rgb: '#c0c0c0'} 
+]; 
+
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'), 
+dragging = false, 
+lastX = 0, 
+lastY = 0, 
+translatedX = 0, 
+translatedY = 0; 
+ctx.font = "12px Arial"; 
+
+can.addEventListener('click', function(e) { 
+var evt = e || event; 
+absoluteX = evt.pageX - translatedX - 9; 
+absoluteY = evt.pageY - translatedY - 15; 
+findClicked(absoluteX, absoluteY); 
+}); 
+
+can.addEventListener('mousedown', function(e){ 
+var evt = e || event; 
+dragging = true, 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+}); 
+
+can.addEventListener('mousemove', function(e){ 
+var evt = e || event; 
+if (dragging){ 
+var deltaX = evt.pageX - lastX; 
+var deltaY = evt.pageY - lastY; 
+translatedX += deltaX; 
+translatedY += deltaY; 
+ctx.translate(deltaX, deltaY); 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+draw(); // redraw 
+} 
+}); 
+
+can.addEventListener('mouseup', function(e){ 
+dragging = false; 
+}); 
+
+function draw() { 
+ctx.clearRect(-translatedX, -translatedY, 860, 580); 
+for (var i = 0; i < edges.length; i++) { 
+ctx.strokeStyle = edges[i].rgb; 
+ctx.beginPath(); 
+ctx.moveTo(nodes[edges[i].n1].x, nodes[edges[i].n1].y); 
+ctx.lineTo(nodes[edges[i].n2].x, nodes[edges[i].n2].y); 
+ctx.stroke(); 
+} 
+for (var i = 0; i < nodes.length; i++) { 
+ctx.beginPath(); 
+ctx.fillStyle = nodes[i].rgb; 
+ctx.arc(nodes[i].x, nodes[i].y, 9, 0, 2 * Math.PI); 
+ctx.fill(); 
+ctx.fillStyle = "#000000"; 
+ctx.fillText(nodes[i].label, nodes[i].x - 9, nodes[i].y + 23); 
+} 
+} 
+
+function findClicked(x, y) { 
+for (var i = 0; i < nodes.length; i++) { 
+if (Math.abs(x - nodes[i].x) < 11 && Math.abs(y - nodes[i].y) < 11) { 
+draw(); 
+ctx.strokeStyle = "#ff0000"; 
+ctx.strokeRect(nodes[i].x - 11, nodes[i].y - 11, 22, 22); 
+myFunction(nodes[i].id); 
+} 
+} 
+} 
+
+draw(); 
+} 
+function myDraw(x1, y1, x2, y2) { 
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'); 
+ctx.moveTo(x1, y1); 
+ctx.lineTo(x2, y2); 
+ctx.stroke(); 
+} 
+function myFunction(detail) { 
+var x = document.getElementById(detail).innerHTML; 
+document.getElementById("demo").innerHTML = x; 
+} 
+</script> 
+</body></html> 

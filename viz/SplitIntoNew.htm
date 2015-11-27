@@ -1,0 +1,213 @@
+<html> 
+<!DOCTYPE html>
+<meta charset="iso8859-1"> 
+
+<style> 
+div#demo { 
+margin-left: 870px; 
+} 
+canvas { 
+display: block; border: 1px solid #000; float: left; 
+} 
+</style>
+
+</head> 
+<body onLoad="main()";> 
+
+<canvas id="myCanvas" width="860" height="580"> 
+Your browser does not support the HTML5 canvas tag. 
+</canvas>
+<div id="demo"><em>Drag the clipping to pan the map. <br />&nbsp;<br />Click a circle on the left pane to see details in the right pane. </em> 
+
+&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br /><em>&nbsp;Powered by <a href="http://x28hd.de/tool/">MyTool</a></em></div>
+<div id="16" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="15" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="14" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="13" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="12" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    : GraphPanelControler
+  </body>
+</html>
+</div>
+<div id="11" style="display: none;"> : Hashtable<Integer, GraphNode>
+</div>
+<div id="10" style="display: none;"> : Hashtable<Integer, GraphEdge>
+</div>
+<div id="9" style="display: none;"> : String[][]
+</div>
+<div id="8" style="display: none;"> : int[]
+</div>
+<div id="7" style="display: none;"> : int[]
+</div>
+<div id="6" style="display: none;"> : int[]
+</div>
+<div id="5" style="display: none;">(String)
+</div>
+<div id="4" style="display: none;">(int)
+</div>
+<div id="3" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (int)
+  </body>
+</html>
+</div>
+<div id="2" style="display: none;">()
+</div>
+<div id="1" style="display: none;">()</div><script> 
+function main() { 
+var nodes = [ 
+{x: 93, y: 297, rgb: '#ffbbbb', label: 'Offer  results', id: '16'},  
+{x: 95, y: 158, rgb: '#ff0000', label: 'Main Work', id: '15'},  
+{x: 428, y: 279, rgb: '#bbffbb', label: 'Other fields', id: '14'},  
+{x: 431, y: 120, rgb: '#00ff00', label: 'Main Fields', id: '13'},  
+{x: 524, y: 197, rgb: '#ccdddd', label: 'controler', id: '12'},  
+{x: 526, y: 88, rgb: '#ccdddd', label: 'nodes', id: '11'},  
+{x: 526, y: 138, rgb: '#ccdddd', label: 'edges', id: '10'},  
+{x: 526, y: 246, rgb: '#ccdddd', label: 'columns', id: '9'},  
+{x: 526, y: 296, rgb: '#ccdddd', label: 'colons', id: '8'},  
+{x: 526, y: 346, rgb: '#ccdddd', label: 'commas', id: '7'},  
+{x: 526, y: 396, rgb: '#ccdddd', label: 'blanks', id: '6'},  
+{x: 188, y: 108, rgb: '#ccdddd', label: 'separateRecords', id: '5'},  
+{x: 188, y: 158, rgb: '#ccdddd', label: 'heuristics', id: '4'},  
+{x: 189, y: 219, rgb: '#ccdddd', label: 'createNodes', id: '3'},  
+{x: 189, y: 270, rgb: '#ccdddd', label: 'getNodes', id: '2'},  
+{x: 189, y: 320, rgb: '#ccdddd', label: 'getEdges', id: '1'} 
+]; 
+var edges = [ 
+{n1: 1, n2: 0, rgb: '#ffbbbb'},  
+{n1: 0, n2: 15, rgb: '#c0c0c0'},  
+{n1: 0, n2: 14, rgb: '#c0c0c0'},  
+{n1: 1, n2: 13, rgb: '#c0c0c0'},  
+{n1: 1, n2: 12, rgb: '#c0c0c0'},  
+{n1: 1, n2: 11, rgb: '#c0c0c0'},  
+{n1: 3, n2: 2, rgb: '#bbffbb'},  
+{n1: 2, n2: 10, rgb: '#c0c0c0'},  
+{n1: 2, n2: 9, rgb: '#c0c0c0'},  
+{n1: 2, n2: 8, rgb: '#c0c0c0'},  
+{n1: 2, n2: 7, rgb: '#c0c0c0'},  
+{n1: 2, n2: 4, rgb: '#c0c0c0'},  
+{n1: 3, n2: 6, rgb: '#c0c0c0'},  
+{n1: 3, n2: 5, rgb: '#c0c0c0'} 
+]; 
+
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'), 
+dragging = false, 
+lastX = 0, 
+lastY = 0, 
+translatedX = 0, 
+translatedY = 0; 
+ctx.font = "12px Arial"; 
+
+can.addEventListener('click', function(e) { 
+var evt = e || event; 
+absoluteX = evt.pageX - translatedX - 9; 
+absoluteY = evt.pageY - translatedY - 15; 
+findClicked(absoluteX, absoluteY); 
+}); 
+
+can.addEventListener('mousedown', function(e){ 
+var evt = e || event; 
+dragging = true, 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+}); 
+
+can.addEventListener('mousemove', function(e){ 
+var evt = e || event; 
+if (dragging){ 
+var deltaX = evt.pageX - lastX; 
+var deltaY = evt.pageY - lastY; 
+translatedX += deltaX; 
+translatedY += deltaY; 
+ctx.translate(deltaX, deltaY); 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+draw(); // redraw 
+} 
+}); 
+
+can.addEventListener('mouseup', function(e){ 
+dragging = false; 
+}); 
+
+function draw() { 
+ctx.clearRect(-translatedX, -translatedY, 860, 580); 
+for (var i = 0; i < edges.length; i++) { 
+ctx.strokeStyle = edges[i].rgb; 
+ctx.beginPath(); 
+ctx.moveTo(nodes[edges[i].n1].x, nodes[edges[i].n1].y); 
+ctx.lineTo(nodes[edges[i].n2].x, nodes[edges[i].n2].y); 
+ctx.stroke(); 
+} 
+for (var i = 0; i < nodes.length; i++) { 
+ctx.beginPath(); 
+ctx.fillStyle = nodes[i].rgb; 
+ctx.arc(nodes[i].x, nodes[i].y, 9, 0, 2 * Math.PI); 
+ctx.fill(); 
+ctx.fillStyle = "#000000"; 
+ctx.fillText(nodes[i].label, nodes[i].x - 9, nodes[i].y + 23); 
+} 
+} 
+
+function findClicked(x, y) { 
+for (var i = 0; i < nodes.length; i++) { 
+if (Math.abs(x - nodes[i].x) < 11 && Math.abs(y - nodes[i].y) < 11) { 
+draw(); 
+ctx.strokeStyle = "#ff0000"; 
+ctx.strokeRect(nodes[i].x - 11, nodes[i].y - 11, 22, 22); 
+myFunction(nodes[i].id); 
+} 
+} 
+} 
+
+draw(); 
+} 
+function myDraw(x1, y1, x2, y2) { 
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'); 
+ctx.moveTo(x1, y1); 
+ctx.lineTo(x2, y2); 
+ctx.stroke(); 
+} 
+function myFunction(detail) { 
+var x = document.getElementById(detail).innerHTML; 
+document.getElementById("demo").innerHTML = x; 
+} 
+</script> 
+</body></html> 
