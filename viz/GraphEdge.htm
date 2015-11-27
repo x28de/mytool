@@ -1,0 +1,519 @@
+<html> 
+<!DOCTYPE html>
+<meta charset="iso8859-1"> 
+
+<style> 
+div#demo { 
+margin-left: 870px; 
+} 
+canvas { 
+display: block; border: 1px solid #000; float: left; 
+} 
+</style>
+
+</head> 
+<body onLoad="main()";> 
+
+<canvas id="myCanvas" width="860" height="580"> 
+Your browser does not support the HTML5 canvas tag. 
+</canvas>
+<div id="demo"><em>Drag the clipping to pan the map. <br />&nbsp;<br />Click a circle on the left pane to see details in the right pane. </em> 
+
+&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br /><em>&nbsp;Powered by <a href="http://x28hd.de/tool/">MyTool</a></em></div>
+<div id="32" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="31" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="30" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="29" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="28" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="27" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="26" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="25" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="24" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="23" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="22" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="21" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="20" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="19" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="18" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="17" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="16" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="15" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="14" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="13" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+  </body>
+</html>
+</div>
+<div id="12" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    public GraphEdge (int id, GraphNode node1, GraphNode node2, Color color, 
+    String detail)
+  </body>
+</html>
+</div>
+<div id="11" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    public GraphNode(int id, Point xy, Color color, String label, String 
+    detail)
+  </body>
+</html>
+</div>
+<div id="10" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    <p>
+      1. id (node and edge)<br>in constructor,<br>redundant (same as key in 
+      Hashtable)<br>get/set by getID() / setID()<br>loaded/ stored (new 
+      format): nodeid as attribute, edgeid not in xml<br>imported (old format) 
+      as attribute<br>&#160;<br>3. node1 / node2 (edge only)<br>in constructor<br>not 
+      redundant,<br>get by getNode1/2, no set<br>not loaded/ stored (new 
+      format), see n1, n2 instead<br>not imported (old format), see n1, n2 
+      instead<br>&#160;<br>4. color (node and edge)<br>in constructor,<br>not 
+      redundant,<br>get/set by getColor(Color) / setColor (String)<br>loaded/ 
+      stored (new format): as attribute (String)<br>imported (old format) as 
+      attributes r, g, b<br>&#160;<br>6. detail (node and edge)<br>in 
+      constructor<br>not redundant,<br>get/set by getDetail / setDetail<br>loaded/ 
+      stored (new format) as cdata<br>imported (old format) as 
+      &lt;description&gt;\cdata<br>&#160;<br>7. n1 / n2 (edge only)<br>not in 
+      constructor<br>redundant, see node1 / node2<br>get by getN1/2, no set<br>loaded/ 
+      stored (new format) as attributes<br>imported (old format) as 
+      &lt;assocrl&gt;\cdata<br>
+    </p>
+  </body>
+</html>
+</div>
+<div id="9" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    <p>
+      1. id (node and edge)<br>in constructor,<br>redundant (same as key in 
+      Hashtable)<br>get/set by getID() / setID()<br>loaded/ stored (new 
+      format): nodeid as attribute, edgeid not in xml<br>imported (old format) 
+      as attribute<br>&#160;<br>2. xy (node only)<br>in constructor,<br>not 
+      redundant<br>get/set by getXY() / setXY()<br>loaded/ stored (new 
+      format): as attributes x, y<br>imported (old format) as attributes x, y<br>&#160;<br>4. 
+      color (node and edge)<br>in constructor,<br>not redundant,<br>get/set by 
+      getColor(Color) / setColor (String)<br>loaded/ stored (new format): as 
+      attribute (String)<br>imported (old format) as attributes r, g, b<br>&#160;<br>5. 
+      label (node)<br>in constructor<br>not redundant,<br>get/set by getLabel 
+      / setLabel<br>loaded/ stored (new format) as cdata<br>imported (old 
+      format) as topname&gt;\&lt;basename&gt;\cdata<br>&#160;<br>6. detail 
+      (node and edge)<br>in constructor<br>not redundant,<br>get/set by 
+      getDetail / setDetail<br>loaded/ stored (new format) as cdata<br>imported 
+      (old format) as &lt;description&gt;\cdata<br>&#160;<br>8. associations 
+      (node only)<br>not in constructor<br>redundant, see egdes<br>get by 
+      getEdges, relatedNode; set by addEdge, removeEdge<br>not loaded/ stored 
+      (new format)<br>not imported (old format)
+    </p>
+  </body>
+</html>
+</div>
+<div id="8" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (node and edge)<br />in constructor,<br />redundant (same as key in Hashtable)<br />get/set 
+    by getID() / setID()<br />loaded/ stored (new format): nodeid as attribute, 
+    edgeid not in xml<br />imported (old format) as attribute
+  </body>
+</html>
+</div>
+<div id="7" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (node only)<br />in constructor,<br />not redundant<br />get/set by getXY() / 
+    setXY()<br />loaded/ stored (new format): as attributes x, y<br />imported 
+    (old format) as attributes x, y
+  </body>
+</html>
+</div>
+<div id="6" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (edge only)<br />in constructor<br />not redundant,<br />get by getNode1/2, no 
+    set<br />not loaded/ stored (new format), see n1, n2 instead<br />not imported 
+    (old format), see n1, n2 instead
+  </body>
+</html>
+</div>
+<div id="5" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (node and edge)<br />in constructor,<br />not redundant,<br />get/set by 
+    getColor(Color) / setColor (String)<br />loaded/ stored (new format): as 
+    attribute (String)<br />imported (old format) as attributes r, g, b
+  </body>
+</html>
+</div>
+<div id="4" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (node)<br />in constructor<br />not redundant,<br />get/set by getLabel / 
+    setLabel<br />loaded/ stored (new format) as cdata<br />imported (old format) 
+    as topname&gt;\&lt;basename&gt;\cdata
+  </body>
+</html>
+</div>
+<div id="3" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (node and edge)<br />in constructor<br />not redundant,<br />get/set by 
+    getDetail / setDetail<br />loaded/ stored (new format) as cdata<br />imported 
+    (old format) as <description>\cdata
+  </body>
+</html>
+</div>
+<div id="2" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (edge only)<br />not in constructor<br />redundant, see node1 / node2<br />get 
+    by getN1/2, no set<br />loaded/ stored (new format) as attributes<br />imported 
+    (old format) as &lt;assocrl anchrole="tt-topic[12]"&gt;\cdata
+  </body>
+</html>
+</div>
+<div id="1" style="display: none;"><html>
+  <head>
+    
+  </head>
+  <body>
+    (node only)<br />not in constructor<br />redundant, see egdes<br />get by 
+    getEdges, relatedNode; set by addEdge, removeEdge<br />not loaded/ stored 
+    (new format)<br />not imported (old format)
+  </body>
+</html>
+</div><script> 
+function main() { 
+var nodes = [ 
+{x: 154, y: 105, rgb: '#ffbbbb', label: 'methods', id: '32'},  
+{x: 109, y: 175, rgb: '#ffff99', label: '', id: '31'},  
+{x: 67, y: 177, rgb: '#bbffbb', label: '', id: '30'},  
+{x: 26, y: 174, rgb: '#bbbbff', label: '', id: '29'},  
+{x: 71, y: 106, rgb: '#ccdddd', label: 'fields', id: '28'},  
+{x: 113, y: 34, rgb: '#eeeeee', label: 'Legend:', id: '27'},  
+{x: 856, y: 515, rgb: '#ffbbbb', label: 'removeEdge', id: '26'},  
+{x: 856, y: 462, rgb: '#ffbbbb', label: 'addEdge', id: '25'},  
+{x: 88, y: 522, rgb: '#ffbbbb', label: 'relatedNode', id: '24'},  
+{x: 88, y: 467, rgb: '#ffbbbb', label: 'getEdges', id: '23'},  
+{x: 88, y: 410, rgb: '#ffbbbb', label: 'get', id: '22'},  
+{x: 852, y: 113, rgb: '#ffbbbb', label: 'get & set', id: '21'},  
+{x: 578, y: 378, rgb: '#eeeeee', label: 'cdata', id: '20'},  
+{x: 385, y: 372, rgb: '#eeeeee', label: 'cdata', id: '19'},  
+{x: 645, y: 370, rgb: '#ccdddd', label: 'XML', id: '18'},  
+{x: 635, y: 282, rgb: '#eeeeee', label: 'attribute', id: '17'},  
+{x: 283, y: 376, rgb: '#ccdddd', label: 'XML', id: '16'},  
+{x: 297, y: 290, rgb: '#eeeeee', label: 'attribute', id: '15'},  
+{x: 375, y: 206, rgb: '#0000ff', label: 'not redundant', id: '14'},  
+{x: 560, y: 230, rgb: '#ffff00', label: 'not redundant', id: '13'},  
+{x: 645, y: 142, rgb: '#ffff99', label: 'in constructor', id: '12'},  
+{x: 268, y: 152, rgb: '#bbbbff', label: 'in constructor', id: '11'},  
+{x: 775, y: 222, rgb: '#ffff00', label: 'GraphEdge', id: '10'},  
+{x: 181, y: 226, rgb: '#0000ff', label: 'GraphNode', id: '9'},  
+{x: 472, y: 43, rgb: '#bbffbb', label: '1. id ', id: '8'},  
+{x: 469, y: 109, rgb: '#0000ff', label: '2. xy ', id: '7'},  
+{x: 468, y: 168, rgb: '#ffff00', label: '3. node1 / node2 ', id: '6'},  
+{x: 470, y: 221, rgb: '#00ff00', label: '4. color', id: '5'},  
+{x: 468, y: 291, rgb: '#0000ff', label: '5. label', id: '4'},  
+{x: 468, y: 361, rgb: '#00ff00', label: '6. detail', id: '3'},  
+{x: 466, y: 422, rgb: '#ffff99', label: '7. n1 / n2', id: '2'},  
+{x: 464, y: 480, rgb: '#bbbbff', label: '8. associations', id: '1'} 
+]; 
+var edges = [ 
+{n1: 5, n2: 0, rgb: '#c0c0c0'},  
+{n1: 4, n2: 1, rgb: '#c0c0c0'},  
+{n1: 4, n2: 2, rgb: '#c0c0c0'},  
+{n1: 4, n2: 3, rgb: '#c0c0c0'},  
+{n1: 5, n2: 4, rgb: '#c0c0c0'},  
+{n1: 6, n2: 31, rgb: '#c0c0c0'},  
+{n1: 7, n2: 31, rgb: '#c0c0c0'},  
+{n1: 8, n2: 31, rgb: '#c0c0c0'},  
+{n1: 9, n2: 31, rgb: '#c0c0c0'},  
+{n1: 10, n2: 30, rgb: '#c0c0c0'},  
+{n1: 11, n2: 29, rgb: '#c0c0c0'},  
+{n1: 11, n2: 28, rgb: '#c0c0c0'},  
+{n1: 11, n2: 27, rgb: '#c0c0c0'},  
+{n1: 10, n2: 26, rgb: '#c0c0c0'},  
+{n1: 11, n2: 25, rgb: '#c0c0c0'},  
+{n1: 11, n2: 24, rgb: '#c0c0c0'},  
+{n1: 18, n2: 23, rgb: '#0000ff'},  
+{n1: 19, n2: 22, rgb: '#ffff00'},  
+{n1: 30, n2: 15, rgb: '#f0f0f0'},  
+{n1: 29, n2: 12, rgb: '#f0f0f0'},  
+{n1: 29, n2: 13, rgb: '#f0f0f0'},  
+{n1: 28, n2: 13, rgb: '#f0f0f0'},  
+{n1: 12, n2: 14, rgb: '#f0f0f0'},  
+{n1: 13, n2: 16, rgb: '#f0f0f0'},  
+{n1: 27, n2: 15, rgb: '#f0f0f0'},  
+{n1: 27, n2: 17, rgb: '#f0f0f0'},  
+{n1: 25, n2: 17, rgb: '#f0f0f0'},  
+{n1: 15, n2: 14, rgb: '#f0f0f0'},  
+{n1: 25, n2: 15, rgb: '#f0f0f0'},  
+{n1: 17, n2: 16, rgb: '#f0f0f0'},  
+{n1: 24, n2: 17, rgb: '#f0f0f0'},  
+{n1: 21, n2: 23, rgb: '#bbbbff'},  
+{n1: 20, n2: 22, rgb: '#ffff99'},  
+{n1: 30, n2: 22, rgb: '#c0c0c0'},  
+{n1: 31, n2: 23, rgb: '#c0c0c0'},  
+{n1: 29, n2: 18, rgb: '#0000ff'},  
+{n1: 29, n2: 19, rgb: '#ffff00'},  
+{n1: 28, n2: 18, rgb: '#0000ff'},  
+{n1: 27, n2: 18, rgb: '#0000ff'},  
+{n1: 27, n2: 19, rgb: '#ffff00'},  
+{n1: 26, n2: 19, rgb: '#ffff00'},  
+{n1: 25, n2: 18, rgb: '#0000ff'},  
+{n1: 29, n2: 21, rgb: '#bbbbff'},  
+{n1: 29, n2: 20, rgb: '#ffff99'},  
+{n1: 28, n2: 21, rgb: '#bbbbff'},  
+{n1: 27, n2: 20, rgb: '#ffff99'},  
+{n1: 27, n2: 21, rgb: '#bbbbff'},  
+{n1: 26, n2: 20, rgb: '#ffff99'},  
+{n1: 25, n2: 21, rgb: '#bbbbff'},  
+{n1: 24, n2: 20, rgb: '#ffff99'},  
+{n1: 24, n2: 21, rgb: '#bbbbff'} 
+]; 
+
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'), 
+dragging = false, 
+lastX = 0, 
+lastY = 0, 
+translatedX = 0, 
+translatedY = 0; 
+ctx.font = "12px Arial"; 
+
+can.addEventListener('click', function(e) { 
+var evt = e || event; 
+absoluteX = evt.pageX - translatedX - 9; 
+absoluteY = evt.pageY - translatedY - 15; 
+findClicked(absoluteX, absoluteY); 
+}); 
+
+can.addEventListener('mousedown', function(e){ 
+var evt = e || event; 
+dragging = true, 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+}); 
+
+can.addEventListener('mousemove', function(e){ 
+var evt = e || event; 
+if (dragging){ 
+var deltaX = evt.pageX - lastX; 
+var deltaY = evt.pageY - lastY; 
+translatedX += deltaX; 
+translatedY += deltaY; 
+ctx.translate(deltaX, deltaY); 
+lastX = evt.pageX; 
+lastY = evt.pageY; 
+draw(); // redraw 
+} 
+}); 
+
+can.addEventListener('mouseup', function(e){ 
+dragging = false; 
+}); 
+
+function draw() { 
+ctx.clearRect(-translatedX, -translatedY, 860, 580); 
+for (var i = 0; i < edges.length; i++) { 
+ctx.strokeStyle = edges[i].rgb; 
+ctx.beginPath(); 
+ctx.moveTo(nodes[edges[i].n1].x, nodes[edges[i].n1].y); 
+ctx.lineTo(nodes[edges[i].n2].x, nodes[edges[i].n2].y); 
+ctx.stroke(); 
+} 
+for (var i = 0; i < nodes.length; i++) { 
+ctx.beginPath(); 
+ctx.fillStyle = nodes[i].rgb; 
+ctx.arc(nodes[i].x, nodes[i].y, 9, 0, 2 * Math.PI); 
+ctx.fill(); 
+ctx.fillStyle = "#000000"; 
+ctx.fillText(nodes[i].label, nodes[i].x - 9, nodes[i].y + 23); 
+} 
+} 
+
+function findClicked(x, y) { 
+for (var i = 0; i < nodes.length; i++) { 
+if (Math.abs(x - nodes[i].x) < 11 && Math.abs(y - nodes[i].y) < 11) { 
+draw(); 
+ctx.strokeStyle = "#ff0000"; 
+ctx.strokeRect(nodes[i].x - 11, nodes[i].y - 11, 22, 22); 
+myFunction(nodes[i].id); 
+} 
+} 
+} 
+
+draw(); 
+} 
+function myDraw(x1, y1, x2, y2) { 
+var can = document.getElementById("myCanvas"), 
+ctx = can.getContext('2d'); 
+ctx.moveTo(x1, y1); 
+ctx.lineTo(x2, y2); 
+ctx.stroke(); 
+} 
+function myFunction(detail) { 
+var x = document.getElementById(detail).innerHTML; 
+document.getElementById("demo").innerHTML = x; 
+} 
+</script> 
+</body></html> 
