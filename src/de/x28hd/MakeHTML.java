@@ -18,8 +18,9 @@ public class MakeHTML {
 		Hashtable<Integer, Integer> nodeids = new Hashtable<Integer, Integer>();
 		Hashtable<Integer, Integer> edgeids = new Hashtable<Integer, Integer>();
 		Rectangle bounds = controler.getBounds();
-		int width = bounds.width + 100;
-		int height = bounds.height + 100;
+		System.out.println(bounds.x + " - " + bounds.width + " x " + bounds.y + " - " + bounds.height);
+		int width = bounds.width + 150;
+		int height = bounds.height + 60;
 		if (!graphOnly) {
 			width = 860;
 			height = 580;
@@ -85,8 +86,8 @@ public class MakeHTML {
 		topicid = node.getID();
 		nodeids.put(topicid, nodenum);
 		Point xy = node.getXY();
-		nodesOut[nodenum][0] = xy.x + "";
-		nodesOut[nodenum][1] = xy.y + "";
+		nodesOut[nodenum][0] = xy.x - bounds.x + 30 + "";
+		nodesOut[nodenum][1] = xy.y - bounds.y + 30 + "";
 		r = node.getColor().getRed();
 		g = node.getColor().getGreen();
 		b = node.getColor().getBlue();
