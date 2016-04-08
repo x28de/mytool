@@ -1,4 +1,4 @@
-package de.x28hd;
+package de.x28hd.tool;
 
 class Selection {
 

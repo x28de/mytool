@@ -1,4 +1,4 @@
-package de.x28hd;
+package de.x28hd.tool;
 
 // Documentation (see http://x28hd.de/tool/devel/index.htm for updates)
 

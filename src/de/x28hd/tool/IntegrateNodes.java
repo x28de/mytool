@@ -1,4 +1,4 @@
-package de.x28hd;
+package de.x28hd.tool;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Enumeration;

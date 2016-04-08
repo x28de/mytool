@@ -1,4 +1,4 @@
-package de.x28hd;
+package de.x28hd.tool;
 
 
 import java.awt.BorderLayout;
@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -49,6 +51,8 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	CaretListener myCaretAdapter;
 	int selMark;
 	int selDot;
+	int myMark;
+	int myDot;
 	boolean isDirty = false;
 	boolean editableOrClickable = true; //  hyperlinks disabled
 	private static final long serialVersionUID = 1L;
@@ -83,10 +87,10 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 			String fixedText = middleText.replace(EndOfLineStringProperty + "    ", "");
 			fixedText = fixedText.replace(EndOfLineStringProperty, "<br />");
 			fixedText = headText + fixedText + tailText;
-			System.out.println(headOffset + " " + tailOffset + " " + 
-					"middle: \r\n" + middleText + "\r\nfixed: \r\n" + fixedText);
+//			System.out.println(headOffset + " " + tailOffset + " " + 
+//					"middle: \r\n" + middleText + "\r\nfixed: \r\n" + fixedText);
 			setText(fixedText);
-			System.out.println("breakIsTrailing ? " + breakIsTrailing);
+//			System.out.println("breakIsTrailing ? " + breakIsTrailing);
 			if (breakIsTrailing) {
 				textComponent.setCaretPosition(pos);
 			} else {
@@ -219,6 +223,11 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 					showContextMenu(x, y);
 				}
 			}
+//			public void mouseReleased(MouseEvent e) {
+//				if (e.getClickCount() > 1) {		// double clicked
+//		            doubleclickReselect();
+//				}
+//			}
 		});
 
 		myCaretAdapter = new MyCaretAdapter();
@@ -228,9 +237,11 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	class MyCaretAdapter implements CaretListener {
 
 		public void caretUpdate(CaretEvent e) {
+	          myDot = e.getDot();
+	          myMark = e.getMark();
 			selMark = e.getMark();
 			selDot = e.getDot();
-			System.out.println("Dot = " + selDot + ", Mark = " + selMark );
+//			System.out.println("Dot = " + selDot + ", Mark = " + selMark );
 			processClicks();
 		}
 	}
@@ -292,32 +303,32 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	public void insertUpdate(DocumentEvent e) {
 		offset = e.getOffset();
 		int length = e.getDocument().getLength();
-		System.out.println("insert, offset = " + offset + ", length = " + length);
+//		System.out.println("insert, offset = " + offset + ", length = " + length);
 		String insText1 = null;
 		String insText2 = null;
 		try {
 			insText1 = doc.getText(offset, 1);
-			System.out.println("insText1 = >" + insText1 + "<");
+//			System.out.println("insText1 = >" + insText1 + "<");
 		} catch (BadLocationException e1) {
 			System.out.println("Error TE102a " + e);
 		}
 		try {
 			insText2 = doc.getText(offset, 2);
-			System.out.println("insText2 = >" + insText2 + "<");
+//			System.out.println("insText2 = >" + insText2 + "<");
 		} catch (BadLocationException e1) {
 			System.out.println("Error TE102b " + e);
 		}
 		if (offset > 0 && offset < length) {
 			if (insText2.startsWith("\n")) {
 				breakIsTrailing = false;
-				System.out.println("Success!");
+//				System.out.println("Success!");
 				if (insText2.equals("\n\n")) {
-					System.out.println("at the end");
+//					System.out.println("at the end");
 					breakIsTrailing = true;
 				}
 				SwingUtilities.invokeLater(insertBreak);
 			} else  {
-				System.out.println("Failure, string = -->" + insText1 + "<--");
+//				System.out.println("Failure, string = -->" + insText1 + "<--");
 			}
 		}
 		
@@ -340,6 +351,35 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	boolean isDirty() {
 		return isDirty;
 	}
+	
+
+////	
+////	Accessory for double-click
+////	(On the Surface Pro tablet, double-clicking selects only from beginning to dot? 
+//    public void doubleclickReselect() {
+//    	
+//    	boolean proceed = true;
+//    	String inspect = "";
+//    	Pattern regexPattern = Pattern.compile("[\\p{IsPunctuation}$+<=>^`|~\\p{IsWhite_Space}]");
+//    	CharSequence inspectedSeq = "";
+//    	Matcher matcher = null;
+//    	while (proceed) {
+//    		try {
+//    			inspect = doc.getText(myDot, 1);
+//    		} catch (BadLocationException e1) {
+//    			System.out.println("BadLocationException");
+//    			System.exit(0);
+//    		}
+//    		inspectedSeq = (CharSequence) inspect;
+//    		matcher = regexPattern.matcher(inspectedSeq);
+//    		if (matcher.matches()) {
+//    			proceed = false;
+//    		}  else {
+//    			myDot++;
+//    		}
+//    		textComponent.setSelectionEnd(myDot);
+//    	}
+//    }
 
 //
 //	Main Methods

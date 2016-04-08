@@ -1,4 +1,4 @@
-package de.x28hd;
+package de.x28hd.tool;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -902,6 +902,9 @@ public class NewStuff {
     				line = f.toURI().toString();
 //    				line = shortName + "\t" + "<html><body>Open file <a href=\"file://" + line  + "\">" + shortName + "</a></body></html>";
     				line = shortName + "\t" + "<html><body>Open file <a href=\"" + line  + "\">" + shortName + "</a></body></html>";
+    				if (!extension.equals(".website") && !extension.equals(".URL") && !extension.equals(".lnk")) {
+    					line = line.replaceFirst("file:/", "file://");
+    				}
     				output = output + line + "\r\n";
 
     			} else {
