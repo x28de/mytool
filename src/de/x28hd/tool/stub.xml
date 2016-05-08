@@ -1,0 +1,544 @@
+<org.semanticdesktop.swecr.model.memory.xml.XModel>
+  <contentItems class="linked-list">
+    <contentitem>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462638341554</changeDate>
+      <creationDate>1462637690163</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <content>Built-in (data model)</content>
+      <mimetype class="org.semanticdesktop.binstore.MimeType">
+        <mimeType>text/plain</mimeType>
+      </mimetype>
+    </contentitem>
+    <contentitem>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author-unknown</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462638341555</changeDate>
+      <creationDate>1462637690164</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <content>Unknown Author</content>
+      <mimetype class="org.semanticdesktop.binstore.MimeType" reference="/org.semanticdesktop.swecr.model.memory.xml.XModel/contentItems/contentitem/mimetype"/>
+    </contentitem>
+  </contentItems>
+  <nameItems class="linked-list">
+    <nameitem>
+      <uri>urn:xam.de#t20160507-16.14.50.170-0</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690170</changeDate>
+      <creationDate>1462637690170</creationDate>
+      <authorURI>http://imapping.info#author</authorURI>
+      <name>IMappingInbox</name>
+    </nameitem>
+    <nameitem>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#rootItem</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690295</changeDate>
+      <creationDate>1462637690125</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>New iMap</name>
+    </nameitem>
+  </nameItems>
+  <relations class="linked-list">
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasBefore</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690138</changeDate>
+      <creationDate>1462637690137</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>comes after</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasAfter</inverseUri>
+      <inverseName>comes before</inverseName>
+      <inverseCreationDate>1462637690138</inverseCreationDate>
+      <inverseChangeDate>1462637690138</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasInstance</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690158</changeDate>
+      <creationDate>1462637690158</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>has instance</name>
+      <inverseUri>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</inverseUri>
+      <inverseName>has type</inverseName>
+      <inverseCreationDate>1462637690158</inverseCreationDate>
+      <inverseChangeDate>1462637690158</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690158</changeDate>
+      <creationDate>1462637690158</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>has type</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasInstance</inverseUri>
+      <inverseName>has instance</inverseName>
+      <inverseCreationDate>1462637690158</inverseCreationDate>
+      <inverseChangeDate>1462637690158</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isRelated</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690126</changeDate>
+      <creationDate>1462637690126</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>is related to</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isRelated</inverseUri>
+      <inverseName>is related to</inverseName>
+      <inverseCreationDate>1462637690126</inverseCreationDate>
+      <inverseChangeDate>1462637690126</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasPart</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690148</changeDate>
+      <creationDate>1462637690148</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>has part</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isPartOf</inverseUri>
+      <inverseName>is part of</inverseName>
+      <inverseCreationDate>1462637690148</inverseCreationDate>
+      <inverseChangeDate>1462637690148</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isAliasOf</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690131</changeDate>
+      <creationDate>1462637690131</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>is alias for</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasAlias</inverseUri>
+      <inverseName>has alias</inverseName>
+      <inverseCreationDate>1462637690131</inverseCreationDate>
+      <inverseChangeDate>1462637690131</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasSource</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690136</changeDate>
+      <creationDate>1462637690136</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>is linked from</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasTarget</inverseUri>
+      <inverseName>links to</inverseName>
+      <inverseCreationDate>1462637690136</inverseCreationDate>
+      <inverseChangeDate>1462637690136</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasAfter</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690138</changeDate>
+      <creationDate>1462637690138</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>comes before</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasBefore</inverseUri>
+      <inverseName>comes after</inverseName>
+      <inverseCreationDate>1462637690137</inverseCreationDate>
+      <inverseChangeDate>1462637690138</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasSimilar</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690128</changeDate>
+      <creationDate>1462637690128</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>is similar to</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasSimilar</inverseUri>
+      <inverseName>is similar to</inverseName>
+      <inverseCreationDate>1462637690128</inverseCreationDate>
+      <inverseChangeDate>1462637690128</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasTopic</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690152</changeDate>
+      <creationDate>1462637690151</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>has annotation</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasAnnotationMember</inverseUri>
+      <inverseName>annotates</inverseName>
+      <inverseCreationDate>1462637690152</inverseCreationDate>
+      <inverseChangeDate>1462637690152</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasAlias</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690131</changeDate>
+      <creationDate>1462637690131</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>has alias</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isAliasOf</inverseUri>
+      <inverseName>is alias for</inverseName>
+      <inverseCreationDate>1462637690131</inverseCreationDate>
+      <inverseChangeDate>1462637690131</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#replaces</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690133</changeDate>
+      <creationDate>1462637690133</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>replaces</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#replacedBy</inverseUri>
+      <inverseName>is replaced by</inverseName>
+      <inverseCreationDate>1462637690133</inverseCreationDate>
+      <inverseChangeDate>1462637690133</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690154</changeDate>
+      <creationDate>1462637690154</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>is tagged with</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor</inverseUri>
+      <inverseName>is tag of</inverseName>
+      <inverseCreationDate>1462637690154</inverseCreationDate>
+      <inverseChangeDate>1462637690154</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#replacedBy</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690133</changeDate>
+      <creationDate>1462637690133</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>is replaced by</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#replaces</inverseUri>
+      <inverseName>replaces</inverseName>
+      <inverseCreationDate>1462637690133</inverseCreationDate>
+      <inverseChangeDate>1462637690133</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasTarget</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690136</changeDate>
+      <creationDate>1462637690136</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>links to</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasSource</inverseUri>
+      <inverseName>is linked from</inverseName>
+      <inverseCreationDate>1462637690136</inverseCreationDate>
+      <inverseChangeDate>1462637690136</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasSubtype</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690127</changeDate>
+      <creationDate>1462637690127</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>has subtype</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</inverseUri>
+      <inverseName>is subtype of</inverseName>
+      <inverseCreationDate>1462637690127</inverseCreationDate>
+      <inverseChangeDate>1462637690127</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasDetail</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690140</changeDate>
+      <creationDate>1462637690140</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>has detail</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasContext</inverseUri>
+      <inverseName>has context</inverseName>
+      <inverseCreationDate>1462637690140</inverseCreationDate>
+      <inverseChangeDate>1462637690140</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690127</changeDate>
+      <creationDate>1462637690127</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>is subtype of</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasSubtype</inverseUri>
+      <inverseName>has subtype</inverseName>
+      <inverseCreationDate>1462637690127</inverseCreationDate>
+      <inverseChangeDate>1462637690127</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isPartOf</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690148</changeDate>
+      <creationDate>1462637690148</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>is part of</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasPart</inverseUri>
+      <inverseName>has part</inverseName>
+      <inverseCreationDate>1462637690148</inverseCreationDate>
+      <inverseChangeDate>1462637690148</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasContext</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690140</changeDate>
+      <creationDate>1462637690140</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>has context</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasDetail</inverseUri>
+      <inverseName>has detail</inverseName>
+      <inverseCreationDate>1462637690140</inverseCreationDate>
+      <inverseChangeDate>1462637690140</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasAnnotationMember</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690152</changeDate>
+      <creationDate>1462637690152</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>annotates</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasTopic</inverseUri>
+      <inverseName>has annotation</inverseName>
+      <inverseCreationDate>1462637690151</inverseCreationDate>
+      <inverseChangeDate>1462637690152</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690154</changeDate>
+      <creationDate>1462637690154</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>is tag of</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag</inverseUri>
+      <inverseName>is tagged with</inverseName>
+      <inverseCreationDate>1462637690154</inverseCreationDate>
+      <inverseChangeDate>1462637690154</inverseChangeDate>
+    </relation>
+    <relation>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#sameAs</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690130</changeDate>
+      <creationDate>1462637690130</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <name>is same as</name>
+      <inverseUri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#sameAs</inverseUri>
+      <inverseName>is same as</inverseName>
+      <inverseCreationDate>1462637690130</inverseCreationDate>
+      <inverseChangeDate>1462637690130</inverseChangeDate>
+    </relation>
+  </relations>
+  <statements class="linked-list">
+    <statement>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#axiom-12--Typ-subOf-Tag</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690160</changeDate>
+      <creationDate>1462637690160</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <s>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag</o>
+    </statement>
+    <statement>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#axiom-11--Tag-subOf-Ann</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690156</changeDate>
+      <creationDate>1462637690156</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <s>http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasTopic</o>
+    </statement>
+    <statement>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#axiom-05--Sou-subOf-Rel</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690137</changeDate>
+      <creationDate>1462637690137</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <s>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasSource</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isRelated</o>
+    </statement>
+    <statement>
+      <uri>urn:xam.de#t20160507-16.14.50.178-0</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690178</changeDate>
+      <creationDate>1462637690178</creationDate>
+      <authorURI>http://imapping.info#author</authorURI>
+      <binary>false</binary>
+      <s>urn:xam.de#t20160507-16.14.50.170-0</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasDetail</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</o>
+    </statement>
+    <statement>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#axiom-07--Det-subOf-Tar</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690141</changeDate>
+      <creationDate>1462637690141</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <s>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasDetail</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasTarget</o>
+    </statement>
+    <statement>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#axiom-03--Ali-subOf-Sim</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690132</changeDate>
+      <creationDate>1462637690132</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <s>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasAlias</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasSimilar</o>
+    </statement>
+    <statement>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#axiom-02--Sam-subOf-Sim</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690131</changeDate>
+      <creationDate>1462637690131</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <s>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#sameAs</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasSimilar</o>
+    </statement>
+    <statement>
+      <uri>urn:xam.de#t20160507-16.14.50.204-0</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690204</changeDate>
+      <creationDate>1462637690204</creationDate>
+      <authorURI>http://imapping.info#author</authorURI>
+      <binary>false</binary>
+      <s>urn:xam.de#t20160507-16.14.50.170-0</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasDetail</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author-unknown</o>
+    </statement>
+    <statement>
+      <uri>urn:xam.de#t20160507-16.14.50.174-0</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690174</changeDate>
+      <creationDate>1462637690174</creationDate>
+      <authorURI>http://imapping.info#author</authorURI>
+      <binary>false</binary>
+      <s>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#rootItem</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasDetail</p>
+      <o>urn:xam.de#t20160507-16.14.50.170-0</o>
+    </statement>
+    <statement>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#axiom-06--Aft-subOf-Tar</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690139</changeDate>
+      <creationDate>1462637690139</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <s>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasAfter</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasTarget</o>
+    </statement>
+    <statement>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#axiom-01--Sim-subOf-Rel</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690129</changeDate>
+      <creationDate>1462637690129</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <s>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasSimilar</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isRelated</o>
+    </statement>
+    <statement>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#axiom-04--Rep-subOf-Ali</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690134</changeDate>
+      <creationDate>1462637690134</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <s>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#replaces</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isAliasOf</o>
+    </statement>
+    <statement>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#axiom-10--AMe-subOf-Tar</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690153</changeDate>
+      <creationDate>1462637690153</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <s>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasAnnotationMember</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasTarget</o>
+    </statement>
+    <statement>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#axiom-13--Root-Det-Rel</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690163</changeDate>
+      <creationDate>1462637690163</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <s>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#rootItem</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasDetail</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isRelated</o>
+    </statement>
+    <statement>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#axiom-09--Par-subOf-Det</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690150</changeDate>
+      <creationDate>1462637690150</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <s>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasPart</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasDetail</o>
+    </statement>
+    <statement>
+      <uri>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#axiom-08--hasSub-subOf-Det</uri>
+      <readonly>false</readonly>
+      <deletable>true</deletable>
+      <changeDate>1462637690141</changeDate>
+      <creationDate>1462637690141</creationDate>
+      <authorURI>http://www.semanticdesktop.org/ontologies/2007/09/swcm#author:system</authorURI>
+      <binary>false</binary>
+      <s>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasSubtype</s>
+      <p>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#isSubtypeOf</p>
+      <o>http://www.semanticdesktop.org/ontologies/2007/09/01/cds#hasDetail</o>
+    </statement>
+  </statements>
+  <triples class="linked-list"/>
+</org.semanticdesktop.swecr.model.memory.xml.XModel>

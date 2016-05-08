@@ -23,7 +23,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -54,6 +58,7 @@ public class NewStuff {
 	private GraphPanelControler controler;
 	boolean compositionMode = false;
 	boolean firstComposition = true;
+	boolean windows = false;
 	
 	//	Input
 	public static DataFlavor htmlSelectionFlavor;
@@ -82,11 +87,17 @@ public class NewStuff {
 	boolean tableCell = false;
 	boolean firstColumn = true;
 	String dataStringResort = "";
+	
+	//	Input file sorting
+	Hashtable<Integer,String> byModDates = new Hashtable<Integer,String>();;
+	TreeMap<Long,Integer> datesMap = new TreeMap<Long,Integer>();
+	SortedMap<Long,Integer> datesList = (SortedMap<Long,Integer>) datesMap;
 
 	
 	public NewStuff(final GraphPanelControler controler) {
 		System.out.println("NS started");
 		this.controler = controler;
+		windows = (System.getProperty("os.name").startsWith("Windows"));
 	}
 	
 //
@@ -159,19 +170,43 @@ public class NewStuff {
 			}
 			// Compare actionPerformed() case Open
 			dataString = "";
+			byModDates.clear();
+			datesMap.clear();
 			int fileCount = 0;
+			String fn = "";
 			for (File f : l) {
 				fileCount++;
 				System.out.println("NS file(s): " + fileCount + " " + f.getName());
 				if (fileCount == 1) {
-					dataString = f.getAbsolutePath();
+					fn = f.getAbsolutePath();
+					dataString = fn;
 					inputType = 1;
 					advisableFilename = dataString;
 				} else {
-					dataString = dataString + "\r\n" + f.getAbsolutePath();
+					fn = f.getAbsolutePath();
+					dataString = dataString + "\r\n" + fn;
 					inputType = 4;
 				}
+				datesMap.put(f.lastModified(), fileCount);
+				byModDates.put(fileCount,fn);
 			}
+			
+			// Sort files by modDate
+			if (inputType == 4) {
+				dataString = "";
+				SortedSet<Long> datesSet = (SortedSet<Long>) datesList.keySet();
+				System.out.println("fileCount = " + fileCount + ", datesSet.size() = " + datesSet.size());
+				Iterator<Long> ixit = datesSet.iterator(); 
+				if (datesSet.size() > 0) {
+					while (ixit.hasNext()) {
+						Long modDate = ixit.next();
+						Integer fileIndex = datesList.get(modDate);
+						fn = byModDates.get(fileIndex);
+						dataString = dataString + "\r\n" + fn;
+					}
+				}
+			}
+
 			System.out.println("NS: was javaFileListFlavor; Inputtype = " + inputType);
 			step2();
 			return true;
@@ -233,7 +268,8 @@ public class NewStuff {
 	}
 	
 	// Accessory for html flavored dropping and pasting, and for processSimplefiles
-    private String convertStreamToString(InputStream is) {
+
+	private String convertStreamToString(InputStream is, Charset charset) {
     	
         //
         // From http://kodejava.org/how-do-i-convert-inputstream-to-string/
@@ -246,13 +282,11 @@ public class NewStuff {
     		Writer writer = new StringWriter();
     		char[] buffer = new char[1024];
     		Reader reader = null;;
-    		try {
-    			reader = new BufferedReader(
-    					new InputStreamReader(is, "UTF-8"));
-//				new InputStreamReader(is));
-    		} catch (UnsupportedEncodingException e) {
-				System.out.println("Error NS116 " + e);
-    		}
+    		
+   			reader = new BufferedReader(
+//					new InputStreamReader(is, "UTF-8"));
+// 					changed to allow windows's exotic Charset.defaultCharset() for simple files
+   					new InputStreamReader(is, charset));	
 
     		int n;
     		try {
@@ -280,7 +314,10 @@ public class NewStuff {
     		return "";
     	}
     }
-    
+    private String convertStreamToString(InputStream is) {
+    	return convertStreamToString(is, Charset.forName("UTF-8"));
+    }
+    	
 //
 //	Process the input, in particular see whether it is a ready map in some xml format.
     
@@ -890,21 +927,17 @@ public class NewStuff {
 
      		} else {
 
-       			shortName = f.getName();
+     			shortName = f.getName();
 					if (shortName.endsWith("/")) shortName = shortName.substring(0, shortName.length() - 1);
 	       			shortName = shortName.substring(shortName.lastIndexOf("/") + 1);
-   			//	TODO cater to illegal characters, in particular in favorites / urls
     			String extension = shortName.substring(shortName.lastIndexOf("."));
     			System.out.println(shortName + " " + extension);
 
     			if (!extension.equals(".txt") && !extension.equals(".htm")) {
     				String esc = "";
     				line = f.toURI().toString();
-//    				line = shortName + "\t" + "<html><body>Open file <a href=\"file://" + line  + "\">" + shortName + "</a></body></html>";
+    				if (windows) line = line.replace("%C2%A0", "%A0"); // For bookmarks containing nbsp
     				line = shortName + "\t" + "<html><body>Open file <a href=\"" + line  + "\">" + shortName + "</a></body></html>";
-    				if (!extension.equals(".website") && !extension.equals(".URL") && !extension.equals(".lnk")) {
-    					line = line.replaceFirst("file:/", "file://");
-    				}
     				output = output + line + "\r\n";
 
     			} else {
@@ -917,7 +950,11 @@ public class NewStuff {
     				}
     				try {
     					InputStream in = (InputStream) stream;
-    					contentString = convertStreamToString(in);
+    					if (windows) {
+        					contentString = convertStreamToString(in, Charset.defaultCharset());
+    					} else {
+        					contentString = convertStreamToString(in);
+    					}
     					in.close();
     					success = true;
     				} catch (IOException e1) {

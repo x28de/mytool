@@ -171,6 +171,10 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		if (command == "insert" || command == "new") {
 			openComposition();
 
+		} else if (command == "imapimp") {
+//			ImappingImport i = new ImappingImport(mainWindow, this);
+			new ImappingImport(mainWindow, this);
+			
 		} else if (command == "open") {
 			FileDialog fd = new FileDialog(mainWindow);
 			fd.setMode(FileDialog.LOAD);
@@ -317,6 +321,38 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 			
 		} else if (command == "experimental") {
 			launchSibling();
+			
+		} else if (command == "wxp") {
+			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
+			fd.setFile("wxp.xml"); 
+			fd.setVisible(true);
+			if (fd.getFile() != null) {
+			String storeFilename = fd.getFile();
+			storeFilename = fd.getDirectory() + fd.getFile();
+
+			try {
+				File storeFile = new Export2WXP(nodes, edges).createTopicmapFile(storeFilename);
+				storeFilename = storeFile.getName();
+			} catch (IOException e2) {
+				System.out.println("Error PS128" + e2);
+			} catch (TransformerConfigurationException e2) {
+				System.out.println("Error PS129" + e2);
+			} catch (SAXException e2) {
+				System.out.println("Error PS130" + e2);
+			}
+			}
+		} else if (command == "imexp") {
+			displayPopup("May 8th, 2016: The details field is not yet processed.\n" +
+					"See the Import for how the transformation is planned.");
+			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
+			fd.setFile("im.iMap"); 
+			fd.setVisible(true);
+			if (fd.getFile() != null) {
+				String storeFilename = fd.getFile();
+				storeFilename = fd.getDirectory() + fd.getFile();
+
+				new ImappingExport(nodes, edges,storeFilename);
+			}
 			
 		//	Context menu command
 
@@ -613,6 +649,43 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuItem31.addActionListener(this);
 		menu3.add(menuItem31);
 
+		JMenuItem menuItem32 = new JMenuItem("Import iMap",  KeyEvent.VK_R);
+		menuItem32.setActionCommand("imapimp");
+		menuItem32.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, shortcutMask));
+		menuItem32.setToolTipText("Import from iMapping");
+		menuItem32.addActionListener(this);
+		menu3.add(menuItem32);
+
+		//	Export menu
+		
+		JMenu menu7;	// TODO change number
+		menu7 = new JMenu("Export  ");
+		menu7.setMnemonic(KeyEvent.VK_E);
+
+		JMenuItem menuItem71 = new JMenuItem("to interactive HTML page", KeyEvent.VK_H);
+		menuItem71.setActionCommand("MakeHTML");
+		menuItem71.setToolTipText("An HTML snapshot for interactive Read-Only mode");
+		menuItem71.addActionListener(this);
+		menu7.add(menuItem71);
+		
+		JMenuItem menuItem72 = new JMenuItem("to printable HTML page", KeyEvent.VK_P);
+		menuItem72.setActionCommand("Print");
+		menuItem72.setToolTipText("HTML graphics to zoom out");
+		menuItem72.addActionListener(this);
+		menu7.add(menuItem72);
+		
+		JMenuItem menuItem73 = new JMenuItem("to Wordpress WXP format",  KeyEvent.VK_W);
+		menuItem73.setActionCommand("wxp");
+		menuItem73.setToolTipText("<html><body><em>(Wordpress Export Format)</em></body></html>");
+		menuItem73.addActionListener(this);
+		menu7.add(menuItem73);
+		
+		JMenuItem menuItem74 = new JMenuItem("to iMapping iMap file",  KeyEvent.VK_I);
+		menuItem74.setActionCommand("imexp");
+		menuItem74.setToolTipText("<html><body><em>(Think Tool iMapping,info)</em></body></html>");
+		menuItem74.addActionListener(this);
+		menu7.add(menuItem74);
+		
 		//	View menu
 		
 		JMenu menu4;
@@ -677,7 +750,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuItem54.addActionListener(this);
 		menu5.add(menuItem54);
 		
-		JMenuItem menuItem53 = new JMenuItem("Experimantal",  KeyEvent.VK_E);
+		JMenuItem menuItem53 = new JMenuItem("Experimantal 1",  KeyEvent.VK_E);
 		menuItem53.setActionCommand("experimental");
 		menuItem53.setToolTipText("<html><body><em>(Tries to launch another window)</em></body></html>");
 		menuItem53.addActionListener(this);
@@ -705,6 +778,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuBar.add(menu1);
 		menuBar.add(menu2);
 		menuBar.add(menu3);
+		menuBar.add(menu7);
 		menuBar.add(menu4);
 		menuBar.add(menu5);
 		menuBar.add(menu6);

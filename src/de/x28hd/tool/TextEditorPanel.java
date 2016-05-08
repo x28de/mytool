@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -115,14 +116,15 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		HyperlinkEvent.EventType type = arg0.getEventType();
 		final URL url = arg0.getURL();
 		if (type == HyperlinkEvent.EventType.ENTERED) {
+			System.out.println("Entered");
 		} else if (type == HyperlinkEvent.EventType.ACTIVATED) {
 			if (Desktop.isDesktopSupported()) {
 				try {
 					Desktop.getDesktop().browse(new URI(url.toString()));
 				} catch (IOException e) {
-					controler.displayPopup("File not found \r\n<html><tt>" + url.toString() + "</tt></html>");
+					controler.displayPopup("File problem \r\n<html><tt>" + url.toString() + "</tt></html>\r\n" + e.getMessage());
 				} catch (URISyntaxException e) {
-					controler.displayPopup("Syntax error \r\n<html><tt>" + url.toString() + "</tt></html>");
+					controler.displayPopup("Syntax error \r\n<html><tt>" + url.toString() + "</tt></html>\r\n " + e);
 				}
 			}	
 		}
