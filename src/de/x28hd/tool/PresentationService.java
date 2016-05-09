@@ -342,8 +342,6 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 			}
 			}
 		} else if (command == "imexp") {
-			displayPopup("May 8th, 2016: The details field is not yet processed.\n" +
-					"See the Import for how the transformation is planned.");
 			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
 			fd.setFile("im.iMap"); 
 			fd.setVisible(true);

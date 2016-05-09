@@ -38,20 +38,21 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 
-
 public class ImappingExport {
 	
-	//	For RDF
+	//  Major fields
 	String outString = "";
+	Delta contentDelta = new Delta(0);
+	Delta statementDelta = new Delta(3);
 
-	Hashtable<String,String> rdfItems = new Hashtable<String,String>();
-	Hashtable<String,String> bodies = new Hashtable<String,String>();
-
-	String myRdfUri = "";
-	String myBodyUri = "";
+	//	For RDF
+	int maxVertical;
+	String rootBody = "";
+	String rootItem = "";
+	String inboxBody = "";
+	String inboxItem = "";
 	
 	//  For unique CDS uris
-	String myCdsUri = "";
 	private long lastTime = 0;
 	private long count = 0;
 	
@@ -79,15 +80,28 @@ public class ImappingExport {
 
 	private static final String RDF_FILENAME = "layout.rdf.nt";
 	private static final String CDS_FILENAME = "content.cds.xml";
-	
-	String rootBody = "";
-	String rootItem = "";
-	String inboxBody = "";
-	String inboxItem = "";
-	
+
+	//	XML string constants
+	private static final String [] containerNames = {"contentItems", "nameItems", "relations",
+			"statements", "triples"};
+	private static final String [] itemNames = {"contentitem", "nameitem", "relation",
+			"statement", "triple"};
+
+	private static final String [] constantElements = {"readonly", "deletable", "changeDate",
+			"creationDate", "authorURI", "binary"};
+	private static final String [] constantValues = {"false", "true", "1461420246049",
+			"1461359537610", "http://imapping.info#author", "false"};
+
+
 	
 	public ImappingExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, String zipFilename)  {
 
+//		Reads stubs and adds to them, both for RDF and CDS;
+//		For RDF, all is done in a long string;
+//		For CDS, we create XML Documents: stub, contentDeltas & statementDeltas, and merge them
+//		We loop through the 5 container types, then through the MyTool topics
+//		Similarly as with the Import, it label and detail may be separate iMapping items, or fused.
+		
 //
 //		Read stub files
 		
@@ -103,10 +117,13 @@ public class ImappingExport {
 		ZipOutputStream zout = new ZipOutputStream(fout);
 
 //
-//		Copy RDF stub to outString, and analyse it to find INBOX
+//		Copy RDF stub to outString, and analyze it to find INBOX
 
 		String triplesString = convertStreamToString(rdfInputStream);		
 		String [] triples = triplesString.split("\\r?\\n");
+		
+		Hashtable<String,String> rdfItems = new Hashtable<String,String>();
+		Hashtable<String,String> bodies = new Hashtable<String,String>();
 
 		for (int i = 0; i < triples.length; i++) {
 			String line = triples[i];
@@ -155,11 +172,6 @@ public class ImappingExport {
 		Transformer transformer = null;
 		Document stub = null;
 
-//		String [] containerNames = {"contentItems", "nameItems", "relations",
-//				"statements", "triples"};
-//		String [] itemNames = {"contentitem", "nameitem", "relation",
-//				"statement", "triple"};
-
 		try {
 			db = dbf.newDocumentBuilder();
 		} catch (ParserConfigurationException e2) {
@@ -193,118 +205,41 @@ public class ImappingExport {
 		}
 
 //
-// 		Create CDS delta
-
-		Document delta = db.newDocument();
-		Element deltaRoot = delta.createElement(XML_ROOT);
-		delta.appendChild(deltaRoot);
-
-		Hashtable<Integer,String> cdsUris = new Hashtable<Integer,String>();
+// 		Create CDS deltas
 		
-		String [] containerNames = {"contentItems", "nameItems", "relations",
-				"statements", "triples"};
-		String [] itemNames = {"contentitem", "nameitem", "relation",
-				"statement", "triple"};
+		// Loop though the MyTool nodes "topics"
 
-		// Loop through the 5 containers
+		int nodeNumber = 0;
+		maxVertical = (int) Math.sqrt(nodes.size() * 6);
 
-		for (int c = 0; c < 5; c++) {
-			Element deltaContainer = delta.createElement(containerNames[c]);
-			deltaContainer.setAttribute("class", "linked-list");
-			deltaRoot.appendChild(deltaContainer);
+		Enumeration<Integer> topics = nodes.keys();  
+		while (topics.hasMoreElements()){
+			nodeNumber++;
+			int topicID = topics.nextElement();
+			GraphNode topic = nodes.get(topicID);
+			String label = topic.getLabel();
+			String detail = topic.getDetail();
+			
+			int det = detail.length();
+			System.out.println("Detail has length " + det);
+			boolean fused = false;
+			if (det > 25) {
+				fused = true;
+			} else {
+				label = label + "<br />" + detail;
+			}
+			String myCdsUri = createUniqueCdsURI().toString();
+			addXmlItem(label, myCdsUri, CDS_INBOX2);	
+			
+			String myRdfUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
+			outString = addToRdf(outString, nodeNumber, myCdsUri, myRdfUri, inboxItem, maxVertical, false);
 
-			if (c == 0) {	// contentItems
-
-				String [] constantElements = {"readonly", "deletable", "changeDate",
-						"creationDate", "authorURI", "binary"};
-				String [] constantValues = {"false", "true", "1461420246049",
-						"1461359537610", "http://imapping.info#author", "false"};
-
-				// Loop though the MyTool items
-
-				int nodeNumber = 0;
-				int maxVertical = (int) Math.sqrt(nodes.size() * 6);
-
-				Enumeration<Integer> topics = nodes.keys();  
-				while (topics.hasMoreElements()){
-					nodeNumber++;
-					int topicID = topics.nextElement();
-					GraphNode topic = nodes.get(topicID);
-					String label = topic.getLabel();
-
-					generateUniques();
-					cdsUris.put(topicID,myCdsUri);
-					outString = addToRdf(outString, nodeNumber, maxVertical);
-
-					Element item = delta.createElement(itemNames[c]);
-					deltaContainer.appendChild(item);
-
-					Element uri = delta.createElement("uri");
-					item.appendChild(uri);
-					uri.setTextContent(myCdsUri);
-
-					for (int j = 0; j < 6; j++) {
-						Element el = delta.createElement(constantElements[j]);
-						item.appendChild(el);
-						el.setTextContent(constantValues[j]);
-					}
-
-					Element content = delta.createElement("content");
-					item.appendChild(content);
-					label = label.replace("\r","");
-					content.setTextContent("<p>" + label + "</p>");
-
-					Element mime = delta.createElement("mimetype");
-					item.appendChild(mime);
-					mime.setAttribute("class", "org.semanticdesktop.binstore.MimeType");
-//					mime.setAttribute("reference", 		//  TODO why not [2] as in sample?
-//						"/org.semanticdesktop.swecr.model.memory.xml.XModel/contentItems/contentitem/mimetype");
-					Element mimetype = delta.createElement("mimeType");
-					mime.appendChild(mimetype);
-					mimetype.setTextContent("application/stif+xml");
-				}
-				
-			} else if (c == 3) {	//  Statements
-				
-				String [] constantElements = {"readonly", "deletable", "changeDate",
-						"creationDate", "authorURI", "binary"};
-				String [] constantValues = {"false", "true", "1461420246049",
-						"1461359537610", "http://imapping.info#author", "false"};
-				
-				// Loop through MyTool items again
-
-				Enumeration<Integer> topics2 = nodes.keys(); 
-				while (topics2.hasMoreElements()){
-					
-					Element stmt = delta.createElement(itemNames[c]);
-					deltaContainer.appendChild(stmt);
-
-					Element uri = delta.createElement("uri");
-					stmt.appendChild(uri);
-					int topicID = topics2.nextElement();
-					myCdsUri = cdsUris.get(topicID);
-					uri.setTextContent(createUniqueCdsURI().toString());  // Too fast for object's uri + "-1"
-
-					for (int j = 0; j < 6; j++) {
-						Element el = delta.createElement(constantElements[j]);
-						stmt.appendChild(el);
-						el.setTextContent(constantValues[j]);
-					}
-
-					Element s = delta.createElement("s");
-					stmt.appendChild(s);
-//					s.setTextContent(CDS_ROOT);		//	better ?
-					s.setTextContent(CDS_INBOX2);
-
-					Element p = delta.createElement("p");
-					stmt.appendChild(p);
-					p.setTextContent(HAS_DETAIL);
-
-					Element o = delta.createElement("o");
-					stmt.appendChild(o);
-					o.setTextContent(myCdsUri);
-
-				}
+			//	Fused content?
+			if (fused) {
+				String childCdsUri = createUniqueCdsURI().toString();
+				addXmlItem(detail, childCdsUri, myCdsUri);	
+				String childRdfUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
+				outString = addToRdf(outString, 1, childCdsUri, childRdfUri, myRdfUri, maxVertical, true);
 			}
 		}
 
@@ -322,6 +257,8 @@ public class ImappingExport {
 		Element mergeRoot = merge.createElement(XML_ROOT);
 		merge.appendChild(mergeRoot);	
 
+		// Loop through the 5 containers
+
 		for (int c = 0; c < 5; c++) {
 
 			Element mergeContainer = merge.createElement(containerNames[c]);
@@ -332,15 +269,29 @@ public class ImappingExport {
 			for (int i = 0; i < stubItems.getLength(); i++) {
 				mergeContainer.appendChild(merge.adoptNode(stubItems.item(i).cloneNode(true)));
 			}
+			String tagname = "";
+			NodeList deltaItems = null;
+			System.out.println("For container " + c + ", there are " + stubItems.getLength() + " stub items");
 
-			NodeList deltaItems = delta.getElementsByTagName(itemNames[c]);
-
-			for (int i = 0; i < deltaItems.getLength(); i++) {
-				NodeList topicsContainer = deltaRoot.getElementsByTagName(itemNames[c]);
-				mergeContainer.appendChild(merge.adoptNode(topicsContainer.item(i).cloneNode(true)));
+			if (c == 0) {
+				tagname = itemNames[0];
+				deltaItems = contentDelta.getTree().getElementsByTagName(tagname);
+				for (int i = 0; i < deltaItems.getLength(); i++) {
+					NodeList topicsContainer = contentDelta.getRoot().getElementsByTagName(tagname);
+					mergeContainer.appendChild(merge.adoptNode(topicsContainer.item(i).cloneNode(true)));
+				}
+				System.out.println("For container " + c + ", there are " + deltaItems.getLength() + " delta items");
+			} else if (c == 3) {
+				tagname = itemNames[3];
+				deltaItems = statementDelta.getTree().getElementsByTagName(tagname);
+				for (int i = 0; i < deltaItems.getLength(); i++) {
+					NodeList topicsContainer = statementDelta.getRoot().getElementsByTagName(tagname);
+					mergeContainer.appendChild(merge.adoptNode(topicsContainer.item(i).cloneNode(true)));
+				}
+				System.out.println("For container " + c + ", there are " + deltaItems.getLength() + " delta items");
 			}
 		}
-
+		
 		merge.normalize();
 
 		try {
@@ -361,29 +312,90 @@ public class ImappingExport {
 		}
 
 	}
-	
-	public void generateUniques() {
-		myCdsUri = createUniqueCdsURI().toString();
-		myRdfUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
-		myBodyUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
-	}
 
-	public String addToRdf(String outString, int itemNumber, int maxVertical) {
+	public void addXmlItem(String text, String myCdsUri, String parentCds) {
+
+		//	contentItems
 		
+		int c = 0;	
+		
+		Element item = contentDelta.getTree().createElement(itemNames[c]);
+		contentDelta.getContainer().appendChild(item);
+
+		Element uri = contentDelta.getTree().createElement("uri");
+		item.appendChild(uri);
+		uri.setTextContent(myCdsUri);
+		
+		for (int j = 0; j < 6; j++) {
+			Element el = contentDelta.getTree().createElement(constantElements[j]);
+			item.appendChild(el);
+			el.setTextContent(constantValues[j]);
+		}
+
+		Element content = contentDelta.getTree().createElement("content");
+		item.appendChild(content);
+		String label = text.replace("\r","");
+		content.setTextContent("<p>" + label + "</p>");
+
+		Element mime = contentDelta.getTree().createElement("mimetype");
+		item.appendChild(mime);
+		mime.setAttribute("class", "org.semanticdesktop.binstore.MimeType");
+//		mime.setAttribute("reference", 		//  TODO why not [2] as in sample?
+//			"/org.semanticdesktop.swecr.model.memory.xml.XModel/contentItems/contentitem/mimetype");
+		Element mimetype = contentDelta.getTree().createElement("mimeType");
+		mime.appendChild(mimetype);
+		mimetype.setTextContent("application/stif+xml");
+		
+		// statements
+		
+		c = 3;	
+		
+		item = statementDelta.getTree().createElement(itemNames[c]);
+		statementDelta.getContainer().appendChild(item);
+
+		uri = statementDelta.getTree().createElement("uri");
+		item.appendChild(uri);
+		uri.setTextContent(createUniqueCdsURI().toString());  // Too fast for object's uri + "-1"
+	
+		for (int j = 0; j < 6; j++) {
+			Element el = statementDelta.getTree().createElement(constantElements[j]);
+			item.appendChild(el);
+			el.setTextContent(constantValues[j]);
+		}
+		
+		Element s = statementDelta.getTree().createElement("s");
+		item.appendChild(s);
+		s.setTextContent(parentCds);
+
+		Element p = statementDelta.getTree().createElement("p");
+		item.appendChild(p);
+		p.setTextContent(HAS_DETAIL);
+
+		Element o = statementDelta.getTree().createElement("o");
+		item.appendChild(o);
+		o.setTextContent(myCdsUri);
+		
+	}
+	
+	public String addToRdf(String outString, int itemNumber, String myCds, String myRdfUri, String parentRdf, int maxVertical, boolean fused) {
+		String myBodyUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
+
 		outString = outString + myRdfUri + " " + IS_TYPE + " " + RDF_STORE_ITEM +  " .\r";
-		outString = outString + "<" + myCdsUri + "> " + IS_TYPE + " " + RDF_CDS_ITEM +  " .\r";
-		outString = outString + myRdfUri + " " + HAS_PARENT + " " + inboxItem +  " .\r";
+		outString = outString + "<" + myCds + "> " + IS_TYPE + " " + RDF_CDS_ITEM +  " .\r";
+		outString = outString + myRdfUri + " " + HAS_PARENT + " " + parentRdf +  " .\r";
 		outString = outString + myBodyUri + " " + IS_TYPE + " " + RDF_STORE_BODY +  " .\r";
 		outString = outString + myRdfUri + " " + HAS_BODY + " " + myBodyUri +  " .\r";
-		outString = outString + myBodyUri + " " + REPR_CDS + " <" + myCdsUri +  "> .\r";
+		outString = outString + myBodyUri + " " + REPR_CDS + " <" + myCds +  "> .\r";
 
 		int deltaX = 240 * (itemNumber/maxVertical);
 		String xString = Integer.toString(10 + deltaX);
+		if (fused) xString = "8";
 		outString = outString + myRdfUri + " " + IMAPPING_PREFIX + "hasPositionX>" 
 				+ " \"" + xString + ".0\"" + DOUBLE + " .\r";
 		
 		int deltaY = 30 * (itemNumber % maxVertical);	// modulo maxVertical
 		String yString = Integer.toString(20 + deltaY);
+		if (fused) yString = "1";
 		outString = outString + myRdfUri + " " + IMAPPING_PREFIX + "hasPositionY>"	
 				+ " \"" + yString + ".0\"" + DOUBLE + " .\r";
 		
@@ -396,26 +408,48 @@ public class ImappingExport {
 				+ " \"16.0\"" + DOUBLE + " .\r";
 		outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasBellyWidth>" 
 				+ " \"230.0\"" + DOUBLE + " .\r";
-		outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasBellyHeight>" 
-				+ " \"32.0\"" + DOUBLE + " .\r";
+			outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasBellyHeight>" 
+					+ " \"32.0\"" + DOUBLE + " .\r";
 
 		return outString;
 	}
 	
-//
-//  Accessories for CDATA, start, and end		// TODO reuse several other copies
-
-	public static void characters(ContentHandler handler, String string) throws SAXException {
-		char[] chars = string.toCharArray();
-		if (handler instanceof LexicalHandler) {
-			((LexicalHandler) handler).startCDATA();
-			handler.characters(chars, 0, chars.length);
-			((LexicalHandler) handler).endCDATA();
-		} else {
-			handler.characters(chars, 0, chars.length);
+	private class Delta {
+		
+//		int c;
+		Document deltaTree = null;
+		Element deltaRoot = null;
+		Element deltaContainer = null;
+		
+		private Delta(int c) {
+//			this.c = c;
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = null;
+			
+			try {
+				db = dbf.newDocumentBuilder();
+			} catch (ParserConfigurationException e2) {
+				System.out.println("Error IE102 " + e2 );
+			}
+			
+			deltaTree = db.newDocument();
+			deltaRoot = deltaTree.createElement(XML_ROOT);
+			deltaTree.appendChild(deltaRoot);
+			deltaContainer = deltaTree.createElement(containerNames[c]);
+			deltaContainer.setAttribute("class", "linked-list");
+			deltaRoot.appendChild(deltaContainer);
+		}
+		
+		public Document getTree() {
+			return deltaTree;
+		}
+		public Element getRoot() {
+			return deltaRoot;
+		}
+		public Element getContainer() {
+			return deltaContainer;
 		}
 	}
-
 	
 //
 // 	Accessory 
