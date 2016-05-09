@@ -62,22 +62,31 @@ public class ImappingExport {
 	private static final String HAS_BODY = IMAPPING_PREFIX + "hasBody>";
 	private static final String REPR_CDS = IMAPPING_PREFIX + "representsCdsItem>";
 	private static final String RDF_STORE_BODY = IMAPPING_PREFIX + "RdfStoreBody>";
-	private static final String RDF_CDS_ITEM = IMAPPING_PREFIX + "RdfCdsItem>";
+	private static final String RDF_CDS_ITEM = IMAPPING_PREFIX + "RdfCdsItem>";	// ?
 	private static final String RDF_STORE_ITEM = IMAPPING_PREFIX + "RdfStoreImapItem>";
+	private static final String RDF_STORE_LINK = IMAPPING_PREFIX + "RdfStoreLink>";
+	private static final String LINKS_TO = IMAPPING_PREFIX + "linksTo>";
+	private static final String LINKS_FROM = IMAPPING_PREFIX + "linksFrom>";
+	private static final String REPR_STMT = IMAPPING_PREFIX + "representsCdsStatement>";
 	private static final String HAS_PARENT = IMAPPING_PREFIX + "hasParent>";
 	private static final String CDS_PREFIX = 
 			"http://www.semanticdesktop.org/ontologies/2007/09/01/cds#";
 	private static final String CDS_ROOT = CDS_PREFIX + "rootItem";
 	private static final String HAS_DETAIL = CDS_PREFIX + "hasDetail";
+	private static final String CDS_PREFIX2 = 
+			"<http://www.semanticdesktop.org/ontologies/2007/cds#";
+	private static final String RDF_STMT = CDS_PREFIX2 + "RdfStatement>";
+	private static final String RDF_CDS_STMT = CDS_PREFIX2 + "RdfCdsStatement>";
 	private static final String XML_ROOT = 
 			"org.semanticdesktop.swecr.model.memory.xml.XModel";
 	private static final String IS_TYPE = 
 			"<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>";
+	private static final String IS_RELATED = 
+			"http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isRelated";
 	private static final String DOUBLE = "^^<http://www.w3.org/2001/XMLSchema#double>";
 	public static final String URI_PREFIX = "urn:xam.de#t";
 	private static final String CDS_INBOX1 = "<uri:cds:inbox>";
-	private static final String CDS_INBOX2 = "urn:xam.de#t20160507-16.14.50.170-0";	 // must match stub
-
+	private static final String CDS_INBOX2 = "urn:xam.de#t20160509-20.03.35.606-0";	 // must match stub
 	private static final String RDF_FILENAME = "layout.rdf.nt";
 	private static final String CDS_FILENAME = "content.cds.xml";
 
@@ -211,6 +220,9 @@ public class ImappingExport {
 
 		int nodeNumber = 0;
 		maxVertical = (int) Math.sqrt(nodes.size() * 6);
+		
+		Hashtable<Integer,String> num2rdf = new Hashtable<Integer,String>();
+		Hashtable<Integer,String> num2cds = new Hashtable<Integer,String>();
 
 		Enumeration<Integer> topics = nodes.keys();  
 		while (topics.hasMoreElements()){
@@ -223,16 +235,18 @@ public class ImappingExport {
 			int det = detail.length();
 			System.out.println("Detail has length " + det);
 			boolean fused = false;
-			if (det > 25) {
+			if (det > 25 || (detail.startsWith("<html>") && det > 87)) {
 				fused = true;
 			} else {
-				label = label + "<br />" + detail;
+				label = label + ": " + detail;
 			}
 			String myCdsUri = createUniqueCdsURI().toString();
 			addXmlItem(label, myCdsUri, CDS_INBOX2);	
+			num2cds.put(topicID, myCdsUri);
 			
 			String myRdfUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
 			outString = addToRdf(outString, nodeNumber, myCdsUri, myRdfUri, inboxItem, maxVertical, false);
+			num2rdf.put(topicID, myRdfUri);
 
 			//	Fused content?
 			if (fused) {
@@ -241,6 +255,26 @@ public class ImappingExport {
 				String childRdfUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
 				outString = addToRdf(outString, 1, childCdsUri, childRdfUri, myRdfUri, maxVertical, true);
 			}
+		}
+		
+		//	Loop through edges "assocs"
+		
+		Enumeration<Integer> assocs = edges.keys();  
+		while (assocs.hasMoreElements()){
+			int assocID = assocs.nextElement();
+			GraphEdge edge = edges.get(assocID);
+			int n1 = edge.getN1();
+			int n2 = edge.getN2();
+
+			String sourceCds = num2cds.get(n1);
+			String targetCds = num2cds.get(n2);
+			String linkCds = createUniqueCdsURI().toString();
+			addEdgeXml(linkCds, sourceCds, targetCds);
+
+			String sourceRdf = num2rdf.get(n1);
+			String targetRdf = num2rdf.get(n2);
+			outString = addIsRelated(outString, sourceRdf, targetRdf, linkCds);
+
 		}
 
 //
@@ -377,6 +411,39 @@ public class ImappingExport {
 		
 	}
 	
+	public void addEdgeXml(String linkCds, String sourceCds, String targetCds) {
+
+		// statements
+		
+		int c = 3;	
+		
+		Element item = statementDelta.getTree().createElement(itemNames[c]);
+		statementDelta.getContainer().appendChild(item);
+
+		Element uri = statementDelta.getTree().createElement("uri");
+		item.appendChild(uri);
+		uri.setTextContent(linkCds);  // Too fast for object's uri + "-1"
+	
+		for (int j = 0; j < 6; j++) {
+			Element el = statementDelta.getTree().createElement(constantElements[j]);
+			item.appendChild(el);
+			el.setTextContent(constantValues[j]);
+		}
+		
+		Element s = statementDelta.getTree().createElement("s");
+		item.appendChild(s);
+		s.setTextContent(sourceCds);
+
+		Element p = statementDelta.getTree().createElement("p");
+		item.appendChild(p);
+		p.setTextContent(IS_RELATED);
+
+		Element o = statementDelta.getTree().createElement("o");
+		item.appendChild(o);
+		o.setTextContent(targetCds);
+		
+	}
+	
 	public String addToRdf(String outString, int itemNumber, String myCds, String myRdfUri, String parentRdf, int maxVertical, boolean fused) {
 		String myBodyUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
 
@@ -408,9 +475,19 @@ public class ImappingExport {
 				+ " \"16.0\"" + DOUBLE + " .\r";
 		outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasBellyWidth>" 
 				+ " \"230.0\"" + DOUBLE + " .\r";
-			outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasBellyHeight>" 
-					+ " \"32.0\"" + DOUBLE + " .\r";
+		outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasBellyHeight>" 
+				+ " \"32.0\"" + DOUBLE + " .\r";
 
+		return outString;
+	}
+
+	public String addIsRelated(String outString, String sourceUri, String targetUri, String linkCds) {
+		String rdfLink = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
+		outString = outString + rdfLink + " " + IS_TYPE + " " + RDF_STORE_LINK + " .\r"; ;
+		outString = outString + rdfLink + " " + LINKS_FROM + " " + sourceUri + " .\r";
+		outString = outString + rdfLink + " " + LINKS_TO + " " + targetUri + " .\r";
+		outString = outString + rdfLink + " " + REPR_STMT + " <" + linkCds + "> .\r";
+		outString = outString + "<" + linkCds + "> " + IS_TYPE + " " + RDF_CDS_STMT + " .\r";
 		return outString;
 	}
 	
