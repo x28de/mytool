@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -19,6 +20,7 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.swing.text.html.HTMLEditorKit;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -34,9 +36,7 @@ import org.ontoware.rdf2go.model.node.impl.URIImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
-import org.xml.sax.ext.LexicalHandler;
 
 public class ImappingExport {
 	
@@ -101,9 +101,13 @@ public class ImappingExport {
 	private static final String [] constantValues = {"false", "true", "1461420246049",
 			"1461359537610", "http://imapping.info#author", "false"};
 
+	String htmlOut = "";
+	GraphPanelControler controler;
+	boolean success = false;
 
 	
-	public ImappingExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, String zipFilename)  {
+	public ImappingExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
+			String zipFilename, GraphPanelControler controler)  {
 
 //		Reads stubs and adds to them, both for RDF and CDS;
 //		For RDF, all is done in a long string;
@@ -113,6 +117,8 @@ public class ImappingExport {
 		
 //
 //		Read stub files
+		
+		controler.setWaitCursor();
 		
 		InputStream rdfInputStream = getClass().getResourceAsStream("stub.txt"); 
 		InputStream cdsInputStream = getClass().getResourceAsStream("stub.xml"); 
@@ -232,13 +238,14 @@ public class ImappingExport {
 			String label = topic.getLabel();
 			String detail = topic.getDetail();
 			
-			int det = detail.length();
-			System.out.println("Detail has length " + det);
+			String detailPlain = filterHTML(detail);
+			int det = detailPlain.length();
+
 			boolean fused = false;
-			if (det > 25 || (detail.startsWith("<html>") && det > 87)) {
+			if (det > 25) {
 				fused = true;
 			} else {
-				label = label + ": " + detail;
+				label = label + ": " + detailPlain;
 			}
 			String myCdsUri = createUniqueCdsURI().toString();
 			addXmlItem(label, myCdsUri, CDS_INBOX2);	
@@ -335,11 +342,14 @@ public class ImappingExport {
 		}
 
 		byte[] cdsOut = output.toByteArray();
+		success = true;
 		try {
 			zout.write(cdsOut);
 			byte[] outBytes = outString.getBytes(Charset.forName("UTF-8"));
 			zout.putNextEntry(new ZipEntry(RDF_FILENAME));
 			zout.write(outBytes);
+			if (!success) controler.displayPopup("Export failed");
+			controler.setDefaultCursor();
 			zout.close();
 		} catch (IOException e) {
 			System.out.println("Error IE110 " + e);
@@ -369,6 +379,7 @@ public class ImappingExport {
 		Element content = contentDelta.getTree().createElement("content");
 		item.appendChild(content);
 		String label = text.replace("\r","");
+		label = text.replace("&","&amp;");	// TODO find a better way
 		content.setTextContent("<p>" + label + "</p>");
 
 		Element mime = contentDelta.getTree().createElement("mimetype");
@@ -473,11 +484,15 @@ public class ImappingExport {
 
 		outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasHeadHeight>" 
 				+ " \"16.0\"" + DOUBLE + " .\r";
-		outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasBellyWidth>" 
-				+ " \"230.0\"" + DOUBLE + " .\r";
+		if (fused) {
+			outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasBellyWidth>" 
+					+ " \"600.0\"" + DOUBLE + " .\r";
+		} else {
+			outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasBellyWidth>" 
+					+ " \"230.0\"" + DOUBLE + " .\r";
+		}
 		outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasBellyHeight>" 
 				+ " \"32.0\"" + DOUBLE + " .\r";
-
 		return outString;
 	}
 
@@ -527,6 +542,44 @@ public class ImappingExport {
 			return deltaContainer;
 		}
 	}
+	
+//
+//	Accessories to eliminate HTML tags from label
+//	Duplicate of NewStuff TODO reuse
+
+private String filterHTML(String html) {
+	htmlOut = "";
+	MyHTMLEditorKit htmlKit = new MyHTMLEditorKit();
+	HTMLEditorKit.Parser parser = null;
+	HTMLEditorKit.ParserCallback cb = new HTMLEditorKit.ParserCallback() {
+		public void handleText(char[] data, int pos) {
+			String dataString = new String(data);
+			htmlOut = htmlOut + dataString + " ";
+		}
+	};
+	parser = htmlKit.getParser();
+	Reader reader; 
+	reader = (Reader) new StringReader(html);
+	try {
+		parser.parse(reader, cb, true);
+	} catch (IOException e2) {
+		System.out.println("Error IM109 " + e2);
+	}
+	try {
+		reader.close();
+	} catch (IOException e3) {
+		System.out.println("Error IM110 " + e3.toString());
+	}
+	return htmlOut;
+}
+
+private static class MyHTMLEditorKit extends HTMLEditorKit {
+	private static final long serialVersionUID = 7279700400657879527L;
+
+	public Parser getParser() {
+		return super.getParser();
+	}
+}
 	
 //
 // 	Accessory 

@@ -26,6 +26,7 @@ interface GraphPanelControler {
 	void endTask();
 	GraphEdge createEdge(GraphNode topic1, GraphNode topic2);
 	void setDefaultCursor();
+	public void setWaitCursor();
 	void setDirty(boolean toggle);
 	void updateBounds();
 	String getNewNodeColor();
