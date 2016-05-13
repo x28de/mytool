@@ -15,7 +15,13 @@ import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TimeZone;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -142,7 +148,7 @@ public class ImappingExport {
 
 		for (int i = 0; i < triples.length; i++) {
 			String line = triples[i];
-			outString = outString + line + "\r";
+			outString = outString + line + "\n";
 			String triple[] = line.split("\\s");
 			String predicate = triple[1];
 
@@ -223,29 +229,48 @@ public class ImappingExport {
 // 		Create CDS deltas
 		
 		// Loop though the MyTool nodes "topics"
-
+		
+		Enumeration<Integer> topics0 = nodes.keys();  
+		TreeMap<String,Integer> orderMap = new TreeMap<String,Integer>();
+		SortedMap<String,Integer> orderList = (SortedMap<String,Integer>) orderMap;
+		while (topics0.hasMoreElements()){
+			int key = topics0.nextElement();
+			GraphNode node = nodes.get(key);
+			String sortString = node.getLabel().toUpperCase();
+			orderMap.put(sortString, key);
+		}
+		SortedSet<String> orderSet = (SortedSet<String>) orderList.keySet();
+		Iterator<String> ixit = orderSet.iterator(); 
+		
 		int nodeNumber = 0;
 		maxVertical = (int) Math.sqrt(nodes.size() * 6);
 		
 		Hashtable<Integer,String> num2rdf = new Hashtable<Integer,String>();
 		Hashtable<Integer,String> num2cds = new Hashtable<Integer,String>();
 
-		Enumeration<Integer> topics = nodes.keys();  
-		while (topics.hasMoreElements()){
+//		Enumeration<Integer> topics = nodes.keys();  
+//		while (topics.hasMoreElements()){
+		while (ixit.hasNext()) {
 			nodeNumber++;
-			int topicID = topics.nextElement();
+//			int topicID = topics.nextElement();
+			String nextLabel = ixit.next();
+			int topicID = orderMap.get(nextLabel);
 			GraphNode topic = nodes.get(topicID);
 			String label = topic.getLabel();
+			label = label.replace("\r","");
 			String detail = topic.getDetail();
 			
-			String detailPlain = filterHTML(detail);
+			String detailPlain = filterHTML(detail).trim();
 			int det = detailPlain.length();
 
 			boolean fused = false;
+			
 			if (det > 25) {
 				fused = true;
 			} else {
-				label = label + ": " + detailPlain;
+				if (!detailPlain.equals(label) && !detailPlain.isEmpty()) {
+					label = label + ": " + detailPlain;
+				}
 			}
 			String myCdsUri = createUniqueCdsURI().toString();
 			addXmlItem(label, myCdsUri, CDS_INBOX2);	
@@ -379,7 +404,7 @@ public class ImappingExport {
 		Element content = contentDelta.getTree().createElement("content");
 		item.appendChild(content);
 		String label = text.replace("\r","");
-		label = text.replace("&","&amp;");	// TODO find a better way
+		label = text.replace("& ","&amp; ");	// TODO find a better way
 		content.setTextContent("<p>" + label + "</p>");
 
 		Element mime = contentDelta.getTree().createElement("mimetype");
@@ -458,51 +483,51 @@ public class ImappingExport {
 	public String addToRdf(String outString, int itemNumber, String myCds, String myRdfUri, String parentRdf, int maxVertical, boolean fused) {
 		String myBodyUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
 
-		outString = outString + myRdfUri + " " + IS_TYPE + " " + RDF_STORE_ITEM +  " .\r";
-		outString = outString + "<" + myCds + "> " + IS_TYPE + " " + RDF_CDS_ITEM +  " .\r";
-		outString = outString + myRdfUri + " " + HAS_PARENT + " " + parentRdf +  " .\r";
-		outString = outString + myBodyUri + " " + IS_TYPE + " " + RDF_STORE_BODY +  " .\r";
-		outString = outString + myRdfUri + " " + HAS_BODY + " " + myBodyUri +  " .\r";
-		outString = outString + myBodyUri + " " + REPR_CDS + " <" + myCds +  "> .\r";
+		outString = outString + myRdfUri + " " + IS_TYPE + " " + RDF_STORE_ITEM +  " .\n";
+		outString = outString + "<" + myCds + "> " + IS_TYPE + " " + RDF_CDS_ITEM +  " .\n";
+		outString = outString + myRdfUri + " " + HAS_PARENT + " " + parentRdf +  " .\n";
+		outString = outString + myBodyUri + " " + IS_TYPE + " " + RDF_STORE_BODY +  " .\n";
+		outString = outString + myRdfUri + " " + HAS_BODY + " " + myBodyUri +  " .\n";
+		outString = outString + myBodyUri + " " + REPR_CDS + " <" + myCds +  "> .\n";
 
 		int deltaX = 240 * (itemNumber/maxVertical);
 		String xString = Integer.toString(10 + deltaX);
 		if (fused) xString = "8";
 		outString = outString + myRdfUri + " " + IMAPPING_PREFIX + "hasPositionX>" 
-				+ " \"" + xString + ".0\"" + DOUBLE + " .\r";
+				+ " \"" + xString + ".0\"" + DOUBLE + " .\n";
 		
 		int deltaY = 30 * (itemNumber % maxVertical);	// modulo maxVertical
 		String yString = Integer.toString(20 + deltaY);
 		if (fused) yString = "1";
 		outString = outString + myRdfUri + " " + IMAPPING_PREFIX + "hasPositionY>"	
-				+ " \"" + yString + ".0\"" + DOUBLE + " .\r";
+				+ " \"" + yString + ".0\"" + DOUBLE + " .\n";
 		
 		outString = outString + myRdfUri + " " + IMAPPING_PREFIX + "hasExpansionStatus>" 
-				+ " " + IMAPPING_PREFIX + "Collapsed>" + " .\r";
+				+ " " + IMAPPING_PREFIX + "Collapsed>" + " .\n";
 		outString = outString + myRdfUri + " " + IMAPPING_PREFIX + "hasItemScale>" 
-				+ " \"0.800000011920929\"" + DOUBLE + " .\r";
+				+ " \"0.800000011920929\"" + DOUBLE + " .\n";
 
 		outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasHeadHeight>" 
-				+ " \"16.0\"" + DOUBLE + " .\r";
+				+ " \"16.0\"" + DOUBLE + " .\n";
 		if (fused) {
 			outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasBellyWidth>" 
-					+ " \"600.0\"" + DOUBLE + " .\r";
+					+ " \"230.0\"" + DOUBLE + " .\n";
 		} else {
 			outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasBellyWidth>" 
-					+ " \"230.0\"" + DOUBLE + " .\r";
+					+ " \"230.0\"" + DOUBLE + " .\n";
 		}
 		outString = outString + myBodyUri + " " + IMAPPING_PREFIX + "hasBellyHeight>" 
-				+ " \"32.0\"" + DOUBLE + " .\r";
+				+ " \"220.0\"" + DOUBLE + " .\n";
 		return outString;
 	}
 
 	public String addIsRelated(String outString, String sourceUri, String targetUri, String linkCds) {
 		String rdfLink = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
-		outString = outString + rdfLink + " " + IS_TYPE + " " + RDF_STORE_LINK + " .\r"; ;
-		outString = outString + rdfLink + " " + LINKS_FROM + " " + sourceUri + " .\r";
-		outString = outString + rdfLink + " " + LINKS_TO + " " + targetUri + " .\r";
-		outString = outString + rdfLink + " " + REPR_STMT + " <" + linkCds + "> .\r";
-		outString = outString + "<" + linkCds + "> " + IS_TYPE + " " + RDF_CDS_STMT + " .\r";
+		outString = outString + rdfLink + " " + IS_TYPE + " " + RDF_STORE_LINK + " .\n"; ;
+		outString = outString + rdfLink + " " + LINKS_FROM + " " + sourceUri + " .\n";
+		outString = outString + rdfLink + " " + LINKS_TO + " " + targetUri + " .\n";
+		outString = outString + rdfLink + " " + REPR_STMT + " <" + linkCds + "> .\n";
+		outString = outString + "<" + linkCds + "> " + IS_TYPE + " " + RDF_CDS_STMT + " .\n";
 		return outString;
 	}
 	

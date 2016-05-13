@@ -172,8 +172,10 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 			openComposition();
 
 		} else if (command == "imapimp") {
-//			ImappingImport i = new ImappingImport(mainWindow, this);
 			new ImappingImport(mainWindow, this);
+			
+		} else if (command == "eneximp") {
+			new EnexImport(mainWindow, this);
 			
 		} else if (command == "open") {
 			FileDialog fd = new FileDialog(mainWindow);
@@ -319,7 +321,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 			}
 			graphPanel.repaint();
 			
-		} else if (command == "experimental") {
+		} else if (command == "sibling") {
 			launchSibling();
 			
 		} else if (command == "wxp") {
@@ -349,7 +351,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 				String storeFilename = fd.getFile();
 				storeFilename = fd.getDirectory() + fd.getFile();
 
-				new ImappingExport(nodes, edges,storeFilename);
+				new ImappingExport(nodes, edges, storeFilename, this);
 			}
 			
 		//	Context menu command
@@ -647,12 +649,19 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuItem31.addActionListener(this);
 		menu3.add(menuItem31);
 
-		JMenuItem menuItem32 = new JMenuItem("Import iMap",  KeyEvent.VK_R);
-		menuItem32.setActionCommand("imapimp");
+		JMenuItem menuItem32 = new JMenuItem("Import Evernote Notes",  KeyEvent.VK_R);
+		menuItem32.setActionCommand("eneximp");
 		menuItem32.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, shortcutMask));
-		menuItem32.setToolTipText("Import from iMapping");
+		menuItem32.setToolTipText("Import from Evernote Enex file");
 		menuItem32.addActionListener(this);
 		menu3.add(menuItem32);
+
+		JMenuItem menuItem33 = new JMenuItem("Import iMap",  KeyEvent.VK_R);
+		menuItem33.setActionCommand("imapimp");
+		menuItem33.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, shortcutMask));
+		menuItem33.setToolTipText("Import from iMapping");
+		menuItem33.addActionListener(this);
+		menu3.add(menuItem33);
 
 		//	Export menu
 		
@@ -748,9 +757,9 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuItem54.addActionListener(this);
 		menu5.add(menuItem54);
 		
-		JMenuItem menuItem53 = new JMenuItem("Experimantal 1",  KeyEvent.VK_E);
-		menuItem53.setActionCommand("experimental");
-		menuItem53.setToolTipText("<html><body><em>(Tries to launch another window)</em></body></html>");
+		JMenuItem menuItem53 = new JMenuItem("Another Map Window",  KeyEvent.VK_E);
+		menuItem53.setActionCommand("sibling");
+		menuItem53.setToolTipText("One more map (to ALT + Drag node clusters)");
 		menuItem53.addActionListener(this);
 		menu5.add(menuItem53);
 		
@@ -1391,8 +1400,9 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		setCrosshairCursor();
 	}
 
-	void setWaitCursor() {
-		setMouseCursor(Cursor.WAIT_CURSOR);
+	public void setWaitCursor() {
+//		setMouseCursor(Cursor.WAIT_CURSOR);
+		mainWindow.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		graphPanel.repaint();
 	}
 
@@ -1444,14 +1454,15 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		}
 
 		public void launchSibling() {
-			File jarfile = new File(baseDir + "/fromscratch.jar");
-			try {
-				Runtime.getRuntime().exec(new String[] {"java", "-jar", jarfile.getAbsolutePath() });
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			File jarfile = new File(baseDir + "/fromscratch.jar");
+//			try {
+//				Runtime.getRuntime().exec(new String[] {"java", "-jar", jarfile.getAbsolutePath() });
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 			
+			new MyTool().main(null);
 		}
 	
 //

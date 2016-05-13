@@ -36,6 +36,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
@@ -116,6 +117,8 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 	int maxVert = 10;
 	int j = 0;
 	int edgesNum = 0;
+	
+	boolean success = false;
 
 //
 //	Accessories for UI
@@ -134,6 +137,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		}
 		frame.dispose();
 		processChildren();
+		if (!success) failed();
 		controler.getNSInstance().setInput(dataString, 2);
 	}
 
@@ -171,6 +175,10 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		for (int i = 0; i < triples.length; i++) {
 			String line = triples[i];
 			String triple[] = line.split("\\s");
+			if (triple.length < 3) {
+				failed();
+				return;
+			}
 			String predicate = triple[1];
 				
 			if (predicate.equals(HAS_BODY)) {
@@ -187,7 +195,6 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 				
 			} else if (predicate.equals(HAS_PARENT)) {
 				parents.put(triple[0], triple[2]);
-		        System.out.println("--------> " + parents.size());
 
 				int childrenCount = 1;
 				if (childrenCounts.containsKey(triple[2])) {
@@ -289,8 +296,8 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 			JButton cancelButton = new JButton("Cancel");
 		    cancelButton.addActionListener(this);
 		    
-		    String okLocation = "West";
-		    String cancelLocation = "East";
+		    String okLocation = "East";
+		    String cancelLocation = "West";
 		    String multSel = "CTRL";
 			if (System.getProperty("os.name").equals("Mac OS X")) {
 		    	okLocation = "East";
@@ -306,6 +313,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 			toolbar.add(cancelButton, cancelLocation);
 			
 			toolbar.add(instruction, "North");
+			toolbar.setBorder(new EmptyBorder(10, 10, 10, 10));
 	        frame.add(toolbar,"South");
 	        frame.pack();
 	        frame.setMinimumSize(new Dimension(400, 300));
@@ -540,6 +548,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		} catch (SAXException e1) {
 			System.out.println("Error IM107 " + e1);
 		}
+		success = true;
 	}
 	
 //
@@ -605,6 +614,10 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 				return "";
 			}
 			return cdsContent;
+	}
+	
+	public void failed() {
+		controler.displayPopup("Import failed.");		
 	}
 	
 	public String fetchArrow(String arrowKey) {
@@ -695,9 +708,14 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		BranchInfo branch = (BranchInfo) selectedNode.getUserObject();
 		String keyOfSel = branch.getKey();
 //		System.out.println(keyOfSel + " (" + branch + ") " + fluctText);
-		
-		boolean currentSetting = selected.get(keyOfSel);
-		selected.put(keyOfSel, !currentSetting);
+		if (selected.containsKey(keyOfSel)) {
+			boolean currentSetting = selected.get(keyOfSel);
+			selected.put(keyOfSel, !currentSetting);
+		} else {
+			System.out.println("Error IM120 " + keyOfSel);
+			if (!success) failed();
+			frame.dispose();
+		}
 
 		@SuppressWarnings("rawtypes")
 		Enumeration children =  selectedNode.children();
@@ -844,7 +862,6 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
     			}
     		}
     		String convertedString = writer.toString();
-    		if (!convertedString.contains("\n")) System.out.println("NS converted: " + convertedString);
     		return convertedString;
     	} else {        
     		return "";

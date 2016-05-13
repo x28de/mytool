@@ -3,7 +3,7 @@ package de.x28hd.tool;
 public class AboutBuild {
 	
 	public String about =  " ******** Provisional BANNER ********* " +
-			"\r\n This is My Tool, Release 18 Build 19" + 
+			"\r\n This is My Tool, Release 18 Build 20" + 
 			"\r\n running on Java version " + System.getProperty("java.version") +
 			"\r\n on " + System.getProperty("os.name") + " version " + System.getProperty("os.version") +
 			" (os.arch = " + System.getProperty("os.arch") + ")" +

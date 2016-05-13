@@ -145,6 +145,7 @@ public class NewStuff {
 	}
 
 	public Transferable readClipboard() {
+		controler.setWaitCursor();
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		return clipboard.getContents(null); 
 	}
@@ -154,6 +155,7 @@ public class NewStuff {
 	
 	@SuppressWarnings("unchecked")
 	public boolean transferTransferable(Transferable content) {
+		controler.setWaitCursor();
 			
 		//  File(s) ?
 
