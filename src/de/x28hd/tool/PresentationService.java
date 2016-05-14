@@ -166,7 +166,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		if (menuID == null) menuID = "Menu Bar";
 		System.out.println("Action Performed (PS) " + command.toString() + " from menu " + menuID);
 
-		// Open
+		// Open or Insert
 
 		if (command == "insert" || command == "new") {
 			openComposition();
@@ -176,6 +176,9 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 			
 		} else if (command == "eneximp") {
 			new EnexImport(mainWindow, this);
+			
+		} else if (command == "dwzimp") {
+			new DwzImport(mainWindow, this);
 			
 		} else if (command == "open") {
 			FileDialog fd = new FileDialog(mainWindow);
@@ -659,9 +662,16 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		JMenuItem menuItem33 = new JMenuItem("Import iMap",  KeyEvent.VK_R);
 		menuItem33.setActionCommand("imapimp");
 		menuItem33.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, shortcutMask));
-		menuItem33.setToolTipText("Import from iMapping");
+		menuItem33.setToolTipText("Import from iMapping.info");
 		menuItem33.addActionListener(this);
 		menu3.add(menuItem33);
+
+		JMenuItem menuItem34 = new JMenuItem("Import DWZ Items",  KeyEvent.VK_D);
+		menuItem34.setActionCommand("dwzimp");
+		menuItem34.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, shortcutMask));
+		menuItem34.setToolTipText("Import from DenkWerkZeug.org");
+		menuItem34.addActionListener(this);
+		menu3.add(menuItem34);
 
 		//	Export menu
 		

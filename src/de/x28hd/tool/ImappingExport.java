@@ -403,9 +403,11 @@ public class ImappingExport {
 
 		Element content = contentDelta.getTree().createElement("content");
 		item.appendChild(content);
-		String label = text.replace("\r","");
+		String label = text.replace("\r","");	// "label" is wrong
 		label = text.replace("& ","&amp; ");	// TODO find a better way
-		content.setTextContent("<p>" + label + "</p>");
+		label = text.replace("<br>","<br />");	// TODO find a better way
+//		content.setTextContent("<p>" + label + "</p>");		// why was this?
+		content.setTextContent(label);
 
 		Element mime = contentDelta.getTree().createElement("mimetype");
 		item.appendChild(mime);
