@@ -3,15 +3,19 @@ package de.x28hd.tool;
 import java.awt.Color;
 import java.awt.FileDialog;
 import java.awt.Point;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -71,9 +75,8 @@ public class DwzImport {
 		}
 		
 		try {
-//			dwz = db.parse(fileInputStream);
-			dwz = db.parse(new InputSource(
-					new InputStreamReader(fileInputStream, Charset.forName("UTF-8"))));
+			dwz = db.parse(fileInputStream);
+			
 			Element dwzRoot = null;
 			dwzRoot = dwz.getDocumentElement();
 			if (dwzRoot.getTagName() != XML_ROOT) {
@@ -87,7 +90,7 @@ public class DwzImport {
 				controler.displayPopup("Currently, a host is not reachable, and therefore " +
 						"the second line of the KGIF file must be removed.");
 		} catch (SAXException e) {
-			System.out.println("Error DI107" + e );
+			System.out.println("Error DI107 " + e );
 		}
 		
 		int maxVert = 10;

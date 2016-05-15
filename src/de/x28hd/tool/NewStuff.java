@@ -953,7 +953,8 @@ public class NewStuff {
     				try {
     					InputStream in = (InputStream) stream;
     					if (windows) {
-        					contentString = convertStreamToString(in, Charset.defaultCharset());
+//        					contentString = convertStreamToString(in, Charset.defaultCharset());
+        					contentString = convertStreamToString(in, Charset.forName("Cp1252"));
     					} else {
         					contentString = convertStreamToString(in);
     					}
