@@ -101,7 +101,8 @@ public class TopicMapStorer {
 			if (!nodes.contains(topic1)) {
 				System.out.println("Nicht OK " + topic1.getLabel());
 				continue;
-			} else System.out.println("OK: " + topic1.getLabel());
+			}
+//			} else System.out.println("OK: " + topic1.getLabel());
 			GraphNode topic2 = assoc.getNode2();
 			if (!nodes.contains(topic2)) continue;
 			

@@ -543,8 +543,8 @@ public class NewStuff {
 		if (y > maxY) maxY = y;
 		String color = topic.getAttribute("color");
 	
-		System.out.println("NS: id = " + id + ", label = " + label + ", detail has length " + detail.length() +
-				", x = " + x + ", y = " + y + ", color = " + color);
+//		System.out.println("NS: id = " + id + ", label = " + label + ", detail has length " + detail.length() +
+//				", x = " + x + ", y = " + y + ", color = " + color);
 
 		node = new GraphNode(topicnum, new Point(x,y), Color.decode(color), label, detail);
 		newNodes.put(node.getID(), node);
@@ -559,8 +559,8 @@ public class NewStuff {
 		int n2 = Integer.parseInt(assoc.getAttribute("n2"));
 		String color = assoc.getAttribute("color");
 	
-		System.out.println("NS: detail has length " + detail.length() +
-				", node1 = " + newNodes.get(n1).getLabel() + ", node2 = " + newNodes.get(n2).getLabel() + ", color = " + color);
+//		System.out.println("NS: detail has length " + detail.length() +
+//				", node1 = " + newNodes.get(n1).getLabel() + ", node2 = " + newNodes.get(n2).getLabel() + ", color = " + color);
 
 		edge = new GraphEdge(assocnum, newNodes.get(n1), newNodes.get(n2), Color.decode(color), detail);
 		newEdges.put(assocnum, edge);

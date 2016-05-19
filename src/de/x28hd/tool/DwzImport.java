@@ -1,59 +1,117 @@
 package de.x28hd.tool;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Point;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.net.UnknownHostException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.TreeSet;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.html.HTML;
-import javax.swing.text.html.HTML.Attribute;
-import javax.swing.text.html.HTML.Tag;
-import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class DwzImport {
+public class DwzImport  implements TreeSelectionListener, ActionListener {
+	
+	//	Major fields
+	String dataString = "";
 	Hashtable<Integer,GraphNode> nodes = new Hashtable<Integer,GraphNode>();
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
-	String dataString = "";
 	
-	String htmlOut = "";
-	boolean ever = false;
-	boolean link = false;
+	//	Recording the hierarchy
+	Hashtable<String,String> parents = new Hashtable<String,String>();
+	Hashtable<String,String> parents0 = new Hashtable<String,String>();
+	Hashtable<String,String> parents2 = new Hashtable<String,String>();
+	Hashtable<String,String> inverses = new Hashtable<String,String>();
+	TreeSet<String> hierarchicalRelations = new TreeSet<String>();
+	Hashtable<String,Boolean> topDown = new Hashtable<String,Boolean>();
+	TreeSet<String> expandableRelations = new TreeSet<String>();
 	
+	//	From DWZ 
 	private static final String XML_ROOT = "kgif";
+	NodeList dwzNodes = null;
+	NodeList dwzLinks = null;
+	Hashtable<String,String> typeDict = new Hashtable<String,String>();
 	
+	//	For selection tree
+	JTree tree;
+	JFrame frame;
+	Hashtable<String,DefaultMutableTreeNode> treeNodes = new Hashtable<String,DefaultMutableTreeNode>();
+	Hashtable<String,Boolean> selected = new Hashtable<String,Boolean>();
+	boolean noSelectionMade = true;
+	
+	//	For the map
+	Hashtable<String,Integer> dwz2num = new  Hashtable<String,Integer>();
+	int maxVert = 10;
+	int edgesNum = 0;
+//	int rootNum = 0;
+//	int order;
+	
+	//	Misc
+	boolean success = false;
 	GraphPanelControler controler;
+	
+//
+//	Accessories for UI
+	
+	private WindowAdapter myWindowAdapter = new WindowAdapter() {
+		public void windowClosing(WindowEvent e) {
+			noSelectionMade = true;
+			processChildren();
+			controler.getNSInstance().setInput(dataString, 2);
+		}
+	};
+	
+	public void actionPerformed(ActionEvent arg0) {
+		if (arg0.getActionCommand().equals("Cancel")) {
+			noSelectionMade = true;
+		}
+		frame.dispose();
+		processChildren();
+		if (!success) failed();
+		controler.getNSInstance().setInput(dataString, 2);
+	}
+
 
 	public DwzImport(JFrame mainWindow, GraphPanelControler controler) {
+		
+		this.controler = controler;
+//
+//		Open XML document
+		
 //		File file = new File("C:\\Users\\Matthias\\Desktop\\kgif.xml");
 		FileDialog fd = new FileDialog(mainWindow);
-		fd.setTitle("Select an DenkWerkZeug KGIF (Knowledge Graph) file");
+		fd.setTitle("Select a DenkWerkZeug KGIF (Knowledge Graph) file");
 		fd.setMode(FileDialog.LOAD);
 		fd.setVisible(true);
 		String filename = fd.getDirectory() + File.separator + fd.getFile();
@@ -93,120 +151,333 @@ public class DwzImport {
 			System.out.println("Error DI107 " + e );
 		}
 		
-		int maxVert = 10;
-		
 		NodeList graphContainer = dwz.getElementsByTagName("graph");
 
-		//	Find DWZ nodes
-		NodeList dwzNodes = ((Element) graphContainer.item(0)).getElementsByTagName("node");
-		System.out.println("Wieviel gefunden " + dwzNodes.getLength());
+//
+//		Find DWZ nodes
 		
-		Hashtable<String,Integer> dwz2num = new  Hashtable<String,Integer>();
-		Hashtable<String,String> typeDict = new Hashtable<String,String>();
+		dwzNodes = ((Element) graphContainer.item(0)).getElementsByTagName("node");
+		System.out.println("How many Nodes found? " + dwzNodes.getLength());
 		
 		for (int i = 0; i < dwzNodes.getLength(); i++) {
 			Element node = (Element) dwzNodes.item(i);
 			String nodeID = node.getAttribute("id");
+			
+			//	Label
 			NodeList labelContainer = node.getElementsByTagName("label");
 			Element label = (Element) labelContainer.item(0);
 			String labelString = label.getTextContent();
 			typeDict.put(nodeID, labelString);
+			
+			//	Prepare choice
+			selected.put(nodeID, false);
+			DefaultMutableTreeNode branch = new DefaultMutableTreeNode(
+					new BranchInfo(nodeID, labelString));
+			treeNodes.put(nodeID, branch);
+		}
+		
+		selected.put("root", false);
+		DefaultMutableTreeNode top = 
+	    		new DefaultMutableTreeNode(new BranchInfo("root", "All"));
+		treeNodes.put("root", top);
+		
+//		
+//		Read DWZ links
+		
+		dwzLinks = ((Element) graphContainer.item(0)).getElementsByTagName("link");
+		System.out.println("How many links found: " + dwzNodes.getLength());
+		edgesNum = 0;
+		
+		for (int i = 0; i < dwzLinks.getLength(); i++) {
+
+			Element link = (Element) dwzLinks.item(i);
+			String fromNode = link.getAttribute("from");
+			String toNode = link.getAttribute("to");
+			String linkType = link.getAttribute("type");
+			
+			//	Extract the type hierarchy of relations
+			if (linkType.equals("cds-rel-hasSubType")) {
+				parents0.put(toNode, fromNode);
+			} else if (linkType.equals("cds-rel-hasSuperType")) {
+				parents0.put(fromNode, toNode);
+			} else if (linkType.equals("cds-rel-hasInverse")) {
+				if (!toNode.equals(fromNode)) {
+					inverses.put(toNode, fromNode);
+				}
+			}
+		}
+		
+		//	Recursively build the set of expandable relations 
+
+		hierarchicalRelations.add("cds-rel-hasDetail");
+		topDown.put("cds-rel-hasDetail", true);
+		hierarchicalRelations.add("cds-rel-hasTagMember");
+		topDown.put("cds-rel-hasTagMember", true);
+		
+		for (int i = 0; i < dwzNodes.getLength(); i++) {
+			Element node = (Element) dwzNodes.item(i);
+			String nodeID = node.getAttribute("id");
+			boolean result = false;
+			result = isHierarchical(nodeID);
+			if (inverses.containsKey(nodeID)) {
+				String inverse = inverses.get(nodeID);
+				result = result || isHierarchical(inverse);
+			}
+		}
+		
+		//	Optional listing them
+		
+		Iterator<String> itix = hierarchicalRelations.iterator();
+		while (itix.hasNext()) {
+			String next = itix.next();
+			boolean upDown = topDown.get(next);
+			System.out.println("DI Expandable: " + next + " (" + upDown + ")");
+			expandableRelations.add(next);
+		}
+		
+		//	Record hierarchical relations
+
+		for (int i = 0; i < dwzLinks.getLength(); i++) {
+			Element link = (Element) dwzLinks.item(i);
+			String fromNode = link.getAttribute("from");
+			String toNode = link.getAttribute("to");
+			String linkType = link.getAttribute("type");
+
+			boolean hier = false;
+			boolean parentToChild = false;
+			if (hierarchicalRelations.contains(linkType)) {
+				hier = true;
+				parentToChild = topDown.get(linkType);
+			} else if (inverses.containsKey(linkType)) {
+				String inverseLink = inverses.get(linkType);
+				if (hierarchicalRelations.contains(inverseLink)) { 
+					hier = true;
+					parentToChild = topDown.get(inverseLink);
+				}
+			}
+			if (hier) {	
+				if (parentToChild) {
+					if (parents.containsKey(toNode)) continue;
+					parents.put(toNode, fromNode);
+//					System.out.println(toNode + ": its parent is  " + fromNode + " (" + linkType + ")");
+				} else {
+					if (parents.containsKey(fromNode)) continue;
+					parents.put(fromNode, toNode);
+//					System.out.println(fromNode + ": its parent is  " + toNode + " (" + linkType + ")");
+				}
+			}
+		}
+		
+		//	Find top nodes
+
+		Enumeration<String> children = parents.keys();
+		while (children.hasMoreElements()) {
+			String childKey = children.nextElement();
+			String parentKey = parents.get(childKey);
+			if (!parents.containsKey(parentKey)) {
+//				if (parentKey.equals("root")) {
+//						System.out.println("GAU: " + childKey);
+//				}
+				parents2.put(parentKey, "root");
+//				System.out.println("new top needed: " + parentKey);
+			}
+		}
+		Enumeration<String> moreChildren = parents2.keys();
+		while (moreChildren.hasMoreElements()) {
+			String childKey = moreChildren.nextElement();
+			parents.put(childKey, "root");
+//			System.out.println("new top added: " + childKey);
+		}
+		
+		//	Build selection tree
+
+	    createSelectionNodes(top);
+			
+	    DefaultTreeModel model = new DefaultTreeModel(top);
+	    tree = new JTree(model);
+	    
+	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+	    tree.addTreeSelectionListener(this);
+//	    order = 0;
+	    
+		//	UI for selection (duplicated from ImappingImport //	TODO reuse
+		
+        frame = new JFrame("Pick a collection?");
+        frame.setLocation(100, 170);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);	// closing triggers further processing
+		frame.addWindowListener(myWindowAdapter);
+		frame.setLayout(new BorderLayout());
+        frame.add(new JScrollPane(tree));
+        
+        JPanel toolbar = new JPanel();
+        toolbar.setLayout(new BorderLayout());
+        JButton continueButton = new JButton("Continue");
+        continueButton.addActionListener(this);
+        continueButton.setSelected(true);
+		JButton cancelButton = new JButton("Cancel");
+	    cancelButton.addActionListener(this);
+	    
+	    String okLocation = "East";
+	    String cancelLocation = "West";
+	    String multSel = "CTRL";
+		if (System.getProperty("os.name").equals("Mac OS X")) {
+	    	okLocation = "East";
+	    	cancelLocation = "West";
+	    	multSel = "CMD";
+	    }
+		JLabel instruction = new JLabel("<html><body>" +
+	    "You may restrict your import. " +
+		"Do do so, select one or more branches. <br />" + 
+	    "Specify multiple selections as usual by holding " + multSel + 
+	    " or Shift while clicking. <br />&nbsp;<br />");
+        toolbar.add(continueButton, okLocation);
+		toolbar.add(cancelButton, cancelLocation);
+		
+		toolbar.add(instruction, "North");
+		toolbar.setBorder(new EmptyBorder(10, 10, 10, 10));
+        frame.add(toolbar,"South");
+        frame.pack();
+
+        frame.setMinimumSize(new Dimension(400, 300));
+        frame.setVisible(true);
+		
+	}
+	
+	public void processChildren() {		// Bad name
+	    
+		if (noSelectionMade) {
+			DefaultMutableTreeNode top = treeNodes.get("root");
+			toggleSelection(top, true);
+		}
+		
+		int j = -1;
+		for (int i = 0; i < dwzNodes.getLength(); i++) {
+			Element node = (Element) dwzNodes.item(i);
+			String nodeID = node.getAttribute("id");
+			if (!selected.get(nodeID)) continue;
+			
+			//	Label
+			NodeList labelContainer = node.getElementsByTagName("label");
+			Element label = (Element) labelContainer.item(0);
+			String labelString = label.getTextContent();
+			
+			//	Content
 			NodeList contentContainer = node.getElementsByTagName("content");
 			String content = "";
 			int found = contentContainer.getLength();
 			if (found > 0) {
 				content = contentContainer.item(0).getTextContent().toString();
 			}
-//			content = filterHTML(content);
-			
-			// Create MyTool nodes
-			int j = i;
 			String newNodeColor = "#ccdddd";
+			
+			//	Optional: mark pale if BuiltIn 
+			NodeList attrContainer = node.getElementsByTagName("attributes");
+			NodeList attrNodes = ((Element) attrContainer.item(0)).getElementsByTagName("attribute");
+			String createdBy = "";
+			for (int a = 0; a < attrNodes.getLength(); a++) {
+				Element attrNode = (Element) attrNodes.item(a);
+				String attrName = attrNode.getAttribute("name");
+				if (!attrName.equals("pmodel-att-creationSource")) continue;
+				createdBy = attrNode.getTextContent();
+			}
+			if (createdBy.equals("builtin-cds")) {
+				newNodeColor = "#eeeeee";
+			}
+			
+			j = j + 1;
+//			String newNodeColor = "#ccdddd";
 			String newLine = "\r";
 			String topicName = labelString;
 			String verbal = content;
 			if (topicName.equals(newLine)) topicName = "";
 			if (verbal == null || verbal.equals(newLine)) verbal = "";
-			if (!verbal.isEmpty()) newNodeColor = "#ffdddd";
+			if (!verbal.isEmpty()) newNodeColor = "#ccdddd";
 			if (topicName.isEmpty() && verbal.isEmpty()) continue;
 			int id = 100 + j;
-			
+
 			int y = 40 + (j % maxVert) * 50 + (j/maxVert)*5;
 			int x = 40 + (j/maxVert) * 150;
 			Point p = new Point(x, y);
 			GraphNode topic = new GraphNode (id, p, Color.decode(newNodeColor), topicName, verbal);	
-			
 
 			nodes.put(id, topic);
 			dwz2num.put(nodeID, id);
-			System.out.println("Merke " + labelString + " " + nodeID + " -> " + id + " ");
 		}
 		
-		//	Rearrange nodes in a circle
-//		int nodesTotal = nodes.size();
-//
-//		Enumeration<GraphNode> nodes2 = nodes.elements();
-		int i = 0;
-//		while (nodes2.hasMoreElements()) {
-//			GraphNode node = nodes2.nextElement();
-//			Point p = circleEvenly(i, nodesTotal, new Point(10, 10));
-//			node.setXY(p);
-//			i++;
-//		}
-		
-		//	Find DWZ links
-		
-		NodeList dwzLinks = ((Element) graphContainer.item(0)).getElementsByTagName("link");
-		System.out.println("Wieviel gefunden " + dwzNodes.getLength());
-		int edgesNum = 0;
-		
-		for (i = 0; i < dwzLinks.getLength(); i++) {
+		for (int i = 0; i < dwzLinks.getLength(); i++) {
 
+			// Generate edge
 			Element link = (Element) dwzLinks.item(i);
-			String linkID = link.getAttribute("id");
 			String fromNode = link.getAttribute("from");
 			String toNode = link.getAttribute("to");
 			String linkType = link.getAttribute("type");
 			String linkLabel = typeDict.get(linkType);
-			System.out.println(fromNode + " " + linkLabel + " " + toNode);
-
-			// Generate edges
-			edgesNum++;
+			if (!dwz2num.containsKey(fromNode)) continue;
 			int sourceNodeNum = dwz2num.get(fromNode);
+			if (!dwz2num.containsKey(toNode)) continue;
 			int	targetNodeNum = dwz2num.get(toNode);
 			GraphNode sourceNode = nodes.get(sourceNodeNum);
 			GraphNode targetNode = nodes.get(targetNodeNum);
-			GraphEdge edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode("#c0c0c0"), linkLabel);
-			edges.put(edgesNum, edge);
-			sourceNode.addEdge(edge);
-			targetNode.addEdge(edge);
-		}
-		
-		Enumeration<GraphNode> nodes2 = nodes.elements();
-		i = 0;
-		while (nodes2.hasMoreElements()) {
-			GraphNode node = nodes2.nextElement();
-			Enumeration<GraphEdge> neighbors = node.getEdges();
-			int count = 0;
+			
+			//	See if it is duplicate
+			Enumeration<GraphEdge> neighbors = sourceNode.getEdges();
+			GraphEdge existingEdge = null;
+			GraphEdge testEdge = null;
 			while (neighbors.hasMoreElements()) {
-				GraphEdge dummy = neighbors.nextElement();
-				count++;
-				System.out.println("Neighbors: " + count);
+				testEdge = neighbors.nextElement();
+				GraphNode otherEnd = sourceNode.relatedNode(testEdge);
+				if (otherEnd.equals(targetNode)) {
+					existingEdge = testEdge;
+					continue;
+				}
 			}
-			if (count > 3) {
-				Point prelim = node.getXY();
-				int x = prelim.x;
-				int y = prelim.y;
-				Point adjusted = new Point(x + 30, y);
-				node.setXY(adjusted);
+			GraphEdge edge = null;
+			if (existingEdge != null) {
+				String anotherLink = existingEdge.getDetail();
+				if (anotherLink.equals(linkLabel)) continue;
+				linkLabel = anotherLink + "<br />+ " + linkLabel;
+				existingEdge.setColor("#aaaaaa");
+				existingEdge.setDetail(linkLabel);
+			} else {
+				String newEdgeColor = "#c0c0c0";
+				String extraEdgeColor = "#ffff99";
+				NodeList attrContainer = link.getElementsByTagName("attributes");
+				NodeList attrNodes = ((Element) attrContainer.item(0)).getElementsByTagName("attribute");
+				String createdBy = "";
+				for (int a = 0; a < attrNodes.getLength(); a++) {
+					Element attrNode = (Element) attrNodes.item(a);
+					String attrName = attrNode.getAttribute("name");
+					if (!attrName.equals("pmodel-att-creationSource")) continue;
+					createdBy = attrNode.getTextContent();
+				}
+				if (createdBy.equals("InfModelXy") || createdBy.equals("builtin-cds")) {
+					newEdgeColor = "#eeeeee";
+					extraEdgeColor = "#eeeeee";
+				} else {
+					System.out.println(createdBy);
+				}
+				edgesNum++;
+//				edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode("#c0c0c0"), linkLabel);
+				if (hierarchicalRelations.contains(linkType)) {
+					edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode(newEdgeColor), linkLabel);
+				} else {
+					edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode(extraEdgeColor), linkLabel);
+				}
+					edges.put(edgesNum, edge);
+					sourceNode.addEdge(edge);
+					targetNode.addEdge(edge);
+//				}
 			}
-			i++;
 		}
+	
+//		layoutLikePlanarity();
+		layoutLikeIkeaAssembly();
 		
 		
-		//	Pass on
+//			
+//		Pass on the new map
 		
-//		edges.clear();
+		System.out.println("Map: " + nodes.size() + " " + edges.size());
 		try {
 			dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
 		} catch (TransformerConfigurationException e1) {
@@ -216,87 +487,171 @@ public class DwzImport {
 		} catch (SAXException e1) {
 			System.out.println("Error DI110 " + e1);
 		}
-		controler.getNSInstance().setInput(dataString, 2);
+		
+		success = true;
+	}
+	
+	public boolean isHierarchical(String rel) {
+		boolean result = false;
+		String parent = "";
+		if (hierarchicalRelations.contains(rel)) {
+			return true;
+		}
+		if (parents0.containsKey(rel)){
+			parent = parents0.get(rel);
+			result = isHierarchical(parent);
+		}
+		if (result) {
+			hierarchicalRelations.add(rel);
+			boolean upDown = topDown.get(parent); 
+			topDown.put(rel, upDown);
+		} else if (inverses.containsKey(rel)) {
+			String inverse = inverses.get(rel);
+			result = isHierarchical(inverse);
+			if (result) {
+				hierarchicalRelations.add(rel);
+				boolean upDown = topDown.get(inverse); 
+				topDown.put(rel, !upDown);
+			}
+		}
+		return result;
 	}
 	
 //
-//	Accessories to filter HTML tag "en-note"
-//	Duplicate of NewStuff TODO reuse
+//	Accessories for branch selection
+    
+    private void createSelectionNodes(DefaultMutableTreeNode top) {
+//		System.out.println("Creating subtree of: " + top);
+        DefaultMutableTreeNode branch = null;
+        BranchInfo categoryInfo = (BranchInfo) top.getUserObject();
+        String parentKey = categoryInfo.getKey();
+        String childKey = "";
+        
+        Enumeration<String> children = parents.keys();
+        while (children.hasMoreElements()) {
+        	childKey = children.nextElement();
+        	String testParent = parents.get(childKey);
+        	if (testParent.equals(parentKey)) {
+        		branch = treeNodes.get(childKey);
+        		
+//        		System.out.println("Trying to add " + branch + " to " + top);
+                top.add(branch);
+//        		order++;
+//        		orderMap.put(order, childKey);
+        		
+                createSelectionNodes(branch);	// recursive
+        	}
+        }
+    }
+    
+    private class BranchInfo {
+        public String branchKey;
+        public String branchLabel;
+ 
+        public BranchInfo(String branchKey, String branchLabel) {
+        	this.branchKey = branchKey;
+        	this.branchLabel = branchLabel;
+            
+            if (branchLabel == null) {
+                System.err.println("Error DI140 Couldn't find info for " + branchKey);
+            }
+        }
+ 
+        public String getKey() {
+            return branchKey;
+        }
+        
+        public String toString() {
+            return branchLabel;
+        }
+    }
 
-	private String filterHTML(String html) {
-		htmlOut = "";
-		ever = false;
-		link = false;
+	public void valueChanged(TreeSelectionEvent arg0) {
+		TreePath[] paths = arg0.getPaths();
 
-		MyHTMLEditorKit htmlKit = new MyHTMLEditorKit();
-		HTMLEditorKit.Parser parser = null;
-		HTMLEditorKit.ParserCallback cb = new HTMLEditorKit.ParserCallback() {
-			public void handleStartTag(HTML.Tag t, MutableAttributeSet a, int pos) {
-				if (t == Tag.A) {
-					String address = (String) a.getAttribute(Attribute.HREF);
-					link = true;
-					System.out.println("Link " + address);
-					htmlOut = htmlOut + "<a href=\"" + address + "\">" + address + "</a> ";
-				}
-			}
-			public void handleText(char[] data, int pos) {
-				String dataString = new String(data);
-				if (ever && !link) {
-					htmlOut = htmlOut + dataString + " ";
-				} else {
-					System.out.println("DataString: " + dataString);
-				}
-			}
-			public void handleEndTag(HTML.Tag t, int pos) {
-				System.out.println("</" + t + "> on pos " + pos);
-				if (t.toString() == "a") {
-					link = false;
-				}
-			}
-			public void handleSimpleTag(HTML.Tag t, MutableAttributeSet a, int pos) {
-				System.out.println("Simple <" + t + "> on pos " + pos);
-				if (t.toString().equals("en-note")) {
-					ever = !ever;
-					System.out.println("Switched to " + ever);
-				}
-				if (t.toString().equals("en-media")) {
-					htmlOut = "(Media cannot yet be displayed)";
-					System.out.println("Media");
-					return;
-				}
-			}
-		};
-		parser = htmlKit.getParser();
-		Reader reader; 
-		reader = (Reader) new StringReader(html);
-		try {
-			parser.parse(reader, cb, true);
-		} catch (IOException e2) {
-			System.out.println("Error DI109 " + e2);
+		System.out.println("\n");
+		for (int i = 0; i < paths.length; i++) {
+			TreePath selectedPath = paths[i];
+			Object o = selectedPath.getLastPathComponent();
+			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) o;
+			toggleSelection(selectedNode, arg0.isAddedPath(i));
 		}
-		try {
-			reader.close();
-		} catch (IOException e3) {
-			System.out.println("Error DI110 " + e3.toString());
-		}
-		return htmlOut;
 	}
 
-	private static class MyHTMLEditorKit extends HTMLEditorKit {
-		private static final long serialVersionUID = 7279700400657879527L;
+	public void toggleSelection(DefaultMutableTreeNode selectedNode, boolean fluct) {
+		noSelectionMade = false;
+		String fluctText = "removed";
+		if (fluct) fluctText = "added";
+		BranchInfo branch = (BranchInfo) selectedNode.getUserObject();
+		String keyOfSel = branch.getKey();
+//		System.out.println(keyOfSel + " (" + branch + ") " + fluctText);
+		if (selected.containsKey(keyOfSel)) {
+			boolean currentSetting = selected.get(keyOfSel);
+			selected.put(keyOfSel, !currentSetting);
+		} else {
+			System.out.println("Error DI120 " + keyOfSel);
+			if (!success) failed();
+			frame.dispose();
+		}
 
-		public Parser getParser() {
-			return super.getParser();
+		@SuppressWarnings("rawtypes")
+		Enumeration children =  selectedNode.children();
+		while (children.hasMoreElements()) {
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) children.nextElement();
+			toggleSelection(child, fluct);
 		}
 	}
 	
+	//
+//	Accessories for layout
+	
+	public void layoutLikeIkeaAssembly() {
+		Enumeration<GraphNode> nodes2 = nodes.elements();
+		while (nodes2.hasMoreElements()) {
+			GraphNode node = nodes2.nextElement();
+			Enumeration<GraphEdge> neighbors = node.getEdges();
+			int count = 0;
+			while (neighbors.hasMoreElements()) {
+				neighbors.nextElement();	// Just to count; TODO better way
+				count++;
+			}
+			if (count > 2) {
+				Point prelim = node.getXY();
+				int x = prelim.x;
+				int y = prelim.y;
+				Point adjusted = new Point(x + 30, y);
+				node.setXY(adjusted);
+			}
+		}
+	}
+	
+	//	Rearrange nodes in a circle
+	public void layoutLikePlanarity() {
+		int nodesTotal = nodes.size();
+
+		Enumeration<GraphNode> nodes2 = nodes.elements();
+		int i = 0;
+		while (nodes2.hasMoreElements()) {
+			GraphNode node = nodes2.nextElement();
+			Point p = circleEvenly(i, nodesTotal, new Point(10, 10));
+			node.setXY(p);
+			i++;
+		}
+	}
 	public Point circleEvenly(int item, int total, Point corner) {
-		int radius = total * 5;
+		int radius = total * 7;
 		double incr = 360.0 / total;
 			double x = radius * Math.cos((incr * item) * (Math.PI / 180));					
 			double y = radius * Math.sin((incr * item) * (Math.PI / 180));					
 			int xInt = (int) Math.round(x) + corner.x - radius/2;
 			int yInt = (int) Math.round(y) + corner.y - radius/2;
 		return new Point(xInt, yInt);
+	}
+	
+//
+//	Misc
+	
+	public void failed() {
+		controler.displayPopup("Import failed.");		
 	}
 }
