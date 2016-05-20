@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.swing.JButton;
@@ -54,13 +57,14 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 	Hashtable<String,String> parents2 = new Hashtable<String,String>();
 	Hashtable<String,String> inverses = new Hashtable<String,String>();
 	TreeSet<String> hierarchicalRelations = new TreeSet<String>();
-	Hashtable<String,Boolean> topDown = new Hashtable<String,Boolean>();
 	TreeSet<String> expandableRelations = new TreeSet<String>();
+	Hashtable<String,Boolean> topDown = new Hashtable<String,Boolean>();
 	
 	//	From DWZ 
 	private static final String XML_ROOT = "kgif";
 	NodeList dwzNodes = null;
 	NodeList dwzLinks = null;
+	Hashtable<String,Integer> dwz2index = new  Hashtable<String,Integer>();
 	Hashtable<String,String> typeDict = new Hashtable<String,String>();
 	
 	//	For selection tree
@@ -72,10 +76,12 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 	
 	//	For the map
 	Hashtable<String,Integer> dwz2num = new  Hashtable<String,Integer>();
+	int j = -1;
 	int maxVert = 10;
 	int edgesNum = 0;
-//	int rootNum = 0;
-//	int order;
+	int order;
+	TreeMap<Integer,String> orderMap = new TreeMap<Integer,String>();
+	SortedMap<Integer,String> orderList = (SortedMap<Integer,String>) orderMap;
 	
 	//	Misc
 	boolean success = false;
@@ -157,11 +163,12 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 //		Find DWZ nodes
 		
 		dwzNodes = ((Element) graphContainer.item(0)).getElementsByTagName("node");
-		System.out.println("How many Nodes found? " + dwzNodes.getLength());
+		System.out.println("DI How many Nodes found? " + dwzNodes.getLength());
 		
 		for (int i = 0; i < dwzNodes.getLength(); i++) {
 			Element node = (Element) dwzNodes.item(i);
 			String nodeID = node.getAttribute("id");
+			dwz2index.put(nodeID, i);
 			
 			//	Label
 			NodeList labelContainer = node.getElementsByTagName("label");
@@ -185,7 +192,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 //		Read DWZ links
 		
 		dwzLinks = ((Element) graphContainer.item(0)).getElementsByTagName("link");
-		System.out.println("How many links found: " + dwzNodes.getLength());
+		System.out.println("DI How many links found: " + dwzNodes.getLength());
 		edgesNum = 0;
 		
 		for (int i = 0; i < dwzLinks.getLength(); i++) {
@@ -211,8 +218,6 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 
 		hierarchicalRelations.add("cds-rel-hasDetail");
 		topDown.put("cds-rel-hasDetail", true);
-		hierarchicalRelations.add("cds-rel-hasTagMember");
-		topDown.put("cds-rel-hasTagMember", true);
 		
 		for (int i = 0; i < dwzNodes.getLength(); i++) {
 			Element node = (Element) dwzNodes.item(i);
@@ -225,17 +230,29 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 			}
 		}
 		
-		//	Optional listing them
+		//	Building the superset of expandable relations (such as tag or type)
 		
 		Iterator<String> itix = hierarchicalRelations.iterator();
 		while (itix.hasNext()) {
 			String next = itix.next();
-			boolean upDown = topDown.get(next);
-			System.out.println("DI Expandable: " + next + " (" + upDown + ")");
 			expandableRelations.add(next);
 		}
 		
-		//	Record hierarchical relations
+		expandableRelations.add("cds-rel-hasTagMember");
+		topDown.put("cds-rel-hasTagMember", true);
+		
+		for (int i = 0; i < dwzNodes.getLength(); i++) {
+			Element node = (Element) dwzNodes.item(i);
+			String nodeID = node.getAttribute("id");
+			boolean result = false;
+			result = isExpandable(nodeID);
+			if (inverses.containsKey(nodeID)) {
+				String inverse = inverses.get(nodeID);
+				result = result || isExpandable(inverse);
+			}
+		}
+		
+		//	Record hierarchical or at least expandable relations
 
 		for (int i = 0; i < dwzLinks.getLength(); i++) {
 			Element link = (Element) dwzLinks.item(i);
@@ -259,34 +276,68 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 				if (parentToChild) {
 					if (parents.containsKey(toNode)) continue;
 					parents.put(toNode, fromNode);
-//					System.out.println(toNode + ": its parent is  " + fromNode + " (" + linkType + ")");
 				} else {
 					if (parents.containsKey(fromNode)) continue;
 					parents.put(fromNode, toNode);
-//					System.out.println(fromNode + ": its parent is  " + toNode + " (" + linkType + ")");
 				}
 			}
 		}
 		
-		//	Find top nodes
+		//	Record expandable relations that are not already recorded as hierarchical
+
+		for (int i = 0; i < dwzLinks.getLength(); i++) {
+			Element link = (Element) dwzLinks.item(i);
+			String fromNode = link.getAttribute("from");
+			String toNode = link.getAttribute("to");
+			String linkType = link.getAttribute("type");
+
+			boolean exp = false;
+			boolean parentToChild = false;
+			if (expandableRelations.contains(linkType)) {
+				exp = true;
+				parentToChild = topDown.get(linkType);
+			} else if (inverses.containsKey(linkType)) {
+				String inverseLink = inverses.get(linkType);
+				if (expandableRelations.contains(inverseLink)) { 
+					exp = true;
+					parentToChild = topDown.get(inverseLink);
+				}
+			}
+			if (exp) {	
+				if (parentToChild) {
+					if (parents.containsKey(toNode)) continue;
+					parents.put(toNode, fromNode);
+				} else {
+					if (parents.containsKey(fromNode)) continue;
+					parents.put(fromNode, toNode);
+				}
+			}
+		}
+		
+		//	Add rest and top
 
 		Enumeration<String> children = parents.keys();
 		while (children.hasMoreElements()) {
 			String childKey = children.nextElement();
 			String parentKey = parents.get(childKey);
 			if (!parents.containsKey(parentKey)) {
-//				if (parentKey.equals("root")) {
-//						System.out.println("GAU: " + childKey);
-//				}
 				parents2.put(parentKey, "root");
-//				System.out.println("new top needed: " + parentKey);
 			}
 		}
+		//	Laggards
 		Enumeration<String> moreChildren = parents2.keys();
 		while (moreChildren.hasMoreElements()) {
 			String childKey = moreChildren.nextElement();
 			parents.put(childKey, "root");
-//			System.out.println("new top added: " + childKey);
+		}
+		//	Kitchen sink
+		for (int i = 0; i < dwzNodes.getLength(); i++) {
+			Element node = (Element) dwzNodes.item(i);
+			String nodeID = node.getAttribute("id");
+			if (!parents.containsKey(nodeID)) {
+				parents.put(nodeID, "root");
+				selected.put(nodeID,  false);
+			}
 		}
 		
 		//	Build selection tree
@@ -298,7 +349,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 	    
 	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 	    tree.addTreeSelectionListener(this);
-//	    order = 0;
+	    order = 0;	//	Record the order to arrange the nodes in the same order
 	    
 		//	UI for selection (duplicated from ImappingImport //	TODO reuse
 		
@@ -350,11 +401,24 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 			toggleSelection(top, true);
 		}
 		
-		int j = -1;
-		for (int i = 0; i < dwzNodes.getLength(); i++) {
+		j = 0;
+
+		SortedSet<Integer> orderSet = (SortedSet<Integer>) orderList.keySet();
+		Iterator<Integer> ixit = orderSet.iterator(); 
+
+//
+//		Create my nodes
+		
+		while (ixit.hasNext()) {
+			int nextnum = ixit.next();
+			String nodeRef = orderMap.get(nextnum);
+			int i = dwz2index.get(nodeRef);
+//		for (int i = 0; i < dwzNodes.getLength(); i++) {
 			Element node = (Element) dwzNodes.item(i);
 			String nodeID = node.getAttribute("id");
-			if (!selected.get(nodeID)) continue;
+			if (!selected.get(nodeID)) {
+				continue;
+			}
 			
 			//	Label
 			NodeList labelContainer = node.getElementsByTagName("label");
@@ -368,9 +432,9 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 			if (found > 0) {
 				content = contentContainer.item(0).getTextContent().toString();
 			}
-			String newNodeColor = "#ccdddd";
 			
 			//	Optional: mark pale if BuiltIn 
+			String newNodeColor = "#ccdddd";
 			NodeList attrContainer = node.getElementsByTagName("attributes");
 			NodeList attrNodes = ((Element) attrContainer.item(0)).getElementsByTagName("attribute");
 			String createdBy = "";
@@ -384,8 +448,6 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 				newNodeColor = "#eeeeee";
 			}
 			
-			j = j + 1;
-//			String newNodeColor = "#ccdddd";
 			String newLine = "\r";
 			String topicName = labelString;
 			String verbal = content;
@@ -402,20 +464,45 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 
 			nodes.put(id, topic);
 			dwz2num.put(nodeID, id);
+			j++;
 		}
+		
+//
+//		Create edges
 		
 		for (int i = 0; i < dwzLinks.getLength(); i++) {
 
-			// Generate edge
+			// Determine edge
 			Element link = (Element) dwzLinks.item(i);
 			String fromNode = link.getAttribute("from");
 			String toNode = link.getAttribute("to");
 			String linkType = link.getAttribute("type");
 			String linkLabel = typeDict.get(linkType);
-			if (!dwz2num.containsKey(fromNode)) continue;
+			
+			if (!selected.containsKey(toNode)) {
+				System.out.println("Error DI113: target node missing: KGIF inconsistent? " +
+				"Link mentions missing item " + toNode); 
+				continue;
+			}
+			if (expandableRelations.contains(linkType)) {
+				if (!selected.get(fromNode) || !selected.get(toNode)) continue;
+			} else {
+				if (!selected.get(fromNode) && !selected.get(toNode)) continue;
+			}
+			
+			if (!dwz2num.containsKey(fromNode)) {
+				if (selected.get(toNode)) {
+					createRelatedNode(fromNode);
+				} else continue;
+			}
 			int sourceNodeNum = dwz2num.get(fromNode);
-			if (!dwz2num.containsKey(toNode)) continue;
-			int	targetNodeNum = dwz2num.get(toNode);
+			
+			if (!dwz2num.containsKey(toNode)) {
+				if (selected.get(fromNode)) {
+					createRelatedNode(toNode);
+				} else continue;
+			}
+			int targetNodeNum = dwz2num.get(toNode);
 			GraphNode sourceNode = nodes.get(sourceNodeNum);
 			GraphNode targetNode = nodes.get(targetNodeNum);
 			
@@ -431,6 +518,8 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 					continue;
 				}
 			}
+			
+			//	Generate it	
 			GraphEdge edge = null;
 			if (existingEdge != null) {
 				String anotherLink = existingEdge.getDetail();
@@ -453,20 +542,18 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 				if (createdBy.equals("InfModelXy") || createdBy.equals("builtin-cds")) {
 					newEdgeColor = "#eeeeee";
 					extraEdgeColor = "#eeeeee";
-				} else {
-					System.out.println(createdBy);
+//				} else {
+//					System.out.println(createdBy);
 				}
 				edgesNum++;
-//				edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode("#c0c0c0"), linkLabel);
-				if (hierarchicalRelations.contains(linkType)) {
+				if (expandableRelations.contains(linkType)) {
 					edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode(newEdgeColor), linkLabel);
 				} else {
 					edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode(extraEdgeColor), linkLabel);
 				}
-					edges.put(edgesNum, edge);
-					sourceNode.addEdge(edge);
-					targetNode.addEdge(edge);
-//				}
+				edges.put(edgesNum, edge);
+				sourceNode.addEdge(edge);
+				targetNode.addEdge(edge);
 			}
 		}
 	
@@ -477,7 +564,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 //			
 //		Pass on the new map
 		
-		System.out.println("Map: " + nodes.size() + " " + edges.size());
+		System.out.println("DI Map: " + nodes.size() + " " + edges.size());
 		try {
 			dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
 		} catch (TransformerConfigurationException e1) {
@@ -517,11 +604,112 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 		return result;
 	}
 	
+	public boolean isExpandable(String rel) {
+		boolean result = false;
+		String parent = "";
+		if (expandableRelations.contains(rel)) {
+			return true;
+		}
+		if (parents0.containsKey(rel)){
+			parent = parents0.get(rel);
+			result = isExpandable(parent);
+		}
+		if (result) {
+			expandableRelations.add(rel);
+			boolean upDown = topDown.get(parent); 
+			topDown.put(rel, upDown);
+		} else if (inverses.containsKey(rel)) {
+			String inverse = inverses.get(rel);
+			result = isExpandable(inverse);
+			if (result) {
+				expandableRelations.add(rel);
+				boolean upDown = topDown.get(inverse); 
+				topDown.put(rel, !upDown);
+			}
+		}
+		return result;
+	}
+	
+	public void createRelatedNode(String nodeRef) {
+		
+		if (nodeRef.equals("root")) {
+			if (dwz2num.containsKey("root")) return;
+			int id = 100 + j;
+			
+			int y = 40 + (j % maxVert) * 50 + (j/maxVert)*5;
+			int x = 40 + (j/maxVert) * 150;
+			Point p = new Point(x, y);
+			GraphNode topic = new GraphNode (id, p, Color.decode("#eeeeee"), "root", "(Root's details?)");	
+
+			nodes.put(id, topic);
+			dwz2num.put(nodeRef, id);
+			j++;
+			return;
+		}
+		
+		if (!dwz2index.containsKey(nodeRef)) {
+			System.out.println("Error DI112: KGIF inconsistent? " +
+					"Link mentions missing item " + nodeRef);
+			createRelatedNode("root");
+			int rootNum = dwz2num.get("root");
+			dwz2num.put(nodeRef, rootNum);
+			return;
+		}
+		int index = dwz2index.get(nodeRef);
+		Element node = (Element) dwzNodes.item(index);
+		
+//		String newNodeColor = controler.getNewNodeColor();	// TODO 
+		String newNodeColor = "#eeeeee";
+		String newLine = "\r";
+		
+		//	Label
+		NodeList labelContainer = node.getElementsByTagName("label");
+		Element label = (Element) labelContainer.item(0);
+		String labelString = label.getTextContent();
+		String topicName = labelString;
+		
+		//	Content
+		NodeList contentContainer = node.getElementsByTagName("content");
+		String content = "";
+		int found = contentContainer.getLength();
+		if (found > 0) {
+			content = contentContainer.item(0).getTextContent().toString();
+		}
+		String verbal = content;
+
+		if (topicName.equals(newLine)) topicName = "";
+		if (verbal == null || verbal.equals(newLine)) verbal = "";
+		int id = 100 + j;
+		
+		int y = 40 + (j % maxVert) * 50 + (j/maxVert)*5;
+		int x = 40 + (j/maxVert) * 150;
+		Point p = new Point(x, y);
+		GraphNode topic = new GraphNode (id, p, Color.decode(newNodeColor), topicName, verbal);	
+
+		nodes.put(id, topic);
+		dwz2num.put(nodeRef, id);
+		j++;
+
+		String parentNodeUri = parents.get(nodeRef); 
+		int targetNodeNum;
+		if (!dwz2num.containsKey(parentNodeUri)) {
+			createRelatedNode(parentNodeUri);	//	recursive
+		}
+		targetNodeNum = dwz2num.get(parentNodeUri);
+		edgesNum++;
+		GraphNode sourceNode = nodes.get(id);
+		GraphNode targetNode = nodes.get(targetNodeNum);
+		GraphEdge edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode("#eeeeee"), "hasParent");
+		edges.put(edgesNum,  edge);
+		sourceNode.addEdge(edge);
+		targetNode.addEdge(edge);
+	}
+	
+	
 //
 //	Accessories for branch selection
     
     private void createSelectionNodes(DefaultMutableTreeNode top) {
-//		System.out.println("Creating subtree of: " + top);
         DefaultMutableTreeNode branch = null;
         BranchInfo categoryInfo = (BranchInfo) top.getUserObject();
         String parentKey = categoryInfo.getKey();
@@ -533,12 +721,9 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
         	String testParent = parents.get(childKey);
         	if (testParent.equals(parentKey)) {
         		branch = treeNodes.get(childKey);
-        		
-//        		System.out.println("Trying to add " + branch + " to " + top);
                 top.add(branch);
-//        		order++;
-//        		orderMap.put(order, childKey);
-        		
+        		order++;
+        		orderMap.put(order, childKey);
                 createSelectionNodes(branch);	// recursive
         	}
         }
@@ -553,7 +738,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
         	this.branchLabel = branchLabel;
             
             if (branchLabel == null) {
-                System.err.println("Error DI140 Couldn't find info for " + branchKey);
+                System.err.println("Error DI114 Couldn't find info for " + branchKey);
             }
         }
  
@@ -569,7 +754,6 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 	public void valueChanged(TreeSelectionEvent arg0) {
 		TreePath[] paths = arg0.getPaths();
 
-		System.out.println("\n");
 		for (int i = 0; i < paths.length; i++) {
 			TreePath selectedPath = paths[i];
 			Object o = selectedPath.getLastPathComponent();
@@ -584,7 +768,6 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 		if (fluct) fluctText = "added";
 		BranchInfo branch = (BranchInfo) selectedNode.getUserObject();
 		String keyOfSel = branch.getKey();
-//		System.out.println(keyOfSel + " (" + branch + ") " + fluctText);
 		if (selected.containsKey(keyOfSel)) {
 			boolean currentSetting = selected.get(keyOfSel);
 			selected.put(keyOfSel, !currentSetting);
@@ -602,7 +785,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 		}
 	}
 	
-	//
+//
 //	Accessories for layout
 	
 	public void layoutLikeIkeaAssembly() {
