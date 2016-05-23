@@ -225,6 +225,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 			Element node = (Element) dwzNodes.item(i);
 			String nodeID = node.getAttribute("id");
 			boolean result = false;
+			loopDetector = 0;
 			result = isHierarchical(nodeID);
 			if (inverses.containsKey(nodeID)) {
 				String inverse = inverses.get(nodeID);
@@ -250,6 +251,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 			Element node = (Element) dwzNodes.item(i);
 			String nodeID = node.getAttribute("id");
 			boolean result = false;
+			loopDetector = 0;
 			result = isExpandable(nodeID);
 			if (inverses.containsKey(nodeID)) {
 				String inverse = inverses.get(nodeID);
