@@ -86,6 +86,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 	//	Misc
 	boolean success = false;
 	GraphPanelControler controler;
+	int loopDetector = 0;
 	
 //
 //	Accessories for UI
@@ -201,6 +202,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 			String fromNode = link.getAttribute("from");
 			String toNode = link.getAttribute("to");
 			String linkType = link.getAttribute("type");
+			if (fromNode.equals(toNode)) continue;
 			
 			//	Extract the type hierarchy of relations
 			if (linkType.equals("cds-rel-hasSubType")) {
@@ -235,11 +237,14 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 		Iterator<String> itix = hierarchicalRelations.iterator();
 		while (itix.hasNext()) {
 			String next = itix.next();
+			System.out.println("Hierarchical: " + next);
 			expandableRelations.add(next);
 		}
 		
 		expandableRelations.add("cds-rel-hasTagMember");
 		topDown.put("cds-rel-hasTagMember", true);
+		expandableRelations.add("vocabulary-rel-hasTerm");
+		topDown.put("vocabulary-rel-hasTerm", true);
 		
 		for (int i = 0; i < dwzNodes.getLength(); i++) {
 			Element node = (Element) dwzNodes.item(i);
@@ -250,6 +255,13 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 				String inverse = inverses.get(nodeID);
 				result = result || isExpandable(inverse);
 			}
+		}
+		
+		itix = expandableRelations.iterator();
+		while (itix.hasNext()) {
+			String next = itix.next();
+			System.out.println("Expandable: " + next);
+			expandableRelations.add(next);
 		}
 		
 		//	Record hierarchical or at least expandable relations
@@ -510,7 +522,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 			Enumeration<GraphEdge> neighbors = sourceNode.getEdges();
 			GraphEdge existingEdge = null;
 			GraphEdge testEdge = null;
-			while (neighbors.hasMoreElements()) {
+			while (neighbors.hasMoreElements()) { 
 				testEdge = neighbors.nextElement();
 				GraphNode otherEnd = sourceNode.relatedNode(testEdge);
 				if (otherEnd.equals(targetNode)) {
@@ -579,6 +591,9 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 	}
 	
 	public boolean isHierarchical(String rel) {
+//		System.out.println("isHierarchical? " + rel);
+		loopDetector++;
+		if (loopDetector > 20) return false;
 		boolean result = false;
 		String parent = "";
 		if (hierarchicalRelations.contains(rel)) {
@@ -605,6 +620,8 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 	}
 	
 	public boolean isExpandable(String rel) {
+		loopDetector++;
+		if (loopDetector > 20) return false;
 		boolean result = false;
 		String parent = "";
 		if (expandableRelations.contains(rel)) {
@@ -699,7 +716,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 		edgesNum++;
 		GraphNode sourceNode = nodes.get(id);
 		GraphNode targetNode = nodes.get(targetNodeNum);
-		GraphEdge edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode("#eeeeee"), "hasParent");
+		GraphEdge edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode("#eeeeee"), "");
 		edges.put(edgesNum,  edge);
 		sourceNode.addEdge(edge);
 		targetNode.addEdge(edge);

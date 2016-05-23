@@ -356,6 +356,16 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 
 				new ImappingExport(nodes, edges, storeFilename, this);
 			}
+		} else if (command == "dwzexp") {
+			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
+			fd.setFile("dwz.kgif.xml"); 
+			fd.setVisible(true);
+			if (fd.getFile() != null) {
+				String storeFilename = fd.getFile();
+				storeFilename = fd.getDirectory() + fd.getFile();
+
+				new DwzExport(nodes, edges, storeFilename, this);
+			}
 			
 		//	Context menu command
 
@@ -702,6 +712,12 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuItem74.setToolTipText("<html><body><em>(Think Tool iMapping,info)</em></body></html>");
 		menuItem74.addActionListener(this);
 		menu7.add(menuItem74);
+		
+		JMenuItem menuItem75 = new JMenuItem("to DenkWerkZeug KGIF file",  KeyEvent.VK_D);
+		menuItem75.setActionCommand("dwzexp");
+		menuItem75.setToolTipText("<html><body><em>(Think Tool DenkWerkZeug.org)</em></body></html>");
+		menuItem75.addActionListener(this);
+		menu7.add(menuItem75);
 		
 		//	View menu
 		
