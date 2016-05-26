@@ -82,7 +82,7 @@ public class DwzExport {
 		try {
 			fout = new FileOutputStream(zipFilename);
 		} catch (FileNotFoundException e1) {
-			System.out.println("Error IE101 " + e1);			}
+			System.out.println("error DE101 " + e1);			}
 
 //		
 // 		CDS: read stub, write into delta doc, then merge both;  In parallel, add the RDF lines
@@ -95,15 +95,15 @@ public class DwzExport {
 		try {
 			db = dbf.newDocumentBuilder();
 		} catch (ParserConfigurationException e2) {
-			System.out.println("Error IE102 " + e2 );
+			System.out.println("error DE102 " + e2 );
 		}
 		
 		try {
 			transformer = TransformerFactory.newInstance().newTransformer();
 		} catch (TransformerConfigurationException e2) {
-			System.out.println("Error IE103 " + e2);
+			System.out.println("error DE103 " + e2);
 		} catch (TransformerFactoryConfigurationError e2) {
-			System.out.println("Error IE104 " + e2 );
+			System.out.println("error DE104 " + e2 );
 		}
 		
 //
@@ -114,14 +114,14 @@ public class DwzExport {
 			Element stubRoot = null;
 			stubRoot = stub.getDocumentElement();
 			if (stubRoot.getTagName() != XML_ROOT) {
-				System.out.println("Error IE105" );
+				System.out.println("error DE105" );
 				fout.close();
 				return;
 			} 
 		} catch (IOException e1) {
-			System.out.println("Error IE106 " + e1);			
+			System.out.println("error DE106 " + e1);			
 		} catch (SAXException e) {
-			System.out.println("Error IE107" + e );
+			System.out.println("error DE107" + e );
 		}
 
 //
@@ -237,7 +237,7 @@ public class DwzExport {
 		try {
 			transformer.transform(new DOMSource(merge), new StreamResult(output));
 		} catch (TransformerException e) {
-			System.out.println("Error IE109 " + e);
+			System.out.println("error DE109 " + e);
 		}
 		
 		String xml = output.toString();
@@ -252,7 +252,7 @@ public class DwzExport {
 			controler.setDefaultCursor();
 			fout.close();
 		} catch (IOException e) {
-			System.out.println("Error IE110 " + e);
+			System.out.println("error DE110 " + e);
 		}
 
 	}
@@ -305,7 +305,7 @@ public class DwzExport {
 			try {
 				db = dbf.newDocumentBuilder();
 			} catch (ParserConfigurationException e2) {
-				System.out.println("Error IE102 " + e2 );
+				System.out.println("error DE102 " + e2 );
 			}
 			
 			deltaTree = db.newDocument();

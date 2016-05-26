@@ -119,7 +119,7 @@ public class ImappingExport {
 //		For RDF, all is done in a long string;
 //		For CDS, we create XML Documents: stub, contentDeltas & statementDeltas, and merge them
 //		We loop through the 5 container types, then through the MyTool topics
-//		Similarly as with the Import, it label and detail may be separate iMapping items, or fused.
+//		Similarly as with the Import, its label and detail may be separate iMapping items, or fused.
 		
 //
 //		Read stub files

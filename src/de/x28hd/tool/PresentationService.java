@@ -13,7 +13,10 @@ import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -23,6 +26,7 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -38,6 +42,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
@@ -46,6 +51,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.StyledEditorKit;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
@@ -92,10 +98,10 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 	String [] onOff = {"off", "on"};
 	String [] showHide = {"Hide", "Show"};
 	public String about =  " ******** Provisional BANNER ********* " +
-			"\r\n This is My Tool, Release 18 " + 
-			"\r\n running on Java version " + System.getProperty("java.version") +
-			"\r\n using components of de.deepamehta " + 
-			"\r\n and edu.uci.ics.jung under GPL" +
+//			"\r\n This is My Tool, Release 18 " + 
+//			"\r\n running on Java version " + System.getProperty("java.version") +
+//			"\r\n using components of de.deepamehta " + 
+//			"\r\n and edu.uci.ics.jung under GPL" +
 			"\r\n ******** Provisional BANNER ********* ";
 	public String preferences = "No preferences yet (no installation)";
 	
@@ -159,6 +165,10 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 //	Process menu clicks
 	
 	public void actionPerformed(ActionEvent e) {
+		
+		hintTimer.stop();	// Any action => no more hint
+		graphPanel.jumpingArrow(false);
+		
 		String command = e.getActionCommand();
 		JMenuItem item = (JMenuItem) e.getSource();
 		JPopupMenu menu = (JPopupMenu) item.getParent();
@@ -661,6 +671,8 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuItem31.setToolTipText("Paste, Drop, or Type into a Composition Window");
 		menuItem31.addActionListener(this);
 		menu3.add(menuItem31);
+		
+		menu3.addSeparator();
 
 		JMenuItem menuItem32 = new JMenuItem("Import Evernote Notes",  KeyEvent.VK_R);
 		menuItem32.setActionCommand("eneximp");
@@ -669,9 +681,9 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuItem32.addActionListener(this);
 		menu3.add(menuItem32);
 
-		JMenuItem menuItem33 = new JMenuItem("Import iMap",  KeyEvent.VK_R);
+		JMenuItem menuItem33 = new JMenuItem("Import iMap",  KeyEvent.VK_H);
 		menuItem33.setActionCommand("imapimp");
-		menuItem33.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, shortcutMask));
+		menuItem33.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, shortcutMask));
 		menuItem33.setToolTipText("Import from iMapping.info");
 		menuItem33.addActionListener(this);
 		menu3.add(menuItem33);
@@ -815,6 +827,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuBar.add(menu4);
 		menuBar.add(menu5);
 		menuBar.add(menu6);
+		
 		return menuBar;
 	}
 
@@ -1048,8 +1061,18 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		initialize();
 		mainWindow.setVisible(true);
 		//	For compatibility, prompt a compositionWindow
-		if (filename.isEmpty()) openComposition();
+//		if (filename.isEmpty()) openComposition();
+		if (filename.isEmpty()) {
+			hintTimer.start();
+		}
 	}
+	
+	//	Show a hint instead of initial Composition window
+	private Timer hintTimer = new Timer(25, new ActionListener() { 
+        public void actionPerformed (ActionEvent e) { 
+    		graphPanel.jumpingArrow(true);
+        } 
+    }); 
 	
 	//	Input from start parameters	
 	public void setFilename(String arg, int type) {
@@ -1062,6 +1085,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 	public synchronized void initialize() {
 		if (System.getProperty("os.name").equals("Mac OS X")) {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");	// otherwise very alien for Mac users
+			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "My Tool");
 			new AppleHandler(this);			// for QuitHandler
 			com.apple.eawt.Application app = com.apple.eawt.Application.getApplication();
 			java.awt.Image dockImage = (new ImageIcon(getClass().getResource("logo.png"))).getImage();
@@ -1514,6 +1538,8 @@ public final class PresentationService implements ActionListener, GraphPanelCont
    }
     
     public void triggerUpdate(boolean justOneMap) {
+    	hintTimer.stop();
+    	graphPanel.jumpingArrow(false);
     	System.out.println("TriggerUpdate");
     	if (maybeJustPeek && justOneMap && nodes.size() < 1) {
     		//  don't set dirty yet
@@ -1557,4 +1583,6 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		setDefaultCursor();
 		graphPanel.repaint();
     }
+    
+
 }

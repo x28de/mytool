@@ -1,6 +1,5 @@
 package de.x28hd.tool;
 
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -47,6 +46,8 @@ class GraphPanel extends JDesktopPane  {
 	boolean labelUpdate = false;
 	Font font = new Font("monospace", Font.PLAIN, 12);
 	NewStuff newStuff = null;
+	int ticks = 0;
+	boolean jumpingArrow = false;
 	
 	//	Drag accessories
 	int bundleDelay = 0;
@@ -77,6 +78,7 @@ class GraphPanel extends JDesktopPane  {
 	final static int BORDER_IMAGE_HEIGHT = 12;
 	boolean x28PresoSizedMode = false;
 	boolean borderOrientation = false;
+	boolean showHints = false;
 	boolean antiAliasing = true;
     
 //
@@ -140,7 +142,8 @@ class GraphPanel extends JDesktopPane  {
 //			Main graphics activity
 
 			public void paint(Graphics g) { 
-				if (borderOrientation) paintBorderImages(g);
+//				if (jumpingArrow) paintJumpingArrow(g);
+				if (showHints) paintHints(g);
 				if (antiAliasing) {
 					((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 						RenderingHints.VALUE_ANTIALIAS_ON);
@@ -173,7 +176,9 @@ class GraphPanel extends JDesktopPane  {
 				}
 			} 
 			private static final long serialVersionUID = 1L;
-			private void paintBorderImages(Graphics g) {
+			private void paintHints(Graphics g) {
+				if (jumpingArrow) paintJumpingArrow(g);
+				if (!borderOrientation) return;
 				if (showTopImage()) {
 					g.drawImage(topImage, (width - BORDER_IMAGE_WIDTH) / 2, 0, this);
 				}
@@ -188,6 +193,39 @@ class GraphPanel extends JDesktopPane  {
 					g.drawImage(rightImage, width - BORDER_IMAGE_HEIGHT, (height -
 						BORDER_IMAGE_WIDTH) / 2, this);
 				}
+			}
+			private void paintJumpingArrow(Graphics g) {
+//				g.setColor(Color.RED);
+				float vel = 5;
+				float grav = .5f;
+				int y = 100;
+				for (int time = 0; time < ticks - 180; time++) {
+					if (y <= 0) grav = -grav;
+					vel = vel + grav;
+					if (y <= 0) vel = -vel;
+					y = y - (int) vel;
+					if (ticks > 200) break;
+				}
+				vel = 5;
+				grav = .5F;
+				for (int time = 0; time < ticks - 200; time++) {
+					if (y <= 0) grav = -grav;
+					vel = vel + grav;
+					if (y <= 0) vel = -vel;
+					y = y - (int) vel;
+					if (ticks > 220) break;
+				}
+//				System.out.println(ticks + " " + y);
+				int x = 85;
+				if (System.getProperty("os.name").equals("Mac OS X")) x = 241;
+				int[] xPoints = {x, x + 40, x + 28, x + 28, x - 28, x - 28, x - 40};
+				int[] yPoints = {y, y + 25, y + 25, y + 65, y + 65, y + 25, y + 25};
+//				g.setColor(Color.GRAY);
+				g.drawPolygon(xPoints, yPoints, 7);
+				g.setColor(Color.GRAY);
+				g.drawString("Insert", x - 17, y + 32);
+				g.drawString("some", x - 17, y + 45);
+				g.drawString("items ?", x - 17, y + 58);
 			}
 		};
 
@@ -780,6 +818,7 @@ class GraphPanel extends JDesktopPane  {
 
 		public void toggleBorders() {
 			borderOrientation = !borderOrientation;
+			showHints = borderOrientation || jumpingArrow;
 			repaint();
 		}
 
@@ -788,5 +827,26 @@ class GraphPanel extends JDesktopPane  {
 			repaint();
 		}
 
+		public void jumpingArrow(boolean clueless) {
+			if (!clueless) ticks = 401;
+			if (ticks > 400) {
+				ticks = 0;
+				jumpingArrow = false;
+				showHints = borderOrientation || jumpingArrow;
+				repaint();
+				return;
+			}
+			ticks++;
+			if (ticks < 180) {
+//				System.out.println("Waiting");
+				jumpingArrow = false;
+				showHints = borderOrientation || jumpingArrow;
+				return;
+			} else {
+				jumpingArrow = true;
+				showHints = borderOrientation || jumpingArrow;
+				repaint();
+			}
+		}
 
 }
