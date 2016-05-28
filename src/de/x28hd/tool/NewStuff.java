@@ -966,6 +966,7 @@ public class NewStuff {
     				}
     				if (success) {
     					contentString = contentString.replace("\n", "<br />");
+    					contentString = contentString.replace("\t", " (TAB) ");  // TODO improve
     					line = shortName + "\t" + contentString;
     					output = output + line + "\r\n";
     				}
