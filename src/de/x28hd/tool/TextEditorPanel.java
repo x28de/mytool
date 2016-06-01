@@ -56,6 +56,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	int myDot;
 	boolean isDirty = false;
 	boolean editableOrClickable = true; //  hyperlinks disabled
+	boolean tablet = false;
 	private static final long serialVersionUID = 1L;
 
 	int offset = -1;
@@ -225,11 +226,12 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 					showContextMenu(x, y);
 				}
 			}
-//			public void mouseReleased(MouseEvent e) {
-//				if (e.getClickCount() > 1) {		// double clicked
-//		            doubleclickReselect();
-//				}
-//			}
+			//	TODO: make conditional
+			public void mouseReleased(MouseEvent e) {
+				if (tablet && e.getClickCount() > 1) {		// double clicked
+		            doubleclickReselect();
+				}
+			}
 		});
 
 		myCaretAdapter = new MyCaretAdapter();
@@ -355,33 +357,33 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	}
 	
 
-////	
-////	Accessory for double-click
-////	(On the Surface Pro tablet, double-clicking selects only from beginning to dot? 
-//    public void doubleclickReselect() {
-//    	
-//    	boolean proceed = true;
-//    	String inspect = "";
-//    	Pattern regexPattern = Pattern.compile("[\\p{IsPunctuation}$+<=>^`|~\\p{IsWhite_Space}]");
-//    	CharSequence inspectedSeq = "";
-//    	Matcher matcher = null;
-//    	while (proceed) {
-//    		try {
-//    			inspect = doc.getText(myDot, 1);
-//    		} catch (BadLocationException e1) {
-//    			System.out.println("BadLocationException");
-//    			System.exit(0);
-//    		}
-//    		inspectedSeq = (CharSequence) inspect;
-//    		matcher = regexPattern.matcher(inspectedSeq);
-//    		if (matcher.matches()) {
-//    			proceed = false;
-//    		}  else {
-//    			myDot++;
-//    		}
-//    		textComponent.setSelectionEnd(myDot);
-//    	}
-//    }
+//	
+//	Accessory for double-click
+//	(On the Surface Pro tablet, double-clicking selects only from beginning to dot? 
+    public void doubleclickReselect() {
+    	
+    	boolean proceed = true;
+    	String inspect = "";
+    	Pattern regexPattern = Pattern.compile("[\\p{IsPunctuation}$+<=>^`|~\\p{IsWhite_Space}]");
+    	CharSequence inspectedSeq = "";
+    	Matcher matcher = null;
+    	while (proceed) {
+    		try {
+    			inspect = doc.getText(myDot, 1);
+    		} catch (BadLocationException e1) {
+    			System.out.println("BadLocationException");
+    			System.exit(0);
+    		}
+    		inspectedSeq = (CharSequence) inspect;
+    		matcher = regexPattern.matcher(inspectedSeq);
+    		if (matcher.matches()) {
+    			proceed = false;
+    		}  else {
+    			myDot++;
+    		}
+    		textComponent.setSelectionEnd(myDot);
+    	}
+    }
 
 //
 //	Main Methods
@@ -399,6 +401,10 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	public void toggleHyp() {
 		editableOrClickable = !editableOrClickable;
 		textComponent.setEditable(editableOrClickable);
+	}
+	
+	public void toggleTablet(boolean onOff) {
+		tablet = onOff;
 	}
 	
 	

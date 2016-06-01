@@ -46,6 +46,7 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -71,6 +72,9 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 	JTextField labelField = null;
 //	JTextComponent textDisplay = null;
 	private JButton OK;	
+	JPanel altButton = null;
+	boolean altDown = false;
+	JPanel footbar = null;
 	
 	JMenuBar myMenuBar = null;
 	int shortcutMask;
@@ -84,6 +88,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 	JCheckBoxMenuItem menuItem45 = null;
 	JCheckBoxMenuItem menuItem51 = null;
 	JCheckBoxMenuItem menuItem52 = null;
+	JCheckBoxMenuItem menuItem55 = null;
 	String [] tooltip22 = { 
 			"Click to disable editing in the detail pane but enable hyperlinks",
 			"Click to enable editing in the detail pane but disable hyperlinks"};
@@ -315,6 +320,8 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 					menuItem45.setSelected(false);
 				}
 			}
+		} else if (command == "tablet") {
+			toggleTablet();
 			
 		} else if (command == "?") {
 			displayHelp();
@@ -518,7 +525,42 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		splitPane.setToolTipText("sptt");
 
 		graphPanel.setBackground(Color.WHITE);
-//		graphPanel.setBackground(Color.decode("#ffffdd"));
+		
+		//	Simulate "Alt" button (for pen or touch, since Button3+drag is not available,
+		//	and Button2+Drag would interfere with, or delay, the context menu whose immediacy
+		//	has a higher relevance for user's perceived control)
+		graphPanel.setLayout(new BorderLayout());
+		footbar = new JPanel();
+		footbar.setBackground(Color.WHITE);
+		footbar.setLayout(new BorderLayout());
+		altButton = new JPanel();
+//		JLabel altLabel = new JLabel("Alt");
+//		altLabel.set
+		altButton.add(new JLabel("Alt"));
+		altButton.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+		altButton.setBackground(Color.LIGHT_GRAY);
+		altButton.setPreferredSize(new Dimension(40, 40));
+		altButton.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {	//	On MS Surface nor working 
+				System.out.println("Mousebutton pressed ");	
+			}
+			public void mouseReleased(MouseEvent e) {
+//				Mousebutton released = > Simulated Alt Key toggled ""
+				altDown = !altDown;
+				graphPanel.toggleAlt(altDown);
+				if (altDown) {
+					altButton.setBackground(Color.YELLOW);
+				} else {
+					altButton.setBackground(Color.LIGHT_GRAY);
+				}
+				System.out.println("Mousebutton released = > Simulated Alt Key toggled ");
+			}
+		});
+		footbar.add(altButton, BorderLayout.WEST);
+		footbar.setVisible(false);	// until Tools > Table is specified
+		graphPanel.add(footbar, BorderLayout.SOUTH);
+		
 		splitPane.setLeftComponent(graphPanel);
 
 		JPanel rightPanel = new JPanel();
@@ -713,6 +755,8 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuItem72.addActionListener(this);
 		menu7.add(menuItem72);
 		
+		menu7.addSeparator();
+		
 		JMenuItem menuItem73 = new JMenuItem("to Wordpress WXP format",  KeyEvent.VK_W);
 		menuItem73.setActionCommand("wxp");
 		menuItem73.setToolTipText("<html><body><em>(Wordpress Export Format)</em></body></html>");
@@ -782,6 +826,12 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menu5.add(menuItem51);
 		
 		menu5.addSeparator();
+		
+		menuItem55 = new JCheckBoxMenuItem("Tablet Mode", false);
+		menuItem55.setActionCommand("tablet");
+		menuItem55.setToolTipText("Doubleclick improvement and Alt-Key for Pen and Touch ");
+		menuItem55.addActionListener(this);
+		menu5.add(menuItem55);
 		
 		menuItem52 = new JCheckBoxMenuItem("Power User Mode", false);
 		menuItem52.setActionCommand("power");
@@ -1020,6 +1070,12 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuItem41.setToolTipText(tooltip41[1 - stateHyp]);
 	}
 
+	public void toggleTablet() {
+		boolean tablet = menuItem55.isSelected();
+		footbar.setVisible(tablet);
+		edi.toggleTablet(tablet);
+	}
+	
 	public void toggleClassicMenu() {
 		showMenuBar = !showMenuBar;
 		if (showMenuBar) {
@@ -1504,15 +1560,9 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		}
 
 		public void launchSibling() {
-//			File jarfile = new File(baseDir + "/fromscratch.jar");
-//			try {
-//				Runtime.getRuntime().exec(new String[] {"java", "-jar", jarfile.getAbsolutePath() });
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-			
-			new MyTool().main(null);
+			new MyTool();
+			String[] dummyArg = {""};
+			MyTool.main(dummyArg);
 		}
 	
 //

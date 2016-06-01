@@ -53,6 +53,7 @@ class GraphPanel extends JDesktopPane  {
 	int bundleDelay = 0;
 	boolean bundleInProgress = false;
 	String myTransferable = "";
+	boolean simulatedAltDown = false;
 
 	
 	// directly from jri
@@ -595,7 +596,7 @@ class GraphPanel extends JDesktopPane  {
 					controler.updateBounds();
 
 				} else if (clusterInProgress) {
-					if (isSpecial(e)) {
+					if (isSpecial(e) || simulatedAltDown) {
 						bundleForDrag(e);
 					}  
 					translateCluster(dx, dy);
@@ -671,7 +672,7 @@ class GraphPanel extends JDesktopPane  {
 			int x = e.getX();
 			int y = e.getY();
 			if (e.getClickCount() == 2) {		// double clicked
-			} else if (e.isAltDown()) {			// alt modifier is pressed -- start creating an edge
+			} else if (e.isAltDown() || simulatedAltDown) {	// alt modifier is pressed -- start creating an edge
 				edgeInProgress = true;
 				targetNode = null;
 				ex = x;
@@ -814,6 +815,11 @@ class GraphPanel extends JDesktopPane  {
 		public void togglePreso() {
 			x28PresoSizedMode = ! x28PresoSizedMode;
 			repaint();
+		}
+
+		public void toggleAlt(boolean down) {
+//			simulatedAltDown = ! simulatedAltDown;	//	press and release are not separated on surface
+			simulatedAltDown = down;
 		}
 
 		public void toggleBorders() {
