@@ -193,7 +193,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 //		Read DWZ links
 		
 		dwzLinks = ((Element) graphContainer.item(0)).getElementsByTagName("link");
-		System.out.println("DI How many links found: " + dwzNodes.getLength());
+		System.out.println("DI How many links found: " + dwzLinks.getLength());
 		edgesNum = 0;
 		
 		for (int i = 0; i < dwzLinks.getLength(); i++) {

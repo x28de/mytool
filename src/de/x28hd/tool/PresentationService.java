@@ -195,6 +195,9 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		} else if (command == "dwzimp") {
 			new DwzImport(mainWindow, this);
 			
+		} else if (command == "cmapimp") {
+			new CmapImport(mainWindow, this);
+			
 		} else if (command == "open") {
 			FileDialog fd = new FileDialog(mainWindow);
 			fd.setMode(FileDialog.LOAD);
@@ -382,6 +385,19 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 				storeFilename = fd.getDirectory() + fd.getFile();
 
 				new DwzExport(nodes, edges, storeFilename, this);
+			}
+		} else if (command == "cmapexp") {
+			displayPopup("June 3rd, 2016: This is just a Quick and Dirty first attempt.\n" + 
+					"Regard it as a Proof Of Concept. Maybe soon more.");
+			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
+			fd.setFile("my.cmap.cxl"); 
+			fd.setVisible(true);
+			if (fd.getFile() != null) {
+				String storeFilename = fd.getFile();
+				storeFilename = fd.getDirectory() + fd.getFile();
+
+				new CmapExport(nodes, edges, storeFilename, this);
+//				new CmapExport(nodes, edges, storeFilename + ".xml", this);
 			}
 			
 		//	Context menu command
@@ -737,6 +753,13 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuItem34.addActionListener(this);
 		menu3.add(menuItem34);
 
+		JMenuItem menuItem35 = new JMenuItem("Import CMap",  KeyEvent.VK_M);
+		menuItem35.setActionCommand("cmapimp");
+		menuItem35.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, shortcutMask));
+		menuItem35.setToolTipText("Import from cmap.ihmc.us CXL file");
+		menuItem35.addActionListener(this);
+		menu3.add(menuItem35);
+
 		//	Export menu
 		
 		JMenu menu7;	// TODO change number
@@ -774,6 +797,12 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuItem75.setToolTipText("<html><body><em>(Think Tool DenkWerkZeug.org)</em></body></html>");
 		menuItem75.addActionListener(this);
 		menu7.add(menuItem75);
+		
+		JMenuItem menuItem76 = new JMenuItem("to CMap CXL file",  KeyEvent.VK_M);
+		menuItem76.setActionCommand("cmapexp");
+		menuItem76.setToolTipText("ConceptMap by cmap.ihmc.us");
+		menuItem76.addActionListener(this);
+		menu7.add(menuItem76);
 		
 		//	View menu
 		
