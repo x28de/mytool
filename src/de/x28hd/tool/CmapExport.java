@@ -40,7 +40,7 @@ public class CmapExport {
 		try {
 			fout = new FileOutputStream(storeFilename);
 		} catch (FileNotFoundException e1) {
-			System.out.println("error DE101 " + e1);			}
+			System.out.println("error CE101 " + e1);			}
 
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = null;
@@ -50,15 +50,15 @@ public class CmapExport {
 		try {
 			db = dbf.newDocumentBuilder();
 		} catch (ParserConfigurationException e2) {
-			System.out.println("error DE102 " + e2 );
+			System.out.println("error CE102 " + e2 );
 		}
 		
 		try {
 			transformer = TransformerFactory.newInstance().newTransformer();
 		} catch (TransformerConfigurationException e2) {
-			System.out.println("error DE103 " + e2);
+			System.out.println("error CE103 " + e2);
 		} catch (TransformerFactoryConfigurationError e2) {
-			System.out.println("error DE104 " + e2 );
+			System.out.println("error CE104 " + e2 );
 		}
 
 		//
@@ -70,8 +70,6 @@ public class CmapExport {
 		Element outRoot = out.createElementNS("http://cmap.ihmc.us/xml/cmap/", XML_ROOT );
 		out = outRoot.getOwnerDocument();
 		out.appendChild(outRoot);	
-//		Element resMeta = out.createElement("res-meta");
-//		outRoot.appendChild(resMeta);
 		
 		//	Header
 		Element outMap = out.createElement("map");
@@ -87,8 +85,7 @@ public class CmapExport {
 			Element concept = out.createElement("concept");
 			GraphNode node = myNodes.nextElement();
 			int num = node.getID();
-			concept.setAttribute("id", num + "");
-//			concept.setAttribute("id", stolenIDs[num]);
+			concept.setAttribute("id", "concept-" + num);
 			String label = node.getLabel();
 			label = label.replace("\r", "");
 			concept.setAttribute("label", label);
@@ -107,13 +104,11 @@ public class CmapExport {
 			Element connection = out.createElement("connection");
 			GraphEdge edge = myEdges.nextElement();
 			int num = edge.getID();
-			connection.setAttribute("id", num + "");
+			connection.setAttribute("id", "connection-" + num);
 			int n1 = edge.getN1();
-			connection.setAttribute("from-id", n1 + "");
-//			connection.setAttribute("from-id", stolenIDs[n1]);
+			connection.setAttribute("from-id", "concept-" + n1);
 			int n2 = edge.getN2();
-			connection.setAttribute("to-id", n2 + "");
-//			connection.setAttribute("to-id", stolenIDs[n2]);
+			connection.setAttribute("to-id", "concept-" + n2);
 			connectionList.appendChild(connection);
 		}
 		outMap.appendChild(connectionList);
@@ -125,12 +120,10 @@ public class CmapExport {
 			Element conceptAppearance = out.createElement("concept-appearance");
 			GraphNode node = myNodes2.nextElement();
 			int num = node.getID();
-			conceptAppearance.setAttribute("id", num + "");
-//			conceptAppearance.setAttribute("id", stolenIDs[num]);
+			conceptAppearance.setAttribute("id", "concept-" + num);
 			Point xy = node.getXY();
-			xy.translate(- bounds.x, - bounds.y);
-			conceptAppearance.setAttribute("x", xy.x + 50 + "");
-			conceptAppearance.setAttribute("y", xy.y + 50 + "");
+			conceptAppearance.setAttribute("x", xy.x * 3/2 + "");	// 1.5 times more space 
+			conceptAppearance.setAttribute("y", xy.y * 3/2 + "");
 			conceptAppearanceList.appendChild(conceptAppearance);
 		}
 		outMap.appendChild(conceptAppearanceList);
@@ -145,14 +138,15 @@ public class CmapExport {
 		while (myEdges2.hasMoreElements()) {
 			Element connectionAppearance = out.createElement("connection-appearance");
 			GraphEdge edge = myEdges2.nextElement();
+			int num = edge.getID();
+			connectionAppearance.setAttribute("id", "connection-" + num);
+			connectionAppearance.setAttribute("arrowhead", "if-to-concept"); // even downward-sloping
 			Color color = edge.getColor();
 			if (color.equals(Color.decode("#f0f0f0")) 
 					|| color.equals(Color.decode("#d8d8d8"))) {	//	pale
-				int num = edge.getID();
-				connectionAppearance.setAttribute("id", num + "");
 				connectionAppearance.setAttribute("style", "dashed");
-				connectionAppearanceList.appendChild(connectionAppearance);
 			}
+			connectionAppearanceList.appendChild(connectionAppearance);
 		}
 		outMap.appendChild(connectionAppearanceList);
 		
@@ -161,7 +155,7 @@ public class CmapExport {
 		try {
 			transformer.transform(new DOMSource(out), new StreamResult(output));
 		} catch (TransformerException e) {
-			System.out.println("error DE109 " + e);
+			System.out.println("error CE109 " + e);
 		}
 		
 		String xml = output.toString();
@@ -176,7 +170,7 @@ public class CmapExport {
 			controler.setDefaultCursor();
 			fout.close();
 		} catch (IOException e) {
-			System.out.println("error DE110 " + e);
+			System.out.println("error CE110 " + e);
 		}
 	}
 }

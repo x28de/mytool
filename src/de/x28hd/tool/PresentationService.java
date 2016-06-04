@@ -387,8 +387,6 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 				new DwzExport(nodes, edges, storeFilename, this);
 			}
 		} else if (command == "cmapexp") {
-			displayPopup("June 3rd, 2016: This is just a Quick and Dirty first attempt.\n" + 
-					"Regard it as a Proof Of Concept. Maybe soon more.");
 			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
 			fd.setFile("my.cmap.cxl"); 
 			fd.setVisible(true);
@@ -397,7 +395,6 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 				storeFilename = fd.getDirectory() + fd.getFile();
 
 				new CmapExport(nodes, edges, storeFilename, this);
-//				new CmapExport(nodes, edges, storeFilename + ".xml", this);
 			}
 			
 		//	Context menu command

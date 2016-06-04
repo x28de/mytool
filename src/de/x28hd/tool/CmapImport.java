@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import javax.swing.JFrame;
@@ -32,6 +33,7 @@ public class CmapImport {
 	
 	//	Keys for nodes and edges, incremented in addNode and addEdge
 	Hashtable<String,Integer> inputID2num = new  Hashtable<String,Integer>();
+	Hashtable<String,Integer> edgeID2num = new  Hashtable<String,Integer>();
 	int j = -1;
 	int edgesNum = 0;
 	
@@ -93,7 +95,6 @@ public class CmapImport {
 		
 		NodeList itemContainer = graph.getElementsByTagName("concept-list");
 		NodeList itemList = ((Element) itemContainer.item(0)).getElementsByTagName("concept");
-		System.out.println("CI How many Items found? " + itemList.getLength());
 		
 		for (int i = 0; i < itemList.getLength(); i++) {
 			Element node = (Element) itemList.item(i);
@@ -105,18 +106,18 @@ public class CmapImport {
 		}
 		
 		NodeList itemContainer2 = graph.getElementsByTagName("linking-phrase-list");
-		NodeList itemList2 = ((Element) itemContainer2.item(0)).getElementsByTagName("linking-phrase");
-		System.out.println("CI How many Items found? " + itemList2.getLength());
+		if (itemContainer2.getLength() > 0) {
+			NodeList itemList2 = ((Element) itemContainer2.item(0)).getElementsByTagName("linking-phrase");
 
-		for (int i = 0; i < itemList2.getLength(); i++) {
-			Element node = (Element) itemList2.item(i);
-			String itemID = node.getAttribute("id");
-			
-			//	Label
-			String labelString = node.getAttribute("label");
-			System.out.println(itemID + " " + labelString);
-			
-			inputItems2.put(itemID, labelString);
+			for (int i = 0; i < itemList2.getLength(); i++) {
+				Element node = (Element) itemList2.item(i);
+				String itemID = node.getAttribute("id");
+
+				//	Label
+				String labelString = node.getAttribute("label");
+
+				inputItems2.put(itemID, labelString);
+			}
 		}
 		
 //
@@ -124,7 +125,6 @@ public class CmapImport {
 		
 		NodeList propContainer = graph.getElementsByTagName("concept-appearance-list");
 		NodeList propList = ((Element) propContainer.item(0)).getElementsByTagName("concept-appearance");
-		System.out.println("CI How many Props found? " + propList.getLength());
 		
 		for (int i = 0; i < propList.getLength(); i++) {
 			Element node = (Element) propList.item(i);
@@ -137,17 +137,18 @@ public class CmapImport {
 		}
 		
 		NodeList propContainer2 = graph.getElementsByTagName("linking-phrase-appearance-list");
-		NodeList propList2 = ((Element) propContainer2.item(0)).getElementsByTagName("linking-phrase-appearance");
-		System.out.println("CI How many Props found? " + propList2.getLength());
+		if (propContainer2.getLength() > 0) {
+			NodeList propList2 = ((Element) propContainer2.item(0)).getElementsByTagName("linking-phrase-appearance");
 
-		for (int i = 0; i < propList2.getLength(); i++) {
-			Element node = (Element) propList2.item(i);
-			String itemID = node.getAttribute("id");
-			
-			//	Position
-			int x = Integer.parseInt(node.getAttribute("x"));
-			int y = Integer.parseInt(node.getAttribute("y"));
-			itemPositions.put(itemID, new Point(x, y));
+			for (int i = 0; i < propList2.getLength(); i++) {
+				Element node = (Element) propList2.item(i);
+				String itemID = node.getAttribute("id");
+
+				//	Position
+				int x = Integer.parseInt(node.getAttribute("x"));
+				int y = Integer.parseInt(node.getAttribute("y"));
+				itemPositions.put(itemID, new Point(x, y));
+			}
 		}
 		
 //		
@@ -156,18 +157,49 @@ public class CmapImport {
 		NodeList linkContainer = graph.getElementsByTagName("connection-list");
 		NodeList linkList = 
 				((Element) linkContainer.item(0)).getElementsByTagName("connection");
-		System.out.println("CI How many links found: " + linkList.getLength());
 		edgesNum = 0;
 		
 		for (int i = 0; i < linkList.getLength(); i++) {
 
 			Element link = (Element) linkList.item(i);
+			String id = link.getAttribute("id");
 			String fromItem = link.getAttribute("from-id");
 			String toItem = link.getAttribute("to-id");
 			if (!inputID2num.containsKey(fromItem)) addNode(fromItem);
 			if (!inputID2num.containsKey(toItem)) addNode(toItem);
 			addEdge(fromItem, toItem);
-			System.out.println(inputItems.get(fromItem) + " -> " + inputItems.get(toItem));
+			edgeID2num.put(id, edgesNum);
+		}
+		
+//
+//		Process unlinked items
+		
+		Enumeration<String> itemEnum = inputItems.keys();
+		while (itemEnum.hasMoreElements()) {
+			String item = itemEnum.nextElement();
+			if (!inputID2num.containsKey(item)) {
+				addNode(item);
+			}
+		}
+		
+//
+//		Find dashed connections
+		
+		NodeList linkPropContainer = graph.getElementsByTagName("connection-appearance-list");
+		if (linkPropContainer.getLength() > 0) {
+			NodeList linkPropList = 
+					((Element) linkPropContainer.item(0)).getElementsByTagName("connection-appearance");
+			for (int i = 0; i < linkPropList.getLength(); i++) {
+
+				Element linkProp = (Element) linkPropList.item(i);
+				String id = linkProp.getAttribute("id");
+				String style = linkProp.getAttribute("style");
+				if (style.equals("dashed")) {
+					int edgeID = edgeID2num.get(id);
+					GraphEdge edge = edges.get(edgeID);
+					edge.setColor("#f0f0f0");	// pale
+				}
+			}
 		}
 		
 //			
@@ -189,7 +221,6 @@ public class CmapImport {
 	
 	public void addNode(String nodeRef) { 
 		boolean linkingPhrase = (inputItems2.containsKey(nodeRef));
-		System.out.println(nodeRef + " " + linkingPhrase);
 		j++;
 		String newNodeColor;
 		String newLine = "\r";
