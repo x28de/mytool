@@ -4,18 +4,12 @@ import java.awt.Color;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 
 import edu.uci.ics.jung.algorithms.importance.BetweennessCentrality;
-import edu.uci.ics.jung.algorithms.importance.NodeRanking;
-import edu.uci.ics.jung.graph.Vertex;
-import edu.uci.ics.jung.graph.decorators.StringLabeller;
-import edu.uci.ics.jung.graph.decorators.StringLabeller.UniqueLabelException;
-//import edu.uci.ics.jung.graph.impl.*;
-import edu.uci.ics.jung.graph.impl.UndirectedSparseEdge;
-import edu.uci.ics.jung.graph.impl.UndirectedSparseGraph;
-import edu.uci.ics.jung.graph.impl.UndirectedSparseVertex;
+import edu.uci.ics.jung.algorithms.importance.Ranking;
+import edu.uci.ics.jung.graph.UndirectedSparseGraph;
+import edu.uci.ics.jung.graph.util.EdgeType;
 
 public class CentralityColoring {
 	Hashtable<Integer, GraphNode> nodes; 
@@ -30,26 +24,17 @@ public class CentralityColoring {
 	}
 
 	public void changeColors() {
-		Hashtable<Integer, UndirectedSparseVertex> vertices = new Hashtable<Integer, UndirectedSparseVertex>();
-		Hashtable<UndirectedSparseVertex, Integer> verticeIDs = new Hashtable<UndirectedSparseVertex, Integer>();
+		UndirectedSparseGraph<Integer, Integer> g = new UndirectedSparseGraph<Integer,Integer>();
 		Hashtable<Integer, GraphEdge> neighborIDs = new Hashtable<Integer, GraphEdge>();
 
-		UndirectedSparseGraph g = new UndirectedSparseGraph();
-		boolean debug = true;
-		StringLabeller labeller = null;
-		
-		if (debug) labeller = StringLabeller.getLabeller(g);
-		
 //
 //		Read GraphNode's and GraphEdge's from Hashtables nodes and edges 
 		
-		Enumeration<GraphNode>nodesEnum = nodes.elements();
-		Enumeration<GraphEdge>edgesEnum = edges.elements();
+		Enumeration<GraphNode> nodesEnum = nodes.elements();
+		Enumeration<GraphEdge> edgesEnum = edges.elements();
 		
 //
 //		Write vertices into the Graph
-		
-		UndirectedSparseVertex v;
 
 		while (nodesEnum.hasMoreElements()) {
 			GraphNode node = nodesEnum.nextElement();
@@ -57,18 +42,7 @@ public class CentralityColoring {
 			nodesSavedColors.put(node.getID(), originalColor);
 			node.setColor("#c0c0c0");
 			int nodeID = node.getID();
-			v = (UndirectedSparseVertex) g.addVertex(new UndirectedSparseVertex());
-			
-			// Remember IDs to lookup back and forth
-			vertices.put(nodeID, v);
-			verticeIDs.put(v, nodeID);
-			if (debug) {
-				try {
-					labeller.setLabel(v, nodeID + " " + node.getLabel());
-//					System.out.println(v + " " + node.getLabel());
-				} catch (UniqueLabelException e1) {
-				}
-			}
+			g.addVertex(nodeID);
 		}
 		
 //		
@@ -104,23 +78,18 @@ public class CentralityColoring {
 			
 			node1.addEdge(edge);
 			node2.addEdge(edge);
-			UndirectedSparseVertex v1 = vertices.get(n1);
-			UndirectedSparseVertex v2 = vertices.get(n2);
-			g.addEdge(new UndirectedSparseEdge(v1, v2));
-			if (debug) {
-			String label1 = node1.getLabel();
-			String label2 = node2.getLabel();
-			System.out.println("Edge added " + edgeID + " (" + label1 + " -- " + label2 + ")");
-			}
+			EdgeType edgeType = EdgeType.UNDIRECTED; 
+			g.addEdge(edgeID, n1, n2, edgeType);
 		}
 
 //		
-//		Call the Ranker program
+//		Call the Ranker program	
 		
-		BetweennessCentrality ranker = new BetweennessCentrality(g, true, false);
+		BetweennessCentrality<Integer,Integer> ranker = 
+				new BetweennessCentrality<Integer,Integer>(g, true, false);
+		ranker.setRemoveRankScoresOnFinalize(false);
 		ranker.evaluate();
 
-		List<NodeRanking> ranks = ranker.getRankings();
 		int nonLeaves = 0;
 		int rankpos = 0;
 		
@@ -129,20 +98,24 @@ public class CentralityColoring {
 		int nodesSorted[] = new int[900];
 		Double scoresSorted[] = new Double[900];
 
-		for (Iterator rIt=ranks.iterator(); rIt.hasNext();) {
+//		List<Ranking<Integer>> list = ranker.getRankings();
+		List<Ranking<?>> list = ranker.getRankings();
+//		for (Iterator rIt=ranks.iterator(); rIt.hasNext();) {
+		for (int rIt = 0; rIt < list.size(); rIt++) {	//	ranks Iterator
 			rankpos++;
-			NodeRanking currentRanking = (NodeRanking) rIt.next();
-			Vertex vIt = ((NodeRanking) currentRanking).vertex;
+//			NodeRanking currentRanking = (NodeRanking) rIt.next();
+			Ranking<?> currentRanking = list.get(rIt);
+//			Vertex vIt = ((NodeRanking) currentRanking).vertex;
+			@SuppressWarnings("unchecked")
+			int vIt = ((Ranking<Integer>) currentRanking).getRanked();	//	vertex of iterator
+			System.out.println(rIt + " -> " + vIt);
 
-			int nodeID = verticeIDs.get(vIt);
+//			int nodeID = verticeIDs.get(vIt);
+			int nodeID = vIt;
 			nodesSorted[rankpos] = nodeID;
 			scoresSorted[rankpos] = currentRanking.rankScore;
 			ranksSorted[nodeID] = rankpos;
 			if (currentRanking.rankScore > 0) nonLeaves++;
-			if (debug) {
-			String label = labeller.getLabel(vIt);
-			System.out.println("Rank of node " + nodeID + " (" + label + "): " + currentRanking.toString());
-			}
 		}
 		
 		int numPerColor = nonLeaves/6;
@@ -178,13 +151,8 @@ public class CentralityColoring {
 				Double relRank = scoresSorted[nodePos];
 				
 				if (relRank > maxRank) {
-					if (debug) System.out.println(node.getLabel() + ": " + nodes.get(rel).getLabel() +  
-							" (" + relRank + ") > " + maxRank);
 					maxRank = relRank;
 					parentEdgeID = i;
-				} else {
-					if (debug) System.out.println(node.getLabel() + ": " + nodes.get(rel).getLabel() +  
-							" (" + relRank + ") <= " + maxRank);
 				}
 
 			}
@@ -192,28 +160,6 @@ public class CentralityColoring {
 			if (parentEdgeID > -1) parentEdge.setColor(colorString); 
 		}
 
-//		Experimental variant
-//		Enumeration<Integer> edgesKeys = edges.keys();
-//
-//		nodesEnum = nodes.elements();
-//		edgesKeys = edges.keys();
-//
-//		while (nodesEnum.hasMoreElements()) {
-//			GraphNode node = nodesEnum.nextElement();
-//			if (node.getColor().equals(Color.decode("#c0c0c0"))) {
-//				System.out.println(node.getID() + " " + node.getLabel());
-//				nodes.remove(node.getID());
-//			}
-//		}
-//		
-//		while (edgesKeys.hasMoreElements()) {
-//			int edgeKey = edgesKeys.nextElement();
-//			GraphEdge edge = edges.get(edgeKey);
-//			if (edge.getColor().equals(Color.decode("#d8d8d8"))) {
-//				System.out.println(edge.getN1() + " " + edge.getN2());
-//				edges.remove(edgeKey);
-//			}
-//		}
 	}
 	
 	public void revertColors() {

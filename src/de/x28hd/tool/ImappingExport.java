@@ -237,8 +237,20 @@ public class ImappingExport {
 			int key = topics0.nextElement();
 			GraphNode node = nodes.get(key);
 			String sortString = node.getLabel().toUpperCase();
-			orderMap.put(sortString, key);
-		}
+//			orderMap.put(sortString, key);
+			String unique = "";
+			if (!orderMap.containsKey(sortString)) {
+				unique = sortString;
+			} else {
+				int appendix = 1;
+				String candidate = sortString;
+				while (orderMap.containsKey(candidate)) {
+					appendix++;
+					candidate = sortString + " (" + appendix + ")";
+				}
+				unique = candidate;
+			}
+			orderMap.put(unique, key);		}
 		SortedSet<String> orderSet = (SortedSet<String>) orderList.keySet();
 		Iterator<String> ixit = orderSet.iterator(); 
 		
