@@ -198,6 +198,9 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		} else if (command == "cmapimp") {
 			new CmapImport(mainWindow, this);
 			
+		} else if (command == "brainimp") {
+			new BrainImport(mainWindow, this);
+			
 		} else if (command == "open") {
 			FileDialog fd = new FileDialog(mainWindow);
 			fd.setMode(FileDialog.LOAD);
@@ -395,6 +398,16 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 				storeFilename = fd.getDirectory() + fd.getFile();
 
 				new CmapExport(nodes, edges, storeFilename, this);
+			}
+		} else if (command == "brainexp") {
+			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
+			fd.setFile("my.brain.xml"); 
+			fd.setVisible(true);
+			if (fd.getFile() != null) {
+				String storeFilename = fd.getFile();
+				storeFilename = fd.getDirectory() + fd.getFile();
+
+				new BrainExport(nodes, edges, storeFilename, this);
 			}
 			
 		//	Context menu command
@@ -757,6 +770,13 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuItem35.addActionListener(this);
 		menu3.add(menuItem35);
 
+		JMenuItem menuItem36 = new JMenuItem("Import TheBrain",  KeyEvent.VK_B);
+		menuItem36.setActionCommand("brainimp");
+		menuItem36.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, shortcutMask));
+		menuItem36.setToolTipText("Import a TheBrain XML file");
+		menuItem36.addActionListener(this);
+		menu3.add(menuItem36);
+
 		//	Export menu
 		
 		JMenu menu7;	// TODO change number
@@ -800,6 +820,12 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		menuItem76.setToolTipText("ConceptMap by cmap.ihmc.us");
 		menuItem76.addActionListener(this);
 		menu7.add(menuItem76);
+		
+		JMenuItem menuItem77 = new JMenuItem("to Brain XML file",  KeyEvent.VK_M);
+		menuItem77.setActionCommand("brainexp");
+		menuItem77.setToolTipText("Creat a TheBrain PB-XML import file");
+		menuItem77.addActionListener(this);
+		menu7.add(menuItem77);
 		
 		//	View menu
 		
