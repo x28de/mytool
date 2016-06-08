@@ -7,7 +7,6 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FileDialog;
-import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
@@ -15,8 +14,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -26,11 +27,11 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -47,17 +48,14 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.CaretEvent;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.StyledEditorKit;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
 
-public final class PresentationService implements ActionListener, GraphPanelControler, Runnable, PopupMenuListener {
+public final class PresentationService implements ActionListener, MouseListener, KeyListener, GraphPanelControler, Runnable, PopupMenuListener {
 
 	//	Main fields
 	Hashtable<Integer, GraphNode> nodes;
@@ -75,6 +73,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 	JPanel altButton = null;
 	boolean altDown = false;
 	JPanel footbar = null;
+	String mainWindowTitle = "Main Window";
 	
 	JMenuBar myMenuBar = null;
 	int shortcutMask;
@@ -179,7 +178,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		JPopupMenu menu = (JPopupMenu) item.getParent();
 		String menuID = menu.getLabel();	// the menuID is stored in the menu's label
 		if (menuID == null) menuID = "Menu Bar";
-		System.out.println("Action Performed (PS) " + command.toString() + " from menu " + menuID);
+//		System.out.println("Action Performed (PS) " + command.toString() + " from menu " + menuID);
 
 		// Open or Insert
 
@@ -219,31 +218,31 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 					dataString = dataString + "\r\n" + f[fileCount].getAbsolutePath();
 					inputType = 4;
 				}
-				System.out.println(f[fileCount].getParent() + " " + f[fileCount].getName());
+//				System.out.println(f[fileCount].getParent() + " " + f[fileCount].getName());
 			}
 			if (!dataString.isEmpty()) {
 				newStuff.setInput(dataString, inputType);
-				System.out.println("ist wie javaFileListFlavor: \r\n" );
-				System.out.println("Filename is (" + fileCount + ") " + dataString);
+//				System.out.println("is like javaFileListFlavor: \r\n" );
+//				System.out.println("Filename is (" + fileCount + ") " + dataString);
 			}
 
 		// Quit
 
 		} else if (command == "quit") {
-			System.out.println("Quit");
+//			System.out.println("Quit");
 			close();
 
 		// Paste
 
 		} else if (command == "paste") {
-			System.out.println("Paste Action");
+//			System.out.println("Paste Action");
 			beginLongTask();
 
 			Transferable t = newStuff.readClipboard();
 			if (!newStuff.transferTransferable(t)) {
 				System.out.println("Error PS121");
 			} else {
-				System.out.println("PS: Pasted Stuff successfully processed.");
+//				System.out.println("PS: Pasted Stuff successfully processed.");
 			}
 			
 		// Save	
@@ -431,7 +430,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 			if (command == "delTopic") {
 				deleteNode(selectedTopic);
 //				selection.mode = SELECTED_NONE;
-//				selection.topic = null;
+				selection.topic = null;
 				graphSelected();
 			}
 			graphPanel.repaint();
@@ -468,6 +467,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		    	clickedSpot.translate(- translation.x, - translation.y);
 				GraphNode node = createNode(clickedSpot);
 				nodeSelected(node);
+				labelField.requestFocus();
 
 			} else if (command == "?") {
 				displayHelp();
@@ -560,8 +560,6 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		footbar.setBackground(Color.WHITE);
 		footbar.setLayout(new BorderLayout());
 		altButton = new JPanel();
-//		JLabel altLabel = new JLabel("Alt");
-//		altLabel.set
 		altButton.add(new JLabel("Alt"));
 		altButton.setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -569,7 +567,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		altButton.setPreferredSize(new Dimension(40, 40));
 		altButton.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {	//	On MS Surface nor working 
-				System.out.println("Mousebutton pressed ");	
+//				System.out.println("Mousebutton pressed ");	
 			}
 			public void mouseReleased(MouseEvent e) {
 //				Mousebutton released = > Simulated Alt Key toggled ""
@@ -580,7 +578,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 				} else {
 					altButton.setBackground(Color.LIGHT_GRAY);
 				}
-				System.out.println("Mousebutton released = > Simulated Alt Key toggled ");
+//				System.out.println("Mousebutton released = > Simulated Alt Key toggled ");
 			}
 		});
 		footbar.add(altButton, BorderLayout.WEST);
@@ -597,6 +595,8 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		labelBox.add(new JLabel("Label", JLabel.CENTER));
 		labelBox.setToolTipText("Short text that also appears on the map. To see it there, click the map.");
 		labelField = new JTextField();
+		labelField.addMouseListener(this);
+		labelField.addKeyListener(this);
 		labelBox.add(labelField,"South");
 		Dimension dim = new Dimension(1400,150);
 		labelBox.setMaximumSize(dim);
@@ -1184,9 +1184,11 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 	
 	//	Input from start parameters	
 	public void setFilename(String arg, int type) {
-		System.out.println("PS newstuff = " + newStuff);
+//		System.out.println("PS newstuff = " + newStuff);
 		filename = arg;
 		if (filename.endsWith(".xml")) confirmedFilename = filename;
+		mainWindowTitle = Utilities.getShortname(filename);
+		mainWindow.repaint();
 		maybeJustPeek = true;
 	}
 	
@@ -1216,7 +1218,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
 		about = (new AboutBuild()).getAbout();
 
-		createMainWindow("Main Window");
+		createMainWindow(mainWindowTitle);
 		System.out.println("PS: Initialized");
 		
 //		newStuff.tmpInit();
@@ -1231,8 +1233,8 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		int offs = filename.lastIndexOf(".");
 		if (filename.isEmpty() || offs < 0) {
 			newName = baseDir + File.separator + "storefile." + extension;
-			System.out.println(baseDir + " + " +  File.separator + " + " + 
-					"(default)" + " = " + newName);
+//			System.out.println(baseDir + " + " +  File.separator + " + " + 
+//					"(default)" + " = " + newName);
 		} else { 
 			newName = filename.substring(0, offs) + "." + extension;
 //			newName = (new File(filename)).getName();
@@ -1246,11 +1248,11 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		fd.setDirectory(baseDir);
 		fd.setVisible(true);
 		if (fd.getFile() == null) {
-			System.out.println("PS: File dialog aborted.");
+//			System.out.println("PS: File dialog aborted.");
 			return false; 
 		}
 		newName = fd.getDirectory() + fd.getFile();
-		System.out.println(fd.getDirectory() + " + " + fd.getFile() + " = " + newName);
+//		System.out.println(fd.getDirectory() + " + " + fd.getFile() + " = " + newName);
 		if (extension == "xml") {
 			confirmedFilename = newName;
 		} else if (extension == "htm") {
@@ -1263,9 +1265,9 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 	}
 	
 	public boolean startStoring(String storeFilename) {
-		System.out.println("PS: Store is starting...");
+//		System.out.println("PS: Store is starting...");
 		if (storeFilename.isEmpty()) return false;
-		System.out.println("PS: Storing in progress. " + storeFilename);
+//		System.out.println("PS: Storing in progress. " + storeFilename);
 		try {
 			File storeFile = new TopicMapStorer(nodes, edges).createTopicmapFile(storeFilename);
 			storeFilename = storeFile.getName();
@@ -1279,14 +1281,14 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 			System.out.println("Error PS125" + e);
 			return false;
 		}
-		System.out.println("PS: Storing finished: " + storeFilename);
+//		System.out.println("PS: Storing finished: " + storeFilename);
 		isDirty = false;
 		edi.setDirty(false);
 		return true;
 	}
 
 	public void startExport() {
-		System.out.println("PS: Export is starting...");
+//		System.out.println("PS: Export is starting...");
 		FileDialog fd = new FileDialog(mainWindow, "Select Zip File to Update");
 		fd.setMode(FileDialog.LOAD);
 		fd.setMultipleMode(false);
@@ -1294,9 +1296,9 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		fd.setVisible(true);
 		try {
 			String zipFilename = fd.getDirectory() + File.separator + fd.getFile();
-			System.out.println("PS: Selected " + zipFilename);
+//			System.out.println("PS: Selected " + zipFilename);
 			new TopicMapExporter(nodes, edges).createTopicmapArchive(zipFilename);
-			System.out.println("PS: Export finished. " + zipFilename);
+//			System.out.println("PS: Export finished. " + zipFilename);
 		} catch (IOException e) {
 			System.out.println("Error PS127 " + e);
 		}
@@ -1318,7 +1320,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 					closeResponse == JOptionPane.CLOSED_OPTION) {
 				return false;
 			} else if (closeResponse != JOptionPane.NO_OPTION) {
-				System.out.println("saving scheduled");
+//				System.out.println("saving scheduled");
 				if (confirmedFilename.isEmpty()) {
 					if (askForFilename("xml")) {
 						confirmedFilename = filename;
@@ -1363,7 +1365,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 	}	
 	
 	public void nodeSelected(GraphNode node) {
-		System.out.println("PS: Node selected");
+//		System.out.println("PS: Node selected");
 		deselect(selectedTopic);
 		deselect(selectedAssoc);
 		selectedAssoc = dummyEdge;
@@ -1378,7 +1380,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 	}
 	
 	public void edgeSelected(GraphEdge edge) {
-		System.out.println("PS: Edge selected");
+//		System.out.println("PS: Edge selected");
 		deselect(selectedAssoc);
 		deselect(selectedTopic);
 		selectedTopic = dummyNode;
@@ -1390,7 +1392,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 	}
 
 	public void graphSelected() {
-		System.out.println("PS: Graph selected");
+//		System.out.println("PS: Graph selected");
 		deselect(selectedTopic);
 		selectedTopic = dummyNode;
 		deselect(selectedAssoc);
@@ -1459,10 +1461,20 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		};
 		String topicName = topic.getLabel();
 		if (topicName.length() > 30) topicName = topicName.substring(0,30) + "...";
-		int response = JOptionPane.showConfirmDialog(OK, 
-				"Are you sure you want to delete " + "the topic \n \"" + 
-				topicName +	"\" with " + neighborCount + " associations ?");
-		if (response != JOptionPane.YES_OPTION) return;
+		
+		//	Some effort to position it near the node to be deleted
+		JOptionPane confirm = new JOptionPane("Are you sure you want to delete " + 
+				"the topic \n \"" + topicName +	
+				"\" with " + neighborCount + " associations ?\n" + 
+				"(There is no Undo yet!)", 
+	    		JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_CANCEL_OPTION); 
+	    JDialog d = confirm.createDialog(null, "Warning");
+	    Point p = topic.getXY();
+	    d.setLocation(p.x - 20 + translation.x, p.y + 100 + translation.y);
+	    d.setVisible(true);
+	    Object responseObj = confirm.getValue();
+	    if (responseObj == null) return;
+		if ((int) responseObj != JOptionPane.YES_OPTION) return;
 
 		Enumeration<GraphEdge> e2 = todoList.elements();
 		while (e2.hasMoreElements()) {
@@ -1537,7 +1549,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		String oldText = labelField.getText();
 		String newText = oldText + " " + textToAdd;
 		labelField.setText(newText);
-		System.out.println(newText);
+//		System.out.println(newText);
 		GraphNode justUpdated = selectedTopic;
 		graphSelected();
 		graphPanel.labelUpdateToggle(true);
@@ -1550,7 +1562,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 //	Accessories for cursors and carets
     
 	public void beginTranslation() {
-		System.out.println("PS Hand cursor");
+//		System.out.println("PS Hand cursor");
 		setHandCursor();
 	}
 
@@ -1642,7 +1654,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
     public void triggerUpdate(boolean justOneMap) {
     	hintTimer.stop();
     	graphPanel.jumpingArrow(false);
-    	System.out.println("TriggerUpdate");
+//    	System.out.println("TriggerUpdate");
     	if (maybeJustPeek && justOneMap && nodes.size() < 1) {
     		//  don't set dirty yet
     		maybeJustPeek = false;
@@ -1652,13 +1664,20 @@ public final class PresentationService implements ActionListener, GraphPanelCont
     	Hashtable<Integer, GraphNode> newNodes = newStuff.getNodes();
     	Hashtable<Integer, GraphEdge> newEdges = newStuff.getEdges();
     	insertion = newStuff.getInsertion();
-    	System.out.println("PS: mouse position while inserting stuff: " + insertion);
-    	if (filename.isEmpty()) filename = newStuff.getAdvisableFilename();
+//    	System.out.println("PS: mouse position while inserting stuff: " + insertion);
+    	if (filename.isEmpty()) {
+    		filename = newStuff.getAdvisableFilename();
+    		if (!filename.isEmpty()) {
+    			mainWindowTitle = Utilities.getShortname(filename);
+    			mainWindow.setTitle(mainWindowTitle);
+    			mainWindow.repaint();
+    		}
+    	}
 
     	IntegrateNodes integrateNodes = new IntegrateNodes(nodes, edges, newNodes, newEdges, insertion);
  
     	roomNeeded = newStuff.roomNeeded();
-    	System.out.println("PS: Room needed: " + roomNeeded.x + ", " + roomNeeded.y);
+//    	System.out.println("PS: Room needed: " + roomNeeded.x + ", " + roomNeeded.y);
     	translation = graphPanel.getTranslation();
     	
 		if (insertion == null) insertion = upperLeft;
@@ -1668,7 +1687,7 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		if (upperLeft == null) {
 			upperLeft = new Point(0, bounds.y + bounds.height + 20);
 			int beyond = bounds.height - graphPanel.getHeight() + translation.y;
-			System.out.println("PS: bounds.height " + bounds.height + ", beyond " + beyond);
+//			System.out.println("PS: bounds.height " + bounds.height + ", beyond " + beyond);
 			if (beyond > -100) {
 				int scroll = - beyond - 200;
 				graphPanel.translateGraph(0, scroll);
@@ -1685,6 +1704,56 @@ public final class PresentationService implements ActionListener, GraphPanelCont
 		setDefaultCursor();
 		graphPanel.repaint();
     }
+
+//
+//	Accessories intended for right-click (paste) in labelfield
+    
+	public void mouseClicked(MouseEvent arg0) {
+		if ((arg0.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+			System.out.println("Mouse right-clicked");
+			JPopupMenu menu = Utilities.showContextMenu();
+			menu.show(labelField, arg0.getX(), arg0.getY());
+		}
+	}
+
+	public void mouseEntered(MouseEvent arg0) {
+//		System.out.println("Mouse entered");
+	}
+
+	public void mouseExited(MouseEvent arg0) {
+//		System.out.println("Mouse exited");
+	}
+
+	public void mousePressed(MouseEvent arg0) {
+//		System.out.println("Mouse pressed");
+	}
+
+	public void mouseReleased(MouseEvent arg0) {
+//		System.out.println("Mouse released");
+	}
+
+//
+//	Accessories intended for entering in labelfield
+    
+	public void keyPressed(KeyEvent arg0) {
+		if (arg0.getKeyChar() == KeyEvent.VK_ENTER) {
+			System.out.println("Enter Key pressed ");
+			GraphNode justUpdated = selectedTopic;
+			graphSelected();
+			graphPanel.labelUpdateToggle(true);
+			nodeSelected(justUpdated);
+			graphPanel.labelUpdateToggle(false);
+			mainWindow.repaint();   // this was crucial
+		}
+	}
+
+	public void keyReleased(KeyEvent arg0) {
+//		System.out.println("Key released");
+	}
+
+	public void keyTyped(KeyEvent arg0) {
+//		System.out.println("Key typed");
+	}
     
 
 }

@@ -921,6 +921,7 @@ public class NewStuff {
      		if (inputType == 5 || !f.exists() || f.isDirectory()) {
 
      			//	Just list the filename
+     			//	TODO replace by utility (test with Mac)
 				shortName = line.replace('\\', '/');	
 				if (shortName.endsWith("/")) shortName = shortName.substring(0, shortName.length() - 1);
        			shortName = shortName.substring(shortName.lastIndexOf("/") + 1);
