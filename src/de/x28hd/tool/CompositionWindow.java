@@ -178,7 +178,7 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 		
 	}
 
-	private void cancel() {
+	public void cancel() {
 		controler.finishCompositionMode();
 		close();
 	}

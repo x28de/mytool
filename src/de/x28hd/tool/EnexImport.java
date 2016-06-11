@@ -81,6 +81,10 @@ public class EnexImport {
 			System.out.println("Error EI107" + e );
 		}
 		
+		new EnexImport(enex, controler);
+	}
+	
+	public EnexImport(Document enex, GraphPanelControler controler) {
 		int maxVert = 10;
 		
 		NodeList enexItems = enex.getElementsByTagName("note");

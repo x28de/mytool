@@ -343,6 +343,7 @@ public class NewStuff {
 				firstComposition = false;
 			} else {
 				readyMap = false;
+				if (inputType < 3) dataString = advisableFilename;
 			}
 	    	controler.getCWInstance().insertSnippet(dataString);
 		} else step3();
@@ -386,9 +387,17 @@ public class NewStuff {
 
 		//
 		//	Which type of XML file? 
+		String [] knownFormats = {
+				"en-export", 
+				"(not relevant)", 
+				"kgif", 
+				"cmap", 
+				"BrainData"
+				};
 
 		if (doc.hasChildNodes()) {
 			root = doc.getDocumentElement();
+			
 			if (root.getTagName() == "x28map") {
 				System.out.println("NS Success: new" );
 				readyMap = true;
@@ -400,8 +409,20 @@ public class NewStuff {
 				otherXML();
 				System.out.println("NS Finished otherXML ?");
 			} else {
-				System.out.println("NS Failure.");
-				return false;
+				boolean known = false;
+				for (int k = 0; k < knownFormats.length; k++) {
+					if (root.getTagName() == knownFormats[k]) {
+						if (compositionMode) controler.getCWInstance().cancel();
+						System.out.println("Format: " + knownFormats[k]);
+						new ImportDirector(k, doc, controler);
+						known = true;
+						return true;
+					}
+				}
+				if (!known) {
+					System.out.println("NS Failure.");
+					return false;
+				}
 			}
 			
 			//	New format
@@ -464,6 +485,15 @@ public class NewStuff {
 				String filename = entry.getName();
 				System.out.println("----------- " + filename);
 				filename = filename.replace('\\', '/');		
+				if (filename.endsWith("content.cds.xml")) {
+					new ImportDirector(1, file, controler);
+					break;
+				}
+				if (filename.equals("word/document.xml")) {
+					stream = zfile.getInputStream(entry);
+					new ImportDirector(5, stream, controler);
+					return false;
+				}
 				if (filename.indexOf("icons/") != -1) {	// very old deepamehta2 format
 					continue;
 				} else	{
@@ -1010,6 +1040,8 @@ public class NewStuff {
 		if (inputType == 1 && readyMap) justOneMap = true;
 		controler.triggerUpdate(justOneMap);
 		readyMap = false;
+		newNodes.clear();
+		newEdges.clear();
 	}
 
 	public Hashtable<Integer, GraphNode> fetchToCenter(Hashtable<Integer,GraphNode> nodes) {

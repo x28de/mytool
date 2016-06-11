@@ -4,24 +4,25 @@ import java.awt.Color;
 import java.awt.FileDialog;
 import java.awt.Point;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.swing.JFrame;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class BrainImport {
+public class WordImport {
 	
 	//	Major fields
 	String dataString = "";
@@ -38,29 +39,57 @@ public class BrainImport {
 	int edgesNum = 0;
 	
 	//	Constants
-	private static final String XML_ROOT = "BrainData";
+	private static final String XML_ROOT = "w:document";
 	int maxVert = 10;
 	GraphPanelControler controler;
 	
-	public BrainImport(JFrame mainWindow, GraphPanelControler controler) {
+	public WordImport(JFrame mainWindow, GraphPanelControler controler) {
 		this.controler = controler;
 		
 //
 //		Open XML document
 		
-//		File file = new File("C:\\Users\\Matthias\\Desktop\\testbrain.xml");
+//		File file = new File("C:\\Users\\Matthias\\Desktop\\probetext\\word\\document.xml");
 		FileDialog fd = new FileDialog(mainWindow);
-		fd.setTitle("Select a CMap CXL file");
+		fd.setTitle("Select a Word file");
 		fd.setMode(FileDialog.LOAD);
 		fd.setVisible(true);
 		String filename = fd.getDirectory() + File.separator + fd.getFile();
 		File file = new File(filename);
-		FileInputStream fileInputStream = null;
+		new WordImport(file, controler);
+	}
+	
+	public WordImport(File file, GraphPanelControler controler) {
+		Charset CP850 = Charset.forName("CP850");
+		ZipFile zfile = null;
 		try {
-			fileInputStream = new FileInputStream(file);
-		} catch (FileNotFoundException e) {
-			System.out.println("Error BI101 " + e);
+			zfile = new ZipFile(file,CP850);
+			Enumeration<? extends ZipEntry> e = zfile.entries();
+			while (e.hasMoreElements()) {
+				ZipEntry entry = (ZipEntry) e.nextElement();
+				String filename = entry.getName();
+				filename = filename.replace('\\', '/');		
+				if (!filename.equals("word/document.xml")) {
+					continue;
+				} else {
+					InputStream stream = zfile.getInputStream(entry);
+					new WordImport(stream, controler);
+				}
+			}
+		} catch (IOException e1) {
+			System.out.println("Error ID111 " + e1);
 		}
+//		FileInputStream fileInputStream = null;
+//		try {
+//			fileInputStream = new FileInputStream(file);
+//		} catch (FileNotFoundException e) {
+//			System.out.println("Error BI101 " + e);
+//		}
+		
+	}
+	
+	public WordImport(InputStream stream, GraphPanelControler controler) {
+		
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = null;
 		Document inputXml = null;
@@ -72,13 +101,13 @@ public class BrainImport {
 		}
 		
 		try {
-			inputXml = db.parse(fileInputStream);
+			inputXml = db.parse(stream);
 			
 			Element inputRoot = null;
 			inputRoot = inputXml.getDocumentElement();
 			if (inputRoot.getTagName() != XML_ROOT) {
 				System.out.println("Error BI105, unexpected: " + inputRoot.getTagName() );
-				fileInputStream.close();
+				stream.close();
 				return;
 			} 
 		} catch (IOException e1) {
@@ -86,76 +115,48 @@ public class BrainImport {
 		} catch (SAXException e) {
 			System.out.println("Error BI107 " + e );
 		}
-		
-		new BrainImport(inputXml, controler);
 
-	}
-	
-	public BrainImport(Document inputXml, GraphPanelControler controler) {
 //
 //		Find input items
 		
-		NodeList itemContainer = inputXml.getElementsByTagName("Thoughts");
-		NodeList itemList = ((Element) itemContainer.item(0)).getElementsByTagName("Thought");
+		NodeList bodyContainer = inputXml.getElementsByTagName("w:body");
+		Element body = (Element) bodyContainer.item(0);
+		
+		NodeList itemList = body.getElementsByTagName("w:p");
+		System.out.println("Items: " + itemList.getLength());
 		for (int i = 0; i < itemList.getLength(); i++) {
 			Element node = (Element) itemList.item(i);
-			Element idElem = (Element) node.getElementsByTagName("guid").item(0);
-			String itemID = idElem.getTextContent();
-			
-			//	Label (actually, "Name")
-			Element labelElem = (Element) node.getElementsByTagName("name").item(0);
-			String labelString = labelElem.getTextContent();
-			inputItems.put(itemID, labelString);
-		}
-		
-//		
-//		Process input links
-		
-		NodeList linkContainer = inputXml.getElementsByTagName("Links");
-		NodeList linkList = 
-				((Element) linkContainer.item(0)).getElementsByTagName("Link");
-		edgesNum = 0;
-		
-		for (int i = 0; i < linkList.getLength(); i++) {
-
-			Element link = (Element) linkList.item(i);
-			Element idElem = (Element) link.getElementsByTagName("guid").item(0);
-			String id = idElem.getTextContent();
-			Element fromElem = (Element) link.getElementsByTagName("idA").item(0);
-			String fromItem = fromElem.getTextContent();
-			Element toElem = (Element) link.getElementsByTagName("idB").item(0);
-			String toItem = toElem.getTextContent();
-			if (!inputID2num.containsKey(fromItem)) addNode(fromItem);
-			if (!inputID2num.containsKey(toItem)) addNode(toItem);
-			addEdge(fromItem, toItem);
-			edgeID2num.put(id, edgesNum);
-			System.out.println("edges: " + inputID2num.size());
-		}
-		
-//
-//		Process unlinked items
-		
-		Enumeration<String> itemEnum = inputItems.keys();
-		while (itemEnum.hasMoreElements()) {
-			String item = itemEnum.nextElement();
-			if (!inputID2num.containsKey(item)) {
-				addNode(item);
+			//	Text
+			NodeList runContainer = node.getElementsByTagName("w:r");
+			String textString = "";
+			for (int j = 0; j < runContainer.getLength(); j++) {
+				Element runElem = (Element) runContainer.item(j);
+				System.out.println(runElem.getNodeName());
+				NodeList textContainer = runElem.getElementsByTagName("w:t");
+				if (textContainer.getLength() > 0) {
+					Element textElem = (Element) textContainer.item(0);
+					textString = textString + textElem.getTextContent();
+					inputItems.put(i + " ", textString);
+				}
 			}
+			textString = i + "\t" + textString + "\n";
+			System.out.println(textString);
+			dataString = dataString + textString;
 		}
 		
 //			
 //		Pass on the new map
 		
 		System.out.println("BI Map: " + nodes.size() + " " + edges.size());
-		try {
-			dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
-		} catch (TransformerConfigurationException e1) {
-			System.out.println("Error BI108 " + e1);
-		} catch (IOException e1) {
-			System.out.println("Error BI109 " + e1);
-		} catch (SAXException e1) {
-			System.out.println("Error BI110 " + e1);
-		}
+//		try {
+//			dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
+//		} catch (TransformerConfigurationException e1) {
+//			System.out.println("Error BI108 " + e1);
+//		} catch (IOException e1) {
+//			System.out.println("Error BI109 " + e1);
+//		} catch (SAXException e1) {
+//			System.out.println("Error BI110 " + e1);
+//		}
 		
 		controler.getNSInstance().setInput(dataString, 2);
 	}

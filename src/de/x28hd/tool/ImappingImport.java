@@ -154,6 +154,12 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		fd.setVisible(true);
 		String filename = fd.getDirectory() + File.separator + fd.getFile();
 		file = new File(filename);
+		
+		new ImappingImport(file, controler);
+	}
+	
+	public ImappingImport(File file, GraphPanelControler controler) {
+		this.controler = controler;
 		try {
 			zipFile = new ZipFile(file);
 			final ZipEntry rdfEntry = zipFile.getEntry(RDF_FILENAME);

@@ -200,6 +200,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "brainimp") {
 			new BrainImport(mainWindow, this);
 			
+		} else if (command == "testimp") {
+			new ImportDirector(this);
+//			new WordImport(mainWindow, this);
+			
 		} else if (command == "open") {
 			FileDialog fd = new FileDialog(mainWindow);
 			fd.setMode(FileDialog.LOAD);
@@ -769,6 +773,13 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menuItem35.setToolTipText("Import from cmap.ihmc.us CXL file");
 		menuItem35.addActionListener(this);
 		menu3.add(menuItem35);
+
+		JMenuItem menuItem37 = new JMenuItem("Import Test",  KeyEvent.VK_T);
+		menuItem37.setActionCommand("testimp");
+		menuItem37.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, shortcutMask));
+		menuItem37.setToolTipText("Not yet functioning");
+		menuItem37.addActionListener(this);
+		menu3.add(menuItem37);
 
 		JMenuItem menuItem36 = new JMenuItem("Import TheBrain",  KeyEvent.VK_B);
 		menuItem36.setActionCommand("brainimp");
@@ -1639,6 +1650,10 @@ public final class PresentationService implements ActionListener, MouseListener,
     public CompositionWindow getCWInstance() {
     	return compositionWindow;
     }
+    
+//    public JFrame getMainWindow() {
+//    	return mainWindow;
+//    }
     
    public void finishCompositionMode() {
     	newStuff.setCompositionMode(false);

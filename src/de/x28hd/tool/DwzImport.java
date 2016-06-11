@@ -157,7 +157,13 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 		} catch (SAXException e) {
 			System.out.println("Error DI107 " + e );
 		}
+
+		new DwzImport(dwz, controler);
+	}
+	
+	public DwzImport(Document dwz, GraphPanelControler controler) {
 		
+		this.controler = controler;
 		NodeList graphContainer = dwz.getElementsByTagName("graph");
 
 //
