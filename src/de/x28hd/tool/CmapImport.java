@@ -86,6 +86,10 @@ public class CmapImport {
 		} catch (SAXException e) {
 			System.out.println("Error CI107 " + e );
 		}
+		new CmapImport(inputXml, controler);
+	}
+	
+	public CmapImport(Document inputXml, GraphPanelControler controler) {
 		
 		NodeList graphContainer = inputXml.getElementsByTagName("map");
 		Element graph = (Element) graphContainer.item(0);
