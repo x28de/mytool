@@ -11,10 +11,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
@@ -46,6 +42,7 @@ public class ImportDirector implements ActionListener {
 			"Cmap", 
 			"TheBrain",
 			"Word",
+			"(Old Format)"
 			};
 	String [] knownFormats = {
 			"en-export", 
@@ -53,7 +50,8 @@ public class ImportDirector implements ActionListener {
 			"kgif", 
 			"cmap", 
 			"BrainData",
-			"w:document"
+			"w:document",
+			"topicmap"
 			};
 	String [] extension = {
 			"enex", 
@@ -61,7 +59,8 @@ public class ImportDirector implements ActionListener {
 			"xml", 
 			"cxl", 
 			"xml",
-			"docx"
+			"docx", 
+			"zip"
 			};
 	String [] extDescription = {
 			"enex (Evernote Export file)", 
@@ -69,20 +68,24 @@ public class ImportDirector implements ActionListener {
 			"xml (DenkWerkZeug KGIF file)", 
 			"cxl (Cmap CXL file)", 
 			"xml (TheBrain \"Brain XML\" file)",
-			"docx (Word Document)"
+			"docx (Word Document)",
+			"zip (Zipped XML Document)"
 			};
 	
+	//	Nothing given => Launch wizard
 	public ImportDirector(GraphPanelControler controler) {
 		this.controler = controler;
 			launchWizard();
 		}
 	
+	//	XML given
 	public ImportDirector(int knownFormat, Document doc, GraphPanelControler controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
-		if (this.knownFormat < 0) {
-			launchWizard();
-		} else if (this.knownFormat == 0) {
+//		if (this.knownFormat < 0) {
+//			launchWizard();
+//		} else if (this.knownFormat == 0) {
+		if (this.knownFormat == 0) {
 			new EnexImport(doc, controler);
 		} else if (this.knownFormat == 2) {
 			new DwzImport(doc, controler);
@@ -93,6 +96,7 @@ public class ImportDirector implements ActionListener {
 		}
 	}
 
+	//	File given
 	public ImportDirector(int knownFormat, File file, GraphPanelControler controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
@@ -101,11 +105,12 @@ public class ImportDirector implements ActionListener {
 		}
 	}
 
+	//	Zip Input stream given
 	public ImportDirector(int knownFormat, InputStream stream, GraphPanelControler controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
-		if (this.knownFormat == 5) {
-			new WordImport(stream, controler);
+		if (this.knownFormat == 5 || this.knownFormat == 6) {
+			step4(stream);
 		}
 	}
 
@@ -113,7 +118,6 @@ public class ImportDirector implements ActionListener {
 //	Select import format
 	
 	public void launchWizard() {
-//		this.knownFormat = "cmap";
 		frame = new JFrame("Import Wizard");
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(dim.width/2-frame.getSize().width/2 - 298, 
@@ -121,7 +125,7 @@ public class ImportDirector implements ActionListener {
 		
 		ButtonGroup buttonGroup = new ButtonGroup();
         radioPanel = new JPanel(new GridLayout(0, 1));
-		for (int i = 0; i < importTypes.length; i++) {
+		for (int i = 0; i < importTypes.length - 1; i++) {
 			JRadioButton radio = new JRadioButton(importTypes[i]);
 			radio.setActionCommand("type-" + i);
 			radio.addActionListener(this);
@@ -133,8 +137,8 @@ public class ImportDirector implements ActionListener {
         frame.setVisible(true);
 	}
 	
-	
 	public void actionPerformed(ActionEvent action) {
+		
 		//	Import type choice
 	    for (int i = 0; i < importTypes.length; i++) {
 	    	if (action.getActionCommand().equals("type-" + i)) {
@@ -159,6 +163,8 @@ public class ImportDirector implements ActionListener {
 				new ImappingImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == 5) {
 				new WordImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == 6) {
+				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
 			}
@@ -185,10 +191,10 @@ public class ImportDirector implements ActionListener {
         frame.pack();
         fd.addActionListener(this);
 	}
-
+	
 //
-//	Launch dedicated importer class
-
+//	Open file
+	
 	public void step3(File file) {
 		FileInputStream fileInputStream = null;
 		try {
@@ -196,6 +202,13 @@ public class ImportDirector implements ActionListener {
 		} catch (FileNotFoundException e) {
 			System.out.println("Error ID101 " + e);
 		}
+		step4(fileInputStream);
+	}
+	
+//
+//	Launch dedicated importer class
+
+	public void step4(InputStream stream) {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = null;
 		Document inputXml = null;
@@ -207,13 +220,13 @@ public class ImportDirector implements ActionListener {
 		}
 		
 		try {
-			inputXml = db.parse(fileInputStream);
+			inputXml = db.parse(stream);
 			
 			Element inputRoot = null;
 			inputRoot = inputXml.getDocumentElement();
 			if (inputRoot.getTagName() != knownFormats[knownFormat]) {
 				System.out.println("Error ID105, unexpected: " + inputRoot.getTagName() );
-				fileInputStream.close();
+				stream.close();
 				return;
 			} 
 		} catch (IOException e1) {
@@ -229,6 +242,10 @@ public class ImportDirector implements ActionListener {
 			new CmapImport(inputXml, controler);
 		} else if (knownFormat == 4) {
 			new BrainImport(inputXml, controler);
+		} else if (knownFormat == 5) {
+			new WordImport(inputXml, controler);
+		} else if (knownFormat == 6) {
+			new TopicMapImporter(inputXml, controler);
 		}
 	}
 	

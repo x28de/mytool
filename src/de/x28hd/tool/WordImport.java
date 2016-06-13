@@ -77,7 +77,7 @@ public class WordImport {
 				}
 			}
 		} catch (IOException e1) {
-			System.out.println("Error ID111 " + e1);
+			System.out.println("Error WI111 " + e1);
 		}
 //		FileInputStream fileInputStream = null;
 //		try {
@@ -97,7 +97,7 @@ public class WordImport {
 		try {
 			db = dbf.newDocumentBuilder();
 		} catch (ParserConfigurationException e2) {
-			System.out.println("Error BI102 " + e2 );
+			System.out.println("Error WI102 " + e2 );
 		}
 		
 		try {
@@ -106,15 +106,20 @@ public class WordImport {
 			Element inputRoot = null;
 			inputRoot = inputXml.getDocumentElement();
 			if (inputRoot.getTagName() != XML_ROOT) {
-				System.out.println("Error BI105, unexpected: " + inputRoot.getTagName() );
+				System.out.println("Error WI105, unexpected: " + inputRoot.getTagName() );
 				stream.close();
 				return;
 			} 
 		} catch (IOException e1) {
-			System.out.println("Error BI106 " + e1 + "\n" + e1.getClass());
+			System.out.println("Error WI106 " + e1 + "\n" + e1.getClass());
 		} catch (SAXException e) {
-			System.out.println("Error BI107 " + e );
+			System.out.println("Error WI107 " + e );
 		}
+		
+		new WordImport(inputXml, controler);
+	}
+	
+	public WordImport(Document inputXml, GraphPanelControler controler) {
 
 //
 //		Find input items
@@ -123,7 +128,6 @@ public class WordImport {
 		Element body = (Element) bodyContainer.item(0);
 		
 		NodeList itemList = body.getElementsByTagName("w:p");
-		System.out.println("Items: " + itemList.getLength());
 		for (int i = 0; i < itemList.getLength(); i++) {
 			Element node = (Element) itemList.item(i);
 			//	Text
@@ -131,7 +135,6 @@ public class WordImport {
 			String textString = "";
 			for (int j = 0; j < runContainer.getLength(); j++) {
 				Element runElem = (Element) runContainer.item(j);
-				System.out.println(runElem.getNodeName());
 				NodeList textContainer = runElem.getElementsByTagName("w:t");
 				if (textContainer.getLength() > 0) {
 					Element textElem = (Element) textContainer.item(0);
@@ -140,23 +143,8 @@ public class WordImport {
 				}
 			}
 			textString = i + "\t" + textString + "\n";
-			System.out.println(textString);
 			dataString = dataString + textString;
 		}
-		
-//			
-//		Pass on the new map
-		
-		System.out.println("BI Map: " + nodes.size() + " " + edges.size());
-//		try {
-//			dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
-//		} catch (TransformerConfigurationException e1) {
-//			System.out.println("Error BI108 " + e1);
-//		} catch (IOException e1) {
-//			System.out.println("Error BI109 " + e1);
-//		} catch (SAXException e1) {
-//			System.out.println("Error BI110 " + e1);
-//		}
 		
 		controler.getNSInstance().setInput(dataString, 2);
 	}
