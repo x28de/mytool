@@ -203,6 +203,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "testimp") {
 			new ImportDirector(this);
 //			new WordImport(mainWindow, this);
+//			new TopicMapImporter(mainWindow, this);
 			
 		} else if (command == "open") {
 			FileDialog fd = new FileDialog(mainWindow);
@@ -1199,7 +1200,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		filename = arg;
 		if (filename.endsWith(".xml")) confirmedFilename = filename;
 		mainWindowTitle = Utilities.getShortname(filename);
-		mainWindow.repaint();
+		if (mainWindow != null) mainWindow.repaint();
 		maybeJustPeek = true;
 	}
 	
@@ -1659,6 +1660,7 @@ public final class PresentationService implements ActionListener, MouseListener,
     	newStuff.setCompositionMode(false);
     	menuItem21.setEnabled(true);
     	contextPasteAllowed = true;
+    	endTask();
     	setSystemUI(true);
     }
    
