@@ -1,8 +1,6 @@
 package de.x28hd.tool;
 import java.awt.Rectangle;
 
-
-
 interface GraphPanelControler {
 	void nodeSelected(GraphNode node);
 	void edgeSelected(GraphEdge edge);

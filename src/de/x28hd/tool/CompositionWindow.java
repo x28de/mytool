@@ -70,7 +70,7 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 	public CompositionWindow(final GraphPanelControler controler) {
 		this.controler = controler;
 		newStuff = controler.getNSInstance();
-		System.out.println("CW calls NS: " + newStuff.getString());
+//		System.out.println("CW calls NS: " + newStuff.getString());
 
 //
 //		Window
@@ -211,8 +211,9 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 
 			// send assembled insert to caller
 			dataString = textDisplay.getText();
-			newStuff.scoopCompositionWindow(this);
 			controler.finishCompositionMode();
+			newStuff.scoopCompositionWindow(this);
+//			controler.finishCompositionMode();
 			close();
 
 		} else if (a.getActionCommand().equals("cancel")) {

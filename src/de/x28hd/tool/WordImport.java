@@ -146,7 +146,7 @@ public class WordImport {
 			dataString = dataString + textString;
 		}
 		
-		controler.getNSInstance().setInput(dataString, 2);
+		controler.getNSInstance().setInput(dataString, 6);
 	}
 	
 	public void addNode(String nodeRef) { 

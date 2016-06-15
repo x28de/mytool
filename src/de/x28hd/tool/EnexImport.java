@@ -97,7 +97,7 @@ public class EnexImport {
 			String content = contentContainer.item(0).getTextContent().toString();
 			content = filterHTML(content);
 			
-			// Create node
+			// Create node		TODO remove old attributes
 			
 			int j = i;
 			String newNodeColor = "#ccdddd";
@@ -115,21 +115,24 @@ public class EnexImport {
 			GraphNode topic = new GraphNode (id, p, Color.decode(newNodeColor), topicName, verbal);	
 
 			nodes.put(id, topic);
+			
+			if (i == 1) dataString = topicName + "\t"+ verbal + "\r\n";
+			else dataString = dataString + topicName + "\t" + verbal + "\r\n";
 		}
 		
 		//	Pass on
 		
 		edges.clear();
-		try {
-			dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
-		} catch (TransformerConfigurationException e1) {
-			System.out.println("Error EI108 " + e1);
-		} catch (IOException e1) {
-			System.out.println("Error EI109 " + e1);
-		} catch (SAXException e1) {
-			System.out.println("Error EI110 " + e1);
-		}
-		controler.getNSInstance().setInput(dataString, 2);
+//		try {
+//			dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
+//		} catch (TransformerConfigurationException e1) {
+//			System.out.println("Error EI108 " + e1);
+//		} catch (IOException e1) {
+//			System.out.println("Error EI109 " + e1);
+//		} catch (SAXException e1) {
+//			System.out.println("Error EI110 " + e1);
+//		}
+		controler.getNSInstance().setInput(dataString, 6);
 	}
 	
 //

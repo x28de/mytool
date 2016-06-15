@@ -1,4 +1,5 @@
 package de.x28hd.tool;
+
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -42,11 +43,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-
 public class NewStuff {
+	
+	//	New
+	int importType = 0;
 	
 	//	Main fields
 	String dataString = "";
+	File dataFile = null;
+	InputStream dataStream = null;
 	Hashtable<Integer, GraphNode> newNodes = new Hashtable<Integer, GraphNode>();
 	Hashtable<Integer, GraphEdge> newEdges = new Hashtable<Integer, GraphEdge>();
 	Point insertion = null;
@@ -116,7 +121,7 @@ public class NewStuff {
 			}
         	return false;
         }
-		System.out.println("NS canImport " + diag);
+		System.out.println("NS canImport via " + diag);
 		return true;
 	}
 	
@@ -129,7 +134,7 @@ public class NewStuff {
         Transferable t = support.getTransferable();
 		insertion = new Point(support.getDropLocation().getDropPoint().x,
 				support.getDropLocation().getDropPoint().y);
-		System.out.println(support.getDropLocation().getDropPoint().x + ", " +
+		System.out.println("NS Drop point " + support.getDropLocation().getDropPoint().x + ", " +
 				support.getDropLocation().getDropPoint().y);
        
         boolean success = transferTransferable(t);
@@ -168,46 +173,23 @@ public class NewStuff {
 				return false;
 			}
 			// Compare actionPerformed() case Open
-			dataString = "";
-			byModDates.clear();
-			datesMap.clear();
-			int fileCount = 0;
-			String fn = "";
-			for (File f : l) {
-				fileCount++;
-				System.out.println("NS file(s): " + fileCount + " " + f.getName());
-				if (fileCount == 1) {
-					fn = f.getAbsolutePath();
-					dataString = fn;
-					inputType = 1;
-					advisableFilename = dataString;
-				} else {
-					fn = f.getAbsolutePath();
+			if (l.size() == 1) {
+				dataString = l.get(0).getAbsolutePath();
+				inputType = 1;
+				advisableFilename = dataString;
+				System.out.println("NS filename " + advisableFilename);
+				System.out.println("NS: was javaFileListFlavor; Inputtype = " + inputType);
+				interceptZips();
+			} else {
+				for (File f : l) {
+					String fn = f.getAbsolutePath();
 					dataString = dataString + "\r\n" + fn;
-					inputType = 4;
 				}
-				datesMap.put(f.lastModified(), fileCount);
-				byModDates.put(fileCount,fn);
+				inputType = 4;
+				readyMap = false;
+				System.out.println("NS: was javaFileListFlavor; Inputtype = " + inputType);
+				exploitFilelist();
 			}
-			
-			// Sort files by modDate
-			if (inputType == 4) {
-				dataString = "";
-				SortedSet<Long> datesSet = (SortedSet<Long>) datesList.keySet();
-				System.out.println("fileCount = " + fileCount + ", datesSet.size() = " + datesSet.size());
-				Iterator<Long> ixit = datesSet.iterator(); 
-				if (datesSet.size() > 0) {
-					while (ixit.hasNext()) {
-						Long modDate = ixit.next();
-						Integer fileIndex = datesList.get(modDate);
-						fn = byModDates.get(fileIndex);
-						dataString = dataString + "\r\n" + fn;
-					}
-				}
-			}
-
-			System.out.println("NS: was javaFileListFlavor; Inputtype = " + inputType);
-			step2();
 			return true;
 		}
 
@@ -268,7 +250,292 @@ public class NewStuff {
 		}
 	}
 	
-	// Accessory for html flavored dropping and pasting, and for processSimplefiles
+	public void step2() {
+		System.out.println("NS step 2 started");
+		if (inputType > 3) {
+			if (compositionMode) {
+		    	controler.getCWInstance().insertSnippet(dataString);
+		    	return;
+			} 
+			SplitIntoNew splitIntoNew = new SplitIntoNew(controler);
+			int newNodesCount = splitIntoNew.separateRecords(dataString);
+			System.out.println("NS: " + newNodesCount + " new nodes created");
+			splitIntoNew.heuristics(newNodesCount);
+			splitIntoNew.createNodes(newNodesCount);	
+			newNodes = splitIntoNew.getNodes();
+			newEdges = splitIntoNew.getEdges();
+			step3();
+		} else {
+			analyzeBlob();
+		}
+	}
+	
+	public void step3() {
+		System.out.println("NS step 3 started");
+		boolean justOneMap = true;
+		controler.triggerUpdate(justOneMap);
+	}
+	
+//
+//	Detail methods
+	
+	public void exploitFilelist() {
+		
+		// Sort files by modDate
+		if (inputType != 5) {
+ 	    	String textStr[] = dataString.split("\\r?\\n");
+			byModDates.clear();
+ 			datesMap.clear();
+ 			int fileCount = 0;
+ 			for (int i = 0; i < textStr.length; i++) {
+ 				String line = textStr[i];
+ 				File f = new File(line);
+ 				if (!f.exists()) continue;
+ 				datesMap.put(f.lastModified(), fileCount);
+ 				byModDates.put(fileCount, line);
+ 				fileCount++;
+ 			}
+ 			dataString = "";
+ 			SortedSet<Long> datesSet = (SortedSet<Long>) datesList.keySet();
+ 			System.out.println("fileCount = " + fileCount + ", datesSet.size() = " + datesSet.size());
+ 			Iterator<Long> ixit = datesSet.iterator(); 
+ 			if (datesSet.size() > 0) {
+ 				while (ixit.hasNext()) {
+ 					Long modDate = ixit.next();
+ 					Integer fileIndex = datesList.get(modDate);
+ 					String fn = byModDates.get(fileIndex);
+ 					dataString = dataString + "\r\n" + fn;
+ 				}
+ 			}
+ 		}
+//		System.out.println("Filelist " + dataString);
+		
+		//	Process simple files
+    	String output = "";
+    	String[] textStr = dataString.split("\\r?\\n");
+    	for (int i = 0; i < textStr.length; i++) {
+        	String shortName = "";
+    		boolean success = false;
+    		String contentString = "";
+    		String line = textStr[i];
+  			File f = new File(line);
+  			
+     		if (inputType == 5 || !f.exists() || f.isDirectory()) {
+     			//	Just list the filename
+     			//	TODO replace by utility (test with Mac)
+				shortName = line.replace('\\', '/');	
+				if (shortName.endsWith("/")) shortName = shortName.substring(0, shortName.length() - 1);
+    			line = shortName + "\t" + line;
+    			output = output + line + "\r\n";
+     		} else {
+    			shortName = f.getName();
+					if (shortName.endsWith("/")) shortName = shortName.substring(0, shortName.length() - 1);
+	       			shortName = shortName.substring(shortName.lastIndexOf("/") + 1);
+    			String extension = shortName.substring(shortName.lastIndexOf("."));
+    			System.out.println(shortName + " " + extension);
+
+    			if (!extension.equals(".txt") && !extension.equals(".htm")) {
+//    				String esc = "";
+    				line = f.toURI().toString();
+    				if (windows) line = line.replace("%C2%A0", "%A0"); // For bookmarks containing nbsp
+    				line = shortName + "\t" + "<html><body>Open file <a href=\"" + line  + "\">" + shortName + "</a></body></html>";
+    				output = output + line + "\r\n";
+
+    			} else {
+
+    				try {
+    					stream = new FileInputStream(line);
+    				} catch (FileNotFoundException e) {
+    					System.out.println("Error NS123 " + e);
+    					success = false;
+    				}
+    				try {
+    					InputStream in = (InputStream) stream;
+    					if (windows) {
+//        					contentString = convertStreamToString(in, Charset.defaultCharset());
+        					contentString = convertStreamToString(in, Charset.forName("Cp1252"));
+    					} else {
+        					contentString = convertStreamToString(in);
+    					}
+    					in.close();
+    					success = true;
+    				} catch (IOException e1) {
+    					System.out.println("Error NS113 " + e1);
+    					success = false;
+    				}
+    				if (success) {
+    					contentString = contentString.replace("\n", "<br />");
+    					contentString = contentString.replace("\t", " (TAB) ");  // TODO improve
+    					line = shortName + "\t" + contentString;
+    					output = output + line + "\r\n";
+    				}
+    			} 
+     		}
+			dataString = output;
+		}
+
+		System.out.println("Files " + dataString);
+		step2();
+	}
+	
+	public void interceptZips() {
+		Charset CP850 = Charset.forName("CP850");
+		File file = new File(dataString);	//	Brute force testing for zip
+		boolean success = false;	// success is a single leaf entry
+		ZipFile zfile = null;
+		String filelist = "";
+		int entryCount = 0;
+		if (!dataString.contains("\n")) {
+			System.out.println("NewStuff().unpack with " + dataString + " and type " + this.inputType + " started");
+		} else {
+			System.out.println("NewStuff().unpack with (dataString) and type " + this.inputType + " started");
+		}
+		try {
+			zfile = new ZipFile(file,CP850);
+			Enumeration<? extends ZipEntry> e = zfile.entries();
+			while (e.hasMoreElements()) {
+				ZipEntry entry = (ZipEntry) e.nextElement();
+				String filename = entry.getName();
+				filename = filename.replace('\\', '/');		
+				if (filename.equals("savefile.xml") || filename.startsWith("topicmap-t-")) {
+					stream = zfile.getInputStream(entry);
+					importType = 6;
+					new ImportDirector(importType, stream, controler); 
+					break;
+				} else if (filename.endsWith("content.cds.xml")) {
+					importType = 1;
+					new ImportDirector(importType, file, controler); 
+					break;
+				} else if (filename.equals("word/document.xml")) {
+					stream = zfile.getInputStream(entry);
+					importType = 5;
+					dataString = "";
+					new ImportDirector(importType, stream, controler); 
+					dataString = "";
+					zfile.close();
+					return;
+				} else if (filename.indexOf("icons/") != -1) {	// very old deepamehta2 format
+					continue;
+				} else	{
+					if (entryCount == 0) {
+						filelist = filename + "\r\n";	// to avoid leading newline
+					} else {
+						filelist = filelist + filename + "\r\n";
+					}
+//					System.out.println("NewStuff.unpack found " + filename);
+					entryCount++;
+				}
+			}
+			if (entryCount == 1) {
+//			if (importType > 0 || entryCount == 1) {
+				success = true;
+				step2();
+			} else {
+				dataString = filelist;
+				inputType = 5;
+				success = false;
+				advisableFilename = "";
+				exploitFilelist();
+			}
+//			zfile.close();
+		} catch (ZipException e1) {
+			System.out.println("Error NS121 (can be ignored) " + e1);
+			success = false;
+			dataFile = file;
+			step2();
+		} catch (IOException err) {
+			System.out.println("Error NS122 " + err);
+			controler.displayPopup("Error NS122 " + err);
+			success = false;
+		}
+		System.out.println("NewStuff().unpack returned " + success);
+	}
+
+	public void analyzeBlob() {
+		System.out.println("NS analyeBlob started");
+		boolean hope = true;
+		
+//		if (importType > 0) {
+//			switch (importType) {
+//			case 1: new ImportDirector(importType, dataFile, controler); break;
+//			case 5: new ImportDirector(importType, dataStream, controler); break;
+//			case 6: new ImportDirector(importType, dataStream, controler); break;
+//			}
+//			return;
+//		}
+		
+		//	Try if XML format
+		Document doc = null;
+		if (inputType == 2) {
+			doc = getParsedDocument(dataString);	//	TODO consolidate
+		} else if (inputType == 1) {
+			try {
+				stream = new FileInputStream(dataString);
+				doc = getParsedDocument(stream);
+				System.out.println("NS: found doc from fileinputstream");
+			} catch (FileNotFoundException e2) {
+				System.out.println("Error NS127 (can be ignored) "  + e2);
+				hope = false;
+			}
+		}
+		if (doc.hasChildNodes()) {
+			root = doc.getDocumentElement();
+			
+			//	Try if known XML format
+			if (root.getTagName() == "x28map") {
+				if (compositionMode) controler.getCWInstance().cancel();
+				TopicMapLoader loader = new TopicMapLoader(doc, controler);
+				newNodes = loader.newNodes;
+				newEdges = loader.newEdges;
+				step3();
+				return;
+			}
+			String [] knownFormats = {
+					"en-export", 
+					"(not relevant)", 
+					"kgif", 
+					"cmap", 
+					"BrainData",
+					"w:document",
+					"topicmap"
+					};
+			for (int k = 0; k < knownFormats.length; k++) {
+				if (root.getTagName() == knownFormats[k]) {
+					System.out.println("Format: " + knownFormats[k]);
+					if (k != 0 && k != 5) {		// Evernote or Word
+						if (compositionMode) {
+							controler.getCWInstance().cancel();
+						}
+					}
+					new ImportDirector(k, doc, controler);
+					return;
+				}
+			}
+		} else hope = false;
+			
+		//	No XML
+
+		if (!hope) {
+			if (inputType == 1) {
+				String flatFileContent = "";
+				try {
+					stream = new FileInputStream(dataString);
+				} catch (FileNotFoundException e) {
+					System.out.println("NS Error 126 " + e);
+					controler.displayPopup("NS Error 126 File not found " + e);
+					return;
+				}
+				flatFileContent = convertStreamToString(stream);
+				dataString = flatFileContent;
+			}
+			inputType = 6;
+			step2();
+			return;
+		}
+	}
+	
+//
+// Accessory for html flavored dropping and pasting, and for processSimplefiles
 
 	private String convertStreamToString(InputStream is, Charset charset) {
     	
@@ -319,219 +586,6 @@ public class NewStuff {
     	return convertStreamToString(is, Charset.forName("UTF-8"));
     }
     	
-//
-//	Process the input, in particular see whether it is a ready map in some xml format.
-    
-    public void step2() {
-    	System.out.println("NS proceeding with inputType = " + inputType);
-    	newNodes.clear();
-    	newEdges.clear();
-    	minX = Integer.MAX_VALUE;
-    	maxX = Integer.MIN_VALUE;
-    	minY = Integer.MAX_VALUE;
-    	maxY = Integer.MIN_VALUE;
-    	
-		readyMap = processInput();	// opposite is raw stuff
-		System.out.println("NS ready map ? " + readyMap);
-		System.out.println("NS compositionMode ? " + compositionMode);
-//		System.out.println("NS dataString: \r\b" + dataString);
-    	if (inputType == 3) dataString = filterHTML(dataString);
-    	if (inputType > 3) dataString = processSimpleFiles();
-		if (compositionMode) {
-			if (firstComposition) {
-				firstComposition = false;
-			} else {
-				readyMap = false;
-				if (inputType < 3) dataString = advisableFilename;
-			}
-	    	controler.getCWInstance().insertSnippet(dataString);
-		} else step3();
-   	
-    }
-
-	private boolean processInput() {
-		Document doc = null;
-		boolean oldFormat = false;
-		
-		if (!dataString.contains("\n")) {
-			System.out.println("NewStuff().processInput(" + dataString + ", " + this.inputType + ") started");
-		} else {
-			System.out.println("NewStuff().processInput((input), " + this.inputType + ") started");
-		}
-		
-		if (!unpack()) {
-			if (this.inputType != 2 && this.inputType != 3) {
-				try {
-					stream = new FileInputStream(dataString);
-					doc = getParsedDocument(stream);
-					System.out.println("NS: found doc from fileinputstream");
-				} catch (FileNotFoundException e2) {
-					System.out.println("Error NS127 (can be ignored) "  + e2);
-					return false;
-				}
-			} else {
-				doc = getParsedDocument(dataString);
-				System.out.println("NS: found doc from string");
-			}
-		} else {
-			doc = getParsedDocument(stream);
-			System.out.println("NS: found doc from zip inputstream");
-		}
-		
-		newNodes.clear();
-		newEdges.clear();
-		
-		topicnum = 0;
-		assocnum = 0;
-
-		//
-		//	Which type of XML file? 
-		String [] knownFormats = {
-				"en-export", 
-				"(not relevant)", 
-				"kgif", 
-				"cmap", 
-				"BrainData",
-				"w:document",
-				"topicmap"
-				};
-
-		if (doc.hasChildNodes()) {
-			root = doc.getDocumentElement();
-			
-			if (root.getTagName() == "x28map") {
-				System.out.println("NS Success: new" );
-				readyMap = true;
-//			} else if (root.getTagName() == "topicmap") {
-//				System.out.println("NS Success: old");
-//				oldFormat = true;
-//				readyMap = true;
-//				System.out.println("NS Starting otherXML ?");
-//				otherXML();
-//				System.out.println("NS Finished otherXML ?");
-			} else {
-				boolean known = false;
-				for (int k = 0; k < knownFormats.length; k++) {
-					if (root.getTagName() == knownFormats[k]) {
-						if (compositionMode) controler.getCWInstance().cancel();
-						System.out.println("Format: " + knownFormats[k]);
-						new ImportDirector(k, doc, controler);
-						known = true;
-						return true;
-					}
-				}
-				if (!known) {
-					System.out.println("NS Failure.");
-					return false;
-				}
-			}
-			
-			//	New format
-			
-			if (!oldFormat) {
-				NodeList topics = root.getElementsByTagName("topic");
-				NodeList assocs = root.getElementsByTagName("assoc");
-				for (int i = 0; i < topics.getLength(); i++) {
-					importTopic((Element) topics.item(i));
-				}
-				for (int i = 0; i < assocs.getLength(); i++) {
-					importAssoc((Element) assocs.item(i));
-				}
-				System.out.println("NS: " + topicnum + " new topics and " + assocnum + " new assocs loaded");
-			}
-			
-			System.out.println("NS.processInput created " + newNodes.size() + " nodes and " + newEdges.size() + " edges");
-			return true;
-
-		} else {
-			System.out.println("NS: not XML");
-			
-			{
-				if (inputType != 1) return false;
-				try {
-					stream = new FileInputStream(dataString);
-				} catch (FileNotFoundException e) {
-					System.out.println("NS Error 126 " + e);
-				}
-				dataString = convertStreamToString(stream);
-			}
-			
-			return false;
-		}
-	}
-
-//
-//	Auxiliary methods for processInput()
-	
-	//	Unpack zip files
-	
-	private boolean unpack() {
-		Charset CP850 = Charset.forName("CP850");
-		if (inputType != 1) return false;
-		File file = new File(dataString);
-		boolean success = false;	// success is a single leaf entry
-		ZipFile zfile = null;
-		String filelist = "";
-		int entryCount = 0;
-		if (!dataString.contains("\n")) {
-			System.out.println("NewStuff().unpack with " + dataString + " and type " + this.inputType + " started");
-		} else {
-			System.out.println("NewStuff().unpack with (dataString) and type " + this.inputType + " started");
-		}
-		try {
-			zfile = new ZipFile(file,CP850);
-			Enumeration<? extends ZipEntry> e = zfile.entries();
-			while (e.hasMoreElements()) {
-				ZipEntry entry = (ZipEntry) e.nextElement();
-				String filename = entry.getName();
-				filename = filename.replace('\\', '/');		
-				if (filename.equals("savefile.xml") 
-						|| filename.startsWith("topicmap-t-")) {
-					stream = zfile.getInputStream(entry);
-					new ImportDirector(6, stream, controler);
-					break;
-				} else if (filename.endsWith("content.cds.xml")) {
-					new ImportDirector(1, file, controler);
-					break;
-				} else if (filename.equals("word/document.xml")) {
-					stream = zfile.getInputStream(entry);
-					new ImportDirector(5, stream, controler);
-					dataString = "";
-					return true;
-				} else if (filename.indexOf("icons/") != -1) {	// very old deepamehta2 format
-					continue;
-				} else	{
-					if (entryCount == 0) {
-						filelist = filename;	// to avoid leading newline
-					} else {
-						filelist = filelist + "\r\n" + filename;
-					}
-					System.out.println("NewStuff.unpack found " + filename + ", hopefully not more");
-					stream = zfile.getInputStream(entry);
-					entryCount++;
-				}
-			}
-			if (entryCount == 1) {
-				success = true;
-			} else {
-				dataString = filelist;
-				inputType = 5;
-				success = false;
-				advisableFilename = "";
-			}
-//			zfile.close();
-		} catch (ZipException e1) {
-			System.out.println("Error NS121 " + e1);
-			success = false;
-		} catch (IOException err) {
-			System.out.println("Error NS122 " + err);
-			success = false;
-		}
-		System.out.println("NewStuff().unpack returned " + success);
-		return success;
-
-	}
-	
 	//	Methods to try if XML 
 	
 	private Document getParsedDocument(InputStream stream) {
@@ -559,281 +613,16 @@ public class NewStuff {
 		}
 	}
 
-	//	Detail methods for current map xml format
-	//	Nodes & edges are called "topics" and "assocs" to distinguish from xml nodes
-	
-	private void importTopic(Element topic) {
-		GraphNode node;
-		topicnum++;
-
-		String id = topic.getAttribute("ID");
-		String label = topic.getFirstChild().getTextContent();
-		String detail = topic.getLastChild().getTextContent();
-		int x = Integer.parseInt(topic.getAttribute("x"));
-		int y = Integer.parseInt(topic.getAttribute("y"));
-		if (x < minX) minX = x;
-		if (x > maxX) maxX = x;
-		if (y < minY) minY = y;
-		if (y > maxY) maxY = y;
-		String color = topic.getAttribute("color");
-	
-//		System.out.println("NS: id = " + id + ", label = " + label + ", detail has length " + detail.length() +
-//				", x = " + x + ", y = " + y + ", color = " + color);
-
-		node = new GraphNode(topicnum, new Point(x,y), Color.decode(color), label, detail);
-		newNodes.put(node.getID(), node);
-	}
-
-	private void importAssoc(Element assoc) {
-		GraphEdge edge;
-		assocnum++;
-
-		String detail = assoc.getFirstChild().getTextContent();
-		int n1 = Integer.parseInt(assoc.getAttribute("n1"));
-		int n2 = Integer.parseInt(assoc.getAttribute("n2"));
-		String color = assoc.getAttribute("color");
-	
-//		System.out.println("NS: detail has length " + detail.length() +
-//				", node1 = " + newNodes.get(n1).getLabel() + ", node2 = " + newNodes.get(n2).getLabel() + ", color = " + color);
-
-		edge = new GraphEdge(assocnum, newNodes.get(n1), newNodes.get(n2), Color.decode(color), detail);
-		newEdges.put(assocnum, edge);
-		newNodes.get(n1).addEdge(edge);
-		newNodes.get(n2).addEdge(edge);
-	}
-
-	
-	//	Stuff from html lists
-
-	private String filterHTML(String html) {
-		if (inputType != 3) return html;
-		listItem = false;
-		htmlOut = "";
-		MyHTMLEditorKit htmlKit = new MyHTMLEditorKit();
-		HTMLEditorKit.Parser parser = null;
-		HTMLEditorKit.ParserCallback cb = new HTMLEditorKit.ParserCallback() {
-			public void handleEndTag(HTML.Tag t, int pos) {
-//				System.out.println("</" + t + "> on pos " + pos);
-				if (t.toString() == "li") {
-					listItem = false;
-					htmlOut = htmlOut  + "\t\r\n";
-				} else if (t.toString() == "tr") {
-					tableRow = false;
-					htmlOut = htmlOut  + "\r\n";
-				} else if (t.toString() == "td") {
-					tableCell = false;
-					firstColumn = false;
-				}
-
-			}
-			public void handleText(char[] data, int pos) {
-				String dataString = new String(data);
-//				System.out.println("Data " + dataString + " on pos " + pos);
-				if (listItem && !tableCell) htmlOut = htmlOut + dataString;
-				if (tableRow && tableCell) {
-					if (firstColumn) {
-						htmlOut = htmlOut + dataString  + "\t";
-						firstColumn = false;
-					} else {
-						htmlOut = htmlOut + dataString  + "<br />";
-					}
-				}
-			}
-			public void handleComment(char[] data, int pos) {
-				String dataString = new String(data);
-//				System.out.println("<-- " + dataString + " --> on pos " + pos);
-			}
-			public void handleStartTag(HTML.Tag t, MutableAttributeSet a, int pos) {
-				Enumeration<?> attrs = a.getAttributeNames();
-//				System.out.println("<" + t + "> on pos " + pos);
-				if (t.toString() == "li") {
-					if (listItem) htmlOut = htmlOut  + "\t\r\n";
-					listItem = true;
-				} else if (t.toString() == "tr") {
-					tableRow = true;
-					firstColumn = true;
-				} else if (t.toString() == "td") {
-					tableCell = true;
-				}
-
-//				while (attrs.hasMoreElements()) System.out.println("  attr: " +  attrs.nextElement());
-			}
-		};
-		parser = htmlKit.getParser();
-		Reader reader; 
-		reader = (Reader) new StringReader(html);
-		try {
-			parser.parse(reader, cb, true);
-		} catch (IOException e2) {
-			System.out.println("Error PS101 " + e2);
-		}
-		try {
-			reader.close();
-		} catch (IOException e3) {
-			System.out.println("Error PS102 " + e3.toString());
-		}
-		if (htmlOut == "") {
-			controler.displayPopup("No list items found in HTML snippet,\r\n"
-				+ "using raw input string instead.");
-			htmlOut = dataStringResort;
-			dataStringResort = "";
-		}
-		return htmlOut;
-	}
-    private static class MyHTMLEditorKit extends HTMLEditorKit {
-    	private static final long serialVersionUID = 7279700400657879527L;
-
-    	public Parser getParser() {
-    		return super.getParser();
-    	}
-    }
+//
+//	Communication with other clases
     
-    //	Try to make filenames clickable, or even include their content
-    private String processSimpleFiles() {
-    	String textStr[] = dataString.split("\\r?\\n");
-    	String output = "";
-    	
-    	for (int i = 0; i < textStr.length; i++) {
-    		boolean success = false;
-        	String shortName = "";
-    		String contentString = "";
-
-    		String line = textStr[i];
-  			File f = new File(line);
-  			
-     		if (inputType == 5 || !f.exists() || f.isDirectory()) {
-
-     			//	Just list the filename
-     			//	TODO replace by utility (test with Mac)
-				shortName = line.replace('\\', '/');	
-				if (shortName.endsWith("/")) shortName = shortName.substring(0, shortName.length() - 1);
-       			shortName = shortName.substring(shortName.lastIndexOf("/") + 1);
-    			line = shortName + "\t" + line;
-    			output = output + line + "\r\n";
-
-     		} else {
-
-     			shortName = f.getName();
-					if (shortName.endsWith("/")) shortName = shortName.substring(0, shortName.length() - 1);
-	       			shortName = shortName.substring(shortName.lastIndexOf("/") + 1);
-    			String extension = shortName.substring(shortName.lastIndexOf("."));
-    			System.out.println(shortName + " " + extension);
-
-    			if (!extension.equals(".txt") && !extension.equals(".htm")) {
-    				String esc = "";
-    				line = f.toURI().toString();
-    				if (windows) line = line.replace("%C2%A0", "%A0"); // For bookmarks containing nbsp
-    				line = shortName + "\t" + "<html><body>Open file <a href=\"" + line  + "\">" + shortName + "</a></body></html>";
-    				output = output + line + "\r\n";
-
-    			} else {
-
-    				try {
-    					stream = new FileInputStream(line);
-    				} catch (FileNotFoundException e) {
-    					System.out.println("Error NS123 " + e);
-    					success = false;
-    				}
-    				try {
-    					InputStream in = (InputStream) stream;
-    					if (windows) {
-//        					contentString = convertStreamToString(in, Charset.defaultCharset());
-        					contentString = convertStreamToString(in, Charset.forName("Cp1252"));
-    					} else {
-        					contentString = convertStreamToString(in);
-    					}
-    					in.close();
-    					success = true;
-    				} catch (IOException e1) {
-    					System.out.println("Error NS113 " + e1);
-    					success = false;
-    				}
-    				if (success) {
-    					contentString = contentString.replace("\n", "<br />");
-    					contentString = contentString.replace("\t", " (TAB) ");  // TODO improve
-    					line = shortName + "\t" + contentString;
-    					output = output + line + "\r\n";
-    				}
-    			} 
-       		}
-    	}
-    	dataString = output;
-    	return dataString;
-    }
-
-
-	
-//
-//	DataString or Map are now ready. 
-	
-//	Create new nodes from the splitted string, and then trigger the caller 
-//	to merge these new nodes or the new map with the existing or empty map 
-	
-	
-	private void step3() {
-		if (readyMap) {
-			newNodes = fetchToCenter(newNodes);
-		} else {
-			SplitIntoNew splitIntoNew = new SplitIntoNew(controler);
-			int newNodesCount = splitIntoNew.separateRecords(dataString);
-			System.out.println("NS: " + newNodesCount + " new nodes created");
-			splitIntoNew.heuristics(newNodesCount);
-			splitIntoNew.createNodes(newNodesCount);	
-			newNodes = splitIntoNew.getNodes();
-			newEdges = splitIntoNew.getEdges();
-			minX = 40;
-			minY = 40;
-			maxX = 40 + (newNodes.size()/11 + 1) * 150;
-			maxY = Math.min(newNodes.size() * 40, 540);
-		}
-		
-		//	Integrate new Nodes into existing graph
-		System.out.println("NS calling triggerupdate, new nodes/ edges now: " + newNodes.size() + "/ " + newEdges.size());
-		boolean justOneMap = false;
-		if (inputType == 1 && readyMap) justOneMap = true;
-		controler.triggerUpdate(justOneMap);
-		readyMap = false;
-		newNodes.clear();
-		newEdges.clear();
-	}
-
-	public Hashtable<Integer, GraphNode> fetchToCenter(Hashtable<Integer,GraphNode> nodes) {
-		Enumeration<GraphNode> e = nodes.elements();
-		System.out.println("NS: Adjust needed? " + minX + " - " + maxX + ", " + minY + " - " + maxY);
-		int adjustX = 0, adjustY = 0;
-		if (minX < 0 || minX > 960) adjustX = 480 - (maxX + minX)/2;  // TODO determine actual window dimensions
-		if (minY < 0 || minY > 580) adjustY = 290 - (maxY + minY)/2;  
-		System.out.println("NS: Adjusting " + adjustX + ", " + adjustY);
-		while (e.hasMoreElements()) {
-			GraphNode node =e.nextElement();
-			Point xy = node.getXY();
-			xy.translate(adjustX, adjustY);;
-		}
-		return nodes;
-	}
-	
-//
-//	Communication with other classes
-	
-	public void scoopCompositionWindow(CompositionWindow compositionWindow) {
-		dataString = compositionWindow.dataString;
-		if (!dataString.contains("\r\n")) System.out.println("Scooped from oldPasteWindow: \r\n" + dataString );
-		else System.out.println("CW: Scooped from CompositionWindow.");
-		step3();
-	}
-
-	public void setCompositionMode(boolean toggle) {
-		this.compositionMode = toggle;
-	}
-	
 	public void setInput(String dataString, int inputType) {
 		this.dataString = dataString;
 		this.inputType = inputType;
-		step2();
-	}
-	
-	public String getString() {
-		return dataString;
+		if (inputType == 1) interceptZips();
+		else if (inputType == 4) exploitFilelist();
+		else if (inputType == 2) analyzeBlob();
+		else step2();
 	}
 	
 	public Hashtable<Integer, GraphNode> getNodes() {
@@ -844,42 +633,25 @@ public class NewStuff {
 		return newEdges;
 	}
 	
+	public void setCompositionMode(boolean toggle) {
+		this.compositionMode = toggle;
+	}
+	
+	public void scoopCompositionWindow(CompositionWindow compositionWindow) {
+		dataString = compositionWindow.dataString;
+		if (!dataString.contains("\r\n")) System.out.println("Scooped from oldPasteWindow: \r\n" + dataString );
+		else System.out.println("CW: Scooped from CompositionWindow.");
+		inputType = 6;
+		step2();
+	}
+	
 	public String getAdvisableFilename() {
 		System.out.println("advisableFilename = " + advisableFilename);
 		return advisableFilename;
 	}
-
+	
 	public Point getInsertion() {
 		return insertion;
-	}
-//
-//	Misc
-//	
-//	Temporary map when input routines are not yet functional
-	
-	public void tmpInit() {
-
-		GraphNode node;
-		GraphEdge edge;
-
-		node = new GraphNode(501, new Point(310,220), Color.blue, "Node 1", "Node 1 details");
-		newNodes.put(node.getID(), node);
-		node = new GraphNode(502, new Point(120,330), Color.blue, "Node 2", "Node 2 details");
-		newNodes.put(node.getID(), node);
-		node = new GraphNode(503, new Point(500,430), Color.blue, "Node 3", "Node 3 details");
-		newNodes.put(node.getID(), node);
-
-		edge = new GraphEdge(1, newNodes.get(501), newNodes.get(502), Color.blue, "Edge 1 details");
-		newEdges.put(1, edge);
-		newNodes.get(501).addEdge(edge);
-		newNodes.get(502).addEdge(edge);
-		edge = new GraphEdge(2, newNodes.get(503), newNodes.get(502), Color.blue, "Edge 2 details");
-		newEdges.put(2, edge);
-		newNodes.get(503).addEdge(edge);
-		newNodes.get(502).addEdge(edge);
-		
-		controler.triggerUpdate(true);
-
 	}
 	
 //
@@ -887,9 +659,6 @@ public class NewStuff {
 	
 	public Point roomNeeded() {
 		return new Point(maxX - minX + 1, maxY - minY + 1);
-	}
-	public Point upperleft() {
-		return new Point(minX + 1, minY + 1);
 	}
 
 }
