@@ -18,6 +18,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,11 +30,33 @@ import org.xml.sax.SAXException;
 
 public class ImportDirector implements ActionListener {
 	
+    Runnable fileChooserMac = new Runnable() {
+        @Override 
+        public void run() {
+            fd = new JFileChooser(System.getProperty("user.home") + File.separator + "Desktop");
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+            		extDescription[importType], extension[importType]);
+    		if (!System.getProperty("os.name").equals("Mac OS X")) {
+    			Action details = fd.getActionMap().get("viewTypeDetails");
+    			details.actionPerformed(null);
+    		}
+            fd.setFileFilter(filter);        
+            fd.setApproveButtonText("Next");
+    		fd.setDialogType(FileDialog.LOAD);
+    		frame.remove(radioPanel);
+            frame.add(fd);
+            frame.pack();
+            fd.addActionListener(ImportDirector.this);
+        }
+    };
+    
 	GraphPanelControler controler;
 	JFrame frame = null;
 	JFileChooser fd = null;
 	int knownFormat = -1;
 	JPanel radioPanel = null;
+	int importType = 0;
+	
 	
 	String [] importTypes = {
 			"Evernote", 
@@ -178,18 +201,22 @@ public class ImportDirector implements ActionListener {
 	
 	public void step2(int importType) {
 		
-        fd = new JFileChooser(System.getProperty("user.home") + File.separator + "Desktop");
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-        		extDescription[importType], extension[importType]);
-        fd.setFileFilter(filter);        
-        Action details = fd.getActionMap().get("viewTypeDetails");
-        fd.setApproveButtonText("Next");
-        details.actionPerformed(null);
-		fd.setDialogType(FileDialog.LOAD);
-		frame.remove(radioPanel);
-        frame.add(fd);
-        frame.pack();
-        fd.addActionListener(this);
+//        fd = new JFileChooser(System.getProperty("user.home") + File.separator + "Desktop");
+//        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+//        		extDescription[importType], extension[importType]);
+//        Action details = fd.getActionMap().get("viewTypeDetails");
+//        details.actionPerformed(null);
+//        fd.setFileFilter(filter);        
+//        fd.setApproveButtonText("Next");
+//		  fd.setDialogType(FileDialog.LOAD);
+//		  frame.remove(radioPanel);
+//        frame.add(fd);
+//        frame.pack();
+//        fd.addActionListener(this);
+		
+		importType = knownFormat;
+		SwingUtilities.invokeLater(fileChooserMac);
+
 	}
 	
 //

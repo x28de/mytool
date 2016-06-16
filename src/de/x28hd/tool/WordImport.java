@@ -79,13 +79,6 @@ public class WordImport {
 		} catch (IOException e1) {
 			System.out.println("Error WI111 " + e1);
 		}
-//		FileInputStream fileInputStream = null;
-//		try {
-//			fileInputStream = new FileInputStream(file);
-//		} catch (FileNotFoundException e) {
-//			System.out.println("Error BI101 " + e);
-//		}
-		
 	}
 	
 	public WordImport(InputStream stream, GraphPanelControler controler) {
@@ -148,6 +141,8 @@ public class WordImport {
 		
 		controler.getNSInstance().setInput(dataString, 6);
 	}
+	
+	//	TODO remove old attributes
 	
 	public void addNode(String nodeRef) { 
 		boolean linkingPhrase = (inputItems2.containsKey(nodeRef));

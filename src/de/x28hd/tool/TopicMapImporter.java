@@ -95,7 +95,7 @@ public class TopicMapImporter {		//	OLD map format !
 				}
 			}
 		} catch (IOException e1) {
-			System.out.println("Error ID111 " + e1);
+			System.out.println("Error TI111 " + e1);
 		}
 	}
 	
@@ -108,7 +108,7 @@ public class TopicMapImporter {		//	OLD map format !
 		try {
 			db = dbf.newDocumentBuilder();
 		} catch (ParserConfigurationException e2) {
-			System.out.println("Error BI102 " + e2 );
+			System.out.println("Error TI102 " + e2 );
 		}
 		
 		try {
@@ -116,14 +116,14 @@ public class TopicMapImporter {		//	OLD map format !
 			
 			root = inputXml.getDocumentElement();
 			if (root.getTagName() != XML_ROOT) {
-				System.out.println("Error BI105, unexpected: " + root.getTagName() );
+				System.out.println("Error TI105, unexpected: " + root.getTagName() );
 				stream.close();
 				return;
 			} 
 		} catch (IOException e1) {
-			System.out.println("Error BI106 " + e1 + "\n" + e1.getClass());
+			System.out.println("Error TI106 " + e1 + "\n" + e1.getClass());
 		} catch (SAXException e) {
-			System.out.println("Error BI107 " + e );
+			System.out.println("Error TI107 " + e );
 		}
 		new TopicMapImporter(inputXml, controler);
 	}
@@ -275,15 +275,15 @@ public class TopicMapImporter {		//	OLD map format !
 //		
 //		Pass on the new map
 	
-		System.out.println("CI Map: " + newNodes.size() + " " + newEdges.size());
+		System.out.println("TI Map: " + newNodes.size() + " " + newEdges.size());
 		try {
 			dataString = new TopicMapStorer(newNodes, newEdges).createTopicmapString();
 		} catch (TransformerConfigurationException e1) {
-			System.out.println("Error CI108 " + e1);
+			System.out.println("Error TI108 " + e1);
 		} catch (IOException e1) {
-			System.out.println("Error CI109 " + e1);
+			System.out.println("Error TI109 " + e1);
 		} catch (SAXException e1) {
-			System.out.println("Error CI110 " + e1);
+			System.out.println("Error TI110 " + e1);
 		}
 
 		controler.getNSInstance().setInput(dataString, 2);
