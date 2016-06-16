@@ -1,6 +1,5 @@
 package de.x28hd.tool;
 
-import java.awt.Color;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -41,17 +40,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 public class NewStuff {
 	
-	//	New
-	int importType = 0;
 	
 	//	Main fields
 	String dataString = "";
-	File dataFile = null;
-	InputStream dataStream = null;
 	Hashtable<Integer, GraphNode> newNodes = new Hashtable<Integer, GraphNode>();
 	Hashtable<Integer, GraphEdge> newEdges = new Hashtable<Integer, GraphEdge>();
 	Point insertion = null;
@@ -89,15 +83,16 @@ public class NewStuff {
 	boolean tableCell = false;
 	boolean firstColumn = true;
 	String dataStringResort = "";
+	boolean silentlyResort = false;
 	
 	//	Input file sorting
 	Hashtable<Integer,String> byModDates = new Hashtable<Integer,String>();;
 	TreeMap<Long,Integer> datesMap = new TreeMap<Long,Integer>();
 	SortedMap<Long,Integer> datesList = (SortedMap<Long,Integer>) datesMap;
 
+
 	
 	public NewStuff(final GraphPanelControler controler) {
-		System.out.println("NS started");
 		this.controler = controler;
 		windows = (System.getProperty("os.name").startsWith("Windows"));
 	}
@@ -153,7 +148,16 @@ public class NewStuff {
 	}
 
 //
-//	Obtain input in 3 different dataFlavors 
+//	Obtain input in 3 different dataFlavors (file list, HTML, or string)
+	
+//	Then determine an inputType of the following:
+//	1 = file list, single file
+//	2 = string (including complete x28maps for dragging or from importers)
+//	3 = HTML string
+//	4 = file list, multiple files
+//	and later:
+//	5 = file list, multiple files, from ZIP
+//	6 = pre-processed list (fit for Composition Window)
 	
 	@SuppressWarnings("unchecked")
 	public boolean transferTransferable(Transferable content) {
@@ -172,12 +176,10 @@ public class NewStuff {
 				System.out.println("Error NS110 " + e1);
 				return false;
 			}
-			// Compare actionPerformed() case Open
 			if (l.size() == 1) {
 				dataString = l.get(0).getAbsolutePath();
 				inputType = 1;
 				advisableFilename = dataString;
-				System.out.println("NS filename " + advisableFilename);
 				System.out.println("NS: was javaFileListFlavor; Inputtype = " + inputType);
 				interceptZips();
 			} else {
@@ -199,6 +201,7 @@ public class NewStuff {
 			htmlSelectionFlavor = new DataFlavor("text/html;charset=utf-8;class=java.io.InputStream");
 			// "unicode" was wrong: yielded space after each character, 
 			// and HTMLEditorKit.ParserCallback() recognized nothing but body p-implied
+			
 			// Update June 2016: still works from Eclipse but not from Jar. Trying to
 			// keep it until advice may come along
 		} catch (ClassNotFoundException cle) {
@@ -236,8 +239,6 @@ public class NewStuff {
 				System.out.println("Error NS115 " + e);
 				return false;
 			}
-			if (!dataString.contains("\n")) System.out.println("NS: was stringFlavor: \r\n" + dataString);
-			else System.out.println("NS: was stringFlavor.");
 			inputType = 2;
 			step2();
 			return true;
@@ -250,16 +251,16 @@ public class NewStuff {
 		}
 	}
 	
+	
 	public void step2() {
-		System.out.println("NS step 2 started");
-		if (inputType > 3) {
+		if (inputType > 2) {
+	    	if (inputType == 3) dataString = filterHTML(dataString);
 			if (compositionMode) {
 		    	controler.getCWInstance().insertSnippet(dataString);
 		    	return;
 			} 
 			SplitIntoNew splitIntoNew = new SplitIntoNew(controler);
 			int newNodesCount = splitIntoNew.separateRecords(dataString);
-			System.out.println("NS: " + newNodesCount + " new nodes created");
 			splitIntoNew.heuristics(newNodesCount);
 			splitIntoNew.createNodes(newNodesCount);	
 			newNodes = splitIntoNew.getNodes();
@@ -271,13 +272,18 @@ public class NewStuff {
 	}
 	
 	public void step3() {
-		System.out.println("NS step 3 started");
+		if (readyMap) {
+			newNodes = fetchToCenter(newNodes);
+		}
 		boolean justOneMap = true;
 		controler.triggerUpdate(justOneMap);
 	}
 	
 //
 //	Detail methods
+	
+//
+//	Get the most out of file lists
 	
 	public void exploitFilelist() {
 		
@@ -297,7 +303,6 @@ public class NewStuff {
  			}
  			dataString = "";
  			SortedSet<Long> datesSet = (SortedSet<Long>) datesList.keySet();
- 			System.out.println("fileCount = " + fileCount + ", datesSet.size() = " + datesSet.size());
  			Iterator<Long> ixit = datesSet.iterator(); 
  			if (datesSet.size() > 0) {
  				while (ixit.hasNext()) {
@@ -308,9 +313,9 @@ public class NewStuff {
  				}
  			}
  		}
-//		System.out.println("Filelist " + dataString);
 		
 		//	Process simple files
+	    //	(Try to make filenames clickable, or even include their content)
     	String output = "";
     	String[] textStr = dataString.split("\\r?\\n");
     	for (int i = 0; i < textStr.length; i++) {
@@ -332,10 +337,8 @@ public class NewStuff {
 					if (shortName.endsWith("/")) shortName = shortName.substring(0, shortName.length() - 1);
 	       			shortName = shortName.substring(shortName.lastIndexOf("/") + 1);
     			String extension = shortName.substring(shortName.lastIndexOf("."));
-    			System.out.println(shortName + " " + extension);
 
     			if (!extension.equals(".txt") && !extension.equals(".htm")) {
-//    				String esc = "";
     				line = f.toURI().toString();
     				if (windows) line = line.replace("%C2%A0", "%A0"); // For bookmarks containing nbsp
     				line = shortName + "\t" + "<html><body>Open file <a href=\"" + line  + "\">" + shortName + "</a></body></html>";
@@ -360,7 +363,7 @@ public class NewStuff {
     					in.close();
     					success = true;
     				} catch (IOException e1) {
-    					System.out.println("Error NS113 " + e1);
+    					System.out.println("Error NS116 " + e1);
     					success = false;
     				}
     				if (success) {
@@ -374,95 +377,73 @@ public class NewStuff {
 			dataString = output;
 		}
 
-		System.out.println("Files " + dataString);
 		step2();
 	}
+	
+//
+//	Intercept some peculiarities contained in ZIP files
 	
 	public void interceptZips() {
 		Charset CP850 = Charset.forName("CP850");
 		File file = new File(dataString);	//	Brute force testing for zip
-		boolean success = false;	// success is a single leaf entry
 		ZipFile zfile = null;
 		String filelist = "";
 		int entryCount = 0;
-		if (!dataString.contains("\n")) {
-			System.out.println("NewStuff().unpack with " + dataString + " and type " + this.inputType + " started");
-		} else {
-			System.out.println("NewStuff().unpack with (dataString) and type " + this.inputType + " started");
-		}
 		try {
 			zfile = new ZipFile(file,CP850);
 			Enumeration<? extends ZipEntry> e = zfile.entries();
 			while (e.hasMoreElements()) {
 				ZipEntry entry = (ZipEntry) e.nextElement();
+				stream = zfile.getInputStream(entry);
 				String filename = entry.getName();
 				filename = filename.replace('\\', '/');		
 				if (filename.equals("savefile.xml") || filename.startsWith("topicmap-t-")) {
-					stream = zfile.getInputStream(entry);
-					importType = 6;
-					new ImportDirector(importType, stream, controler); 
+					new ImportDirector(6, stream, controler); 
+					filelist = "";
 					break;
 				} else if (filename.endsWith("content.cds.xml")) {
-					importType = 1;
-					new ImportDirector(importType, file, controler); 
+					new ImportDirector(1, file, controler); 
+					filelist = "";
 					break;
 				} else if (filename.equals("word/document.xml")) {
-					stream = zfile.getInputStream(entry);
-					importType = 5;
-					dataString = "";
-					new ImportDirector(importType, stream, controler); 
-					dataString = "";
-					zfile.close();
-					return;
-				} else if (filename.indexOf("icons/") != -1) {	// very old deepamehta2 format
-					continue;
+					new ImportDirector(5, stream, controler); 
+					filelist = "";
+					break;
 				} else	{
 					if (entryCount == 0) {
 						filelist = filename + "\r\n";	// to avoid leading newline
 					} else {
 						filelist = filelist + filename + "\r\n";
 					}
-//					System.out.println("NewStuff.unpack found " + filename);
 					entryCount++;
 				}
 			}
 			if (entryCount == 1) {
-//			if (importType > 0 || entryCount == 1) {
-				success = true;
+				dataString = convertStreamToString(stream);
+				inputType = 2;
+				advisableFilename = file.getAbsolutePath();
 				step2();
 			} else {
 				dataString = filelist;
 				inputType = 5;
-				success = false;
 				advisableFilename = "";
 				exploitFilelist();
 			}
 //			zfile.close();
 		} catch (ZipException e1) {
 			System.out.println("Error NS121 (can be ignored) " + e1);
-			success = false;
-			dataFile = file;
 			step2();
 		} catch (IOException err) {
 			System.out.println("Error NS122 " + err);
 			controler.displayPopup("Error NS122 " + err);
-			success = false;
 		}
-		System.out.println("NewStuff().unpack returned " + success);
 	}
 
+//
+//	Large single object (as opposed to composed lists)
+	
 	public void analyzeBlob() {
-		System.out.println("NS analyeBlob started");
 		boolean hope = true;
-		
-//		if (importType > 0) {
-//			switch (importType) {
-//			case 1: new ImportDirector(importType, dataFile, controler); break;
-//			case 5: new ImportDirector(importType, dataStream, controler); break;
-//			case 6: new ImportDirector(importType, dataStream, controler); break;
-//			}
-//			return;
-//		}
 		
 		//	Try if XML format
 		Document doc = null;
@@ -472,7 +453,6 @@ public class NewStuff {
 			try {
 				stream = new FileInputStream(dataString);
 				doc = getParsedDocument(stream);
-				System.out.println("NS: found doc from fileinputstream");
 			} catch (FileNotFoundException e2) {
 				System.out.println("Error NS127 (can be ignored) "  + e2);
 				hope = false;
@@ -501,7 +481,6 @@ public class NewStuff {
 					};
 			for (int k = 0; k < knownFormats.length; k++) {
 				if (root.getTagName() == knownFormats[k]) {
-					System.out.println("Format: " + knownFormats[k]);
 					if (k != 0 && k != 5) {		// Evernote or Word
 						if (compositionMode) {
 							controler.getCWInstance().cancel();
@@ -514,15 +493,14 @@ public class NewStuff {
 		} else hope = false;
 			
 		//	No XML
-
 		if (!hope) {
 			if (inputType == 1) {
 				String flatFileContent = "";
 				try {
 					stream = new FileInputStream(dataString);
 				} catch (FileNotFoundException e) {
-					System.out.println("NS Error 126 " + e);
-					controler.displayPopup("NS Error 126 File not found " + e);
+					System.out.println("Error NS126 " + e);
+					controler.displayPopup("Error NS126 File not found " + e);
 					return;
 				}
 				flatFileContent = convertStreamToString(stream);
@@ -533,6 +511,107 @@ public class NewStuff {
 			return;
 		}
 	}
+	
+//
+//	Stuff from HTML lists
+
+	private String filterHTML(String html) {
+		if (inputType != 3) return html;
+		listItem = false;
+		htmlOut = "";
+		MyHTMLEditorKit htmlKit = new MyHTMLEditorKit();
+		HTMLEditorKit.Parser parser = null;
+		HTMLEditorKit.ParserCallback cb = new HTMLEditorKit.ParserCallback() {
+			public void handleEndTag(HTML.Tag t, int pos) {
+				if (t.toString() == "li") {
+					listItem = false;
+					htmlOut = htmlOut  + "\t\r\n";
+				} else if (t.toString() == "tr") {
+					tableRow = false;
+					htmlOut = htmlOut  + "\r\n";
+				} else if (t.toString() == "td") {
+					tableCell = false;
+					firstColumn = false;
+				}
+
+			}
+			public void handleText(char[] data, int pos) {
+				String dataString = new String(data);
+				if (listItem && !tableCell) htmlOut = htmlOut + dataString;
+				if (tableRow && tableCell) {
+					if (firstColumn) {
+						htmlOut = htmlOut + dataString  + "\t";
+						firstColumn = false;
+					} else {
+						htmlOut = htmlOut + dataString  + "<br />";
+					}
+				}
+			}
+			public void handleComment(char[] data, int pos) {
+				String dataString = new String(data);
+				if (dataString.contains("w:WordDocument")) {
+					silentlyResort = true;	//	Word uses styles instead of list items
+				}
+			}
+			public void handleStartTag(HTML.Tag t, MutableAttributeSet a, int pos) {
+//				Enumeration<?> attrs = a.getAttributeNames();
+				if (t.toString() == "li") {
+					if (listItem) htmlOut = htmlOut  + "\t\r\n";
+					listItem = true;
+				} else if (t.toString() == "tr") {
+					tableRow = true;
+					firstColumn = true;
+				} else if (t.toString() == "td") {
+					tableCell = true;
+				}
+			}
+		};
+		parser = htmlKit.getParser();
+		Reader reader; 
+		reader = (Reader) new StringReader(html);
+		try {
+			parser.parse(reader, cb, true);
+		} catch (IOException e2) {
+			System.out.println("Error NS128 " + e2);
+		}
+		try {
+			reader.close();
+		} catch (IOException e3) {
+			System.out.println("Error NS129 " + e3.toString());
+		}
+		if (htmlOut == "") {
+			if (!silentlyResort) {
+				controler.displayPopup("No list items found in HTML snippet,\r\n"
+						+ "using raw input string instead.");
+			}
+			htmlOut = dataStringResort;
+			dataStringResort = "";
+		}
+		return htmlOut;
+	}
+    private static class MyHTMLEditorKit extends HTMLEditorKit {
+    	private static final long serialVersionUID = 7279700400657879527L;
+
+    	public Parser getParser() {
+    		return super.getParser();
+    	}
+    }
+    
+	public Hashtable<Integer, GraphNode> fetchToCenter(Hashtable<Integer,GraphNode> nodes) {
+		Enumeration<GraphNode> e = nodes.elements();
+		System.out.println("NS: Adjust needed? " + minX + " - " + maxX + ", " + minY + " - " + maxY);
+		int adjustX = 0, adjustY = 0;
+		if (minX < 0 || minX > 960) adjustX = 480 - (maxX + minX)/2;  // TODO determine actual window dimensions
+		if (minY < 0 || minY > 580) adjustY = 290 - (maxY + minY)/2;  
+		System.out.println("NS: Adjusting " + adjustX + ", " + adjustY);
+		while (e.hasMoreElements()) {
+			GraphNode node =e.nextElement();
+			Point xy = node.getXY();
+			xy.translate(adjustX, adjustY);;
+		}
+		return nodes;
+	}
+	
 	
 //
 // Accessory for html flavored dropping and pasting, and for processSimplefiles
@@ -576,7 +655,6 @@ public class NewStuff {
     			}
     		}
     		String convertedString = writer.toString();
-    		if (!convertedString.contains("\n")) System.out.println("NS converted: " + convertedString);
     		return convertedString;
     	} else {        
     		return "";
@@ -595,7 +673,7 @@ public class NewStuff {
 			parser = dbf.newDocumentBuilder(); 
 			return parser.parse(stream);
 		} catch (Exception e) {
-			System.out.println("Error NS124 (getParsedDocument from stream): " + e);
+			System.out.println("Error NS124 (in getParsedDocument from stream): " + e);
 			return parser.newDocument();
 		}
 	}
@@ -608,13 +686,13 @@ public class NewStuff {
 			parser = dbf.newDocumentBuilder(); 
 			return parser.parse(stream);
 		} catch (Exception e) {
-			System.out.println("Error NS125 (getParsedDocument from string): " + e);
+			System.out.println("Error NS125 (in getParsedDocument from string): " + e);
 			return parser.newDocument();
 		}
 	}
 
 //
-//	Communication with other clases
+//	Communication with other classes
     
 	public void setInput(String dataString, int inputType) {
 		this.dataString = dataString;
@@ -639,14 +717,11 @@ public class NewStuff {
 	
 	public void scoopCompositionWindow(CompositionWindow compositionWindow) {
 		dataString = compositionWindow.dataString;
-		if (!dataString.contains("\r\n")) System.out.println("Scooped from oldPasteWindow: \r\n" + dataString );
-		else System.out.println("CW: Scooped from CompositionWindow.");
 		inputType = 6;
 		step2();
 	}
 	
 	public String getAdvisableFilename() {
-		System.out.println("advisableFilename = " + advisableFilename);
 		return advisableFilename;
 	}
 	

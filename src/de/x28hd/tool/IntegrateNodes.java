@@ -1,4 +1,5 @@
 package de.x28hd.tool;
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Enumeration;
@@ -41,15 +42,15 @@ public class IntegrateNodes {
 		} else return;
 		edgesEnum = edges.elements();
 
-    	if (roomNeeded.x < winDim.x/4 && roomNeeded.y < winDim.y/4
-    		&& (new Rectangle(winDim.x/3, winDim.y/3, winDim.x/3, winDim.y/3).contains(insertion))) {
-    		inject = true;
-    		
-    		System.out.println("IN: insertion: " + insertion.x + ", " + insertion.y);
-    		System.out.println("IN: bounds: " + bounds.x + " - " + (bounds.x + bounds.width) + "; " +
-    			bounds.y + " - " + (bounds.y + bounds.height));
-    		upperLeft = new Point(insertion.x - roomNeeded.x/2, insertion.y - roomNeeded.y/2);
-    	}
+//    	if (roomNeeded.x < winDim.x/4 && roomNeeded.y < winDim.y/4
+//    		&& (new Rectangle(winDim.x/3, winDim.y/3, winDim.x/3, winDim.y/3).contains(insertion))) {
+//    		inject = true;
+//    		
+//    		System.out.println("IN: insertion: " + insertion.x + ", " + insertion.y);
+//    		System.out.println("IN: bounds: " + bounds.x + " - " + (bounds.x + bounds.width) + "; " +
+//    			bounds.y + " - " + (bounds.y + bounds.height));
+//    		upperLeft = new Point(insertion.x - roomNeeded.x/2, insertion.y - roomNeeded.y/2);
+//    	}
     	
 //
 //		Relocating each node in turn
@@ -57,8 +58,8 @@ public class IntegrateNodes {
 		while (nodesEnum.hasMoreElements()) {
 			GraphNode node = nodesEnum.nextElement();	
 			Point xy = node.getXY();
-			int dx =  0;
-			int dy =  0;
+			int dx =  - 30;
+			int dy =  - 20;
 			int xProjection, yProjection;	// beam from insertion point to node projected to boundary 
 			
 			System.out.println("\nPoint = " + xy.x + ", " + xy.y);
