@@ -275,8 +275,10 @@ public class NewStuff {
 		if (readyMap) {
 			newNodes = fetchToCenter(newNodes);
 		}
-		boolean justOneMap = true;
-		controler.triggerUpdate(justOneMap);
+		boolean justOneMap = false;
+		if (inputType == 1 && readyMap) justOneMap = true;		
+		controler.triggerUpdate(justOneMap, true);
+		readyMap = false;
 	}
 	
 //
@@ -407,8 +409,8 @@ public class NewStuff {
 					break;
 				} else if (filename.equals("word/document.xml")) {
 					new ImportDirector(5, stream, controler); 
-					filelist = "";
-					break;
+					zfile.close();
+					return;
 				} else	{
 					if (entryCount == 0) {
 						filelist = filename + "\r\n";	// to avoid leading newline
@@ -465,6 +467,7 @@ public class NewStuff {
 			if (root.getTagName() == "x28map") {
 				if (compositionMode) controler.getCWInstance().cancel();
 				TopicMapLoader loader = new TopicMapLoader(doc, controler);
+				readyMap = true;
 				newNodes = loader.newNodes;
 				newEdges = loader.newEdges;
 				step3();

@@ -131,6 +131,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 	Point roomNeeded = new Point(2, 2);
 	Point upperLeft = new Point(3, 0);
 	Point insertion = null;
+	int animationPercent = 0;
+	boolean justStarted = true;
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	CentralityColoring centralityColoring;
 
@@ -144,6 +146,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	String confirmedFilename = "";
 	String lastHTMLFilename = "";
 	boolean maybeJustPeek = true;
+	boolean justOneMap = false;
 
 	//	Toggles
 	int toggle4 = 0;   // => hide classicMenu 
@@ -1194,6 +1197,31 @@ public final class PresentationService implements ActionListener, MouseListener,
         } 
     }); 
 	
+	//	Trying animation for map insertion 
+	private Timer animationTimer = new Timer(1, new ActionListener() { 
+        public void actionPerformed (ActionEvent e) {
+        	if (animationPercent < 100) {
+        		animationPercent = animationPercent + 5;
+            	Point target = new Point(- mainWindow.getWidth()/4 * 3, 0);
+//            	Point target = new Point(- bounds.x, - bounds.y);
+            	int pannedX = (int) 5 * (target.x / 100);
+            	int pannedY = (int) 5 * (target.y / 100);
+            	System.out.println("PS panning stage " + animationPercent + " percent") ;            	
+            	graphPanel.translateGraph(pannedX, pannedY);
+        	} else {
+            	graphPanel.setModel(nodes, edges);
+        		animationTimer.stop();
+        		animationPercent = 0;
+        		triggerUpdate(justOneMap); 
+        		justOneMap = false;
+         	}
+        	updateBounds();
+        	translation = graphPanel.getTranslation();
+        	setDefaultCursor();
+        	graphPanel.repaint();
+        } 
+    }); 
+	
 	//	Input from start parameters	
 	public void setFilename(String arg, int type) {
 //		System.out.println("PS newstuff = " + newStuff);
@@ -1668,7 +1696,19 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   return nodePalette[paletteID][7];
    }
     
-    public void triggerUpdate(boolean justOneMap) {
+   public void triggerUpdate(boolean justOneMap, boolean animation) {
+	   this.justOneMap = justOneMap;
+	   if (justStarted) {
+		   triggerUpdate(justOneMap);
+		   justStarted = false;
+	   } else {
+		   animationTimer.start();
+		   //  triggerUpdate is called from timer's ActionPerformed() 
+	   }
+   }
+   
+   public void triggerUpdate(boolean justOneMap) {
+	   this.justOneMap = justOneMap;
     	hintTimer.stop();
     	graphPanel.jumpingArrow(false);
 //    	System.out.println("TriggerUpdate");
@@ -1698,6 +1738,7 @@ public final class PresentationService implements ActionListener, MouseListener,
     	translation = graphPanel.getTranslation();
     	
 		if (insertion == null) insertion = upperLeft;
+    	
     	integrateNodes.driftNodes(translation, roomNeeded, this.bounds, insertion, 
     			new Point(graphPanel.getWidth(), graphPanel.getHeight()));
     	upperLeft = integrateNodes.getUpperLeft();

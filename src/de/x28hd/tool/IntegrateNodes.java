@@ -58,8 +58,8 @@ public class IntegrateNodes {
 		while (nodesEnum.hasMoreElements()) {
 			GraphNode node = nodesEnum.nextElement();	
 			Point xy = node.getXY();
-			int dx =  - 30;
-			int dy =  - 20;
+			int dx =  0;
+			int dy =  0;
 			int xProjection, yProjection;	// beam from insertion point to node projected to boundary 
 			
 			System.out.println("\nPoint = " + xy.x + ", " + xy.y);
