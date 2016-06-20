@@ -128,11 +128,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 		"#ffc877", "#ff7777", "#d8d8d8", "#b0b0b0"}};
 	Point clickedSpot = null;
 	Point translation = new Point(0, 0);
-	Point roomNeeded = new Point(2, 2);
-	Point upperLeft = new Point(3, 0);
+	Point panning = new Point(3, 0);
+	Point upperGap = new Point(3, 0);
 	Point insertion = null;
 	int animationPercent = 0;
-	boolean justStarted = true;
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	CentralityColoring centralityColoring;
 
@@ -226,31 +225,25 @@ public final class PresentationService implements ActionListener, MouseListener,
 					dataString = dataString + "\r\n" + f[fileCount].getAbsolutePath();
 					inputType = 4;
 				}
-//				System.out.println(f[fileCount].getParent() + " " + f[fileCount].getName());
 			}
 			if (!dataString.isEmpty()) {
 				newStuff.setInput(dataString, inputType);
-//				System.out.println("is like javaFileListFlavor: \r\n" );
-//				System.out.println("Filename is (" + fileCount + ") " + dataString);
 			}
 
 		// Quit
 
 		} else if (command == "quit") {
-//			System.out.println("Quit");
 			close();
 
 		// Paste
 
 		} else if (command == "paste") {
-//			System.out.println("Paste Action");
 			beginLongTask();
 
 			Transferable t = newStuff.readClipboard();
 			if (!newStuff.transferTransferable(t)) {
 				System.out.println("Error PS121");
 			} else {
-//				System.out.println("PS: Pasted Stuff successfully processed.");
 			}
 			
 		// Save	
@@ -1198,22 +1191,21 @@ public final class PresentationService implements ActionListener, MouseListener,
     }); 
 	
 	//	Trying animation for map insertion 
-	private Timer animationTimer = new Timer(1, new ActionListener() { 
+	private Timer animationTimer = new Timer(20, new ActionListener() { 
         public void actionPerformed (ActionEvent e) {
         	if (animationPercent < 100) {
         		animationPercent = animationPercent + 5;
-            	Point target = new Point(- mainWindow.getWidth()/4 * 3, 0);
-//            	Point target = new Point(- bounds.x, - bounds.y);
-            	int pannedX = (int) 5 * (target.x / 100);
-            	int pannedY = (int) 5 * (target.y / 100);
-            	System.out.println("PS panning stage " + animationPercent + " percent") ;            	
+            	Double dX = -panning.x / 20.0;
+            	Double dY = -panning.y / 20.0;
+            	int pannedX = dX.intValue();;
+            	int pannedY = dY.intValue();;
             	graphPanel.translateGraph(pannedX, pannedY);
         	} else {
-            	graphPanel.setModel(nodes, edges);
         		animationTimer.stop();
         		animationPercent = 0;
         		triggerUpdate(justOneMap); 
         		justOneMap = false;
+            	graphPanel.setModel(nodes, edges);
          	}
         	updateBounds();
         	translation = graphPanel.getTranslation();
@@ -1224,7 +1216,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	
 	//	Input from start parameters	
 	public void setFilename(String arg, int type) {
-//		System.out.println("PS newstuff = " + newStuff);
 		filename = arg;
 		if (filename.endsWith(".xml")) confirmedFilename = filename;
 		mainWindowTitle = Utilities.getShortname(filename);
@@ -1273,12 +1264,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 		int offs = filename.lastIndexOf(".");
 		if (filename.isEmpty() || offs < 0) {
 			newName = baseDir + File.separator + "storefile." + extension;
-//			System.out.println(baseDir + " + " +  File.separator + " + " + 
-//					"(default)" + " = " + newName);
 		} else { 
 			newName = filename.substring(0, offs) + "." + extension;
-//			newName = (new File(filename)).getName();
-//			newName = newName.substring(0, newName.lastIndexOf(".")) + "." + extension;
 		}
 		if (System.getProperty("os.name").equals("Mac OS X")) {
 			
@@ -1287,12 +1274,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 		fd.setFile(newName);
 		fd.setDirectory(baseDir);
 		fd.setVisible(true);
-		if (fd.getFile() == null) {
-//			System.out.println("PS: File dialog aborted.");
+		if (fd.getFile() == null) {	//	File dialog aborted.");
 			return false; 
 		}
 		newName = fd.getDirectory() + fd.getFile();
-//		System.out.println(fd.getDirectory() + " + " + fd.getFile() + " = " + newName);
 		if (extension == "xml") {
 			confirmedFilename = newName;
 		} else if (extension == "htm") {
@@ -1305,9 +1290,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 	
 	public boolean startStoring(String storeFilename) {
-//		System.out.println("PS: Store is starting...");
 		if (storeFilename.isEmpty()) return false;
-//		System.out.println("PS: Storing in progress. " + storeFilename);
 		try {
 			File storeFile = new TopicMapStorer(nodes, edges).createTopicmapFile(storeFilename);
 			storeFilename = storeFile.getName();
@@ -1321,14 +1304,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 			System.out.println("Error PS125" + e);
 			return false;
 		}
-//		System.out.println("PS: Storing finished: " + storeFilename);
 		isDirty = false;
 		edi.setDirty(false);
 		return true;
 	}
 
 	public void startExport() {
-//		System.out.println("PS: Export is starting...");
 		FileDialog fd = new FileDialog(mainWindow, "Select Zip File to Update");
 		fd.setMode(FileDialog.LOAD);
 		fd.setMultipleMode(false);
@@ -1336,9 +1317,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		fd.setVisible(true);
 		try {
 			String zipFilename = fd.getDirectory() + File.separator + fd.getFile();
-//			System.out.println("PS: Selected " + zipFilename);
 			new TopicMapExporter(nodes, edges).createTopicmapArchive(zipFilename);
-//			System.out.println("PS: Export finished. " + zipFilename);
 		} catch (IOException e) {
 			System.out.println("Error PS127 " + e);
 		}
@@ -1349,9 +1328,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		int closeResponse = JOptionPane.YES_OPTION;
 		if (isDirty) {
 			closeResponse = JOptionPane.showOptionDialog(null,
-//				"If you have unsaved changes, consider saving the map.\n" + 
-//				"The default location for new maps is \"savefile.zip\"\n" +
-//				" in your \"Desktop\\deepamehta-files\" folder.\n", 
 					"Do you want to save your changes?\n",
 					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, 
 					JOptionPane.WARNING_MESSAGE, null, 
@@ -1360,7 +1336,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 					closeResponse == JOptionPane.CLOSED_OPTION) {
 				return false;
 			} else if (closeResponse != JOptionPane.NO_OPTION) {
-//				System.out.println("saving scheduled");
 				if (confirmedFilename.isEmpty()) {
 					if (askForFilename("xml")) {
 						confirmedFilename = filename;
@@ -1389,7 +1364,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 	public void deselect(GraphNode node) {
 		if (!node.equals(dummyNode)) {
-//			String nodeName = node.getLabel();
 			node.setLabel(labelField.getText());
 			node.setDetail(edi.getText());
 			edi.setText("");
@@ -1405,7 +1379,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}	
 	
 	public void nodeSelected(GraphNode node) {
-//		System.out.println("PS: Node selected");
 		deselect(selectedTopic);
 		deselect(selectedAssoc);
 		selectedAssoc = dummyEdge;
@@ -1420,7 +1393,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 	
 	public void edgeSelected(GraphEdge edge) {
-//		System.out.println("PS: Edge selected");
 		deselect(selectedAssoc);
 		deselect(selectedTopic);
 		selectedTopic = dummyNode;
@@ -1432,7 +1404,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 	public void graphSelected() {
-//		System.out.println("PS: Graph selected");
 		deselect(selectedTopic);
 		selectedTopic = dummyNode;
 		deselect(selectedAssoc);
@@ -1584,12 +1555,32 @@ public final class PresentationService implements ActionListener, MouseListener,
 		graphPanel.setBounds(bounds);
 	}
 
+
+	public Point determineBottom(Hashtable<Integer,GraphNode> nodes, Rectangle bounds) {
+		int maxX = bounds.x + bounds.width;
+		int maxY = bounds.y + bounds.height;
+		int minXbottom = maxX -bounds.width/2;
+		if (bounds.width < 726) {	//	graphPanel width, 960 window - 232 right pane
+			minXbottom = maxX -bounds.width/2;
+		}
+		Enumeration<GraphNode> nodesEnum = nodes.elements();
+		while (nodesEnum.hasMoreElements()) {
+			GraphNode node = nodesEnum.nextElement();
+			Point xy = node.getXY();
+			int x = xy.x;
+			int y = xy.y;
+			if (y > maxY - 100){
+				if (x < minXbottom) minXbottom = x;
+			}
+		}
+		return new Point(minXbottom, maxY);
+	}
+	
 	public void addToLabel(String textToAdd) {
 		if (selectedTopic == dummyNode) return;
 		String oldText = labelField.getText();
 		String newText = oldText + " " + textToAdd;
 		labelField.setText(newText);
-//		System.out.println(newText);
 		GraphNode justUpdated = selectedTopic;
 		graphSelected();
 		graphPanel.labelUpdateToggle(true);
@@ -1602,7 +1593,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 //	Accessories for cursors and carets
     
 	public void beginTranslation() {
-//		System.out.println("PS Hand cursor");
 		setHandCursor();
 	}
 
@@ -1611,7 +1601,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 	public void setWaitCursor() {
-//		setMouseCursor(Cursor.WAIT_CURSOR);
 		mainWindow.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		graphPanel.repaint();
 	}
@@ -1680,10 +1669,6 @@ public final class PresentationService implements ActionListener, MouseListener,
     	return compositionWindow;
     }
     
-//    public JFrame getMainWindow() {
-//    	return mainWindow;
-//    }
-    
    public void finishCompositionMode() {
     	newStuff.setCompositionMode(false);
     	menuItem21.setEnabled(true);
@@ -1697,13 +1682,28 @@ public final class PresentationService implements ActionListener, MouseListener,
    }
     
    public void triggerUpdate(boolean justOneMap, boolean animation) {
+	   translation = graphPanel.getTranslation();
 	   this.justOneMap = justOneMap;
-	   if (justStarted) {
+	   if (nodes.size() < 1) {
+		   panning = new Point(0, 0);
+		   upperGap = new Point(40, 40);
 		   triggerUpdate(justOneMap);
-		   justStarted = false;
 	   } else {
-		   animationTimer.start();
-		   //  triggerUpdate is called from timer's ActionPerformed() 
+		   Point bottomOfExisting = determineBottom(nodes, bounds);
+		   panning = new Point(bottomOfExisting.x - 40 + translation.x, 
+				   bottomOfExisting.y - 100 + translation.y); 
+		   upperGap = new Point(40, 140); 
+		   if (animation) {
+			   animationTimer.start();
+			   //  triggerUpdate is called from timer's ActionPerformed() 
+		   } else {
+			   translation = graphPanel.getTranslation();
+			   graphPanel.translateGraph(-panning.x, -panning.y);
+			   triggerUpdate(justOneMap);
+			   updateBounds();
+			   setDefaultCursor();
+			   graphPanel.repaint();
+		   }
 	   }
    }
    
@@ -1711,7 +1711,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   this.justOneMap = justOneMap;
     	hintTimer.stop();
     	graphPanel.jumpingArrow(false);
-//    	System.out.println("TriggerUpdate");
     	if (maybeJustPeek && justOneMap && nodes.size() < 1) {
     		//  don't set dirty yet
     		maybeJustPeek = false;
@@ -1721,7 +1720,6 @@ public final class PresentationService implements ActionListener, MouseListener,
     	Hashtable<Integer, GraphNode> newNodes = newStuff.getNodes();
     	Hashtable<Integer, GraphEdge> newEdges = newStuff.getEdges();
     	insertion = newStuff.getInsertion();
-//    	System.out.println("PS: mouse position while inserting stuff: " + insertion);
     	if (filename.isEmpty()) {
     		filename = newStuff.getAdvisableFilename();
     		if (!filename.isEmpty()) {
@@ -1730,30 +1728,11 @@ public final class PresentationService implements ActionListener, MouseListener,
     			mainWindow.repaint();
     		}
     	}
-
     	IntegrateNodes integrateNodes = new IntegrateNodes(nodes, edges, newNodes, newEdges, insertion);
- 
-    	roomNeeded = newStuff.roomNeeded();
-//    	System.out.println("PS: Room needed: " + roomNeeded.x + ", " + roomNeeded.y);
     	translation = graphPanel.getTranslation();
+		if (insertion == null) insertion = panning;
     	
-		if (insertion == null) insertion = upperLeft;
-    	
-    	integrateNodes.driftNodes(translation, roomNeeded, this.bounds, insertion, 
-    			new Point(graphPanel.getWidth(), graphPanel.getHeight()));
-    	upperLeft = integrateNodes.getUpperLeft();
-		if (upperLeft == null) {
-			upperLeft = new Point(0, bounds.y + bounds.height + 20);
-			int beyond = bounds.height - graphPanel.getHeight() + translation.y;
-//			System.out.println("PS: bounds.height " + bounds.height + ", beyond " + beyond);
-			if (beyond > -100) {
-				int scroll = - beyond - 200;
-				graphPanel.translateGraph(0, scroll);
-				graphPanel.repaint();
-				upperLeft = new Point(0, graphPanel.getHeight() - 100);
-			}
-		}
-    	integrateNodes.mergeNodes(upperLeft, roomNeeded, translation, this.insertion);
+    	integrateNodes.mergeNodes(upperGap, panning, translation, this.insertion);
     	nodes = integrateNodes.getNodes();
     	edges = integrateNodes.getEdges();
     	
@@ -1775,19 +1754,15 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 	public void mouseEntered(MouseEvent arg0) {
-//		System.out.println("Mouse entered");
 	}
 
 	public void mouseExited(MouseEvent arg0) {
-//		System.out.println("Mouse exited");
 	}
 
 	public void mousePressed(MouseEvent arg0) {
-//		System.out.println("Mouse pressed");
 	}
 
 	public void mouseReleased(MouseEvent arg0) {
-//		System.out.println("Mouse released");
 	}
 
 //
@@ -1806,12 +1781,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 	public void keyReleased(KeyEvent arg0) {
-//		System.out.println("Key released");
 	}
 
 	public void keyTyped(KeyEvent arg0) {
-//		System.out.println("Key typed");
 	}
-    
 
 }

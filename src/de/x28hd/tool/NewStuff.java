@@ -1,6 +1,7 @@
 package de.x28hd.tool;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -74,7 +75,7 @@ public class NewStuff {
 	String edgesArray [][] = new String [600][3];    // 0 = n1, 1 = n2, 2 = rgb
 	Hashtable<String, Integer> nodeids = new Hashtable<String, Integer>();
 	Hashtable<String, Integer> edgeids = new Hashtable<String, Integer>();
-	int minX, maxX, minY, maxY;
+	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	
 	//	HTML exploitation
 	String htmlOut = "";
@@ -273,7 +274,7 @@ public class NewStuff {
 	
 	public void step3() {
 		if (readyMap) {
-			newNodes = fetchToCenter(newNodes);
+			newNodes = fetchToUpperLeft(newNodes);
 		}
 		boolean justOneMap = false;
 		if (inputType == 1 && readyMap) justOneMap = true;		
@@ -394,6 +395,7 @@ public class NewStuff {
 		try {
 			zfile = new ZipFile(file,CP850);
 			Enumeration<? extends ZipEntry> e = zfile.entries();
+			boolean done = false;
 			while (e.hasMoreElements()) {
 				ZipEntry entry = (ZipEntry) e.nextElement();
 				stream = zfile.getInputStream(entry);
@@ -401,16 +403,16 @@ public class NewStuff {
 				filename = filename.replace('\\', '/');		
 				if (filename.equals("savefile.xml") || filename.startsWith("topicmap-t-")) {
 					new ImportDirector(6, stream, controler); 
-					filelist = "";
+					done = true;
 					break;
 				} else if (filename.endsWith("content.cds.xml")) {
 					new ImportDirector(1, file, controler); 
-					filelist = "";
+					done = true;
 					break;
 				} else if (filename.equals("word/document.xml")) {
 					new ImportDirector(5, stream, controler); 
-					zfile.close();
-					return;
+					done = true;
+					break;
 				} else	{
 					if (entryCount == 0) {
 						filelist = filename + "\r\n";	// to avoid leading newline
@@ -419,6 +421,10 @@ public class NewStuff {
 					}
 					entryCount++;
 				}
+			}
+			if (done) {
+				zfile.close();
+				return;
 			}
 			if (entryCount == 1) {
 				dataString = convertStreamToString(stream);
@@ -467,6 +473,8 @@ public class NewStuff {
 			if (root.getTagName() == "x28map") {
 				if (compositionMode) controler.getCWInstance().cancel();
 				TopicMapLoader loader = new TopicMapLoader(doc, controler);
+				bounds = loader.getBounds();
+				System.out.println("Bounds after TL " + bounds);
 				readyMap = true;
 				newNodes = loader.newNodes;
 				newEdges = loader.newEdges;
@@ -600,22 +608,40 @@ public class NewStuff {
     	}
     }
     
-	public Hashtable<Integer, GraphNode> fetchToCenter(Hashtable<Integer,GraphNode> nodes) {
+//	Determine upper left visible corner
+	public Point determineCorner(Hashtable<Integer,GraphNode> nodes) {
+
+		int maxX = bounds.x + bounds.width;
+		int minY = bounds.y;
+		int minXtop = maxX - bounds.width/2;
+		if (bounds.width < 726) {	//	graphPanel width, 960 window - 232 right pane
+			minXtop = maxX - bounds.width/2;
+		}
+		Enumeration<GraphNode> nodesEnum = newNodes.elements();
+		while (nodesEnum.hasMoreElements()) {
+			GraphNode node = nodesEnum.nextElement();
+			Point xy = node.getXY();
+			int x = xy.x;
+			int y = xy.y;
+			if (y < minY + 100) {
+				if (x < minXtop) minXtop = x;
+			}
+		}
+		return new Point(minXtop - 40, minY - 40);
+	}
+
+	public Hashtable<Integer, GraphNode> fetchToUpperLeft(Hashtable<Integer,GraphNode> nodes) {
+		Point adjust = determineCorner(nodes);
 		Enumeration<GraphNode> e = nodes.elements();
-		System.out.println("NS: Adjust needed? " + minX + " - " + maxX + ", " + minY + " - " + maxY);
-		int adjustX = 0, adjustY = 0;
-		if (minX < 0 || minX > 960) adjustX = 480 - (maxX + minX)/2;  // TODO determine actual window dimensions
-		if (minY < 0 || minY > 580) adjustY = 290 - (maxY + minY)/2;  
-		System.out.println("NS: Adjusting " + adjustX + ", " + adjustY);
 		while (e.hasMoreElements()) {
 			GraphNode node =e.nextElement();
 			Point xy = node.getXY();
-			xy.translate(adjustX, adjustY);;
+			xy.translate(- adjust.x, - adjust.y);;
 		}
 		return nodes;
 	}
 	
-	
+
 //
 // Accessory for html flavored dropping and pasting, and for processSimplefiles
 
@@ -730,13 +756,6 @@ public class NewStuff {
 	
 	public Point getInsertion() {
 		return insertion;
-	}
-	
-//
-//	Stubs, abandon ?
-	
-	public Point roomNeeded() {
-		return new Point(maxX - minX + 1, maxY - minY + 1);
 	}
 
 }

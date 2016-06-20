@@ -2,8 +2,7 @@ package de.x28hd.tool;
 
 import java.awt.Color;
 import java.awt.Point;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.awt.Rectangle;
 import java.util.Hashtable;
 
 import org.w3c.dom.Document;
@@ -22,6 +21,10 @@ public class TopicMapLoader {
 	int maxX = Integer.MIN_VALUE;
 	int minY = Integer.MAX_VALUE;
 	int maxY = Integer.MIN_VALUE;
+	int width;
+	int height;
+	Point upperLeft = new Point(0, 0);
+	Point lowerLeft = new Point(580, 0);
 
 	public TopicMapLoader(Document doc, GraphPanelControler controler) {
 
@@ -44,9 +47,13 @@ public class TopicMapLoader {
 			for (int i = 0; i < assocs.getLength(); i++) {
 				importAssoc((Element) assocs.item(i));
 			}
-			System.out.println("TL: " + topicnum + " new topics and " + assocnum + " new assocs loaded");
 			
+			System.out.println("TL: " + topicnum + " new topics and " + assocnum + " new assocs loaded");
 			System.out.println("TL recorded " + newNodes.size() + " nodes and " + newEdges.size() + " edges");
+//
+//			//	Determine extremes
+			width = maxX - minX;
+			height = maxY - minY;
 			return;
 		}
 	}
@@ -85,5 +92,9 @@ public class TopicMapLoader {
 		newEdges.put(assocnum, edge);
 		newNodes.get(n1).addEdge(edge);
 		newNodes.get(n2).addEdge(edge);
+	}
+	
+	public Rectangle getBounds() {
+		return new Rectangle(minX, minY, width, height);
 	}
 }
