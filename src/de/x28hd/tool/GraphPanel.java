@@ -54,6 +54,7 @@ class GraphPanel extends JDesktopPane  {
 	boolean bundleInProgress = false;
 	String myTransferable = "";
 	boolean simulatedAltDown = false;
+	boolean tabletMode = false;
 
 	
 	// directly from jri
@@ -672,13 +673,24 @@ class GraphPanel extends JDesktopPane  {
 			int x = e.getX();
 			int y = e.getY();
 			if (e.getClickCount() == 2) {		// double clicked
+				if (tabletMode) {
+					System.out.println("tabletmode and doubleclick");
+					controler.displayContextMenu("node", e.getX(), e.getY());
+				}
 			} else if (e.isAltDown() || simulatedAltDown) {	// alt modifier is pressed -- start creating an edge
 				edgeInProgress = true;
 				targetNode = null;
 				ex = x;
 				ey = y;
 			} else if (isPopupTrigger(e)) {		// right-click -- show node context menu
-				controler.displayContextMenu("node", e.getX(), e.getY());
+				if (!tabletMode) {
+					controler.displayContextMenu("node", e.getX(), e.getY());
+				} else {
+					edgeInProgress = true;
+					targetNode = null;
+					ex = x;
+					ey = y;
+				}
 			} else {							// default -- start moving a node
 				moveInProgress = true;
 			}
@@ -687,8 +699,15 @@ class GraphPanel extends JDesktopPane  {
 		private void edgeClicked(GraphEdge edge, MouseEvent e) {
 			System.out.println("GP: Edge clicked ");
 			edgeSelected(edge);
-			if (isPopupTrigger(e)) {		// right-click -- show edge context menu
-				controler.displayContextMenu("edge", e.getX(), e.getY());
+			if (e.getClickCount() == 2) {		// double clicked
+				if (tabletMode) {
+					System.out.println("tabletmode and doubleclick");
+					controler.displayContextMenu("edge", e.getX(), e.getY());
+				}
+			} else if (isPopupTrigger(e)) {		// right-click -- show edge context menu
+				if (!tabletMode) {
+					controler.displayContextMenu("edge", e.getX(), e.getY());
+				} 
 			}
 				cluster = createNodeCluster(edge.getNode1());	// ### create later
 					clusterInProgress = true;
@@ -697,8 +716,15 @@ class GraphPanel extends JDesktopPane  {
 		private void graphClicked(MouseEvent e) {
 			System.out.println("GP: Graph clicked ");
 			graphSelected();	
-			if (isPopupTrigger(e)) {	// right-click -- show graph context menu
-				controler.displayContextMenu("graph", e.getX(), e.getY());
+			if (e.getClickCount() == 2) {		// double clicked
+				if (tabletMode) {
+					System.out.println("tabletmode and doubleclick");
+					controler.displayContextMenu("graph", e.getX(), e.getY());
+				}
+			} else if (isPopupTrigger(e)) {	// right-click -- show graph context menu
+				if (!tabletMode) {
+					controler.displayContextMenu("graph", e.getX(), e.getY());
+				}
 			} else {	// default -- start moving the graph
 				translateInProgress = true;
 			}
@@ -820,6 +846,10 @@ class GraphPanel extends JDesktopPane  {
 		public void toggleAlt(boolean down) {
 //			simulatedAltDown = ! simulatedAltDown;	//	press and release are not separated on surface
 			simulatedAltDown = down;
+		}
+
+		public void toggleTablet(boolean toggle) {
+			tabletMode = toggle;
 		}
 
 		public void toggleBorders() {

@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -374,7 +375,9 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 		//	UI for selection (duplicated from ImappingImport //	TODO reuse
 		
         frame = new JFrame("Pick a collection?");
-        frame.setLocation(100, 170);
+//        frame.setLocation(100, 170);
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		frame.setLocation(dim.width/2 - 298, dim.height/2 - 209);		
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);	// closing triggers further processing
 		frame.addWindowListener(myWindowAdapter);
 		frame.setLayout(new BorderLayout());
@@ -409,7 +412,8 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
         frame.add(toolbar,"South");
         frame.pack();
 
-        frame.setMinimumSize(new Dimension(400, 300));
+//        frame.setMinimumSize(new Dimension(400, 300));
+        frame.setMinimumSize(new Dimension(596, 418));
         frame.setVisible(true);
 		
 	}

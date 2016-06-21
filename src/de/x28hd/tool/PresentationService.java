@@ -743,47 +743,47 @@ public final class PresentationService implements ActionListener, MouseListener,
 		
 		menu3.addSeparator();
 
-		JMenuItem menuItem32 = new JMenuItem("Import Evernote Notes",  KeyEvent.VK_R);
-		menuItem32.setActionCommand("eneximp");
-		menuItem32.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, shortcutMask));
-		menuItem32.setToolTipText("Import from Evernote Enex file");
-		menuItem32.addActionListener(this);
-		menu3.add(menuItem32);
+//		JMenuItem menuItem32 = new JMenuItem("Import Evernote Notes",  KeyEvent.VK_R);
+//		menuItem32.setActionCommand("eneximp");
+//		menuItem32.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, shortcutMask));
+//		menuItem32.setToolTipText("Import from Evernote Enex file");
+//		menuItem32.addActionListener(this);
+//		menu3.add(menuItem32);
+//
+//		JMenuItem menuItem33 = new JMenuItem("Import iMap",  KeyEvent.VK_H);
+//		menuItem33.setActionCommand("imapimp");
+//		menuItem33.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, shortcutMask));
+//		menuItem33.setToolTipText("Import from iMapping.info");
+//		menuItem33.addActionListener(this);
+//		menu3.add(menuItem33);
+//
+//		JMenuItem menuItem34 = new JMenuItem("Import DWZ Items",  KeyEvent.VK_D);
+//		menuItem34.setActionCommand("dwzimp");
+//		menuItem34.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, shortcutMask));
+//		menuItem34.setToolTipText("Import from DenkWerkZeug.org");
+//		menuItem34.addActionListener(this);
+//		menu3.add(menuItem34);
+//
+//		JMenuItem menuItem35 = new JMenuItem("Import CMap",  KeyEvent.VK_M);
+//		menuItem35.setActionCommand("cmapimp");
+//		menuItem35.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, shortcutMask));
+//		menuItem35.setToolTipText("Import from cmap.ihmc.us CXL file");
+//		menuItem35.addActionListener(this);
+//		menu3.add(menuItem35);
 
-		JMenuItem menuItem33 = new JMenuItem("Import iMap",  KeyEvent.VK_H);
-		menuItem33.setActionCommand("imapimp");
-		menuItem33.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, shortcutMask));
-		menuItem33.setToolTipText("Import from iMapping.info");
-		menuItem33.addActionListener(this);
-		menu3.add(menuItem33);
-
-		JMenuItem menuItem34 = new JMenuItem("Import DWZ Items",  KeyEvent.VK_D);
-		menuItem34.setActionCommand("dwzimp");
-		menuItem34.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, shortcutMask));
-		menuItem34.setToolTipText("Import from DenkWerkZeug.org");
-		menuItem34.addActionListener(this);
-		menu3.add(menuItem34);
-
-		JMenuItem menuItem35 = new JMenuItem("Import CMap",  KeyEvent.VK_M);
-		menuItem35.setActionCommand("cmapimp");
-		menuItem35.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, shortcutMask));
-		menuItem35.setToolTipText("Import from cmap.ihmc.us CXL file");
-		menuItem35.addActionListener(this);
-		menu3.add(menuItem35);
-
-		JMenuItem menuItem37 = new JMenuItem("Import Test",  KeyEvent.VK_T);
+		JMenuItem menuItem37 = new JMenuItem("Launch the Import Wizard",  KeyEvent.VK_W);
 		menuItem37.setActionCommand("testimp");
-		menuItem37.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, shortcutMask));
-		menuItem37.setToolTipText("Not yet functioning");
+		menuItem37.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, shortcutMask));
+		menuItem37.setToolTipText("");
 		menuItem37.addActionListener(this);
 		menu3.add(menuItem37);
-
-		JMenuItem menuItem36 = new JMenuItem("Import TheBrain",  KeyEvent.VK_B);
-		menuItem36.setActionCommand("brainimp");
-		menuItem36.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, shortcutMask));
-		menuItem36.setToolTipText("Import a TheBrain XML file");
-		menuItem36.addActionListener(this);
-		menu3.add(menuItem36);
+//
+//		JMenuItem menuItem36 = new JMenuItem("Import TheBrain",  KeyEvent.VK_B);
+//		menuItem36.setActionCommand("brainimp");
+//		menuItem36.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, shortcutMask));
+//		menuItem36.setToolTipText("Import a TheBrain XML file");
+//		menuItem36.addActionListener(this);
+//		menu3.add(menuItem36);
 
 		//	Export menu
 		
@@ -889,7 +889,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		
 		menuItem55 = new JCheckBoxMenuItem("Tablet Mode", false);
 		menuItem55.setActionCommand("tablet");
-		menuItem55.setToolTipText("Doubleclick improvement and Alt-Key for Pen and Touch ");
+		menuItem55.setToolTipText("Doubleclick improvement, Alt-Key for Pen and Touch, and rightclick changes");
 		menuItem55.addActionListener(this);
 		menu5.add(menuItem55);
 		
@@ -1134,6 +1134,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 		boolean tablet = menuItem55.isSelected();
 		footbar.setVisible(tablet);
 		edi.toggleTablet(tablet);
+		graphPanel.toggleTablet(tablet);
+		if (tablet) displayPopup("Now you can use pen button #2 in place of mouse button #3 \n" +
+				"and a toggle in the lower left to simulate the Alt Key.\n" +
+				"Note that the context menus now work with double-click instead of right-click.");
 	}
 	
 	public void toggleClassicMenu() {

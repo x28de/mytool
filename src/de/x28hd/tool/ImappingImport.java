@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -322,7 +323,10 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 			toolbar.setBorder(new EmptyBorder(10, 10, 10, 10));
 	        frame.add(toolbar,"South");
 	        frame.pack();
-	        frame.setMinimumSize(new Dimension(400, 300));
+			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+			frame.setLocation(dim.width/2 - 298, dim.height/2 - 209);		
+//	        frame.setMinimumSize(new Dimension(400, 300));
+	        frame.setMinimumSize(new Dimension(596, 418));
 
 	        frame.setVisible(true);
 
