@@ -1690,7 +1690,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   this.justOneMap = justOneMap;
 	   if (nodes.size() < 1) {
 		   panning = new Point(0, 0);
-		   upperGap = new Point(40, 40);
+		   upperGap = new Point(0, 0);
 		   triggerUpdate(justOneMap);
 	   } else {
 		   Point bottomOfExisting = determineBottom(nodes, bounds);
