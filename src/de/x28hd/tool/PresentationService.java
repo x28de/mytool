@@ -571,15 +571,15 @@ public final class PresentationService implements ActionListener, MouseListener,
 //				System.out.println("Mousebutton pressed ");	
 			}
 			public void mouseReleased(MouseEvent e) {
-//				Mousebutton released = > Simulated Alt Key toggled ""
 				altDown = !altDown;
 				graphPanel.toggleAlt(altDown);
-				if (altDown) {
-					altButton.setBackground(Color.YELLOW);
-				} else {
-					altButton.setBackground(Color.LIGHT_GRAY);
-				}
-//				System.out.println("Mousebutton released = > Simulated Alt Key toggled ");
+				toggleAltColor(altDown);
+				System.out.println("Alt \"key\" down? " + altDown);	
+//				if (altDown) {
+//					altButton.setBackground(Color.YELLOW);
+//				} else {
+//					altButton.setBackground(Color.LIGHT_GRAY);
+//				}
 			}
 		});
 		footbar.add(altButton, BorderLayout.WEST);
@@ -771,7 +771,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 //		menuItem35.addActionListener(this);
 //		menu3.add(menuItem35);
 
-		JMenuItem menuItem37 = new JMenuItem("Launch the Import Wizard",  KeyEvent.VK_W);
+		JMenuItem menuItem37 = new JMenuItem("Launch the Import Wizard",  new ImageIcon(getClass().getResource("wizard.gif")));
 		menuItem37.setActionCommand("testimp");
 		menuItem37.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, shortcutMask));
 		menuItem37.setToolTipText("");
@@ -889,7 +889,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		
 		menuItem55 = new JCheckBoxMenuItem("Tablet Mode", false);
 		menuItem55.setActionCommand("tablet");
-		menuItem55.setToolTipText("Doubleclick improvement, Alt-Key for Pen and Touch, and rightclick changes");
+		menuItem55.setToolTipText("Doubleclick improvement, Alt-Key for Pen and Touch");
 		menuItem55.addActionListener(this);
 		menu5.add(menuItem55);
 		
@@ -1135,9 +1135,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 		footbar.setVisible(tablet);
 		edi.toggleTablet(tablet);
 		graphPanel.toggleTablet(tablet);
-		if (tablet) displayPopup("Now you can use pen button #2 in place of mouse button #3 \n" +
-				"and a toggle in the lower left to simulate the Alt Key.\n" +
-				"Note that the context menus now work with double-click instead of right-click.");
+		if (tablet) displayPopup("Now you can simulate the Alt Key either by a toggle \"button\"\n" +
+				"in the lower left, or by double-clicking on a node or edge.\n\n" +
+				"Warning: \nSince this functionality is still not satisfying it may be changed again.");
 	}
 	
 	public void toggleClassicMenu() {
@@ -1630,6 +1630,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 	public void endTask() {
 		setDefaultCursor();
+	}
+	
+	public void toggleAltColor(boolean down) {
+		if (down) {
+			altButton.setBackground(Color.YELLOW);
+		} else {
+			altButton.setBackground(Color.LIGHT_GRAY);
+		}
+		altDown = down;
+//		altDown = !altDown;
 	}
 	
 //    public void caretUpdate(CaretEvent arg0) {

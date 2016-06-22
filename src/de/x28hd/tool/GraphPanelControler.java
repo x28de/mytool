@@ -30,4 +30,5 @@ interface GraphPanelControler {
 	String getNewNodeColor();
 	Rectangle getBounds();
 	void setSystemUI(boolean toggle);
+	void toggleAltColor(boolean down);
 	}
