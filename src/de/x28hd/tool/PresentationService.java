@@ -1221,7 +1221,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	//	Input from start parameters	
 	public void setFilename(String arg, int type) {
 		filename = arg;
-		if (filename.endsWith(".xml")) confirmedFilename = filename;
+//		if (filename.endsWith(".xml")) confirmedFilename = filename;
 		mainWindowTitle = Utilities.getShortname(filename);
 		if (mainWindow != null) mainWindow.repaint();
 		maybeJustPeek = true;
