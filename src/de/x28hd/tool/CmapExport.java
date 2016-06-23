@@ -73,7 +73,15 @@ public class CmapExport {
 		
 		//	Header
 		Element outMap = out.createElement("map");
+		
 		Rectangle bounds = controler.getBounds();
+		Point adjust = new Point(0, 0);
+		if (bounds.x < 0) {
+			adjust.x = -bounds.x + 40;
+		}
+		if (bounds.y < 0) {
+			adjust.y = -bounds.y + 40;
+		}
 		outMap.setAttribute("width", bounds.width + 100 + "");
 		outMap.setAttribute("height", bounds.height + 100 + "");
 		outRoot.appendChild(outMap);
@@ -121,7 +129,8 @@ public class CmapExport {
 			GraphNode node = myNodes2.nextElement();
 			int num = node.getID();
 			conceptAppearance.setAttribute("id", "concept-" + num);
-			Point xy = node.getXY();
+			Point xy = (Point) node.getXY().clone();
+			xy.translate(adjust.x, adjust.y);
 			conceptAppearance.setAttribute("x", xy.x * 3/2 + "");	// 1.5 times more space 
 			conceptAppearance.setAttribute("y", xy.y * 3/2 + "");
 			conceptAppearanceList.appendChild(conceptAppearance);
