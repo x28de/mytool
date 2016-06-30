@@ -81,6 +81,7 @@ public class ImportDirector implements ActionListener {
 			"Cmap", 
 			"TheBrain",
 			"Word",
+			"Endnote",
 			"(Old Format)"
 			};
 	String [] knownFormats = {
@@ -90,6 +91,7 @@ public class ImportDirector implements ActionListener {
 			"cmap", 
 			"BrainData",
 			"w:document",
+			"(not relevant)",
 			"topicmap"
 			};
 	String [] extension = {
@@ -99,6 +101,7 @@ public class ImportDirector implements ActionListener {
 			"cxl", 
 			"xml",
 			"docx", 
+			"enw",
 			"zip"
 			};
 	String [] extDescription = {
@@ -108,6 +111,7 @@ public class ImportDirector implements ActionListener {
 			"cxl (Cmap CXL file)", 
 			"xml (TheBrain \"Brain XML\" file)",
 			"docx (Word Document)",
+			"enw (Endnote Tagged Import Format",
 			"zip (Zipped XML Document)"
 			};
 	String [] longDescription = {
@@ -117,6 +121,7 @@ public class ImportDirector implements ActionListener {
 			"<html>If you have a \"CXL\" export file exported from the CmapTools concept mapping application</html>", 
 			"<html>If you have a \"Brain XML\" file exported from the TheBrain note management application</html>",
 			"<html>A Microsoft Word Document (we take the plain text from each paragraph)</html>",
+			"<html>If you have am \"Endnote Tagged Import Format\" file exported</html>",
 			"Old versions of this tool and its precursor DeepaMehta"
 			};
 	
@@ -150,6 +155,8 @@ public class ImportDirector implements ActionListener {
 		this.knownFormat = knownFormat;
 		if (this.knownFormat == 1) {
 			new ImappingImport(file, controler);
+		} else if (this.knownFormat == 6) {
+			new EnwImport(file, controler);
 		}
 	}
 
@@ -157,7 +164,7 @@ public class ImportDirector implements ActionListener {
 	public ImportDirector(int knownFormat, InputStream stream, GraphPanelControler controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
-		if (this.knownFormat == 5 || this.knownFormat == 6) {
+		if (this.knownFormat == 5 || this.knownFormat == 7) {
 			step4(stream);
 		}
 	}
@@ -201,7 +208,7 @@ public class ImportDirector implements ActionListener {
 //		  "e.g. from editors like Word or Wordpad or from browsers (Internet Explorer <br>" +
 //		  "if protected mode is disabled). Even map snippets from this application <br>" +
 //		  "(press Alt + drag or middle mouse button + drag). </html>"));
-		descriptionsPanel.add(new JLabel("<html><b>Note:</b> You can also drag files directly into our windows and paste text into them. Also <br>" +
+		descriptionsPanel.add(new JLabel("<html><b>Note:</b> You can also drag most files directly into our windows and paste text into them. Also <br>" +
 		  "try to <em>drag</em> text snippets from other applications, or even <em>map</em> snippets from our windows."));
 		frame.add(descriptionsPanel, BorderLayout.EAST);
 		
@@ -263,6 +270,8 @@ public class ImportDirector implements ActionListener {
 			} else if (knownFormat == 5) {
 				new WordImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == 6) {
+				new EnwImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == 7) {
 				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
@@ -353,7 +362,7 @@ public class ImportDirector implements ActionListener {
 			new BrainImport(inputXml, controler);
 		} else if (knownFormat == 5) {
 			new WordImport(inputXml, controler);
-		} else if (knownFormat == 6) {
+		} else if (knownFormat == 7) {
 			new TopicMapImporter(inputXml, controler);
 		}
 	}
