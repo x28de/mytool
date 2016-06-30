@@ -276,9 +276,9 @@ public class NewStuff {
 		if (readyMap) {
 			newNodes = fetchToUpperLeft(newNodes);
 		}
-		boolean justOneMap = false;
-		if (inputType == 1 && readyMap) justOneMap = true;		
-		controler.triggerUpdate(justOneMap, true);
+		boolean existingMap = false;
+		if (inputType == 1 && readyMap) existingMap = true;		
+		controler.triggerUpdate(existingMap, true);
 		readyMap = false;
 	}
 	
@@ -402,7 +402,7 @@ public class NewStuff {
 				String filename = entry.getName();
 				filename = filename.replace('\\', '/');		
 				if (filename.equals("savefile.xml") || filename.startsWith("topicmap-t-")) {
-					new ImportDirector(6, stream, controler); 
+					new ImportDirector(7, stream, controler); 
 					done = true;
 					break;
 				} else if (filename.endsWith("content.cds.xml")) {
@@ -488,11 +488,12 @@ public class NewStuff {
 					"cmap", 
 					"BrainData",
 					"w:document",
+					"(not relevant",
 					"topicmap"
 					};
 			for (int k = 0; k < knownFormats.length; k++) {
 				if (root.getTagName() == knownFormats[k]) {
-					if (k != 0 && k != 5) {		// Evernote or Word
+					if (k != 0 && k != 5 && k != 6) {		// Evernote, Word, Endnote
 						if (compositionMode) {
 							controler.getCWInstance().cancel();
 						}
@@ -504,6 +505,7 @@ public class NewStuff {
 		} else hope = false;
 			
 		//	No XML
+		//	Endnote is not (yet) recognized, => works only via Wizard 
 		if (!hope) {
 			if (inputType == 1) {
 				String flatFileContent = "";
@@ -726,7 +728,10 @@ public class NewStuff {
 	public void setInput(String dataString, int inputType) {
 		this.dataString = dataString;
 		this.inputType = inputType;
-		if (inputType == 1) interceptZips();
+		if (inputType == 1) {
+			advisableFilename = dataString;
+			interceptZips();
+		}
 		else if (inputType == 4) exploitFilelist();
 		else if (inputType == 2) analyzeBlob();
 		else step2();

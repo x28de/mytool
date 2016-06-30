@@ -286,6 +286,7 @@ class GraphPanel extends JDesktopPane  {
 		}
 //		g.fillOval(p.x - 9, p.y - 9, 18, 18);
 		g.fillOval(p.x - iconWidth/2, p.y - iconHeight/2, iconWidth, iconHeight);
+//		g.fillRect(p.x - iconWidth/2 -2, p.y - iconHeight/2 + 1, iconWidth + 4, iconHeight - 2);
 
 		if (node == selection.topic && selection.mode == Selection.SELECTED_TOPIC) {
 			g.setColor(Color.red);

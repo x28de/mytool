@@ -145,7 +145,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	String confirmedFilename = "";
 	String lastHTMLFilename = "";
 	boolean maybeJustPeek = true;
-	boolean justOneMap = false;
+	boolean existingMap = false;
 
 	//	Toggles
 	int toggle4 = 0;   // => hide classicMenu 
@@ -505,6 +505,36 @@ public final class PresentationService implements ActionListener, MouseListener,
 //
 //	Main Window	
 	
+	//	Show a hint instead of initial Composition window
+	private Timer hintTimer = new Timer(25, new ActionListener() { 
+	    public void actionPerformed (ActionEvent e) { 
+			graphPanel.jumpingArrow(true);
+	    } 
+	});
+	//	Trying animation for map insertion 
+	private Timer animationTimer = new Timer(20, new ActionListener() { 
+	    public void actionPerformed (ActionEvent e) {
+	    	if (animationPercent < 100) {
+	    		animationPercent = animationPercent + 5;
+	        	Double dX = -panning.x / 20.0;
+	        	Double dY = -panning.y / 20.0;
+	        	int pannedX = dX.intValue();;
+	        	int pannedY = dY.intValue();;
+	        	graphPanel.translateGraph(pannedX, pannedY);
+	    	} else {
+	    		animationTimer.stop();
+	    		animationPercent = 0;
+	    		triggerUpdate(existingMap); 
+	    		existingMap = false;
+	        	graphPanel.setModel(nodes, edges);
+	     	}
+	    	updateBounds();
+	    	translation = graphPanel.getTranslation();
+	    	setDefaultCursor();
+	    	graphPanel.repaint();
+	    } 
+	});
+
 	public void createMainWindow(String title) {
 		mainWindow = new JFrame(title) {
 			private static final long serialVersionUID = 1L;
@@ -1187,44 +1217,11 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 	}
 	
-	//	Show a hint instead of initial Composition window
-	private Timer hintTimer = new Timer(25, new ActionListener() { 
-        public void actionPerformed (ActionEvent e) { 
-    		graphPanel.jumpingArrow(true);
-        } 
-    }); 
-	
-	//	Trying animation for map insertion 
-	private Timer animationTimer = new Timer(20, new ActionListener() { 
-        public void actionPerformed (ActionEvent e) {
-        	if (animationPercent < 100) {
-        		animationPercent = animationPercent + 5;
-            	Double dX = -panning.x / 20.0;
-            	Double dY = -panning.y / 20.0;
-            	int pannedX = dX.intValue();;
-            	int pannedY = dY.intValue();;
-            	graphPanel.translateGraph(pannedX, pannedY);
-        	} else {
-        		animationTimer.stop();
-        		animationPercent = 0;
-        		triggerUpdate(justOneMap); 
-        		justOneMap = false;
-            	graphPanel.setModel(nodes, edges);
-         	}
-        	updateBounds();
-        	translation = graphPanel.getTranslation();
-        	setDefaultCursor();
-        	graphPanel.repaint();
-        } 
-    }); 
-	
 	//	Input from start parameters	
 	public void setFilename(String arg, int type) {
 		filename = arg;
-//		if (filename.endsWith(".xml")) confirmedFilename = filename;
 		mainWindowTitle = Utilities.getShortname(filename);
 		if (mainWindow != null) mainWindow.repaint();
-		maybeJustPeek = true;
 	}
 	
 	public synchronized void initialize() {
@@ -1284,6 +1281,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 		newName = fd.getDirectory() + fd.getFile();
 		if (extension == "xml") {
 			confirmedFilename = newName;
+			mainWindowTitle = Utilities.getShortname(confirmedFilename);
+			mainWindow.setTitle(mainWindowTitle);
+			mainWindow.repaint();
 		} else if (extension == "htm") {
 			lastHTMLFilename = newName;
 		} else {
@@ -1695,13 +1695,13 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   return nodePalette[paletteID][7];
    }
     
-   public void triggerUpdate(boolean justOneMap, boolean animation) {
+   public void triggerUpdate(boolean existingMap, boolean animation) {
 	   translation = graphPanel.getTranslation();
-	   this.justOneMap = justOneMap;
+	   this.existingMap = existingMap;
 	   if (nodes.size() < 1) {
 		   panning = new Point(0, 0);
 		   upperGap = new Point(0, 0);
-		   triggerUpdate(justOneMap);
+		   triggerUpdate(existingMap);
 	   } else {
 		   Point bottomOfExisting = determineBottom(nodes, bounds);
 		   panning = new Point(bottomOfExisting.x - 40 + translation.x, 
@@ -1713,7 +1713,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		   } else {
 			   translation = graphPanel.getTranslation();
 			   graphPanel.translateGraph(-panning.x, -panning.y);
-			   triggerUpdate(justOneMap);
+			   triggerUpdate(existingMap);
 			   updateBounds();
 			   setDefaultCursor();
 			   graphPanel.repaint();
@@ -1721,13 +1721,14 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   }
    }
    
-   public void triggerUpdate(boolean justOneMap) {
-	   this.justOneMap = justOneMap;
+   public void triggerUpdate(boolean existingMap) {
+	   this.existingMap = existingMap;
     	hintTimer.stop();
     	graphPanel.jumpingArrow(false);
-    	if (maybeJustPeek && justOneMap && nodes.size() < 1) {
+    	if (maybeJustPeek && existingMap && nodes.size() < 1) {
     		//  don't set dirty yet
-    		maybeJustPeek = false;
+    		confirmedFilename = newStuff.getAdvisableFilename();
+   		maybeJustPeek = false;
     	} else {
     		setDirty(true);
     	}
