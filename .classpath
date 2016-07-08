@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="C:/Users/Matthias/workspace/rdf2go.api-4.7.3.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Matthias/workspace/jung-graph-impl-2.0.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Matthias/workspace/jung-algorithms-2.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matthias/workspace/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

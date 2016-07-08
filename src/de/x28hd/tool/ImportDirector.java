@@ -39,7 +39,6 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class ImportDirector implements ActionListener {
-	
     Runnable fileChooserMac = new Runnable() {
 
 		@Override 
@@ -52,7 +51,7 @@ public class ImportDirector implements ActionListener {
     			details.actionPerformed(null);
     		}
             fd.setFileFilter(filter);        
-            fd.setApproveButtonText("Select");
+            fd.setApproveButtonText("<html><b>Select</b></html>");	// Don't know how to default
     		fd.setDialogType(FileDialog.LOAD);
     		frame.remove(radioPanel);
     		frame.remove(descriptionsPanel);
@@ -82,6 +81,7 @@ public class ImportDirector implements ActionListener {
 			"TheBrain",
 			"Word",
 			"Endnote",
+			"Citavi",
 			"(Old Format)"
 			};
 	String [] knownFormats = {
@@ -91,6 +91,7 @@ public class ImportDirector implements ActionListener {
 			"cmap", 
 			"BrainData",
 			"w:document",
+			"(not relevant)",
 			"(not relevant)",
 			"topicmap"
 			};
@@ -102,6 +103,7 @@ public class ImportDirector implements ActionListener {
 			"xml",
 			"docx", 
 			"enw",
+			"ctv4",
 			"zip"
 			};
 	String [] extDescription = {
@@ -111,7 +113,8 @@ public class ImportDirector implements ActionListener {
 			"cxl (Cmap CXL file)", 
 			"xml (TheBrain \"Brain XML\" file)",
 			"docx (Word Document)",
-			"enw (Endnote Tagged Import Format",
+			"enw (Endnote Tagged Import Format)",
+			"ctv4 (Citavi 4 Project File)",
 			"zip (Zipped XML Document)"
 			};
 	String [] longDescription = {
@@ -121,7 +124,8 @@ public class ImportDirector implements ActionListener {
 			"<html>If you have a \"CXL\" export file exported from the CmapTools concept mapping application</html>", 
 			"<html>If you have a \"Brain XML\" file exported from the TheBrain note management application</html>",
 			"<html>A Microsoft Word Document (we take the plain text from each paragraph)</html>",
-			"<html>If you have am \"Endnote Tagged Import Format\" file exported</html>",
+			"<html>If you have an \"Endnote Tagged Import Format\" file exported (we just split it up)</html>",
+			"<html>A Citavi project file (we extract the core knowledge network)</html>",
 			"Old versions of this tool and its precursor DeepaMehta"
 			};
 	
@@ -157,6 +161,8 @@ public class ImportDirector implements ActionListener {
 			new ImappingImport(file, controler);
 		} else if (this.knownFormat == 6) {
 			new EnwImport(file, controler);
+		} else if (this.knownFormat == 7) {
+			new CtvImport(file, controler);
 		}
 	}
 
@@ -164,7 +170,7 @@ public class ImportDirector implements ActionListener {
 	public ImportDirector(int knownFormat, InputStream stream, GraphPanelControler controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
-		if (this.knownFormat == 5 || this.knownFormat == 7) {
+		if (this.knownFormat == 5 || this.knownFormat == 8) {
 			step4(stream);
 		}
 	}
@@ -272,6 +278,8 @@ public class ImportDirector implements ActionListener {
 			} else if (knownFormat == 6) {
 				new EnwImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == 7) {
+				new CtvImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == 8) {
 				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
@@ -362,7 +370,7 @@ public class ImportDirector implements ActionListener {
 			new BrainImport(inputXml, controler);
 		} else if (knownFormat == 5) {
 			new WordImport(inputXml, controler);
-		} else if (knownFormat == 7) {
+		} else if (knownFormat == 8) {
 			new TopicMapImporter(inputXml, controler);
 		}
 	}
