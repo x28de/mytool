@@ -879,7 +879,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menuItem78.setActionCommand("vueexp");
 		menuItem78.setToolTipText("Create a VUE map file");
 		menuItem78.addActionListener(this);
-//		menu7.add(menuItem78);
+		menu7.add(menuItem78);
 		
 		//	View menu
 		
