@@ -82,6 +82,7 @@ public class ImportDirector implements ActionListener {
 			"Word",
 			"Endnote",
 			"Citavi",
+			"VUE",
 			"(Old Format)"
 			};
 	String [] knownFormats = {
@@ -93,6 +94,7 @@ public class ImportDirector implements ActionListener {
 			"w:document",
 			"(not relevant)",
 			"(not relevant)",
+			"LW-MAP",
 			"topicmap"
 			};
 	String [] extension = {
@@ -104,6 +106,7 @@ public class ImportDirector implements ActionListener {
 			"docx", 
 			"enw",
 			"ctv4",
+			"vue",
 			"zip"
 			};
 	String [] extDescription = {
@@ -115,6 +118,7 @@ public class ImportDirector implements ActionListener {
 			"docx (Word Document)",
 			"enw (Endnote Tagged Import Format)",
 			"ctv4 (Citavi 4 Project File)",
+			"vue (VUE map file)",
 			"zip (Zipped XML Document)"
 			};
 	String [] longDescription = {
@@ -126,6 +130,7 @@ public class ImportDirector implements ActionListener {
 			"<html>A Microsoft Word Document (we take the plain text from each paragraph)</html>",
 			"<html>If you have an \"Endnote Tagged Import Format\" file exported (we just split it up)</html>",
 			"<html>A Citavi project file (we extract the core knowledge network)</html>",
+			"<html>A map file of the VUE (Visual Understanding Environment application</html>",
 			"Old versions of this tool and its precursor DeepaMehta"
 			};
 	
@@ -163,6 +168,8 @@ public class ImportDirector implements ActionListener {
 			new EnwImport(file, controler);
 		} else if (this.knownFormat == 7) {
 			new CtvImport(file, controler);
+		} else if (this.knownFormat == 8) {
+			new VueImport(file, controler);
 		}
 	}
 
@@ -170,7 +177,7 @@ public class ImportDirector implements ActionListener {
 	public ImportDirector(int knownFormat, InputStream stream, GraphPanelControler controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
-		if (this.knownFormat == 5 || this.knownFormat == 8) {
+		if (this.knownFormat == 5 || this.knownFormat == 9) {
 			step4(stream);
 		}
 	}
@@ -280,6 +287,8 @@ public class ImportDirector implements ActionListener {
 			} else if (knownFormat == 7) {
 				new CtvImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == 8) {
+				new VueImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == 9) {
 				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
@@ -371,6 +380,8 @@ public class ImportDirector implements ActionListener {
 		} else if (knownFormat == 5) {
 			new WordImport(inputXml, controler);
 		} else if (knownFormat == 8) {
+			new VueImport(inputXml, controler);
+		} else if (knownFormat == 9) {
 			new TopicMapImporter(inputXml, controler);
 		}
 	}

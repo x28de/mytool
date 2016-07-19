@@ -409,6 +409,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 				new BrainExport(nodes, edges, storeFilename, this);
 			}
+		} else if (command == "vueexp") {
+			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
+			fd.setFile("my.vue"); 
+			fd.setVisible(true);
+			if (fd.getFile() != null) {
+				String storeFilename = fd.getFile();
+				storeFilename = fd.getDirectory() + fd.getFile();
+
+				new VueExport(nodes, edges, storeFilename, this);
+			}
 			
 		//	Context menu command
 
@@ -861,9 +871,15 @@ public final class PresentationService implements ActionListener, MouseListener,
 		
 		JMenuItem menuItem77 = new JMenuItem("to Brain XML file",  KeyEvent.VK_M);
 		menuItem77.setActionCommand("brainexp");
-		menuItem77.setToolTipText("Creat a TheBrain PB-XML import file");
+		menuItem77.setToolTipText("Create a TheBrain PB-XML import file");
 		menuItem77.addActionListener(this);
 		menu7.add(menuItem77);
+		
+		JMenuItem menuItem78 = new JMenuItem("to VUE map file",  KeyEvent.VK_U);
+		menuItem78.setActionCommand("vueexp");
+		menuItem78.setToolTipText("Create a VUE map file");
+		menuItem78.addActionListener(this);
+//		menu7.add(menuItem78);
 		
 		//	View menu
 		

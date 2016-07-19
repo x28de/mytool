@@ -300,7 +300,9 @@ public class NewStuff {
  				String line = textStr[i];
  				File f = new File(line);
  				if (!f.exists()) continue;
- 				datesMap.put(f.lastModified(), fileCount);
+ 				long modDate = f.lastModified();
+ 				while (datesMap.containsKey(modDate)) modDate++;
+ 				datesMap.put(modDate, fileCount);
  				byModDates.put(fileCount, line);
  				fileCount++;
  			}
@@ -402,7 +404,7 @@ public class NewStuff {
 				String filename = entry.getName();
 				filename = filename.replace('\\', '/');		
 				if (filename.equals("savefile.xml") || filename.startsWith("topicmap-t-")) {
-					new ImportDirector(8, stream, controler); 
+					new ImportDirector(9, stream, controler); 
 					done = true;
 					break;
 				} else if (filename.endsWith("content.cds.xml")) {
@@ -489,6 +491,7 @@ public class NewStuff {
 					"BrainData",
 					"w:document",
 					"(not relevant",
+					"LW-MAP",
 					"topicmap"
 					};
 			for (int k = 0; k < knownFormats.length; k++) {
