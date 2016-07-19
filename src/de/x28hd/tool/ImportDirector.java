@@ -23,6 +23,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
@@ -53,8 +54,7 @@ public class ImportDirector implements ActionListener {
             fd.setFileFilter(filter);        
             fd.setApproveButtonText("<html><b>Select</b></html>");	// Don't know how to default
     		fd.setDialogType(FileDialog.LOAD);
-    		frame.remove(radioPanel);
-    		frame.remove(descriptionsPanel);
+    		frame.remove(scrollPane);
     		continueButton.setEnabled(false);
             frame.add(fd);
             frame.pack();
@@ -68,6 +68,8 @@ public class ImportDirector implements ActionListener {
 	int knownFormat = -1;
 	JPanel radioPanel = null;
     JPanel descriptionsPanel;
+    JScrollPane scrollPane = null;
+	JPanel innerFrame = null;
 	int importType = 0;
 	JButton continueButton = new JButton("Next >");
 //	boolean lastStep = false;	// needed if more steps for layout erc
@@ -83,6 +85,8 @@ public class ImportDirector implements ActionListener {
 			"Endnote",
 			"Citavi",
 			"VUE",
+			"RIS",
+			"BibTeX",
 			"(Old Format)"
 			};
 	String [] knownFormats = {
@@ -95,6 +99,8 @@ public class ImportDirector implements ActionListener {
 			"(not relevant)",
 			"(not relevant)",
 			"LW-MAP",
+			"(not relevant)",
+			"(not relevant)",
 			"topicmap"
 			};
 	String [] extension = {
@@ -107,6 +113,8 @@ public class ImportDirector implements ActionListener {
 			"enw",
 			"ctv4",
 			"vue",
+			"ris",
+			"bib",
 			"zip"
 			};
 	String [] extDescription = {
@@ -119,6 +127,8 @@ public class ImportDirector implements ActionListener {
 			"enw (Endnote Tagged Import Format)",
 			"ctv4 (Citavi 4 Project File)",
 			"vue (VUE map file)",
+			"ris (Research Information System file)",
+			"bib (BibTeX file)",
 			"zip (Zipped XML Document)"
 			};
 	String [] longDescription = {
@@ -131,6 +141,8 @@ public class ImportDirector implements ActionListener {
 			"<html>If you have an \"Endnote Tagged Import Format\" file exported (we just split it up)</html>",
 			"<html>A Citavi project file (we extract the core knowledge network)</html>",
 			"<html>A map file of the VUE (Visual Understanding Environment application</html>",
+			"<html>If you have an \"Research Information System\" file exported (we just split it up)</html>",
+			"<html>If you have an \"BibTeX\" file exported (we just split it up)</html>",
 			"Old versions of this tool and its precursor DeepaMehta"
 			};
 	
@@ -170,6 +182,10 @@ public class ImportDirector implements ActionListener {
 			new CtvImport(file, controler);
 		} else if (this.knownFormat == 8) {
 			new VueImport(file, controler);
+		} else if (this.knownFormat == 9) {
+			new EnwImport(file, controler);
+		} else if (this.knownFormat == 10) {
+			new EnwImport(file, controler);
 		}
 	}
 
@@ -177,7 +193,7 @@ public class ImportDirector implements ActionListener {
 	public ImportDirector(int knownFormat, InputStream stream, GraphPanelControler controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
-		if (this.knownFormat == 5 || this.knownFormat == 9) {
+		if (this.knownFormat == 5 || this.knownFormat == 11) {
 			step4(stream);
 		}
 	}
@@ -190,6 +206,8 @@ public class ImportDirector implements ActionListener {
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(dim.width/2-frame.getSize().width/2 - 298, 
 				dim.height/2-frame.getSize().height/2 - 209);		
+		innerFrame = new JPanel(new BorderLayout());
+//		innerFrame.setMaximumSize(new Dimension(300, 900));
 		
 		ButtonGroup buttonGroup = new ButtonGroup();
         radioPanel = new JPanel(new GridLayout(0, 1));
@@ -204,9 +222,8 @@ public class ImportDirector implements ActionListener {
 	        radioPanel.add(radio);
 		}
 		radioPanel.add(new JLabel(" "));
-		frame.add(radioPanel, BorderLayout.WEST);
+		innerFrame.add(radioPanel, BorderLayout.WEST);
 		
-		descriptionsPanel = new JPanel();
         descriptionsPanel = new JPanel(new GridLayout(0, 1));
 		descriptionsPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		descriptionsPanel.add(new JLabel(" "));
@@ -223,7 +240,8 @@ public class ImportDirector implements ActionListener {
 //		  "(press Alt + drag or middle mouse button + drag). </html>"));
 		descriptionsPanel.add(new JLabel("<html><b>Note:</b> You can also drag most files directly into our windows and paste text into them. Also <br>" +
 		  "try to <em>drag</em> text snippets from other applications, or even <em>map</em> snippets from our windows."));
-		frame.add(descriptionsPanel, BorderLayout.EAST);
+		innerFrame.add(descriptionsPanel, BorderLayout.EAST);
+		scrollPane = new JScrollPane(innerFrame);
 		
 		JToolBar continueBar = new JToolBar();
 		continueBar.setLayout(new BorderLayout());
@@ -235,6 +253,7 @@ public class ImportDirector implements ActionListener {
 		JButton cancelButton = new JButton("Cancel");
 		continueBar.add(cancelButton, BorderLayout.WEST);
 		cancelButton.addActionListener(this);
+		frame.add(scrollPane);
 		frame.add(continueBar, BorderLayout.SOUTH);
 		if (System.getProperty("os.name").equals("Mac OS X")) {
 			frame.setMinimumSize(new Dimension(796, 417));
@@ -289,6 +308,10 @@ public class ImportDirector implements ActionListener {
 			} else if (knownFormat == 8) {
 				new VueImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == 9) {
+				new EnwImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == 10) {
+				new EnwImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == 11) {
 				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
@@ -379,8 +402,6 @@ public class ImportDirector implements ActionListener {
 			new BrainImport(inputXml, controler);
 		} else if (knownFormat == 5) {
 			new WordImport(inputXml, controler);
-		} else if (knownFormat == 8) {
-			new VueImport(inputXml, controler);
 		} else if (knownFormat == 9) {
 			new TopicMapImporter(inputXml, controler);
 		}

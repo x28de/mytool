@@ -139,6 +139,7 @@ public class NewStuff {
 		} else {
 			System.out.println("NS: Drop or Paste content received.");
 		}
+		controler.setDefaultCursor();
         return success;
 	}
 
@@ -404,7 +405,7 @@ public class NewStuff {
 				String filename = entry.getName();
 				filename = filename.replace('\\', '/');		
 				if (filename.equals("savefile.xml") || filename.startsWith("topicmap-t-")) {
-					new ImportDirector(9, stream, controler); 
+					new ImportDirector(11, stream, controler); 
 					done = true;
 					break;
 				} else if (filename.endsWith("content.cds.xml")) {
@@ -490,8 +491,11 @@ public class NewStuff {
 					"cmap", 
 					"BrainData",
 					"w:document",
-					"(not relevant",
-					"LW-MAP",
+					"(not relevant)",
+					"(not relevant)",
+					"(not relevant)",	// even if LW-MAP is recognized, namespace missing
+					"(not relevant)",
+					"(not relevant)",
 					"topicmap"
 					};
 			for (int k = 0; k < knownFormats.length; k++) {
@@ -505,12 +509,46 @@ public class NewStuff {
 					return;
 				}
 			}
+			hope = false;
 		} else hope = false;
 			
 		//	No XML
 		//	Endnote is not (yet) recognized, => works only via Wizard 
 		if (!hope) {
 			if (inputType == 1) {
+				//	Analyze extension
+				String [] knownExtension = {	//	TODO consolidate with importDirector
+						"enex", 
+						"iMap", 
+						"xml", 
+						"cxl", 
+						"xml",
+						"docx", 
+						"enw",
+						"ctv4",
+						"vue",
+						"ris",
+						"bib",
+						"zip"
+						};
+				File file = new File(dataString);
+				String filename = file.getName();
+				String ext = filename.substring(filename.lastIndexOf(".") + 1);
+				ext = ext.toLowerCase();
+				for (int k = 0; k < knownExtension.length; k++) {
+					if (knownExtension[k].equals(ext)) {
+						if (k != 0 && k != 5 && k != 6 && k != 9 && k != 10) {		// Evernote, Word, Endnote, RIS, BibTeX
+							if (compositionMode) {
+								controler.getCWInstance().cancel();
+							}
+						}
+						System.out.println("NS:" + ext + ", " + k + ", " + file);
+						new ImportDirector(k, file, controler);
+						return;
+					}
+				}
+				
+				//	Take flat file
 				String flatFileContent = "";
 				try {
 					stream = new FileInputStream(dataString);

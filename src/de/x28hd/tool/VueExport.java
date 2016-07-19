@@ -2,7 +2,6 @@ package de.x28hd.tool;
 
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,7 +12,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.HTMLEditorKit.Parser;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,7 +26,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class VueExport {
 	
@@ -55,6 +52,7 @@ public class VueExport {
 		DocumentBuilder db = null;
 		Transformer transformer = null;
 		Document out = null;
+		int maxNodeNum = Integer.MIN_VALUE;
 
 		try {
 			db = dbf.newDocumentBuilder();
@@ -94,6 +92,7 @@ public class VueExport {
 			Element concept = out.createElement("child");
 			GraphNode node = myNodes.nextElement();
 			int num = node.getID();
+			if (num > maxNodeNum) maxNodeNum = num;
 			concept.setAttribute("ID", num + "");
 			concept.setAttribute("xsi:type", "node");
 			concept.setAttribute("strokeWidth", "2.0");
@@ -136,7 +135,7 @@ public class VueExport {
 			Element connection = out.createElement("child");
 			GraphEdge edge = myEdges.nextElement();
 			int num = edge.getID();
-			connection.setAttribute("ID", "" + num +  100);
+			connection.setAttribute("ID", "" + num + maxNodeNum);
 			connection.setAttribute("xsi:type", "link");
 			connection.setAttribute("stroke-width", "2.0");
 			

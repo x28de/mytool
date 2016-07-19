@@ -93,17 +93,11 @@ public class VueImport {
 			System.out.println("Error VI105 " + e2 );
 		}
 		
-			try {
-				inputXml = db.parse(new InputSource(reader));
-				new VueImport(inputXml, controler);
-			} catch (SAXException | IOException e) {
-				System.out.println("Error VI106 " + e );
-			}
-	}
-    	
-	
-	public VueImport(Document inputXml, GraphPanelControler controler) {
-		this.controler = controler;
+		try {
+			inputXml = db.parse(new InputSource(reader));
+		} catch (SAXException | IOException e) {
+			System.out.println("Error VI106 " + e );
+		}
 
 //
 //		Find input items
@@ -136,8 +130,13 @@ public class VueImport {
 				if (colorContainer1.getLength() > 0) {
 					colorString = colorContainer1.item(0).getTextContent();
 				}
-				
-				addNode(itemID, xy, colorString);
+
+				//	Details
+				String detail = "";
+				NodeList detailContainer = node.getElementsByTagName("notes");
+				detail = detailContainer.item(0).getTextContent();
+
+				addNode(itemID, xy, colorString, detail);
 			}
 		}
 			for (int i = 0; i < itemList.getLength(); i++) {
@@ -172,7 +171,7 @@ public class VueImport {
 	this.controler.getNSInstance().setInput(dataString, 2);
 	}
 	
-	public void addNode(String nodeRef, Point xy, String colorString) { 
+	public void addNode(String nodeRef, Point xy, String colorString, String detail) { 
 		j++;
 		String newNodeColor;
 		String newLine = "\r";
@@ -180,7 +179,7 @@ public class VueImport {
 			topicName = inputItems.get(nodeRef);
 			newNodeColor = "#ccdddd";
 			if (!colorString.isEmpty()) newNodeColor = colorString;
-		String verbal = topicName;
+		String verbal = detail;
 		topicName = topicName.replace("\r"," ");
 		if (topicName.equals(newLine)) topicName = "";
 		if (verbal == null || verbal.equals(newLine)) verbal = "";
