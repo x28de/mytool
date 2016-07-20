@@ -134,7 +134,7 @@ public class VueImport {
 				//	Details
 				String detail = "";
 				NodeList detailContainer = node.getElementsByTagName("notes");
-				detail = detailContainer.item(0).getTextContent();
+				if (detailContainer.getLength() > 0) detail = detailContainer.item(0).getTextContent();
 
 				addNode(itemID, xy, colorString, detail);
 			}
