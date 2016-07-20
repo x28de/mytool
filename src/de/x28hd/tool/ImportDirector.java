@@ -402,7 +402,7 @@ public class ImportDirector implements ActionListener {
 			new BrainImport(inputXml, controler);
 		} else if (knownFormat == 5) {
 			new WordImport(inputXml, controler);
-		} else if (knownFormat == 9) {
+		} else if (knownFormat == 11) {
 			new TopicMapImporter(inputXml, controler);
 		}
 	}

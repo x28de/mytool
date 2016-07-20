@@ -105,6 +105,8 @@ public class SplitIntoNew {
 			int commaPos = commas[i];
 			if (commaPos > -1 && commaPos < 30) {
 				earlyCommasCount++;
+				if (columns[i][0].startsWith("@book")) earlyCommasCount--; // mending BiBteX
+				//	TODO redesign the entire bibliographies logic
 			} else {
 			}
 		}
