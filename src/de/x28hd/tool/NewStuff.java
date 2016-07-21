@@ -405,7 +405,7 @@ public class NewStuff {
 				String filename = entry.getName();
 				filename = filename.replace('\\', '/');		
 				if (filename.equals("savefile.xml") || filename.startsWith("topicmap-t-")) {
-					new ImportDirector(11, stream, controler); 
+					new ImportDirector(13, stream, controler); 
 					done = true;
 					break;
 				} else if (filename.endsWith("content.cds.xml")) {
@@ -496,6 +496,8 @@ public class NewStuff {
 					"(not relevant)",	// even if LW-MAP is recognized, namespace missing
 					"(not relevant)",
 					"(not relevant)",
+					"map",
+					"opml",
 					"topicmap"
 					};
 			for (int k = 0; k < knownFormats.length; k++) {
@@ -529,6 +531,8 @@ public class NewStuff {
 						"vue",
 						"ris",
 						"bib",
+						"mm",
+						"opml",
 						"zip"
 						};
 				File file = new File(dataString);

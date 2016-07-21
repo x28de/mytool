@@ -87,6 +87,8 @@ public class ImportDirector implements ActionListener {
 			"VUE",
 			"RIS",
 			"BibTeX",
+			"FreeMind",
+			"OPML",
 			"(Old Format)"
 			};
 	String [] knownFormats = {
@@ -101,6 +103,8 @@ public class ImportDirector implements ActionListener {
 			"LW-MAP",
 			"(not relevant)",
 			"(not relevant)",
+			"map",
+			"opml",
 			"topicmap"
 			};
 	String [] extension = {
@@ -115,6 +119,8 @@ public class ImportDirector implements ActionListener {
 			"vue",
 			"ris",
 			"bib",
+			"mm",
+			"opml",
 			"zip"
 			};
 	String [] extDescription = {
@@ -129,6 +135,8 @@ public class ImportDirector implements ActionListener {
 			"vue (VUE map file)",
 			"ris (Research Information System file)",
 			"bib (BibTeX file)",
+			"mm (FreeMind file)",
+			"opml (Outline file)",
 			"zip (Zipped XML Document)"
 			};
 	String [] longDescription = {
@@ -140,9 +148,11 @@ public class ImportDirector implements ActionListener {
 			"<html>A Microsoft Word Document (we take the plain text from each paragraph)</html>",
 			"<html>If you have an \"Endnote Tagged Import Format\" file exported (we just split it up)</html>",
 			"<html>A Citavi project file (we extract the core knowledge network)</html>",
-			"<html>A map file of the VUE (Visual Understanding Environment application</html>",
+			"<html>A map file from the VUE (Visual Understanding Environment application</html>",
 			"<html>If you have an \"Research Information System\" file exported (we just split it up)</html>",
 			"<html>If you have an \"BibTeX\" file exported (we just split it up)</html>",
+			"<html>A map file created by the \"FreeMind\" mindmap application or imported into it</html>",
+			"<html>An outline file in the \"OPML\" format. Notes (e.g from Scrivener) are supported.</html>",
 			"Old versions of this tool and its precursor DeepaMehta"
 			};
 	
@@ -167,6 +177,8 @@ public class ImportDirector implements ActionListener {
 			new CmapImport(doc, controler);
 		} else if (this.knownFormat == 4) {
 			new BrainImport(doc, controler);
+		} else if (this.knownFormat == 11 || this.knownFormat == 12) {
+			new TreeImport(doc, controler, this.knownFormat);
 		}
 	}
 
@@ -193,7 +205,7 @@ public class ImportDirector implements ActionListener {
 	public ImportDirector(int knownFormat, InputStream stream, GraphPanelControler controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
-		if (this.knownFormat == 5 || this.knownFormat == 11) {
+		if (this.knownFormat == 5 || this.knownFormat == 13) {
 			step4(stream);
 		}
 	}
@@ -311,7 +323,7 @@ public class ImportDirector implements ActionListener {
 				new EnwImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == 10) {
 				new EnwImport(fd.getSelectedFile(), controler);
-			} else if (knownFormat == 11) {
+			} else if (knownFormat == 13) {
 				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
@@ -403,6 +415,10 @@ public class ImportDirector implements ActionListener {
 		} else if (knownFormat == 5) {
 			new WordImport(inputXml, controler);
 		} else if (knownFormat == 11) {
+			new TreeImport(inputXml, controler, 11);
+		} else if (knownFormat == 12) {
+			new TreeImport(inputXml, controler, 12);
+		} else if (knownFormat == 13) {
 			new TopicMapImporter(inputXml, controler);
 		}
 	}

@@ -29,6 +29,7 @@ public class BrainImport {
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
 	Hashtable<String,String> inputItems = new Hashtable<String,String>();
 	Hashtable<String,String> inputItems2 = new Hashtable<String,String>();
+	Hashtable<String,String> inputNotes = new Hashtable<String,String>();
 	Hashtable<String,Point> itemPositions = new Hashtable<String,Point>();
 	
 	//	Keys for nodes and edges, incremented in addNode and addEdge
@@ -106,6 +107,11 @@ public class BrainImport {
 			Element labelElem = (Element) node.getElementsByTagName("name").item(0);
 			String labelString = labelElem.getTextContent();
 			inputItems.put(itemID, labelString);
+			
+			//	Details ("Body")
+			Element detailElem = (Element) node.getElementsByTagName("body").item(0);
+			String detailString = detailElem.getTextContent();
+			inputNotes.put(itemID, detailString);
 		}
 		
 //		
@@ -166,14 +172,16 @@ public class BrainImport {
 		String newNodeColor;
 		String newLine = "\r";
 		String topicName = ""; 
+		String verbal = "";
 		if (linkingPhrase) {
 			topicName = inputItems2.get(nodeRef);
 			newNodeColor = "#eeeeee";
+			verbal = "";
 		} else {
 			topicName = inputItems.get(nodeRef);
+			verbal = inputNotes.get(nodeRef);
 			newNodeColor = "#ccdddd";
 		}
-		String verbal = topicName;
 		topicName = topicName.replace("\r"," ");
 		if (topicName.equals(newLine)) topicName = "";
 		if (verbal == null || verbal.equals(newLine)) verbal = "";
