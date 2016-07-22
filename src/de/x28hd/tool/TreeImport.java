@@ -55,11 +55,13 @@ public class TreeImport {
 			idAttr = "ID";
 		}
 		NodeList graphContainer = inputXml.getElementsByTagName(topNode);
+		inputItems.put(topNode, "ROOT");
+		addNode(topNode, "");
 		Element graph = (Element) graphContainer.item(0);
 //		edges.clear();
 		
 		//	Collect nested nodes
-		nest(graph, null);
+		nest(graph, topNode);
 		
 		//	Collect relationships
 		Enumeration<String> relEnum = relationships.keys();
@@ -125,6 +127,8 @@ public class TreeImport {
 				}
 			} else {
 				id = readCount++ + "";
+				detail = ((Element) child).getAttribute("_note");
+				detail = detail.replace("\n", " X<br />");
 			}
 			
 			//	add node
@@ -132,8 +136,7 @@ public class TreeImport {
 			addNode(id, detail);
 			
 			//	add link
-			if (!top) addEdge(parentID, id, false);
-			top = false;
+			addEdge(parentID, id, false);
 			
 			//	recurse
 			nest(child, id);
@@ -168,12 +171,15 @@ public class TreeImport {
 		String newEdgeColor = "#c0c0c0";
 		if (xref) newEdgeColor = "#ffff00";
 		edgesNum++;
-		GraphNode sourceNode = nodes.get(inputID2num.get(fromRef));
-		if (!inputID2num.containsKey(toRef)) {
-			System.out.println("Error TI101 " + toRef);
+		if (!inputID2num.containsKey(fromRef)) {
+			System.out.println("Error TI101 " + fromRef + ", " + xref);
 			return;
 		}
-//		int tmp = inputID2num.get(toRef);
+		GraphNode sourceNode = nodes.get(inputID2num.get(fromRef));
+		if (!inputID2num.containsKey(toRef)) {
+			System.out.println("Error TI102 " + toRef);
+			return;
+		}
 		GraphNode targetNode = nodes.get(inputID2num.get(toRef));
 		edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode(newEdgeColor), "");
 		edges.put(edgesNum, edge);

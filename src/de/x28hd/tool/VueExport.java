@@ -45,7 +45,8 @@ public class VueExport {
 		try {
 			fout = new FileOutputStream(storeFilename);
 		} catch (FileNotFoundException e1) {
-			System.out.println("error VE101 " + e1);			}
+			System.out.println("error VE101 " + e1);
+		}
 
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(true);

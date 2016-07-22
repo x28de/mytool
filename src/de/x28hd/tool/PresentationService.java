@@ -419,6 +419,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 				new VueExport(nodes, edges, storeFilename, this);
 			}
+		} else if (command == "csvexp") {
+			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
+			fd.setFile("csv.txt"); 
+			fd.setVisible(true);
+			if (fd.getFile() != null) {
+				String storeFilename = fd.getFile();
+				storeFilename = fd.getDirectory() + fd.getFile();
+
+				new CsvExport(nodes, edges, storeFilename, this);
+			}
 			
 		//	Context menu command
 
@@ -783,47 +793,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 		
 		menu3.addSeparator();
 
-//		JMenuItem menuItem32 = new JMenuItem("Import Evernote Notes",  KeyEvent.VK_R);
-//		menuItem32.setActionCommand("eneximp");
-//		menuItem32.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, shortcutMask));
-//		menuItem32.setToolTipText("Import from Evernote Enex file");
-//		menuItem32.addActionListener(this);
-//		menu3.add(menuItem32);
-//
-//		JMenuItem menuItem33 = new JMenuItem("Import iMap",  KeyEvent.VK_H);
-//		menuItem33.setActionCommand("imapimp");
-//		menuItem33.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, shortcutMask));
-//		menuItem33.setToolTipText("Import from iMapping.info");
-//		menuItem33.addActionListener(this);
-//		menu3.add(menuItem33);
-//
-//		JMenuItem menuItem34 = new JMenuItem("Import DWZ Items",  KeyEvent.VK_D);
-//		menuItem34.setActionCommand("dwzimp");
-//		menuItem34.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, shortcutMask));
-//		menuItem34.setToolTipText("Import from DenkWerkZeug.org");
-//		menuItem34.addActionListener(this);
-//		menu3.add(menuItem34);
-//
-//		JMenuItem menuItem35 = new JMenuItem("Import CMap",  KeyEvent.VK_M);
-//		menuItem35.setActionCommand("cmapimp");
-//		menuItem35.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, shortcutMask));
-//		menuItem35.setToolTipText("Import from cmap.ihmc.us CXL file");
-//		menuItem35.addActionListener(this);
-//		menu3.add(menuItem35);
-
 		JMenuItem menuItem37 = new JMenuItem("Launch the Import Wizard",  new ImageIcon(getClass().getResource("wizard.gif")));
 		menuItem37.setActionCommand("testimp");
 		menuItem37.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, shortcutMask));
 		menuItem37.setToolTipText("");
 		menuItem37.addActionListener(this);
 		menu3.add(menuItem37);
-//
-//		JMenuItem menuItem36 = new JMenuItem("Import TheBrain",  KeyEvent.VK_B);
-//		menuItem36.setActionCommand("brainimp");
-//		menuItem36.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, shortcutMask));
-//		menuItem36.setToolTipText("Import a TheBrain XML file");
-//		menuItem36.addActionListener(this);
-//		menu3.add(menuItem36);
 
 		//	Export menu
 		
@@ -880,6 +855,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menuItem78.setToolTipText("Create a VUE map file");
 		menuItem78.addActionListener(this);
 		menu7.add(menuItem78);
+		
+		JMenuItem menuItem79 = new JMenuItem("to CSV text file",  KeyEvent.VK_S);
+		menuItem79.setActionCommand("csvexp");
+		menuItem79.setToolTipText("Just Character separated Values");
+		menuItem79.addActionListener(this);
+		menu7.add(menuItem79);
 		
 		//	View menu
 		
