@@ -478,6 +478,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 //				selection.assoc = null;
 				graphSelected();
 			}
+			if (command == "delCluster") {
+				deleteCluster(selectedAssoc);
+				graphSelected();
+			}
 			graphPanel.repaint();
 
 		//	Graph menu
@@ -1040,6 +1044,14 @@ public final class PresentationService implements ActionListener, MouseListener,
 			menu.add(styleSwitcher(6, "red", menuPalette[paletteID][5], true));
 			menu.add(styleSwitcher(7, "lightGray", menuPalette[paletteID][6], false));
 			menu.add(styleSwitcher(8, "gray", menuPalette[paletteID][7], true));
+			
+			menu.addSeparator();
+			
+			JMenuItem delCluster = new JMenuItem();
+			delCluster.addActionListener(this);
+			delCluster.setActionCommand("delCluster");
+			delCluster.setText("Delete Cluster");
+			menu.add(delCluster);
 
 			menu.addSeparator();
 
@@ -1462,6 +1474,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 	public void deleteNode(GraphNode topic) {
+		deleteNode(topic, false);
+	}
+	public void deleteNode(GraphNode topic, boolean silent) {
 		Enumeration<GraphEdge> e = topic.getEdges();
 		Vector<GraphEdge> todoList = new Vector<GraphEdge>();
 		GraphEdge edge;
@@ -1471,22 +1486,24 @@ public final class PresentationService implements ActionListener, MouseListener,
 			todoList.addElement(edge);
 			neighborCount++;
 		};
-		String topicName = topic.getLabel();
-		if (topicName.length() > 30) topicName = topicName.substring(0,30) + "...";
 		
-		//	Some effort to position it near the node to be deleted
-		JOptionPane confirm = new JOptionPane("Are you sure you want to delete " + 
-				"the topic \n \"" + topicName +	
-				"\" with " + neighborCount + " associations ?\n" + 
-				"(There is no Undo yet!)", 
-	    		JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_CANCEL_OPTION); 
-	    JDialog d = confirm.createDialog(null, "Warning");
-	    Point p = topic.getXY();
-	    d.setLocation(p.x - 20 + translation.x, p.y + 100 + translation.y);
-	    d.setVisible(true);
-	    Object responseObj = confirm.getValue();
-	    if (responseObj == null) return;
-		if ((int) responseObj != JOptionPane.YES_OPTION) return;
+		if (!silent) {
+			String topicName = topic.getLabel();
+			if (topicName.length() > 30) topicName = topicName.substring(0,30) + "...";
+			//	Some effort to position it near the node to be deleted
+			JOptionPane confirm = new JOptionPane("Are you sure you want to delete " + 
+					"the topic \n \"" + topicName +	
+					"\" with " + neighborCount + " associations ?\n" + 
+					"(There is no Undo yet!)", 
+					JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_CANCEL_OPTION); 
+			JDialog d = confirm.createDialog(null, "Warning");
+			Point p = topic.getXY();
+			d.setLocation(p.x - 20 + translation.x, p.y + 100 + translation.y);
+			d.setVisible(true);
+			Object responseObj = confirm.getValue();
+			if (responseObj == null) return;
+			if ((int) responseObj != JOptionPane.YES_OPTION) return;
+		}
 
 		Enumeration<GraphEdge> e2 = todoList.elements();
 		while (e2.hasMoreElements()) {
@@ -1525,6 +1542,27 @@ public final class PresentationService implements ActionListener, MouseListener,
 		edges.remove(assocKey);
 		nodes.put(topicID1,  topic1);
 		nodes.put(topicID2,  topic2);
+		graphPanel.repaint();
+		setDirty(true);
+		return;
+	}
+
+	public void deleteCluster(GraphEdge assoc) {
+		GraphNode topic1 = assoc.getNode1();	
+		GraphNode topic2 = assoc.getNode2();
+		Hashtable<Integer,GraphNode> cluster = graphPanel.createNodeCluster(topic1);
+		GraphNode node;
+		int response = JOptionPane.showConfirmDialog(OK, 
+				"<html><body>Your command was \"<b>Delete Cluster</b>\".<br />" +
+						"Are you absolutely sure you want to delete the entire <br />" + 
+						"cluster that contains " + cluster.size()+2 + " nodes ? " +
+				"(There is no Undo yet!)</body></html>");
+		if (response != JOptionPane.YES_OPTION) return;
+		Enumeration<GraphNode> e2 = cluster.elements();
+		while (e2.hasMoreElements()) {
+			node = (GraphNode) e2.nextElement();
+			deleteNode(node, true);
+		}
 		graphPanel.repaint();
 		setDirty(true);
 		return;

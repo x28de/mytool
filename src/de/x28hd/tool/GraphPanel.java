@@ -528,7 +528,7 @@ class GraphPanel extends JDesktopPane  {
 	}
 	
 	// Find clusters
-	private Hashtable<Integer,GraphNode> createNodeCluster(GraphNode node) {
+	public Hashtable<Integer,GraphNode> createNodeCluster(GraphNode node) {
 		Hashtable<Integer,GraphNode> cluster = new Hashtable<Integer,GraphNode>();
 		if (node == null) {
 			return cluster;		// already reported
