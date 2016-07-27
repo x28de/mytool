@@ -38,7 +38,7 @@ class GraphPanel extends JDesktopPane  {
 	JComponent graphPanel;
 	Hashtable<Integer, GraphNode> nodes;
 	Hashtable<Integer, GraphEdge> edges;
-    JMenuItem menuItem = new JMenuItem("Paste new Input");
+    JMenuItem menuItem = new JMenuItem("Paste new Input");	//	TODO cleanup
 //    Point insertion = new Point(300, 300);
 	private Vector currentBunch;
 	private int currentBunchIndex;
@@ -84,28 +84,14 @@ class GraphPanel extends JDesktopPane  {
 	boolean antiAliasing = true;
     
 //
-//  Accessories for drop ( same as in ComposeWindow)
+//  Accessories for drag and drop 
 	    
-    private TransferHandler handler = new TransferHandler() {
-		private static final long serialVersionUID = 1L;
-
-		public boolean canImport(TransferHandler.TransferSupport support) {
-			return newStuff.canImport(support, "GP");
-		}
-
-		public boolean importData(TransferHandler.TransferSupport support) {
-			controler.beginLongTask();
-			return newStuff.importData(support, "GP");
-	    	 
-		}
-	};
-	
-//
-//  Accessories for drag
+    private MyTransferHandler handler = new MyTransferHandler();
 	
 	public class MyTransferHandler extends TransferHandler {
 		private static final long serialVersionUID = 1L;
 		
+	//  For drag
 		public Transferable createTransferable(JComponent c) {
 			System.out.println("GP: Transferable created ");
 			return new StringSelection(myTransferable);
@@ -118,6 +104,16 @@ class GraphPanel extends JDesktopPane  {
 			clusterInProgress = false; 
 			toggleAlt(false);
 			System.out.println("GP: Drag & Drop Done " + action);
+		}
+		
+//  	For drop ( same as in ComposeWindow)
+		public boolean canImport(TransferHandler.TransferSupport support) {
+			return newStuff.canImport(support, "GP");
+		}
+
+		public boolean importData(TransferHandler.TransferSupport support) {
+			controler.beginLongTask();
+			return newStuff.importData(support, "GP");
 		}
 	}
 

@@ -13,7 +13,7 @@ interface GraphPanelControler {
 	TextEditorPanel edi = null;
 	void addToLabel(String text);
 	void setFilename(String filename, int type);
-	void triggerUpdate(boolean justOneMap, boolean animation);
+	void triggerUpdate(boolean justOneMap);
 	NewStuff getNSInstance();
 	CompositionWindow getCWInstance();
 	void finishCompositionMode();

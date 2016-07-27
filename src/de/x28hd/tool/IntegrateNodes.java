@@ -11,15 +11,13 @@ public class IntegrateNodes {
 	Hashtable<Integer, GraphNode> newNodes = new Hashtable<Integer, GraphNode>();
 	Hashtable<Integer, GraphEdge> newEdges = new Hashtable<Integer, GraphEdge>();
 	int maxNodeID = 0;
-	Point insertion = null;
 	
 	public IntegrateNodes(Hashtable<Integer, GraphNode> nodes, Hashtable<Integer, GraphEdge> edges,
-			Hashtable<Integer, GraphNode> newNodes, Hashtable<Integer, GraphEdge> newEdges, Point insertion) {
+			Hashtable<Integer, GraphNode> newNodes, Hashtable<Integer, GraphEdge> newEdges) {
 		this.nodes = nodes;
 		this.edges = edges;
 		this.newNodes = newNodes;
 		this.newEdges = newEdges;
-		this.insertion = insertion;
 		
 		maxNodeID = 0;
 		Enumeration<GraphNode> nodesEnum;
@@ -43,7 +41,7 @@ public class IntegrateNodes {
 //
 //	Add new nodes to the graph model	
 	
-	public void mergeNodes(Point upperGap, Point roomNeeded, Point translation, Point insertion) {
+	public void mergeNodes(Point upperGap, Point translation) {
 		Enumeration<GraphNode>nodesEnum = newNodes.elements();
 		Enumeration<GraphEdge>edgesEnum = newEdges.elements();
 		int newNodeID = maxNodeID;

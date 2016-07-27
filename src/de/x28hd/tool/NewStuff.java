@@ -49,7 +49,7 @@ public class NewStuff {
 	String dataString = "";
 	Hashtable<Integer, GraphNode> newNodes = new Hashtable<Integer, GraphNode>();
 	Hashtable<Integer, GraphEdge> newEdges = new Hashtable<Integer, GraphEdge>();
-	Point insertion = null;
+	Point dropLocation = null;
 	
 	//	About caller (PresentationService()) and CompositionWindow()
 	private GraphPanelControler controler;
@@ -128,7 +128,7 @@ public class NewStuff {
         }
 
         Transferable t = support.getTransferable();
-		insertion = new Point(support.getDropLocation().getDropPoint().x,
+		dropLocation = new Point(support.getDropLocation().getDropPoint().x,
 				support.getDropLocation().getDropPoint().y);
 		System.out.println("NS Drop point " + support.getDropLocation().getDropPoint().x + ", " +
 				support.getDropLocation().getDropPoint().y);
@@ -146,6 +146,7 @@ public class NewStuff {
 	public Transferable readClipboard() {
 		controler.setWaitCursor();
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+		dropLocation = null;
 		return clipboard.getContents(null); 
 	}
 
@@ -279,7 +280,8 @@ public class NewStuff {
 		}
 		boolean existingMap = false;
 		if (inputType == 1 && readyMap) existingMap = true;		
-		controler.triggerUpdate(existingMap, true);
+		controler.triggerUpdate(existingMap);
+		dropLocation = null;
 		readyMap = false;
 	}
 	
@@ -804,8 +806,8 @@ public class NewStuff {
 		return advisableFilename;
 	}
 	
-	public Point getInsertion() {
-		return insertion;
+	public Point getDropLocation() {
+		return dropLocation;
 	}
 
 }
