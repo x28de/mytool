@@ -20,7 +20,9 @@ public class CsvExport {
 			while (nodesEnum.hasMoreElements()) {
 				GraphNode node = nodesEnum.nextElement();
 				String label = node.getLabel();
+				label = label.replace("\n", "");
 				String detail = node.getDetail();
+				detail = detail.replace("\n", "");
 				list.write(label + "\t" + detail + newLine);
 			}
 			list.write("done");
