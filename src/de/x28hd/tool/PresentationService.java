@@ -81,6 +81,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	JMenuItem menuItem21 = null;
 	JCheckBoxMenuItem menuItem22 = null;
 	JCheckBoxMenuItem menuItem23 = null;
+	JCheckBoxMenuItem menuItem24 = null;
 	JCheckBoxMenuItem menuItem41 = null;
 	JCheckBoxMenuItem menuItem42 = null;
 	JCheckBoxMenuItem menuItem43 = null;
@@ -130,7 +131,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 	Point translation = new Point(0, 0);
 	Point panning = new Point(3, 0);
 	Point upperGap = new Point(3, 0);
-	Point insertion = null;
+	Point dropLocation = null;
+	boolean dropHere = false;
+	Point pasteLocation = null;
+	boolean pasteHere = false;
 	int animationPercent = 0;
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	CentralityColoring centralityColoring;
@@ -239,12 +243,27 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 		} else if (command == "paste") {
 			beginLongTask();
+			pasteHere = false;
 
 			Transferable t = newStuff.readClipboard();
 			if (!newStuff.transferTransferable(t)) {
 				System.out.println("Error PS121");
 			} else {
 			}
+			
+		// Paste here
+
+		} else if (command == "pasteHere") {
+			beginLongTask();
+
+			pasteHere = true;
+			pasteLocation = clickedSpot;
+			Transferable t = newStuff.readClipboard();
+			if (!newStuff.transferTransferable(t)) {
+				System.out.println("Error PS121a");
+			} else {
+			}
+
 			
 		// Save	
 
@@ -326,6 +345,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 					menuItem45.setSelected(false);
 				}
 			}
+			
 		} else if (command == "tablet") {
 			toggleTablet();
 			
@@ -429,6 +449,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 				new CsvExport(nodes, edges, storeFilename, this);
 			}
+		} else if (command == "delCluster") {
+				deleteCluster(selectedAssoc);
+				graphSelected();
 			
 		//	Context menu command
 
@@ -476,10 +499,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 				deleteEdge(selectedAssoc);
 //				selection.mode = SELECTED_NONE;
 //				selection.assoc = null;
-				graphSelected();
-			}
-			if (command == "delCluster") {
-				deleteCluster(selectedAssoc);
 				graphSelected();
 			}
 			graphPanel.repaint();
@@ -548,7 +567,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	    	} else {
 	    		animationTimer.stop();
 	    		animationPercent = 0;
-	    		triggerUpdate(existingMap); 
+	    		performUpdate(existingMap); 
 	    		existingMap = false;
 	        	graphPanel.setModel(nodes, edges);
 	     	}
@@ -768,7 +787,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menu2.add(menuItem21);
 
 		menuItem22 = new JCheckBoxMenuItem("Detail Pane", true);
-		menuItem21.setMnemonic(KeyEvent.VK_D);
+		menuItem22.setMnemonic(KeyEvent.VK_D);
 		menuItem22.setActionCommand("ToggleDetEdit");
 		menuItem22.setToolTipText(tooltip22[0]);
 		menuItem22.addActionListener(this);
@@ -780,6 +799,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menuItem23.setToolTipText("Color scheme for new nodes and edges");
 		menuItem23.addActionListener(this);
 		menu2.add(menuItem23);
+		
+		menuItem24 = new JCheckBoxMenuItem("Appending", true);
+		menuItem24.setMnemonic(KeyEvent.VK_A);
+		menuItem24.setToolTipText("Exact drop position is ignored and new stuff is just appended");
+		menuItem24.addActionListener(this);
+		menu2.add(menuItem24);
 		
 
 		//	Insert menu
@@ -982,6 +1007,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		setSystemUI(false); //	avoid confusing colors when hovering, and indenting  of items in System LaF 
 
 		if (menuID.equals("graph")) {
+			
 			JMenuItem item = new JMenuItem();
 			item.addActionListener(this);
 			item.setActionCommand("Store");
@@ -994,12 +1020,22 @@ public final class PresentationService implements ActionListener, MouseListener,
 			item2.setText("New node");
 			menu.add(item2);
 
-			JMenuItem menuItem71 = new JMenuItem("Paste here", KeyEvent.VK_V);
-			menuItem71.setActionCommand("paste");
-			menuItem71.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, shortcutMask));
-			menuItem71.addActionListener(this);
-			if (!contextPasteAllowed) menuItem71.setEnabled(false);
-			menu.add(menuItem71);
+			JMenuItem item21 = new JMenuItem("Paste", KeyEvent.VK_V);
+			item21.setActionCommand("paste");
+			item21.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, shortcutMask));
+			item21.addActionListener(this);
+			if (!contextPasteAllowed) item21.setEnabled(false);
+			menu.add(item21);
+
+			JMenu sub1 = new JMenu("Advanced");
+			
+			JMenuItem item71 = new JMenuItem("Paste here");
+			item71.setActionCommand("pasteHere");
+			item71.addActionListener(this);
+			if (!contextPasteAllowed) item71.setEnabled(false);
+			sub1.add(item71);
+			
+			menu.add(sub1);
 
 			if (!menuItem43.isSelected()) {
 			JMenuItem item9 = new JMenuItem();
@@ -1047,19 +1083,21 @@ public final class PresentationService implements ActionListener, MouseListener,
 			
 			menu.addSeparator();
 			
-			JMenuItem delCluster = new JMenuItem();
-			delCluster.addActionListener(this);
-			delCluster.setActionCommand("delCluster");
-			delCluster.setText("Delete Cluster");
-			menu.add(delCluster);
-
-			menu.addSeparator();
-
 			JMenuItem delAssoc = new JMenuItem();
 			delAssoc.addActionListener(this);
 			delAssoc.setActionCommand("delAssoc");
 			delAssoc.setText("Delete");
 			menu.add(delAssoc);
+			
+			JMenu sub2 = new JMenu("Advanced");
+			
+			JMenuItem delCluster = new JMenuItem();
+			delCluster.addActionListener(this);
+			delCluster.setActionCommand("delCluster");
+			delCluster.setText("Delete Cluster");
+			sub2.add(delCluster);
+			
+			menu.add(sub2);
 		}
 
 		menu.show(cp, x, y);
@@ -1730,25 +1768,34 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   return nodePalette[paletteID][7];
    }
     
-   public void triggerUpdate(boolean existingMap, boolean animation) {
+   public void triggerUpdate(boolean existingMap) {
 	   translation = graphPanel.getTranslation();
 	   this.existingMap = existingMap;
 	   if (nodes.size() < 1) {
 		   panning = new Point(0, 0);
 		   upperGap = new Point(0, 0);
-		   triggerUpdate(existingMap);
+		   performUpdate(existingMap);
 	   } else {
 		   Point bottomOfExisting = determineBottom(nodes, bounds);
 		   panning = new Point(bottomOfExisting.x - 40 + translation.x, 
 				   bottomOfExisting.y - 100 + translation.y); 
 		   upperGap = new Point(40, 140); 
-		   if (animation) {
+		   dropLocation = newStuff.getDropLocation();
+		   if (dropLocation != null && !menuItem24.isSelected()) dropHere = true; 
+		   if (!dropHere && !pasteHere) {
 			   animationTimer.start();
-			   //  triggerUpdate is called from timer's ActionPerformed() 
+			   //  performUpdate is called from timer's ActionPerformed() 
 		   } else {
+			   panning = new Point(0, 0);
+			   //	"upperGap" is misleading in this case
+			   if (dropLocation != null) {
+				   upperGap = dropLocation;
+			   } else {
+				   upperGap = pasteLocation;
+			   }
 			   translation = graphPanel.getTranslation();
 			   graphPanel.translateGraph(-panning.x, -panning.y);
-			   triggerUpdate(existingMap);
+			   performUpdate(existingMap);
 			   updateBounds();
 			   setDefaultCursor();
 			   graphPanel.repaint();
@@ -1756,41 +1803,41 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   }
    }
    
-   public void triggerUpdate(boolean existingMap) {
+   public void performUpdate(boolean existingMap) {
 	   this.existingMap = existingMap;
-    	hintTimer.stop();
-    	graphPanel.jumpingArrow(false);
-    	if (maybeJustPeek && existingMap && nodes.size() < 1) {
-    		//  don't set dirty yet
-    		confirmedFilename = newStuff.getAdvisableFilename();
-   		maybeJustPeek = false;
-    	} else {
-    		setDirty(true);
-    	}
-    	Hashtable<Integer, GraphNode> newNodes = newStuff.getNodes();
-    	Hashtable<Integer, GraphEdge> newEdges = newStuff.getEdges();
-    	insertion = newStuff.getInsertion();
-    	if (filename.isEmpty()) {
-    		filename = newStuff.getAdvisableFilename();
-    		if (!filename.isEmpty()) {
-    			mainWindowTitle = Utilities.getShortname(filename);
-    			mainWindow.setTitle(mainWindowTitle);
-    			mainWindow.repaint();
-    		}
-    	}
-    	IntegrateNodes integrateNodes = new IntegrateNodes(nodes, edges, newNodes, newEdges, insertion);
-    	translation = graphPanel.getTranslation();
-		if (insertion == null) insertion = panning;
-    	
-    	integrateNodes.mergeNodes(upperGap, panning, translation, this.insertion);
-    	nodes = integrateNodes.getNodes();
-    	edges = integrateNodes.getEdges();
-    	
-		graphPanel.setModel(nodes, edges);
-		updateBounds();
-		setDefaultCursor();
-		graphPanel.repaint();
-    }
+	   hintTimer.stop();
+	   graphPanel.jumpingArrow(false);
+	   if (maybeJustPeek && existingMap && nodes.size() < 1) {
+		   //  don't set dirty yet
+		   confirmedFilename = newStuff.getAdvisableFilename();
+		   maybeJustPeek = false;
+	   } else {
+		   setDirty(true);
+	   }
+	   Hashtable<Integer, GraphNode> newNodes = newStuff.getNodes();
+	   Hashtable<Integer, GraphEdge> newEdges = newStuff.getEdges();
+	   if (filename.isEmpty()) {
+		   filename = newStuff.getAdvisableFilename();
+		   if (!filename.isEmpty()) {
+			   mainWindowTitle = Utilities.getShortname(filename);
+			   mainWindow.setTitle(mainWindowTitle);
+			   mainWindow.repaint();
+		   }
+	   }
+	   IntegrateNodes integrateNodes = new IntegrateNodes(nodes, edges, newNodes, newEdges);
+	   translation = graphPanel.getTranslation();
+
+	   integrateNodes.mergeNodes(upperGap, translation);
+	   nodes = integrateNodes.getNodes();
+	   edges = integrateNodes.getEdges();
+
+	   graphPanel.setModel(nodes, edges);
+	   updateBounds();
+	   setDefaultCursor();
+	   graphPanel.repaint();
+	   pasteHere = false;
+	   dropHere = false;
+   }
 
 //
 //	Accessories intended for right-click (paste) in labelfield
