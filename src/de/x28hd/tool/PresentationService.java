@@ -1593,7 +1593,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		int response = JOptionPane.showConfirmDialog(OK, 
 				"<html><body>Your command was \"<b>Delete Cluster</b>\".<br />" +
 						"Are you absolutely sure you want to delete the entire <br />" + 
-						"cluster that contains " + cluster.size()+2 + " nodes ? " +
+						"cluster that contains " + (cluster.size() + 2) + " nodes ? " +
 				"(There is no Undo yet!)</body></html>");
 		if (response != JOptionPane.YES_OPTION) return;
 		Enumeration<GraphNode> e2 = cluster.elements();
