@@ -1327,8 +1327,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 		newName = fd.getDirectory() + fd.getFile();
 		if (extension == "xml") {
-			confirmedFilename = newName;
-			mainWindowTitle = Utilities.getShortname(confirmedFilename);
+			filename = newName;
+			mainWindowTitle = Utilities.getShortname(filename);
 			mainWindow.setTitle(mainWindowTitle);
 			mainWindow.repaint();
 		} else if (extension == "htm") {
