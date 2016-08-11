@@ -1327,14 +1327,14 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 		newName = fd.getDirectory() + fd.getFile();
 		if (extension == "xml") {
-			filename = newName;
-			mainWindowTitle = Utilities.getShortname(filename);
+			confirmedFilename = newName;
+			mainWindowTitle = Utilities.getShortname(confirmedFilename);
 			mainWindow.setTitle(mainWindowTitle);
 			mainWindow.repaint();
 		} else if (extension == "htm") {
 			lastHTMLFilename = newName;
 		} else {
-			System.out.println("Error PS121");
+			System.out.println("Error PS121b");
 			return false;
 		}
 		return true;
@@ -1389,7 +1389,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			} else if (closeResponse != JOptionPane.NO_OPTION) {
 				if (confirmedFilename.isEmpty()) {
 					if (askForFilename("xml")) {
-						confirmedFilename = filename;
 						if (!startStoring(confirmedFilename)) {
 							return false;
 						}

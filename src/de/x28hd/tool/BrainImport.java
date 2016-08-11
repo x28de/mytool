@@ -34,7 +34,6 @@ public class BrainImport {
 	
 	//	Keys for nodes and edges, incremented in addNode and addEdge
 	Hashtable<String,Integer> inputID2num = new  Hashtable<String,Integer>();
-	Hashtable<String,Integer> edgeID2num = new  Hashtable<String,Integer>();
 	int j = -1;
 	int edgesNum = 0;
 	
@@ -109,9 +108,12 @@ public class BrainImport {
 			inputItems.put(itemID, labelString);
 			
 			//	Details ("Body")
-			Element detailElem = (Element) node.getElementsByTagName("body").item(0);
-			String detailString = detailElem.getTextContent();
-			inputNotes.put(itemID, detailString);
+			NodeList detailContainer = node.getElementsByTagName("body");
+			if (detailContainer.getLength() > 0) {
+				Element detailElem = (Element) node.getElementsByTagName("body").item(0);
+				String detailString = detailElem.getTextContent();
+				inputNotes.put(itemID, detailString);
+			} 
 		}
 		
 //		
@@ -125,8 +127,6 @@ public class BrainImport {
 		for (int i = 0; i < linkList.getLength(); i++) {
 
 			Element link = (Element) linkList.item(i);
-			Element idElem = (Element) link.getElementsByTagName("guid").item(0);
-			String id = idElem.getTextContent();
 			Element fromElem = (Element) link.getElementsByTagName("idA").item(0);
 			String fromItem = fromElem.getTextContent();
 			Element toElem = (Element) link.getElementsByTagName("idB").item(0);
@@ -134,7 +134,6 @@ public class BrainImport {
 			if (!inputID2num.containsKey(fromItem)) addNode(fromItem);
 			if (!inputID2num.containsKey(toItem)) addNode(toItem);
 			addEdge(fromItem, toItem);
-			edgeID2num.put(id, edgesNum);
 			System.out.println("edges: " + inputID2num.size());
 		}
 		
