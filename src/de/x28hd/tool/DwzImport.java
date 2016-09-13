@@ -460,6 +460,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 			//	Optional: mark pale if BuiltIn 
 			String newNodeColor = "#ccdddd";
 			NodeList attrContainer = node.getElementsByTagName("attributes");
+			if (attrContainer.getLength() <= 0) continue;
 			NodeList attrNodes = ((Element) attrContainer.item(0)).getElementsByTagName("attribute");
 			String createdBy = "";
 			for (int a = 0; a < attrNodes.getLength(); a++) {
@@ -555,6 +556,8 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 				String newEdgeColor = "#c0c0c0";
 				String extraEdgeColor = "#ffff99";
 				NodeList attrContainer = link.getElementsByTagName("attributes");
+				int attrCount = attrContainer.getLength();
+				if (attrCount > 0) {
 				NodeList attrNodes = ((Element) attrContainer.item(0)).getElementsByTagName("attribute");
 				String createdBy = "";
 				for (int a = 0; a < attrNodes.getLength(); a++) {
@@ -568,6 +571,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 					extraEdgeColor = "#eeeeee";
 //				} else {
 //					System.out.println(createdBy);
+				}
 				}
 				edgesNum++;
 				if (expandableRelations.contains(linkType)) {

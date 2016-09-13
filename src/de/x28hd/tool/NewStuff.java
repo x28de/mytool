@@ -344,7 +344,9 @@ public class NewStuff {
     			shortName = f.getName();
 					if (shortName.endsWith("/")) shortName = shortName.substring(0, shortName.length() - 1);
 	       			shortName = shortName.substring(shortName.lastIndexOf("/") + 1);
-    			String extension = shortName.substring(shortName.lastIndexOf("."));
+    			int extOffset = shortName.lastIndexOf(".");
+    			String extension = "";
+    			if (extOffset > 0) extension = shortName.substring(extOffset);
 
     			if (!extension.equals(".txt") && !extension.equals(".htm")) {
     				line = f.toURI().toString();

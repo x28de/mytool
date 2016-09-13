@@ -47,7 +47,7 @@ public class ImportDirector implements ActionListener {
             fd = new JFileChooser(System.getProperty("user.home") + File.separator + "Desktop");
             FileNameExtensionFilter filter = new FileNameExtensionFilter(
             		extDescription[importType], extension[importType]);
-    		if (!System.getProperty("os.name").equals("Mac OS X")) {
+    		if (System.getProperty("os.name").startsWith("Windows")) {
     			Action details = fd.getActionMap().get("viewTypeDetails");
     			details.actionPerformed(null);
     		}
@@ -267,10 +267,10 @@ public class ImportDirector implements ActionListener {
 		cancelButton.addActionListener(this);
 		frame.add(scrollPane);
 		frame.add(continueBar, BorderLayout.SOUTH);
-		if (System.getProperty("os.name").equals("Mac OS X")) {
-			frame.setMinimumSize(new Dimension(796, 417));
-		} else {
+		if (System.getProperty("os.name").startsWith("Windows")) {
 			frame.setMinimumSize(new Dimension(596, 417));
+		} else {
+			frame.setMinimumSize(new Dimension(796, 417));
 		}
         frame.setVisible(true);
 	}
@@ -401,6 +401,8 @@ public class ImportDirector implements ActionListener {
 			} 
 		} catch (IOException e1) {
 			System.out.println("Error ID106 " + e1 + "\n" + e1.getClass());
+			controler.displayPopup("Import failed:\n" + e1);
+			return;
 		} catch (SAXException e) {
 			System.out.println("Error ID107 " + e );
 		}

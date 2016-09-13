@@ -711,7 +711,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 		JMenuBar menuBar;
 		menuBar = new JMenuBar();
-		menuBar.setBackground(Color.white);
 
 		//	File menu
 		
@@ -905,6 +904,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menu4.add(menuItem41);
 
 		menuItem45 = new JCheckBoxMenuItem("Accelerate", false);
+		if (System.getProperty("os.name").equals("Linux")) {
+			menuItem45.setSelected(true);
+			graphPanel.toggleAntiAliasing();
+		}
 		menuItem45.setActionCommand("ToggleHeavy");
 		menuItem45.setToolTipText("Fast but coarse graphics");
 		menuItem45.addActionListener(this);
