@@ -95,6 +95,7 @@ public class MakeHTML {
 		nodesOut[nodenum][2] = colorString;
 		String label = node.getLabel();
 		label = label.replace("\n", "");
+		label = label.replace("\r", "");
 		label = label.replace("'", "&apos;");
 		nodesOut[nodeids.get(topicid)][3] = label;
 		nodesOut[nodeids.get(topicid)][4] = topicid + "";
