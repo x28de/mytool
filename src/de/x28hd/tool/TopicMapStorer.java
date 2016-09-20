@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
@@ -19,6 +20,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
+import javax.xml.transform.OutputKeys;
 
 
 public class TopicMapStorer {
@@ -56,6 +58,9 @@ public class TopicMapStorer {
 		SAXTransformerFactory saxTFactory = (SAXTransformerFactory) TransformerFactory.newInstance();
 		TransformerHandler handler = null;
 		handler = saxTFactory.newTransformerHandler();
+		Transformer transformer = handler.getTransformer();
+		transformer.setOutputProperty(OutputKeys.INDENT, "no");
+//		transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 		handler.setResult(new StreamResult(out));
 		handler.startDocument();
 		handler.comment(commentChars, 0, commentChars.length);
