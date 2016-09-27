@@ -48,6 +48,8 @@ public class EnwImport {
 				}
 			} else out = out + line + "<br />";
 		}
+		out = out + "\n";
+		dataString = dataString + out;
 		controler.getNSInstance().setInput(dataString, 6);
 	}
 	
