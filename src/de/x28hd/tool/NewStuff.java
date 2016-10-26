@@ -263,8 +263,8 @@ public class NewStuff {
 		    	return;
 			} 
 			SplitIntoNew splitIntoNew = new SplitIntoNew(controler);
-			int newNodesCount = splitIntoNew.separateRecords(dataString);
-//			int newNodesCount = splitIntoNew.separateRecords2(dataString);
+//			int newNodesCount = splitIntoNew.separateRecords(dataString);
+			int newNodesCount = splitIntoNew.separateRecords2(dataString);
 			splitIntoNew.heuristics(newNodesCount);
 			splitIntoNew.createNodes(newNodesCount);	
 			newNodes = splitIntoNew.getNodes();
