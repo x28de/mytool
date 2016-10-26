@@ -264,6 +264,7 @@ public class NewStuff {
 			} 
 			SplitIntoNew splitIntoNew = new SplitIntoNew(controler);
 			int newNodesCount = splitIntoNew.separateRecords(dataString);
+//			int newNodesCount = splitIntoNew.separateRecords2(dataString);
 			splitIntoNew.heuristics(newNodesCount);
 			splitIntoNew.createNodes(newNodesCount);	
 			newNodes = splitIntoNew.getNodes();
@@ -317,7 +318,8 @@ public class NewStuff {
  					Long modDate = ixit.next();
  					Integer fileIndex = datesList.get(modDate);
  					String fn = byModDates.get(fileIndex);
- 					dataString = dataString + "\r\n" + fn;
+// 					dataString = dataString + "\r\n" + fn;
+ 					dataString = dataString + fn + "\r\n";
  				}
  			}
  		}
@@ -377,7 +379,8 @@ public class NewStuff {
     					success = false;
     				}
     				if (success) {
-    					contentString = contentString.replace("\n", "<br />");
+//    					contentString = contentString.replace("\n", "<br />");
+    					contentString = contentString.replaceAll("\\r?\\n", "<br />");
     					contentString = contentString.replace("\t", " (TAB) ");  // TODO improve
     					line = shortName + "\t" + contentString;
     					output = output + line + "\r\n";
@@ -421,11 +424,11 @@ public class NewStuff {
 					done = true;
 					break;
 				} else	{
-					if (entryCount == 0) {
-						filelist = filename + "\r\n";	// to avoid leading newline
-					} else {
-						filelist = filelist + filename + "\r\n";
-					}
+//					if (entryCount == 0) {
+//						filelist = filename + "\r\n";	// to avoid leading newline
+//					} else {
+					filelist = filelist + filename + "\r\n";
+//					}
 					entryCount++;
 				}
 			}

@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -15,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -66,10 +68,13 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 	JTextArea or2 = new JTextArea("        ");
 	JTextArea dropFile  = new JTextArea(" \n        Drop File       \n           here\n ");
 	JButton cancelButton;
-		
+	int shortcutMask;
+	
 	public CompositionWindow(final GraphPanelControler controler) {
 		this.controler = controler;
 		newStuff = controler.getNSInstance();
+		shortcutMask = ActionEvent.CTRL_MASK;
+		if (System.getProperty("os.name").equals("Mac OS X")) shortcutMask = ActionEvent.META_MASK;
 //		System.out.println("CW calls NS: " + newStuff.getString());
 
 //
@@ -110,6 +115,7 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 		toolbar = new JPanel();
 
 		pasteButton = new JButton("<html><body><center>Press here<br />to Paste</center></body></html>");
+		pasteButton.setMnemonic(KeyEvent.VK_V);
 		pasteButton.setToolTipText("Press this button to Paste from Clipboard");
 		pasteButton.setActionCommand("Paste2");
 		//  TODO Rightclick context menuitem paste2
@@ -169,8 +175,8 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 		else System.out.println("CW: Dropped or pasted to insert.");
 		try {
 			caretPos = textDisplay.getCaretPosition();
-			doc.insertString(caretPos, dataSnippet, null);
-			caretPos = caretPos + dataSnippet.length();
+			doc.insertString(caretPos, dataSnippet + "\n", null);
+			caretPos = caretPos + dataSnippet.length() + 1;
 			textDisplay.setCaretPosition(caretPos);
 		} catch (BadLocationException e) {
 			System.out.println("Error CW106 " + " " + e);

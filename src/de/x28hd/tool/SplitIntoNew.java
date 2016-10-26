@@ -22,6 +22,28 @@ public class SplitIntoNew {
 		this.controler = controler;
 		
 	}
+
+	int separateRecords2(String rawText) {
+//		columns[numRec][0] = "";
+		String newLine = System.getProperty("line.separator");
+		String [] lines = rawText.split("\\r?\\n");
+//		String [] lines = rawText.split(newLine);
+		int numRec = lines.length;
+		for (int i = 0; i < numRec; i++) {
+			String line = lines[i];
+			int tabOffset = line.indexOf("\t");
+			if (tabOffset > -1) {
+				columns[i][0] = line.substring(0, tabOffset);
+				columns[i][1] = line.substring(tabOffset);
+			} else {
+				columns[i][0] = line;
+				columns[i][1] = null;
+			}
+			commas[i] = line.indexOf(",");
+//			numRec = i;
+		}
+		return numRec;
+	}
 	
 	int separateRecords(String rawText) {
 		System.out.println("SplitIntoNew.separateRecords started");
@@ -101,7 +123,7 @@ public class SplitIntoNew {
 		}
 		boolean manyEarlyCommas = false;
 		int earlyCommasCount = 0;
-		for (int i = 0; i <= numRec; i++) {
+		for (int i = 0; i < numRec; i++) {
 			int commaPos = commas[i];
 			if (commaPos > -1 && commaPos < 30) {
 				earlyCommasCount++;

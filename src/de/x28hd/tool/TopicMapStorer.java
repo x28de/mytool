@@ -169,6 +169,7 @@ public class TopicMapStorer {
 //
 //  Accessories for CDATA, start, and end
 	public static void characters(ContentHandler handler, String string) throws SAXException {
+		if (string == null) return;
 		char[] chars = string.toCharArray();
 		if (handler instanceof LexicalHandler) {
 			((LexicalHandler) handler).startCDATA();
