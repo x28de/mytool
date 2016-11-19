@@ -42,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 import javax.swing.UIManager;
@@ -51,6 +52,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.DefaultEditorKit;
+import javax.swing.tree.DefaultTreeModel;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
@@ -150,6 +152,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 	String lastHTMLFilename = "";
 	boolean maybeJustPeek = true;
 	boolean existingMap = false;
+	
+	// Tree accessories
+	DefaultTreeModel treeModel;
 
 	//	Toggles
 	int toggle4 = 0;   // => hide classicMenu 
@@ -270,12 +275,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "Store") {
 			if (confirmedFilename.isEmpty()) {
 				if (askForFilename("xml")) {
-					if (startStoring(confirmedFilename)) {
+					if (startStoring(confirmedFilename, false)) {
 						setDirty(false);
 					}
 				}
 			} else {
-				if (startStoring(confirmedFilename)) {
+				if (startStoring(confirmedFilename, false)) {
 					setDirty(false);
 				}
 			}
@@ -284,15 +289,24 @@ public final class PresentationService implements ActionListener, MouseListener,
 			
 		} else if (command == "SaveAs") {
 			if (askForFilename("xml")) {
-				if (startStoring(confirmedFilename)) {
+				if (startStoring(confirmedFilename, false)) {
 					setDirty(false);
 				}
 			}
 			
-		// Export to legacy format
+		// Export to legacy or exotic formats
 			
 		} else if (command == "export") {
 				startExport();
+				
+		} else if (command == "Anonymize") { 
+			FileDialog fd = new FileDialog(mainWindow, "Specify filename for anonymized copy", FileDialog.SAVE);
+			fd.setFile("anonymized.xml");
+			fd.setDirectory(baseDir);
+			fd.setVisible(true);
+			String fspec = fd.getDirectory() + File.separator + fd.getFile();
+			if (startStoring(fspec, true)) displayPopup(fspec + " saved.\n" +
+			"All letters a-z replaced by x, all A-Z by X");
 				
 		//	Various toggles	
 			
@@ -365,6 +379,11 @@ public final class PresentationService implements ActionListener, MouseListener,
 			} else {
 				centralityColoring.revertColors();
 			}
+			graphPanel.repaint();
+			
+		} else if (command == "layout") {
+			centralityColoring = new CentralityColoring(nodes, edges);
+				centralityColoring.changeColors(true, this);
 			graphPanel.repaint();
 			
 		} else if (command == "sibling") {
@@ -846,6 +865,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menuItem72.addActionListener(this);
 		menu7.add(menuItem72);
 		
+		JMenuItem menuItem80 = new JMenuItem("to anonymized map", KeyEvent.VK_Y);
+		menuItem80.setActionCommand("Anonymize");
+		menuItem80.setToolTipText("Saves a copy with all a-z replaced by ");
+		menuItem80.addActionListener(this);
+		menu7.add(menuItem80);
+		
 		menu7.addSeparator();
 		
 		JMenuItem menuItem73 = new JMenuItem("to Wordpress WXP format",  KeyEvent.VK_W);
@@ -964,11 +989,17 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menuItem54.addActionListener(this);
 		menu5.add(menuItem54);
 		
-		JMenuItem menuItem53 = new JMenuItem("Another Map Window",  KeyEvent.VK_E);
-		menuItem53.setActionCommand("sibling");
-		menuItem53.setToolTipText("One more map (to ALT + Drag node clusters)");
+		JMenuItem menuItem53 = new JMenuItem("Experimental",  KeyEvent.VK_F);
+		menuItem53.setActionCommand("layout");
+		menuItem53.setToolTipText("(Experimental, don't use");
 		menuItem53.addActionListener(this);
 		menu5.add(menuItem53);
+		
+		JMenuItem menuItem56 = new JMenuItem("Another Map Window",  KeyEvent.VK_E);
+		menuItem56.setActionCommand("sibling");
+		menuItem56.setToolTipText("One more map (to ALT + Drag node clusters)");
+		menuItem56.addActionListener(this);
+		menu5.add(menuItem56);
 		
 		
 		//	Help menu
@@ -1343,10 +1374,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 		return true;
 	}
 	
-	public boolean startStoring(String storeFilename) {
+	public boolean startStoring(String storeFilename, boolean anonymized) {
 		if (storeFilename.isEmpty()) return false;
 		try {
-			File storeFile = new TopicMapStorer(nodes, edges).createTopicmapFile(storeFilename);
+			File storeFile = new TopicMapStorer(nodes, edges).createTopicmapFile(storeFilename, anonymized);
 			storeFilename = storeFile.getName();
 		} catch (IOException e) {
 			System.out.println("Error PS123" + e);
@@ -1358,8 +1389,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 			System.out.println("Error PS125" + e);
 			return false;
 		}
-		isDirty = false;
-		edi.setDirty(false);
+		if (!anonymized) {
+			isDirty = false;
+			edi.setDirty(false);
+		}
 		return true;
 	}
 
@@ -1392,14 +1425,14 @@ public final class PresentationService implements ActionListener, MouseListener,
 			} else if (closeResponse != JOptionPane.NO_OPTION) {
 				if (confirmedFilename.isEmpty()) {
 					if (askForFilename("xml")) {
-						if (!startStoring(confirmedFilename)) {
+						if (!startStoring(confirmedFilename, false)) {
 							return false;
 						}
 					} else {
 						return false;
 					}
 				} else {
-					if (!startStoring(confirmedFilename)) {
+					if (!startStoring(confirmedFilename, false)) {
 						return false;
 					}
 				}
@@ -1770,6 +1803,13 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   return nodePalette[paletteID][7];
    }
     
+   public DefaultTreeModel getTreeModel() {
+	   return treeModel;
+   }
+   public void setTreeModel(DefaultTreeModel treeModel) {
+	   this.treeModel = treeModel;
+   }
+   
    public void triggerUpdate(boolean existingMap) {
 	   translation = graphPanel.getTranslation();
 	   this.existingMap = existingMap;

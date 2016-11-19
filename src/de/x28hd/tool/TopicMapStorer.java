@@ -31,13 +31,16 @@ public class TopicMapStorer {
 	int nodenum = 0;
 	String commentString = "\nThis is not for human readers but for http://x28hd.de/tool/ \n";
 	char[] commentChars = commentString.toCharArray();
+	boolean anonymized = false;
 	
 	public TopicMapStorer(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges) {
 		this.nodes = nodes;
 		this.edges = edges;
 	}
 	
-	public File createTopicmapFile(String filename) throws IOException, TransformerConfigurationException, SAXException {
+	public File createTopicmapFile(String filename, boolean special) 
+			throws IOException, TransformerConfigurationException, SAXException {
+		anonymized = special;
 		File topicmapFile = new File(filename);
 //			System.out.println(topicmapFile.getCanonicalPath());
 		FileOutputStream out = new FileOutputStream(topicmapFile);
@@ -138,10 +141,23 @@ public class TopicMapStorer {
 	// --- generate topic element ---
 	startElement(handler, "topic", attribs);
 	startElement(handler, "label", null);
-	characters(handler, topic.getLabel());
+	String labelString = topic.getLabel();
+	if (anonymized) {
+		labelString = labelString.replaceAll("[a-z]","x");
+		labelString = labelString.replaceAll("[A-Z]","X");
+	}
+	characters(handler, labelString);
 	endElement(handler, "label");
 	startElement(handler, "detail", null);
-	characters(handler, topic.getDetail());
+	String detailString = topic.getDetail();
+//	if (anonymized) detailString = "";
+	if (anonymized) {
+		detailString = detailString.replaceAll("[a-z]","x");
+		detailString = detailString.replaceAll("[A-Z]","X");
+		detailString = detailString.replaceAll("<.*/>","");
+		detailString = detailString.replaceAll("<.*>","");
+	}
+	characters(handler, detailString);
 	endElement(handler, "detail");
 	endElement(handler, "topic");
 	}
@@ -160,7 +176,9 @@ public class TopicMapStorer {
 
 		startElement(handler, "assoc", attribs);
 		startElement(handler, "detail", null);
-		characters(handler, assoc.getDetail());
+		String detailString = assoc.getDetail();
+		if (anonymized) detailString = "";
+		characters(handler, detailString);
 		endElement(handler, "detail");
 
 		endElement(handler, "assoc");
