@@ -73,6 +73,7 @@ public class ImportDirector implements ActionListener {
 	int importType = 0;
 	JButton continueButton = new JButton("Next >");
 //	boolean lastStep = false;	// needed if more steps for layout erc
+	boolean saxError = false;
 	
 	
 	String [] importTypes = {
@@ -405,11 +406,17 @@ public class ImportDirector implements ActionListener {
 			return;
 		} catch (SAXException e) {
 			System.out.println("Error ID107 " + e );
+			saxError = true;
 		}
 		if (knownFormat == 0) {
 			new EnexImport(inputXml, controler);
 		} else if (knownFormat == 2) {
+			if (saxError) {
+				controler.displayPopup("The KGIF file has an XML error; \n " +
+						"probably the second line must be removed.");
+			} else {
 			new DwzImport(inputXml, controler);
+			}
 		} else if (knownFormat == 3) {
 			new CmapImport(inputXml, controler);
 		} else if (knownFormat == 4) {

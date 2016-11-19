@@ -165,7 +165,14 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 	public DwzImport(Document dwz, GraphPanelControler controler) {
 		
 		this.controler = controler;
-		NodeList graphContainer = dwz.getElementsByTagName("graph");
+		
+		NodeList graphContainer = null;
+		if (dwz.getDocumentElement() != null) {
+		graphContainer = dwz.getElementsByTagName("graph");
+		} else {
+			controler.displayPopup("The KGIF file has an XML error; \n " +
+					"maybe the \nsecond line must be removed.");
+		}
 
 //
 //		Find DWZ nodes
