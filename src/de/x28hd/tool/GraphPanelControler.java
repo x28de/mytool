@@ -1,5 +1,8 @@
 package de.x28hd.tool;
 import java.awt.Rectangle;
+import java.util.HashSet;
+
+import javax.swing.tree.DefaultTreeModel;
 
 interface GraphPanelControler {
 	void nodeSelected(GraphNode node);
@@ -31,4 +34,8 @@ interface GraphPanelControler {
 	Rectangle getBounds();
 	void setSystemUI(boolean toggle);
 	void toggleAltColor(boolean down);
+	void setTreeModel(DefaultTreeModel model);
+	DefaultTreeModel getTreeModel();
+	void setNonTreeEdges(HashSet<GraphEdge> nonTreeEdges);
+	HashSet<GraphEdge> getNonTreeEdges();
 	}

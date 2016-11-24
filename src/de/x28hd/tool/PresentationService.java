@@ -23,6 +23,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
@@ -155,6 +156,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	
 	// Tree accessories
 	DefaultTreeModel treeModel;
+	HashSet<GraphEdge> nonTreeEdges;
 
 	//	Toggles
 	int toggle4 = 0;   // => hide classicMenu 
@@ -417,6 +419,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 				storeFilename = fd.getDirectory() + fd.getFile();
 
 				new ImappingExport(nodes, edges, storeFilename, this);
+			}
+		} else if (command == "zkexp") {
+			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
+			fd.setFile("zk.zkn3"); 	//	zkx3 did not work
+			fd.setVisible(true);
+			if (fd.getFile() != null) {
+				String storeFilename = fd.getFile();
+				storeFilename = fd.getDirectory() + fd.getFile();
+
+				new ZknExport(nodes, edges, storeFilename, this);
 			}
 		} else if (command == "dwzexp") {
 			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
@@ -867,7 +879,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		
 		JMenuItem menuItem80 = new JMenuItem("to anonymized map", KeyEvent.VK_Y);
 		menuItem80.setActionCommand("Anonymize");
-		menuItem80.setToolTipText("Saves a copy with all a-z replaced by ");
+		menuItem80.setToolTipText("Saves a copy with all a-z replaced by x");
 		menuItem80.addActionListener(this);
 		menu7.add(menuItem80);
 		
@@ -908,6 +920,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menuItem78.setToolTipText("Create a VUE map file");
 		menuItem78.addActionListener(this);
 		menu7.add(menuItem78);
+		
+		JMenuItem menuItem81 = new JMenuItem("to Zettelkasten XML file", KeyEvent.VK_K);
+		menuItem81.setActionCommand("zkexp");
+		menuItem81.setToolTipText("Note-taking application according to Luhmann ");
+		menuItem81.addActionListener(this);
+		menu7.add(menuItem81);
 		
 		JMenuItem menuItem79 = new JMenuItem("to CSV text file",  KeyEvent.VK_S);
 		menuItem79.setActionCommand("csvexp");
@@ -1810,6 +1828,13 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   this.treeModel = treeModel;
    }
    
+   public void setNonTreeEdges(HashSet<GraphEdge> nonTreeEdges) {
+	   this.nonTreeEdges = nonTreeEdges;
+   }
+   public HashSet<GraphEdge> getNonTreeEdges() {
+	   return nonTreeEdges;
+   }
+
    public void triggerUpdate(boolean existingMap) {
 	   translation = graphPanel.getTranslation();
 	   this.existingMap = existingMap;

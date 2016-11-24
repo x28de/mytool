@@ -14,6 +14,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
@@ -27,6 +28,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -50,7 +53,11 @@ public class ImappingExport {
 	String outString = "";
 	Delta contentDelta = new Delta(0);
 	Delta statementDelta = new Delta(3);
-
+	Hashtable<Integer,GraphNode> nodes;
+	Hashtable<Integer,String> num2rdf = new Hashtable<Integer,String>();
+	Hashtable<Integer,String> num2cds = new Hashtable<Integer,String>();
+	HashSet<GraphEdge> nonTreeEdges; 
+	
 	//	For RDF
 	int maxVertical;
 	String rootBody = "";
@@ -107,10 +114,11 @@ public class ImappingExport {
 	private static final String [] constantValues = {"false", "true", "1461420246049",
 			"1461359537610", "http://imapping.info#author", "false"};
 
+	// Misc
 	String htmlOut = "";
 	GraphPanelControler controler;
 	boolean success = false;
-
+	int nodeNumber = 0;
 	
 	public ImappingExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
 			String zipFilename, GraphPanelControler controler)  {
@@ -123,7 +131,9 @@ public class ImappingExport {
 		
 //
 //		Read stub files
-		
+
+		this.nodes = nodes;
+		this.controler = controler;
 		controler.setWaitCursor();
 		
 		InputStream rdfInputStream = getClass().getResourceAsStream("stub.txt"); 
@@ -254,12 +264,21 @@ public class ImappingExport {
 		SortedSet<String> orderSet = (SortedSet<String>) orderList.keySet();
 		Iterator<String> ixit = orderSet.iterator(); 
 		
-		int nodeNumber = 0;
+//		int nodeNumber = 0;
 		maxVertical = (int) Math.sqrt(nodes.size() * 6);
 		
-		Hashtable<Integer,String> num2rdf = new Hashtable<Integer,String>();
-		Hashtable<Integer,String> num2cds = new Hashtable<Integer,String>();
+//		Hashtable<Integer,String> num2rdf = new Hashtable<Integer,String>();
+//		Hashtable<Integer,String> num2cds = new Hashtable<Integer,String>();
 
+		DefaultTreeModel treeModel = controler.getTreeModel();
+		if (treeModel != null) {
+			nonTreeEdges = controler.getNonTreeEdges();
+			System.out.println("IE edges reducsd " + edges.size() + " -> " + nonTreeEdges.size());
+			DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) treeModel.getRoot();
+			descendTree(treeNode, 1, CDS_INBOX2, inboxItem, "");
+		} else {
+			
+			
 //		Enumeration<Integer> topics = nodes.keys();  
 //		while (topics.hasMoreElements()){
 		while (ixit.hasNext()) {
@@ -300,6 +319,7 @@ public class ImappingExport {
 				outString = addToRdf(outString, 1, childCdsUri, childRdfUri, myRdfUri, maxVertical, true);
 			}
 		}
+		}
 		
 		//	Loop through edges "assocs"
 		
@@ -307,6 +327,7 @@ public class ImappingExport {
 		while (assocs.hasMoreElements()){
 			int assocID = assocs.nextElement();
 			GraphEdge edge = edges.get(assocID);
+			if (!nonTreeEdges.contains(edge)) continue;
 			int n1 = edge.getN1();
 			int n2 = edge.getN2();
 
@@ -545,6 +566,56 @@ public class ImappingExport {
 		return outString;
 	}
 	
+	public void descendTree(DefaultMutableTreeNode treeNode, int myNodeNumber, 
+			String cdsParent, String rdfParent, String indent) {
+		indent = indent + "  ";
+		BranchInfo info = (BranchInfo) treeNode.getUserObject();
+		int topicID = info.getKey();
+		GraphNode topic = nodes.get(topicID);
+		String label = topic.getLabel();
+		label = label.replace("\r","");
+		System.out.println(indent + myNodeNumber + " " + label);
+		String detail = topic.getDetail();
+
+		String detailPlain = filterHTML(detail).trim();
+		int det = detailPlain.length();
+
+		boolean fused = false;
+
+		if (det > 25) {
+			fused = true;
+		} else {
+			if (!detailPlain.equals(label.trim()) && !detailPlain.isEmpty()) {
+				label = label + ": " + detailPlain;
+			}
+		}
+		String myCdsUri = createUniqueCdsURI().toString();
+		addXmlItem(label, myCdsUri, cdsParent);	
+		num2cds.put(topicID, myCdsUri);
+
+		String myRdfUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
+		outString = addToRdf(outString, myNodeNumber, myCdsUri, myRdfUri, rdfParent, maxVertical, false);
+		num2rdf.put(topicID, myRdfUri);
+
+		//	Fused content?
+		if (fused) {
+			String childCdsUri = createUniqueCdsURI().toString();
+			addXmlItem(detail, childCdsUri, myCdsUri);	
+			String childRdfUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
+			outString = addToRdf(outString, 1, childCdsUri, childRdfUri, myRdfUri, maxVertical, true);
+		}
+		
+		//	Recursion
+		@SuppressWarnings("rawtypes")
+		Enumeration children =  treeNode.children();
+		int nodeNumber = 0;
+		while (children.hasMoreElements()) {
+			descendTree((DefaultMutableTreeNode) children.nextElement(), nodeNumber, 
+					myCdsUri, myRdfUri, indent);
+			nodeNumber++;
+		}
+	}
+	
 	private class Delta {
 		
 //		int c;
@@ -581,6 +652,28 @@ public class ImappingExport {
 			return deltaContainer;
 		}
 	}
+	
+    private class BranchInfoReader {
+        public String branchKey;
+        public String branchLabel;
+ 
+        public BranchInfoReader(String branchKey, String branchLabel) {
+        	this.branchKey = branchKey;
+        	this.branchLabel = branchLabel;
+            
+            if (branchLabel == null) {
+                System.err.println("Error IE140 Couldn't find info for " + branchKey);
+            }
+        }
+ 
+        public String getKey() {
+            return branchKey;
+        }
+        
+        public String toString() {
+            return branchLabel;
+        }
+    }
 	
 //
 //	Accessories to eliminate HTML tags from label
