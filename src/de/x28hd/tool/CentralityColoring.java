@@ -342,7 +342,7 @@ public class CentralityColoring implements TreeSelectionListener {
 		int topID = nodesSorted[1];
 		//	Show tree
 	    DefaultMutableTreeNode top = 
-	    		new DefaultMutableTreeNode(new BranchInfo(topID, "All"));
+	    		new DefaultMutableTreeNode(new BranchInfo(topID, nodes.get(topID).getLabel()));
 	    createSelectionNodes(top);
 	    
 	    DefaultTreeModel model = new DefaultTreeModel(top);
@@ -355,7 +355,7 @@ public class CentralityColoring implements TreeSelectionListener {
 	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 	    tree.addTreeSelectionListener(this);
 	    
-        frame = new JFrame("Pick a collection?");
+        frame = new JFrame("Using this tree structure");
         frame.setLocation(100, 170);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);	// closing triggers further processing
 		frame.addWindowListener(myWindowAdapter);

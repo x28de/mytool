@@ -9,7 +9,7 @@ public class BranchInfo {
     	this.branchLabel = branchLabel;
         
         if (branchLabel == null) {
-            System.err.println("Error CC140 Couldn't find info for " + branchKey);
+            System.err.println("Error BIn140 Couldn't find info for " + branchKey);
         }
     }
     public int getKey() {

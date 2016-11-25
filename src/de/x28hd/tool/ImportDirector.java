@@ -18,6 +18,7 @@ import java.io.InputStream;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -90,6 +91,7 @@ public class ImportDirector implements ActionListener {
 			"BibTeX",
 			"FreeMind",
 			"OPML",
+			"Zettelkasten",
 			"(Old Format)"
 			};
 	String [] knownFormats = {
@@ -106,6 +108,7 @@ public class ImportDirector implements ActionListener {
 			"(not relevant)",
 			"map",
 			"opml",
+			"zettelkasten",
 			"topicmap"
 			};
 	String [] extension = {
@@ -122,6 +125,7 @@ public class ImportDirector implements ActionListener {
 			"bib",
 			"mm",
 			"opml",
+			"zkx3",
 			"zip"
 			};
 	String [] extDescription = {
@@ -138,6 +142,7 @@ public class ImportDirector implements ActionListener {
 			"bib (BibTeX file)",
 			"mm (FreeMind file)",
 			"opml (Outline file)",
+			"zkx3 (ZKN3 export file)",
 			"zip (Zipped XML Document)"
 			};
 	String [] longDescription = {
@@ -154,6 +159,7 @@ public class ImportDirector implements ActionListener {
 			"<html>If you have an \"BibTeX\" file exported (we just split it up)</html>",
 			"<html>A map file created by the \"FreeMind\" mindmap application or imported into it</html>",
 			"<html>An outline file in the \"OPML\" format. Notes (e.g from Scrivener) are supported.</html>",
+			"<html>If you have an \"ZKX3\" file exported from the Luhmann-inspired notes application.</html>",
 			"Old versions of this tool and its precursor DeepaMehta"
 			};
 	
@@ -206,7 +212,7 @@ public class ImportDirector implements ActionListener {
 	public ImportDirector(int knownFormat, InputStream stream, GraphPanelControler controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
-		if (this.knownFormat == 5 || this.knownFormat == 13) {
+		if (this.knownFormat == 5 || this.knownFormat == 13 || this.knownFormat == 14) {
 			step4(stream);
 		}
 	}
@@ -227,7 +233,8 @@ public class ImportDirector implements ActionListener {
 		radioPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		radioPanel.add(new JLabel("<html>Choose a format:"));
 
-		for (int i = 0; i < importTypes.length - 1; i++) {
+//		for (int i = 0; i < importTypes.length - 1; i++) {
+		for (int i = 0; i < importTypes.length - 2; i++) {
 			JRadioButton radio = new JRadioButton(importTypes[i]);
 			radio.setActionCommand("type-" + i);
 			radio.addActionListener(this);
@@ -244,7 +251,7 @@ public class ImportDirector implements ActionListener {
 			JLabel descr = new JLabel();
 	        descr.setText(longDescription[i]);
 	        descriptionsPanel.add(descr);
-		}
+	        }
 //		descriptionsPanel.add(new JLabel("<html><em>Note:</em><br>You can also drag or paste files directly into our windows. <br>" +
 //		  "Also text snippets from other applications can be pasted here, <br>" +
 //		  "and from some applications you can drag and drop snippets directly, <br>" +
@@ -324,7 +331,7 @@ public class ImportDirector implements ActionListener {
 				new EnwImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == 10) {
 				new EnwImport(fd.getSelectedFile(), controler);
-			} else if (knownFormat == 13) {
+			} else if (knownFormat == 14) {
 				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
@@ -428,6 +435,8 @@ public class ImportDirector implements ActionListener {
 		} else if (knownFormat == 12) {
 			new TreeImport(inputXml, controler, 12);
 		} else if (knownFormat == 13) {
+			new TreeImport(inputXml, controler, 13);
+		} else if (knownFormat == 14) {
 			new TopicMapImporter(inputXml, controler);
 		}
 	}

@@ -1,6 +1,7 @@
 package de.x28hd.tool;
 import java.awt.Rectangle;
 import java.util.HashSet;
+import java.util.Hashtable;
 
 import javax.swing.tree.DefaultTreeModel;
 
@@ -38,4 +39,6 @@ interface GraphPanelControler {
 	DefaultTreeModel getTreeModel();
 	void setNonTreeEdges(HashSet<GraphEdge> nonTreeEdges);
 	HashSet<GraphEdge> getNonTreeEdges();
+	void replaceByTree(Hashtable<Integer, GraphNode> nodes,
+			Hashtable<Integer, GraphEdge> edges);
 	}

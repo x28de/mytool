@@ -235,7 +235,7 @@ public class ZknExport {
 			descendTree((DefaultMutableTreeNode) children.nextElement(), myZettel, indent);
 		}
 		z2id.put(myZettel, topicID);
-		id2z.put(topicID, zettelNumber);
+		id2z.put(topicID, myZettel);
 	}
 
 	public void addNode(int myZettel) {
@@ -246,7 +246,7 @@ public class ZknExport {
 		labelString = labelString.replace("\r","");
 		
 		int num = topic.getID();
-		concept.setAttribute("zknid", "imported-" + num);
+		concept.setAttribute("zknid", "imported-" + myZettel);
 		
 		concept.setAttribute("ts_edited", "1611052051");
 		concept.setAttribute("ts_created", "1611212130");

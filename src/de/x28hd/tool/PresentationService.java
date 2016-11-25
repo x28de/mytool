@@ -1906,6 +1906,22 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   dropHere = false;
    }
 
+   public void replaceByTree(Hashtable<Integer,GraphNode> replacingNodes, 
+		   Hashtable<Integer,GraphEdge> replacingEdges) {
+	   if (nodes.size() > 0) {
+		   displayPopup("Please use an empty map if you want to use\n" 
+				   + "the imported tree information for re-export.");
+		   return;
+	   }
+	   nodes = replacingNodes;
+	   edges = replacingEdges;
+	   graphPanel.setModel(nodes, edges);
+	   updateBounds();
+	   setDefaultCursor();
+	   hintTimer.stop();	// Any action => no more hint
+	   graphPanel.jumpingArrow(false);
+	   graphPanel.repaint();
+   }
 //
 //	Accessories intended for right-click (paste) in labelfield
     
