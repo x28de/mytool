@@ -23,6 +23,7 @@ import java.util.TreeMap;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -54,12 +55,14 @@ public class TreeImport implements ActionListener {
 	Hashtable<String,String> relationships = new Hashtable<String,String>();
 	Hashtable<String,Integer> inputID2num = new  Hashtable<String,Integer>();
 	HashSet<GraphEdge> nonTreeEdges = new HashSet<GraphEdge>();
+	GraphPanelControler controler;
 	
 	JTree tree;
 	JFrame frame;
 	private WindowAdapter myWindowAdapter = new WindowAdapter() {
 		public void windowClosing(WindowEvent e) {
 			System.out.println("TI tmp: JTree closed");
+			finish();
 		}
 	};
 	
@@ -69,6 +72,8 @@ public class TreeImport implements ActionListener {
 	boolean top = true;
 	String htmlOut = "";
 	JPanel radioPanel = null;
+	boolean transit = false;
+	JCheckBox transitBox = null;
 	
 	//	Constants
 	int maxVert = 10;
@@ -82,6 +87,7 @@ public class TreeImport implements ActionListener {
 	
 	public TreeImport(Document inputXml, GraphPanelControler controler, int knownFormat) {
 
+		this.controler = controler;
 		this.knownFormat = knownFormat;
 		if (knownFormat == 11) {	//	FreeMind
 			topNode = "map";
@@ -111,92 +117,74 @@ public class TreeImport implements ActionListener {
 		}
 		
 //
-//		Create a JTree here
+//		Create a JTree 
 	    
 	    DefaultTreeModel model = new DefaultTreeModel(top);
 	    controler.setTreeModel(model);
-//	    controler.setNonTreeEdges(nonTreeEdges);
-	    model = null;
-	    model = controler.getTreeModel();
 		
-//		Temporarily show it here
-	    
 	    tree = new JTree(model);
 	    
 	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 //	    tree.addTreeSelectionListener(this);
 	    
-        frame = new JFrame("Using this tree structure");
+        frame = new JFrame("Found this tree structure:");
         frame.setLocation(100, 170);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);	// closing triggers further processing
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.addWindowListener(myWindowAdapter);
 		frame.setLayout(new BorderLayout());
         frame.add(new JScrollPane(tree));
 
         JPanel toolbar = new JPanel();
         toolbar.setLayout(new BorderLayout());
-//        JButton continueButton = new JButton("No");
-//        continueButton.addActionListener(this);
-//        continueButton.setSelected(true);
-//		JButton cancelButton = new JButton("Yes");
-//	    cancelButton.addActionListener(this);
-//	    
-//	    String okLocation = "East";
-//	    String cancelLocation = "West";
-//	    String multSel = "CTRL";
-//		if (System.getProperty("os.name").equals("Mac OS X")) {
-//	    	okLocation = "East";
-//	    	cancelLocation = "West";
-//	    	multSel = "CMD";
-//	    }
-		ButtonGroup buttonGroup = new ButtonGroup();
-        radioPanel = new JPanel(new GridLayout(0, 1));
-		radioPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		
-		JLabel instruction = new JLabel("<html><body>" +
-	    "You may use this tree structure for re-exorting \n"
-				+ "and use the map for nothing else.");
-		JRadioButton radio1 = new JRadioButton("Yes, just for exporting");
-		radio1.setActionCommand("export");
-		radio1.addActionListener(this);
-		buttonGroup.add(radio1);
-        radioPanel.add(radio1);
-		JRadioButton radio2 = new JRadioButton("No, continue.");
-		radio2.setActionCommand("normal");
-		radio2.setSelected(true);
-		radio2.addActionListener(this);
-		buttonGroup.add(radio2);
-        radioPanel.add(radio2);
-        toolbar.add(radioPanel);
-		
-		toolbar.add(instruction, "North");
 		toolbar.setBorder(new EmptyBorder(10, 10, 10, 10));
-        frame.add(toolbar,"South");
+		JLabel instruction = new JLabel("<html><body>" +
+	    "You may use this tree structure for re-exporting \n"
+				+ "if you use the map for nothing else:</body></html>");
+		toolbar.add(instruction, "North");
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new BorderLayout());
+        JButton continueButton = new JButton("Continue");
+        continueButton.addActionListener(this);
+        continueButton.setSelected(true);
+		JButton cancelButton = new JButton("Cancel");
+	    cancelButton.addActionListener(this);
+        buttons.add(continueButton, "East");
+		buttons.add(cancelButton, "West");
+		toolbar.add(buttons,"East");
+		transitBox = new JCheckBox ("Just for re-export", false);
+		toolbar.add(transitBox, "West");
+
+		frame.add(toolbar,"South");
         frame.pack();
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(dim.width/2 - 298, dim.height/2 - 209);		
 //        frame.setMinimumSize(new Dimension(400, 300));
         frame.setMinimumSize(new Dimension(596, 418));
 
-//        frame.setVisible(true);
-		
-//		
-//	Pass on the new map
-	
-	System.out.println("TI Map: " + nodes.size() + " " + edges.size());
-	try {
-		dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
-	} catch (TransformerConfigurationException e1) {
-		System.out.println("Error TI108 " + e1);
-	} catch (IOException e1) {
-		System.out.println("Error TI109 " + e1);
-	} catch (SAXException e1) {
-		System.out.println("Error TI110 " + e1);
+        frame.setVisible(true);
 	}
-	
-	controler.getNSInstance().setInput(dataString, 2);
-//    controler.setNonTreeEdges(nonTreeEdges);
-//	controler.replaceByTree(nodes, edges);
+//		
+//		Pass on the new map
+
+	public void finish() {
+        if (transit) { 
+        	controler.setNonTreeEdges(nonTreeEdges);
+        	controler.replaceByTree(nodes, edges);
+        } else {
+        	System.out.println("TI Map: " + nodes.size() + " " + edges.size());
+        	try {
+        		dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
+        	} catch (TransformerConfigurationException e1) {
+        		System.out.println("Error TI108 " + e1);
+        	} catch (IOException e1) {
+        		System.out.println("Error TI109 " + e1);
+        	} catch (SAXException e1) {
+        		System.out.println("Error TI110 " + e1);
+        	}
+        	controler.getNSInstance().setInput(dataString, 2);
+        	controler.setTreeModel(null);
+        	controler.setNonTreeEdges(null);
+        } 
 	}
 	
 	public void nest(Node parent, String parentID, DefaultMutableTreeNode parentInTree) {
@@ -338,9 +326,15 @@ public class TreeImport implements ActionListener {
 		}
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
-		
+		String command = arg0.getActionCommand();
+		if (command == "Cancel") {
+			transit = false;
+		} else if (command == "Continue") {
+			transit = transitBox.isSelected();
+		}
+        frame.setVisible(false);
+        frame.dispose();
+        finish();
 	}
 }

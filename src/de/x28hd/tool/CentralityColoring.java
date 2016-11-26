@@ -245,6 +245,8 @@ public class CentralityColoring implements TreeSelectionListener {
 //		}
 
 		int pos = 0;
+		TreeMap<Integer,Integer> treeTops = new TreeMap<Integer,Integer>();
+		int treeCount = 0;
 		while (pos < rankedNodes.size()) {
 			pos++;
 
@@ -252,6 +254,9 @@ public class CentralityColoring implements TreeSelectionListener {
 
 			int centerCandidate = rankedNodes.get(pos);
 			if (done.contains(centerCandidate)) continue;
+			treeCount++;
+			treeTops.put(treeCount, pos);
+			
 			eligible = new TreeMap<Integer,Integer>();		
 			todoMap = (SortedMap<Integer,Integer>) eligible;
 			todoSet = (SortedSet<Integer>) todoMap.keySet();
@@ -338,14 +343,25 @@ public class CentralityColoring implements TreeSelectionListener {
 		
 //
 //		Temporarily show a JTree here
+
+		SortedMap<Integer,Integer> treeTopsSorted = (SortedMap<Integer,Integer>) treeTops;
+		SortedSet<Integer> treeTopsSet = (SortedSet<Integer>) treeTopsSorted.keySet();
+		Iterator<Integer> ttix = treeTopsSet.iterator();
+	    DefaultMutableTreeNode topTop = new DefaultMutableTreeNode(new BranchInfo(-1, " "));
+	    
+		while (ttix.hasNext()) {
+		int treeTopIndex = ttix.next();
+		int treeTop = treeTops.get(treeTopIndex);
+		int topID = nodesSorted[treeTop];
 		
-		int topID = nodesSorted[1];
 		//	Show tree
 	    DefaultMutableTreeNode top = 
 	    		new DefaultMutableTreeNode(new BranchInfo(topID, nodes.get(topID).getLabel()));
+	    topTop.add(top);
 	    createSelectionNodes(top);
+		}
 	    
-	    DefaultTreeModel model = new DefaultTreeModel(top);
+	    DefaultTreeModel model = new DefaultTreeModel(topTop);
 	    controler.setTreeModel(model);
 	    controler.setNonTreeEdges(nonTreeEdges);
 	    model = null;

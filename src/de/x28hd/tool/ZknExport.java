@@ -212,11 +212,11 @@ public class ZknExport {
 
 	public void descendTree(DefaultMutableTreeNode treeNode, int parentZettel, 
 			String indent) {
-		zettelNumber++;
-		int myZettel = zettelNumber;
 		indent = indent + "  ";
 		BranchInfo info = (BranchInfo) treeNode.getUserObject();
 		int topicID = info.getKey();
+		if (topicID != -1) zettelNumber++;
+		int myZettel = zettelNumber;
 		
 		if (parentZettel > 0) {
 			String newLuh = myZettel + "";
@@ -234,8 +234,10 @@ public class ZknExport {
 		while (children.hasMoreElements()) {
 			descendTree((DefaultMutableTreeNode) children.nextElement(), myZettel, indent);
 		}
-		z2id.put(myZettel, topicID);
-		id2z.put(topicID, myZettel);
+		if (topicID != -1) {
+			z2id.put(myZettel, topicID);
+			id2z.put(topicID, myZettel);
+		}
 	}
 
 	public void addNode(int myZettel) {

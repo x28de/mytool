@@ -1911,6 +1911,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   if (nodes.size() > 0) {
 		   displayPopup("Please use an empty map if you want to use\n" 
 				   + "the imported tree information for re-export.");
+		   treeModel = null;
+		   nonTreeEdges = null;
 		   return;
 	   }
 	   nodes = replacingNodes;

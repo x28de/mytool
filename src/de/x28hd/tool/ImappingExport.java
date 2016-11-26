@@ -119,6 +119,7 @@ public class ImappingExport {
 	GraphPanelControler controler;
 	boolean success = false;
 	int nodeNumber = 0;
+	int treeNumber = 0;
 	
 	public ImappingExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
 			String zipFilename, GraphPanelControler controler)  {
@@ -327,7 +328,7 @@ public class ImappingExport {
 		while (assocs.hasMoreElements()){
 			int assocID = assocs.nextElement();
 			GraphEdge edge = edges.get(assocID);
-			if (!nonTreeEdges.contains(edge)) continue;
+			if (treeModel != null && !nonTreeEdges.contains(edge)) continue;
 			int n1 = edge.getN1();
 			int n2 = edge.getN2();
 
@@ -568,10 +569,13 @@ public class ImappingExport {
 	
 	public void descendTree(DefaultMutableTreeNode treeNode, int myNodeNumber, 
 			String cdsParent, String rdfParent, String indent) {
+		String myCdsUri = CDS_INBOX2;
+		String myRdfUri = inboxItem;;
 		indent = indent + "  ";
 		BranchInfo info = (BranchInfo) treeNode.getUserObject();
 		int topicID = info.getKey();
 		GraphNode topic = nodes.get(topicID);
+		if (topicID != -1) {	//	Skip this for the top of multiple trees
 		String label = topic.getLabel();
 		label = label.replace("\r","");
 		System.out.println(indent + myNodeNumber + " " + label);
@@ -589,11 +593,11 @@ public class ImappingExport {
 				label = label + ": " + detailPlain;
 			}
 		}
-		String myCdsUri = createUniqueCdsURI().toString();
+		myCdsUri = createUniqueCdsURI().toString();
 		addXmlItem(label, myCdsUri, cdsParent);	
 		num2cds.put(topicID, myCdsUri);
 
-		String myRdfUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
+		myRdfUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
 		outString = addToRdf(outString, myNodeNumber, myCdsUri, myRdfUri, rdfParent, maxVertical, false);
 		num2rdf.put(topicID, myRdfUri);
 
@@ -604,12 +608,17 @@ public class ImappingExport {
 			String childRdfUri = "<urn:imapping:" + UUID.randomUUID().toString() + ">";
 			outString = addToRdf(outString, 1, childCdsUri, childRdfUri, myRdfUri, maxVertical, true);
 		}
+		}
 		
 		//	Recursion
 		@SuppressWarnings("rawtypes")
 		Enumeration children =  treeNode.children();
 		int nodeNumber = 0;
 		while (children.hasMoreElements()) {
+			if (topicID == -1) {
+				treeNumber++;
+				nodeNumber = treeNumber;
+			}
 			descendTree((DefaultMutableTreeNode) children.nextElement(), nodeNumber, 
 					myCdsUri, myRdfUri, indent);
 			nodeNumber++;
