@@ -6,9 +6,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.HTMLEditorKit.Parser;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -20,6 +26,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
+
 import javax.xml.transform.OutputKeys;
 
 
@@ -27,6 +34,7 @@ public class TopicMapStorer {
 	Hashtable<Integer,GraphNode> nodes;
 	Hashtable<Integer,GraphEdge> edges;
 	String basedir;
+	String htmlOut = "";
 	Hashtable<Integer,Integer> nodeids = new Hashtable<Integer,Integer>();;
 	int nodenum = 0;
 	String commentString = "\nThis is not for human readers but for http://x28hd.de/tool/ \n";
@@ -150,13 +158,7 @@ public class TopicMapStorer {
 	endElement(handler, "label");
 	startElement(handler, "detail", null);
 	String detailString = topic.getDetail();
-//	if (anonymized) detailString = "";
-	if (anonymized) {
-		detailString = detailString.replaceAll("[a-z]","x");
-		detailString = detailString.replaceAll("[A-Z]","X");
-		detailString = detailString.replaceAll("<.*/>","");
-		detailString = detailString.replaceAll("<.*>","");
-	}
+	if (anonymized) detailString = filterHTML(detailString);
 	characters(handler, detailString);
 	endElement(handler, "detail");
 	endElement(handler, "topic");
@@ -223,5 +225,49 @@ public class TopicMapStorer {
 		}
 	}
 	
+	//	Accessory for anonymize
+	
+	private String filterHTML(String html) {
+		htmlOut = "";
+		MyHTMLEditorKit htmlKit = new MyHTMLEditorKit();
+		HTMLEditorKit.Parser parser = null;
+		HTMLEditorKit.ParserCallback cb = new HTMLEditorKit.ParserCallback() {
+			public void handleText(char[] data, int pos) {
+				String dataString = new String(data);
+				dataString = dataString.replaceAll("[a-z]","x");
+				dataString = dataString.replaceAll("[A-Z]","X");
+				htmlOut = htmlOut + dataString + " ";
+			}
+			public void handleStartTag(HTML.Tag t, MutableAttributeSet a, int pos) {
+				if (t.equals(HTML.Tag.B)) htmlOut = htmlOut + "<b>";
+			}
+			public void handleEndTag(HTML.Tag t, int pos) {
+				if (t.equals(HTML.Tag.B)) htmlOut = htmlOut + "</b>";
+			}
+		};
+		parser = htmlKit.getParser();
+		Reader reader; 
+		reader = (Reader) new StringReader(html);
+		try {
+			parser.parse(reader, cb, true);
+		} catch (IOException e2) {
+			System.out.println("Error ZE119 " + e2);
+		}
+		try {
+			reader.close();
+		} catch (IOException e3) {
+			System.out.println("Error ZE120 " + e3.toString());
+		}
+		return htmlOut;
+	}
+
+	private static class MyHTMLEditorKit extends HTMLEditorKit {
+		private static final long serialVersionUID = 7279700400657879527L;
+
+		public Parser getParser() {
+			return super.getParser();
+		}
+	}
+
 
 }

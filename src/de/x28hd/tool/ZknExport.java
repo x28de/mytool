@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -17,8 +19,12 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.HTMLEditorKit.Parser;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.text.MutableAttributeSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -52,6 +58,7 @@ public class ZknExport {
 	Hashtable<Integer,GraphNode> nodes;
 	Hashtable<Integer,GraphEdge> edges;
 	DefaultTreeModel treeModel = null;
+	String htmlOut = "";
 	
 	public ZknExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
 			String zipFilename, GraphPanelControler controler) {
@@ -261,12 +268,13 @@ public class ZknExport {
 
 		Element body = out.createElement("content");
 		String detailString = topic.getDetail();
-		detailString = detailString.replaceAll("</p>","[br]");
-		detailString = detailString.replaceAll("<p>","[br]");
-		detailString = detailString.replaceAll("</b>","[/f]");
-		detailString = detailString.replaceAll("<b>","[f]");
-		detailString = detailString.replaceAll("<.*/>","");
-		detailString = detailString.replaceAll("<.*>","");
+		detailString = filterHTML(detailString);
+//		detailString = detailString.replaceAll("</p>","[br]");
+//		detailString = detailString.replaceAll("<p>","[br]");
+//		detailString = detailString.replaceAll("</b>","[/f]");
+//		detailString = detailString.replaceAll("<b>","[f]");
+//		detailString = detailString.replaceAll("<.*/>","");
+//		detailString = detailString.replaceAll("<.*>","");
 		body.setTextContent(detailString + " ");
 		concept.appendChild(body);
 		
@@ -300,6 +308,47 @@ public class ZknExport {
 		concept.appendChild(luhmann);
 		
 		outMap.appendChild(concept);
+	}
+
+	private String filterHTML(String html) {
+		htmlOut = "";
+		MyHTMLEditorKit htmlKit = new MyHTMLEditorKit();
+		HTMLEditorKit.Parser parser = null;
+		HTMLEditorKit.ParserCallback cb = new HTMLEditorKit.ParserCallback() {
+			public void handleText(char[] data, int pos) {
+				String dataString = new String(data);
+				htmlOut = htmlOut + dataString + " ";
+			}
+			public void handleStartTag(HTML.Tag t, MutableAttributeSet a, int pos) {
+				if (t.equals(HTML.Tag.P)) htmlOut = htmlOut + "[br]";
+				if (t.equals(HTML.Tag.B)) htmlOut = htmlOut + "[f]";
+			}
+			public void handleEndTag(HTML.Tag t, int pos) {
+				if (t.equals(HTML.Tag.B)) htmlOut = htmlOut + "[/f]";
+			}
+		};
+		parser = htmlKit.getParser();
+		Reader reader; 
+		reader = (Reader) new StringReader(html);
+		try {
+			parser.parse(reader, cb, true);
+		} catch (IOException e2) {
+			System.out.println("Error ZE119 " + e2);
+		}
+		try {
+			reader.close();
+		} catch (IOException e3) {
+			System.out.println("Error ZE120 " + e3.toString());
+		}
+		return htmlOut;
+	}
+
+	private static class MyHTMLEditorKit extends HTMLEditorKit {
+		private static final long serialVersionUID = 7279700400657879527L;
+
+		public Parser getParser() {
+			return super.getParser();
+		}
 	}
 
 }
