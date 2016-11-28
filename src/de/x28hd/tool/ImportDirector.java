@@ -233,8 +233,8 @@ public class ImportDirector implements ActionListener {
 		radioPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		radioPanel.add(new JLabel("<html>Choose a format:"));
 
-//		for (int i = 0; i < importTypes.length - 1; i++) {
-		for (int i = 0; i < importTypes.length - 2; i++) {
+		for (int i = 0; i < importTypes.length - 1; i++) {
+//		for (int i = 0; i < importTypes.length - 2; i++) {
 			JRadioButton radio = new JRadioButton(importTypes[i]);
 			radio.setActionCommand("type-" + i);
 			radio.addActionListener(this);
@@ -331,6 +331,8 @@ public class ImportDirector implements ActionListener {
 				new EnwImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == 10) {
 				new EnwImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == 13) {
+				new ZknImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == 14) {
 				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else {
@@ -435,7 +437,7 @@ public class ImportDirector implements ActionListener {
 		} else if (knownFormat == 12) {
 			new TreeImport(inputXml, controler, 12);
 		} else if (knownFormat == 13) {
-			new TreeImport(inputXml, controler, 13);
+			new ZknImport(inputXml, controler, 13);
 		} else if (knownFormat == 14) {
 			new TopicMapImporter(inputXml, controler);
 		}

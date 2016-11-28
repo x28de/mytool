@@ -6,22 +6,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.HTMLEditorKit.Parser;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.text.MutableAttributeSet;
@@ -36,7 +28,6 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -45,7 +36,6 @@ public class ZknExport {
 	private static final String XML_ROOT = "zettelkasten";
 	GraphPanelControler controler;
 	boolean success = false;
-	int firstThought = 0;
 	HashSet<GraphEdge> nonTreeEdges; 
 	int zettelNumber = 0;
 	Hashtable<Integer,Integer> z2id = new Hashtable<Integer,Integer>(); //	Zettel to mynode id
@@ -104,7 +94,7 @@ public class ZknExport {
 		
 		//	Prepare entries
 
-		//	Concepts
+		//	Zettels
 		
 		treeModel = controler.getTreeModel();
 		
@@ -127,7 +117,6 @@ public class ZknExport {
 
 		//	Connections
 		
-		Element connectionList = out.createElement("Links");
 		Enumeration<GraphEdge> myEdges = this.edges.elements();
 
 		while (myEdges.hasMoreElements()) {
@@ -142,7 +131,6 @@ public class ZknExport {
 				String oldManl = manl.get(zettel1);
 				newManl = oldManl + "," + newManl;
 			}
-			System.out.println("Adding " + newManl + " at " + zettel1);
 			manl.put(zettel1, newManl);
 		}
 		
@@ -231,7 +219,6 @@ public class ZknExport {
 				String oldLuh = luh.get(parentZettel);
 				newLuh = oldLuh + "," + newLuh;
 			}
-			System.out.println("Adding " + newLuh + " at " + parentZettel);
 			luh.put(parentZettel, newLuh);
 		}
 		
@@ -254,8 +241,7 @@ public class ZknExport {
 		String labelString = topic.getLabel();
 		labelString = labelString.replace("\r","");
 		
-		int num = topic.getID();
-		concept.setAttribute("zknid", "imported-" + myZettel);
+		concept.setAttribute("zknid", myZettel + "");
 		
 		concept.setAttribute("ts_edited", "1611052051");
 		concept.setAttribute("ts_created", "1611212130");
@@ -269,12 +255,6 @@ public class ZknExport {
 		Element body = out.createElement("content");
 		String detailString = topic.getDetail();
 		detailString = filterHTML(detailString);
-//		detailString = detailString.replaceAll("</p>","[br]");
-//		detailString = detailString.replaceAll("<p>","[br]");
-//		detailString = detailString.replaceAll("</b>","[/f]");
-//		detailString = detailString.replaceAll("<b>","[f]");
-//		detailString = detailString.replaceAll("<.*/>","");
-//		detailString = detailString.replaceAll("<.*>","");
 		body.setTextContent(detailString + " ");
 		concept.appendChild(body);
 		
@@ -286,8 +266,6 @@ public class ZknExport {
 		
 		//	NonTree links
 		Element manlinks = out.createElement("manlinks");
-//		if (myZettel == 2) manlinks.setTextContent("4");
-//		if (myZettel == 4) manlinks.setTextContent("2");
 		if (manl.containsKey(myZettel)) {
 			String manlString = manl.get(myZettel);
 			manlinks.setTextContent(manlString);
@@ -350,6 +328,4 @@ public class ZknExport {
 			return super.getParser();
 		}
 	}
-
 }
-
