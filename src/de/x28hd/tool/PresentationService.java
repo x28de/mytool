@@ -1007,9 +1007,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menuItem54.addActionListener(this);
 		menu5.add(menuItem54);
 		
-		JMenuItem menuItem53 = new JMenuItem("Experimental",  KeyEvent.VK_F);
+		JMenuItem menuItem53 = new JMenuItem("Make Tree (Experimental)",  KeyEvent.VK_F);
 		menuItem53.setActionCommand("layout");
-		menuItem53.setToolTipText("(Experimental, don't use");
+		menuItem53.setToolTipText("Generates a tree layout and structure for exporting");
 		menuItem53.addActionListener(this);
 		menu5.add(menuItem53);
 		

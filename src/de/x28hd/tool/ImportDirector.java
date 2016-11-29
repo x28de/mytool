@@ -205,6 +205,10 @@ public class ImportDirector implements ActionListener {
 			new EnwImport(file, controler);
 		} else if (this.knownFormat == 10) {
 			new EnwImport(file, controler);
+//		} else if (this.knownFormat == 13) {
+//			new ZknImport(file, controler);
+			} else if (this.knownFormat == 13) {
+			new ZknImport(file, controler);
 		}
 	}
 
@@ -436,8 +440,8 @@ public class ImportDirector implements ActionListener {
 			new TreeImport(inputXml, controler, 11);
 		} else if (knownFormat == 12) {
 			new TreeImport(inputXml, controler, 12);
-		} else if (knownFormat == 13) {
-			new ZknImport(inputXml, controler, 13);
+//		} else if (knownFormat == 13) {
+//			new ZknImport(inputXml, controler, 13);
 		} else if (knownFormat == 14) {
 			new TopicMapImporter(inputXml, controler);
 		}

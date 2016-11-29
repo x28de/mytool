@@ -16,6 +16,7 @@ import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -55,6 +56,9 @@ public class ZknImport implements ActionListener {
 	Hashtable<String,String> relationships = new Hashtable<String,String>();
 	Hashtable<String,Integer> inputID2num = new  Hashtable<String,Integer>(); // TODO rename
 	HashSet<GraphEdge> nonTreeEdges = new HashSet<GraphEdge>();
+//	Hashtable<String,String> kwlists = new Hashtable<String,String>();
+	Hashtable<String,String> keywords = new Hashtable<String,String>();
+	HashSet<String> usedKw = new HashSet<String>();
 	
 	GraphPanelControler controler;
 	
@@ -82,23 +86,24 @@ public class ZknImport implements ActionListener {
 		ZipFile zfile = null;
 		try {
 			zfile = new ZipFile(file,CP850);
-			Enumeration<? extends ZipEntry> e = zfile.entries();
-			while (e.hasMoreElements()) {
-				ZipEntry entry = (ZipEntry) e.nextElement();
-				String filename = entry.getName();
-				filename = filename.replace('\\', '/');		
-				if (!filename.equals("zknFile.xml")) {
-					continue;
-				} else {
-					InputStream stream = zfile.getInputStream(entry);
-					new ZknImport(stream, controler);
-				}
+			final ZipEntry kwEntry = zfile.getEntry("keywordFile.xml");
+			if (kwEntry != null) {
+				InputStream stream = zfile.getInputStream(kwEntry);
+				loadKeywords(stream);
+			}
+			final ZipEntry zknEntry = zfile.getEntry("zknFile.xml");
+			if (zknEntry != null) {
+				InputStream stream = zfile.getInputStream(zknEntry);
+//				new ZknImport(stream, controler);
+				zknImport(stream, controler);
+			} else {
+				controler.displayPopup("Import failed, file(s) not found in Zip");
 			}
 		} catch (IOException e1) {
 			System.out.println("Error ZI111 " + e1);
 		}
 	}
-	public ZknImport(InputStream stream, GraphPanelControler controler) {
+	public void zknImport(InputStream stream, GraphPanelControler controler) {
 		
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = null;
@@ -125,11 +130,11 @@ public class ZknImport implements ActionListener {
 		} catch (SAXException e) {
 			System.out.println("Error ZI107 " + e );
 		}
-		new ZknImport(inputXml, controler, 13);
-	}
-		
-	
-	public ZknImport(Document inputXml, GraphPanelControler controler, int knownFormat) {
+//		new ZknImport(inputXml, controler, 13);
+//	}
+//		
+//	
+//	public ZknImport(Document inputXml, GraphPanelControler controler, int knownFormat) {
 		this.controler = controler;
 //
 //		Read nodes
@@ -154,7 +159,7 @@ public class ZknImport implements ActionListener {
 			if (detailContainer.getLength() > 0) detail = detailContainer.item(0).getTextContent();
 			detail = detail.replaceAll("\\[br\\]", "<br />");
 			
-			addNode(zettelNumber, id, label, detail);
+			addNode(zettelNumber, id, label, detail, false);
 
 			//	Record the "luhmann" hierarchy
 
@@ -168,6 +173,7 @@ public class ZknImport implements ActionListener {
 					parents.put(children[c], id);
 				}
 			}
+			
 			//	Record the xref links
 
 			NodeList linklistContainer = ((Element) zettelNode).getElementsByTagName("manlinks");
@@ -178,6 +184,20 @@ public class ZknImport implements ActionListener {
 				String [] linkTargets = linklist.split(",");
 				for (int c = 0; c < linkTargets.length; c++) {
 					relationships.put(linkTargets[c], id);
+				}
+			}
+			
+			//	Record the keywords
+
+			NodeList kwlistContainer = ((Element) zettelNode).getElementsByTagName("keywords");
+			Node kwlistNode = kwlistContainer.item(0);
+			String kwlist = kwlistNode.getTextContent();
+//			kwlists.put(id, kwlist);
+			if (!kwlist.isEmpty()) {
+				String [] kwIDs = kwlist.split(",");
+				for (int c = 0; c < kwIDs.length; c++) {
+					if (!usedKw.add(kwIDs[c])) System.out.println("Duplicate");
+					relationships.put("kw-" + kwIDs[c], id);
 				}
 			}
 		}
@@ -207,6 +227,19 @@ public class ZknImport implements ActionListener {
 			}
 		}
 
+//
+//		Create keyword nodes on graph
+		
+		Iterator<String> kwIx = usedKw.iterator();
+		int j2 = nodes.size();
+		while (kwIx.hasNext()) {
+			j2++;
+			String id = kwIx.next();
+			String label = keywords.get(id);
+			System.out.println("kw " + id + " of " + keywords.size() + " , label = " + label);
+			addNode(j2, "kw-" + id, label, "", true);
+		}
+		
 //		
 //		Process xref link relationships
 		
@@ -267,9 +300,10 @@ public class ZknImport implements ActionListener {
 //
 //	Add node
 	
-	public void addNode(int myZettel, String inputID, String label, String detail) {
+	public void addNode(int myZettel, String inputID, String label, String detail, boolean kw) {
 		int j = myZettel - 1;
 		String newNodeColor = "#ccdddd";
+		if (kw) newNodeColor = "#ffff99";
 		String topicName = label;
 		String verbal = detail;
 		int id = 101 + j;
@@ -374,5 +408,50 @@ public class ZknImport implements ActionListener {
         frame.setVisible(false);
         frame.dispose();
         finish();
+	}
+	
+//
+//	Accessory for keywords
+	
+	public void loadKeywords(InputStream kwstream) {
+		
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = null;
+		Document kwXml = null;
+
+		try {
+			db = dbf.newDocumentBuilder();
+		} catch (ParserConfigurationException e2) {
+			System.out.println("Error ZI122 " + e2 );
+		}
+
+		Element inputRoot = null;
+		try {
+			kwXml = db.parse(kwstream);
+//			Element inputRoot = null;
+			inputRoot = kwXml.getDocumentElement();
+			if (inputRoot.getTagName() != "keywords") {
+				System.out.println("Error ZI125, unexpected: " + inputRoot.getTagName() );
+				kwstream.close();
+				return;
+			} 
+		} catch (IOException e1) {
+			System.out.println("Error ZI126 " + e1 + "\n" + e1.getClass());
+		} catch (SAXException e) {
+			System.out.println("Error ZI127 " + e );
+		}
+		
+		NodeList kws = inputRoot.getElementsByTagName("entry");
+		int kwCount = kws.getLength();
+		if (kwCount <= 0) return;
+		for (int k = 0; k < kwCount; k++) {
+			Node entry = kws.item(k);
+			Element el = (Element) entry;
+			String id = el.getAttribute("keywid");
+			id = id.substring(0, 1);
+			String label = el.getTextContent();
+			keywords.put(id, label);
+			System.out.println(id + " " + label);
+		}
 	}
 }

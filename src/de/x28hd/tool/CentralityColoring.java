@@ -100,7 +100,7 @@ public class CentralityColoring implements TreeSelectionListener {
 			GraphNode node = nodesEnum.nextElement();
 			Color originalColor = node.getColor();
 			nodesSavedColors.put(node.getID(), originalColor);
-			node.setColor("#c0c0c0");
+			if (!layout) node.setColor("#c0c0c0");
 			int nodeID = node.getID();
 			g.addVertex(nodeID);
 			g2.addVertex(nodeID);
@@ -198,6 +198,7 @@ public class CentralityColoring implements TreeSelectionListener {
 			int nodeID = nodesSorted[pos]; 
 			GraphNode node = nodes.get(nodeID);
 			
+			if (!layout) {
 			String colorString = "#d8d8d8";
 			if (pos < nonLeaves) colorString = "#b200b2";
 			if (pos < numPerColor * 5) colorString = "#0000ff";
@@ -206,6 +207,7 @@ public class CentralityColoring implements TreeSelectionListener {
 			if (pos < numPerColor * 2) colorString = "#ffaa00";
 			if (pos < numPerColor) colorString = "#ff0000";
 			node.setColor(colorString);
+			}
 			
 			Enumeration<GraphEdge> neighbors = node.getEdges();
 			neighborIDs.clear();
@@ -230,7 +232,7 @@ public class CentralityColoring implements TreeSelectionListener {
 				}
 			}
 			GraphEdge parentEdge = neighborIDs.get(parentEdgeID);
-			if (parentEdgeID > -1) parentEdge.setColor(colorString); // TODO exotic case
+//			if (parentEdgeID > -1) parentEdge.setColor(colorString); // TODO exotic case
 		}
 
 		if (!layout) return;
@@ -300,9 +302,9 @@ public class CentralityColoring implements TreeSelectionListener {
 
 					parentUniq = uniqID;
 
-					if (annex) {
-						edge.setColor("#00ffff"); 
-					}
+//					if (annex) {
+//						edge.setColor("#00ffff"); 
+//					}
 
 					int otherEnd = rel;
 					eligible.put(ranksSorted[otherEnd], otherEnd);

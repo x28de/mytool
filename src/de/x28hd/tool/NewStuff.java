@@ -420,7 +420,8 @@ public class NewStuff {
 					done = true;
 					break;
 				} else if (filename.endsWith("zknFile.xml")) {
-					new ImportDirector(13, stream, controler); 
+//					new ImportDirector(13, stream, controler); 
+					new ImportDirector(13, file, controler); 
 					done = true;
 					break;
 				} else if (filename.equals("word/document.xml")) {
