@@ -52,7 +52,8 @@ public class TreeImport implements ActionListener {
 	
 	// Auxiliary stuff
 	Hashtable<String,String> inputItems = new Hashtable<String,String>();
-	Hashtable<String,String> relationships = new Hashtable<String,String>();
+	Hashtable<Integer,String> relationshipFrom = new Hashtable<Integer,String>();
+	Hashtable<Integer,String> relationshipTo = new Hashtable<Integer,String>();
 	Hashtable<String,Integer> inputID2num = new  Hashtable<String,Integer>();
 	HashSet<GraphEdge> nonTreeEdges = new HashSet<GraphEdge>();
 	GraphPanelControler controler;
@@ -74,6 +75,7 @@ public class TreeImport implements ActionListener {
 	JPanel radioPanel = null;
 	boolean transit = false;
 	JCheckBox transitBox = null;
+	int relID = -1;
 	
 	//	Constants
 	int maxVert = 10;
@@ -109,10 +111,11 @@ public class TreeImport implements ActionListener {
 		nest(graph, topNode, top);
 		
 		//	Collect relationships
-		Enumeration<String> relEnum = relationships.keys();
+		Enumeration<Integer> relEnum = relationshipFrom.keys();
 		while (relEnum.hasMoreElements()) {
-			String fromRef = relEnum.nextElement();
-			String toRef = relationships.get(fromRef);
+			Integer relID = relEnum.nextElement();
+			String fromRef = relationshipFrom.get(relID);
+			String toRef = relationshipTo.get(relID);
 			addEdge(fromRef, toRef, true);
 		}
 		
@@ -221,7 +224,9 @@ public class TreeImport implements ActionListener {
 					String nodeName = arrowCandidate.getNodeName();
 					if (nodeName.equals("arrowlink")) {
 						String relDesti = ((Element) arrowCandidate).getAttribute("DESTINATION");
-						relationships.put(id, relDesti);
+						relID++;
+						relationshipFrom.put(relID, id);
+						relationshipTo.put(relID, relDesti);
 					}
 				}
 			} else {

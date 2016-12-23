@@ -53,7 +53,8 @@ public class ZknImport implements ActionListener {
 	Hashtable<String,String> childlists = new Hashtable<String,String>();
 	Hashtable<String,String> linklists = new Hashtable<String,String>();
 	Hashtable<String,String> parents = new Hashtable<String,String>();
-	Hashtable<String,String> relationships = new Hashtable<String,String>();
+	Hashtable<Integer,String> relationshipFrom = new Hashtable<Integer,String>();
+	Hashtable<Integer,String> relationshipTo = new Hashtable<Integer,String>();
 	Hashtable<String,Integer> inputID2num = new  Hashtable<String,Integer>(); // TODO rename
 	HashSet<GraphEdge> nonTreeEdges = new HashSet<GraphEdge>();
 //	Hashtable<String,String> kwlists = new Hashtable<String,String>();
@@ -70,6 +71,7 @@ public class ZknImport implements ActionListener {
 	int maxVert = 10;
 	int j = -1;
 	int edgesNum = 0;
+	int relID = -1;
 	
 	JTree tree;
 	JFrame frame;
@@ -183,7 +185,9 @@ public class ZknImport implements ActionListener {
 			if (!linklist.isEmpty()) {
 				String [] linkTargets = linklist.split(",");
 				for (int c = 0; c < linkTargets.length; c++) {
-					relationships.put(linkTargets[c], id);
+					relID++;
+					relationshipTo.put(relID, linkTargets[c]);
+					relationshipFrom.put(relID, id);
 				}
 			}
 			
@@ -196,8 +200,10 @@ public class ZknImport implements ActionListener {
 			if (!kwlist.isEmpty()) {
 				String [] kwIDs = kwlist.split(",");
 				for (int c = 0; c < kwIDs.length; c++) {
-					if (!usedKw.add(kwIDs[c])) System.out.println("Duplicate");
-					relationships.put("kw-" + kwIDs[c], id);
+					if (!usedKw.add(kwIDs[c])) System.out.println("Duplicate " + kwIDs[c]);
+					relID++;
+					relationshipTo.put(relID, "kw-" + kwIDs[c]);
+					relationshipFrom.put(relID, id);
 				}
 			}
 		}
@@ -243,10 +249,11 @@ public class ZknImport implements ActionListener {
 //		
 //		Process xref link relationships
 		
-		Enumeration<String> relEnum = relationships.keys();
+		Enumeration<Integer> relEnum = relationshipFrom.keys();
 		while (relEnum.hasMoreElements()) {
-			String fromRef = relEnum.nextElement();
-			String toRef = relationships.get(fromRef);
+			int relID = relEnum.nextElement();
+			String fromRef = relationshipFrom.get(relID);
+			String toRef = relationshipTo.get(relID);
 			addEdge(fromRef, toRef, true);
 		}
 		
@@ -323,7 +330,13 @@ public class ZknImport implements ActionListener {
 	public void nest(String myID, String parentID, DefaultMutableTreeNode parentInTree) {
 		
 		String label = "";
-		int topicID = inputID2num.get(myID);
+		int topicID = -2;
+		if (inputID2num.containsKey(myID)) {
+			topicID = inputID2num.get(myID);
+		} else {
+			System.out.println("Error ZI123 " + myID + " bad");
+			return;
+		}
 		GraphNode topic = nodes.get(topicID);
 		label = topic.getLabel();
 		BranchInfo info = new BranchInfo(topicID, label);
@@ -379,7 +392,7 @@ public class ZknImport implements ActionListener {
 			controler.setNonTreeEdges(nonTreeEdges);
 			controler.replaceByTree(nodes, edges);
 		} else {
-			System.out.println("TI Map: " + nodes.size() + " " + edges.size());
+			System.out.println("ZI Map: " + nodes.size() + " " + edges.size());
 			try {
 				dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
 			} catch (TransformerConfigurationException e1) {
@@ -448,6 +461,7 @@ public class ZknImport implements ActionListener {
 			Node entry = kws.item(k);
 			Element el = (Element) entry;
 			String id = el.getAttribute("keywid");
+			if (id.isEmpty()) continue;
 			id = id.substring(0, 1);
 			String label = el.getTextContent();
 			keywords.put(id, label);

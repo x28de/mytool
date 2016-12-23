@@ -116,7 +116,7 @@ public class EnexImport {
 
 			nodes.put(id, topic);
 			
-			if (i == 1) dataString = topicName + "\t"+ verbal + "\r\n";
+			if (i == 0) dataString = topicName + "\t"+ verbal + "\r\n";
 			else dataString = dataString + topicName + "\t" + verbal + "\r\n";
 		}
 		
@@ -151,8 +151,13 @@ public class EnexImport {
 				if (t == Tag.A) {
 					String address = (String) a.getAttribute(Attribute.HREF);
 					link = true;
+					if (address.startsWith("evernote://")) {
+						htmlOut = "(Link cannot be reconstructed from export file)" + 
+								"<br /" + address + "<br /";
+					} else {
+						htmlOut = htmlOut + "<a href=\"" + address + "\">" + address + "</a> ";
+					}
 					System.out.println("Link " + address);
-					htmlOut = htmlOut + "<a href=\"" + address + "\">" + address + "</a> ";
 				}
 			}
 			public void handleText(char[] data, int pos) {

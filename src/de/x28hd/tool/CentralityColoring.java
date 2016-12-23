@@ -198,8 +198,8 @@ public class CentralityColoring implements TreeSelectionListener {
 			int nodeID = nodesSorted[pos]; 
 			GraphNode node = nodes.get(nodeID);
 			
-			if (!layout) {
 			String colorString = "#d8d8d8";
+			if (!layout) {
 			if (pos < nonLeaves) colorString = "#b200b2";
 			if (pos < numPerColor * 5) colorString = "#0000ff";
 			if (pos < numPerColor * 4) colorString = "#00ff00";
@@ -232,7 +232,7 @@ public class CentralityColoring implements TreeSelectionListener {
 				}
 			}
 			GraphEdge parentEdge = neighborIDs.get(parentEdgeID);
-//			if (parentEdgeID > -1) parentEdge.setColor(colorString); // TODO exotic case
+			if (parentEdgeID > -1) parentEdge.setColor(colorString); // TODO exotic case
 		}
 
 		if (!layout) return;
