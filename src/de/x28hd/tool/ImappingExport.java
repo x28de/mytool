@@ -297,7 +297,7 @@ public class ImappingExport {
 
 			boolean fused = false;
 			
-			if (det > 25) {
+			if (det > 20) {
 				fused = true;
 			} else {
 				if (!detailPlain.equals(label.trim()) && !detailPlain.isEmpty()) {

@@ -393,7 +393,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 				fuse = false;
 			}
 			
-			if (childContent.length() <= 30) {		// probably, detail fields are not desired
+			if (childContent.length() <= 25) {		// probably, detail fields are not desired
 				fuse = false;
 			}
 			
