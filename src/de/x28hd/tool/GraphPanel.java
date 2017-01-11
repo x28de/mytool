@@ -9,6 +9,8 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ComponentAdapter;
@@ -48,6 +50,7 @@ class GraphPanel extends JDesktopPane  {
 	NewStuff newStuff = null;
 	int ticks = 0;
 	boolean jumpingArrow = false;
+	Point lastPoint = new Point(0, 0);
 	
 	//	Drag accessories
 	int bundleDelay = 0;
@@ -91,7 +94,7 @@ class GraphPanel extends JDesktopPane  {
 	public class MyTransferHandler extends TransferHandler {
 		private static final long serialVersionUID = 1L;
 		
-	//  For drag
+	//  For drag/ copy
 		public Transferable createTransferable(JComponent c) {
 			System.out.println("GP: Transferable created ");
 			return new StringSelection(myTransferable);
@@ -103,7 +106,7 @@ class GraphPanel extends JDesktopPane  {
 			bundleInProgress = false;
 			clusterInProgress = false; 
 			toggleAlt(false);
-			System.out.println("GP: Drag & Drop Done " + action);
+			System.out.println("GP: Drag & Drop or Copy or Cut Done " + action);
 		}
 		
 //  	For drop ( same as in ComposeWindow)
@@ -631,7 +634,12 @@ class GraphPanel extends JDesktopPane  {
 		
 		private void thisPanelReleased(MouseEvent e) {
 			if (moveInProgress) {
-				moveInProgress = false;
+				moveInProgress = false; 
+				int dx = e.getX() - lastPoint.x;
+				int dy = e.getY() - lastPoint.y;
+				if (dx != 0 && dy != 0) {	// Moved?
+					controler.commit(2, null, null, new Point(dx, dy));
+				}
 				if (dragInProgress) {
 					controler.endTask();
 					controler.setDirty(true);
@@ -639,6 +647,7 @@ class GraphPanel extends JDesktopPane  {
 				}
 			} else if (clusterInProgress) {
 				clusterInProgress = false;
+				controler.commit(3, null, null, null);	// empty, to avoid false hopes
 				if (dragInProgress) {
 					controler.endTask();
 					controler.setDirty(true);
@@ -682,6 +691,7 @@ class GraphPanel extends JDesktopPane  {
 				controler.displayContextMenu("node", e.getX(), e.getY());
 			} else {							// default -- start moving a node
 				moveInProgress = true;
+				lastPoint = new Point(x, y);
 			}
 		}
 
@@ -796,6 +806,27 @@ class GraphPanel extends JDesktopPane  {
 			if (!bundleInProgress) bundleDelay++;
 			return;
 		}
+	}
+	
+	// Variant of drag bundle: copy
+		
+	public void copyCluster(GraphNode topic) {
+		Hashtable<Integer,GraphNode> cluster = createNodeCluster(topic);
+		myTransferable = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<x28map></x28map>";
+		try {
+			myTransferable = new TopicMapStorer(cluster, edges).createTopicmapString();
+		} catch (TransformerConfigurationException e1) {
+			System.out.println("Error GP102a " + e1);
+		} catch (IOException e1) {
+			System.out.println("Error GP103a " + e1);
+		} catch (SAXException e1) {
+			System.out.println("Error GP104a " + e1);
+		}
+		MyTransferHandler t = new MyTransferHandler();
+		graphPanel.setTransferHandler(t);
+		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+		t.exportToClipboard(graphPanel, clipboard, TransferHandler.COPY);  // This uses my above myTransferable
+		return;
 	}
 		
 //

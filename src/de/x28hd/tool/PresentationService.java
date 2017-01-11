@@ -85,6 +85,11 @@ public final class PresentationService implements ActionListener, MouseListener,
 	JCheckBoxMenuItem menuItem22 = null;
 	JCheckBoxMenuItem menuItem23 = null;
 	JCheckBoxMenuItem menuItem24 = null;
+	JMenuItem menuItem91 = null;
+	JMenuItem menuItem92 = null;
+	JMenuItem menuItem93 = null;
+	JMenuItem menuItem94 = null;
+	JMenuItem menuItem95 = null;
 	JCheckBoxMenuItem menuItem41 = null;
 	JCheckBoxMenuItem menuItem42 = null;
 	JCheckBoxMenuItem menuItem43 = null;
@@ -153,6 +158,17 @@ public final class PresentationService implements ActionListener, MouseListener,
 	String lastHTMLFilename = "";
 	boolean maybeJustPeek = true;
 	boolean existingMap = false;
+	
+	// Undo accessories 
+	int lastChangeType;
+	static final int DELETE_NODE = 0;
+	static final int DELETE_EDGE = 1;
+	static final int MOVE = 2;
+	static final int NONE = 3;
+	String[] lastChange = {"Delete Single Node", "Delete Single Edge", "Single Move", ""};
+	GraphNode lastNode;
+	GraphEdge lastEdge;
+	Point lastMove = new Point(0, 0);
 	
 	// Tree accessories
 	DefaultTreeModel treeModel;
@@ -246,6 +262,22 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "quit") {
 			close();
 
+		//	Undo / Redo
+			
+		} else if (command == "undo") {
+			undo();
+		} else if (command == "redo") {
+			redo();
+			
+		//	Copy / Cut / Delete
+			
+		} else if (command == "copy") {
+			copy(selectedAssoc);
+		} else if (command == "cut") {
+			cut(selectedAssoc);
+		} else if (command == "delete") {
+			delete();
+			
 		// Paste
 
 		} else if (command == "paste") {
@@ -641,6 +673,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			JMenuBar nullMenuBar = new JMenuBar();
 			mainWindow.setJMenuBar(nullMenuBar);
 		}
+		graphSelected();
 
 		cp.add(splitPane);
 		
@@ -727,7 +760,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		splitPane.setRightComponent(rightPanel);
 		splitPane.repaint();
 
-		graphSelected();
+//		graphSelected();
 		
 		return splitPane;
 }
@@ -809,12 +842,56 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menu2 = new JMenu("Edit  ");
 		menu2.setMnemonic(KeyEvent.VK_E);
 
+		menuItem91 = new JMenuItem("Undo");
+		menuItem91.setActionCommand("undo");
+		menuItem91.setEnabled(false);
+		menuItem91.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, shortcutMask));
+		menuItem91.setToolTipText("Revert last map change");
+		menuItem91.addActionListener(this);
+		menu2.add(menuItem91);
+
+		menuItem92 = new JMenuItem("Redo");
+		menuItem92.setActionCommand("redo");
+		menuItem92.setEnabled(false);
+		menuItem92.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, shortcutMask));
+		menuItem92.setToolTipText("Revert last undo");
+		menuItem92.addActionListener(this);
+		menu2.add(menuItem92);
+
+		menu2.addSeparator();
+
+		menuItem93 = new JMenuItem("Cut");
+		menuItem93.setActionCommand("cut");
+		menuItem93.setEnabled(false);
+		menuItem93.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, shortcutMask));
+		menuItem93.setToolTipText("Cut the cluster containing the selected edge");
+		menuItem93.addActionListener(this);
+		menu2.add(menuItem93);
+
+		menuItem94 = new JMenuItem("Copy");
+		menuItem94.setActionCommand("copy");
+		menuItem94.setEnabled(false);
+		menuItem94.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, shortcutMask));
+		menuItem94.setToolTipText("Copy the cluster containing the selected edge");
+		menuItem94.addActionListener(this);
+		menu2.add(menuItem94);
+
 		menuItem21 = new JMenuItem("Paste", new ImageIcon(getClass().getResource("paste.gif")));
 		menuItem21.setActionCommand("paste");
 		menuItem21.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, shortcutMask));
 		menuItem21.setToolTipText("Paste contents of the system clipboard");
 		menuItem21.addActionListener(this);
 		menu2.add(menuItem21);
+
+		menuItem95 = new JMenuItem("Delete");
+		menuItem95.setActionCommand("delete");
+		menuItem95.setEnabled(false);
+		menuItem95.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+		menuItem95.setToolTipText("Delete the selected item");
+		menuItem95.addActionListener(this);
+		menu2.add(menuItem95);
+		
+		menu2.addSeparator();
 
 		menuItem22 = new JCheckBoxMenuItem("Detail Pane", true);
 		menuItem22.setMnemonic(KeyEvent.VK_D);
@@ -863,7 +940,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		
 		JMenu menu7;	// TODO change number
 		menu7 = new JMenu("Export  ");
-		menu7.setMnemonic(KeyEvent.VK_E);
+		menu7.setMnemonic(KeyEvent.VK_X);
 
 		JMenuItem menuItem71 = new JMenuItem("to interactive HTML page", KeyEvent.VK_H);
 		menuItem71.setActionCommand("MakeHTML");
@@ -1477,7 +1554,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 	public void deselect(GraphEdge edge) {
 		if (!edge.equals(dummyEdge)) {
-			edge.setDetail(edi.getText());
+			String det = edi.getText();
+			if (det.length() > 59) edge.setDetail(det);
 			edi.setText("");
 		}
 	}	
@@ -1489,11 +1567,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 		selectedTopic = node;
 		edi.setText((selectedTopic).getDetail());
 		edi.setDirty(false);
+		commit(NONE, null, null, null);	// empty, to avoid false hopes
 //		edi.getTextComponent().setCaretPosition(0);
 		edi.getTextComponent().requestFocus();
 		String labelText = selectedTopic.getLabel();
 		labelField.setText(labelText);
 		edi.repaint();
+		menuItem93.setEnabled(false);
+		menuItem94.setEnabled(false);
+		menuItem95.setEnabled(true);
+		menuItem95.setToolTipText("Delete the selected node");
 	}
 	
 	public void edgeSelected(GraphEdge edge) {
@@ -1503,8 +1586,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 		selectedAssoc = edge;
 		edi.setText(selectedAssoc.getDetail());
 		edi.getTextComponent().setCaretPosition(0);
-		edi.getTextComponent().requestFocus();
+//		edi.getTextComponent().requestFocus();
 		edi.repaint();
+		menuItem93.setEnabled(true);
+		menuItem94.setEnabled(true);
+		menuItem95.setEnabled(true);
+		menuItem95.setToolTipText("Delete the selected edge");
 	}
 
 	public void graphSelected() {
@@ -1514,6 +1601,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 		selectedAssoc = dummyEdge;
 		edi.setText(initText);
 		graphPanel.grabFocus();		//  was crucial
+		menuItem93.setEnabled(false);
+		menuItem94.setEnabled(false);
+		menuItem95.setEnabled(false);
+		menuItem95.setToolTipText("Delete the selected item");
 	}
 	
 	private void ssssssssssseparator2() {
@@ -1585,7 +1676,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			JOptionPane confirm = new JOptionPane("Are you sure you want to delete " + 
 					"the topic \n \"" + topicName +	
 					"\" with " + neighborCount + " associations ?\n" + 
-					"(There is no Undo yet!)", 
+					"(There is no good Undo yet!)", 
 					JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_CANCEL_OPTION); 
 			JDialog d = confirm.createDialog(null, "Warning");
 			Point p = topic.getXY();
@@ -1605,6 +1696,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		nodes.remove(topicKey);
 		updateBounds();
 		setDirty(true);
+		commit(DELETE_NODE, topic, null, null);
 		return;
 	}
 
@@ -1622,7 +1714,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 			if (topicName2.length() > 30) topicName2 = topicName2.substring(0,30) + "...";
 			int response = JOptionPane.showConfirmDialog(OK, 
 					"Are you sure you want to delete " + "the association \n" + 
-					"from \"" + topicName1 + "\" to \""+ topicName2 + "\" ?");
+					"from \"" + topicName1 + "\" to \""+ topicName2 + "\" ?" + 
+					"\n(There is no good Undo yet!)"); 
 			if (response != JOptionPane.YES_OPTION) return;
 		}
 		int assocKey = assoc.getID();
@@ -1635,6 +1728,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		nodes.put(topicID2,  topic2);
 		graphPanel.repaint();
 		setDirty(true);
+		commit(DELETE_EDGE, null, assoc, null);
 		return;
 	}
 
@@ -1644,10 +1738,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 		Hashtable<Integer,GraphNode> cluster = graphPanel.createNodeCluster(topic1);
 		GraphNode node;
 		int response = JOptionPane.showConfirmDialog(OK, 
-				"<html><body>Your command was \"<b>Delete Cluster</b>\".<br />" +
+				"<html><body>Your command implies \"<b>Delete Cluster</b>\".<br />" +
 						"Are you absolutely sure you want to delete the entire <br />" + 
 						"cluster that contains " + (cluster.size() + 2) + " nodes ? " +
-				"(There is no Undo yet!)</body></html>");
+				"(There is no Undo for multiples!)</body></html>");
 		if (response != JOptionPane.YES_OPTION) return;
 		Enumeration<GraphNode> e2 = cluster.elements();
 		while (e2.hasMoreElements()) {
@@ -1656,6 +1750,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 		graphPanel.repaint();
 		setDirty(true);
+		return;
+	}
+
+	public void copyCluster(GraphEdge assoc) {
+		GraphNode topic1 = assoc.getNode1();	
+		graphPanel.copyCluster(topic1);
 		return;
 	}
 
@@ -1968,4 +2068,92 @@ public final class PresentationService implements ActionListener, MouseListener,
 	public void keyTyped(KeyEvent arg0) {
 	}
 
+	public void commit(int type, GraphNode node, GraphEdge edge, Point move) {
+		menuItem91.setText("Undo " + lastChange[type]);
+		lastChangeType = type;
+		menuItem91.setEnabled(true);
+		if (type == DELETE_NODE) {
+			lastNode = node;
+		} else if (type == DELETE_EDGE) {
+			lastEdge = edge;;
+		} else if (type == MOVE) {
+			lastMove = move;
+		} else if (type == NONE) {
+			menuItem91.setEnabled(false);
+		}
+		menuItem92.setText("Redo ");
+		menuItem92.setEnabled(false);
+	}
+	
+		public void undo() {
+			int type = lastChangeType;
+//			System.out.println("Undoing " + lastChange[type]);
+			menuItem92.setText("Redo " + lastChange[type]);
+			if (type == DELETE_NODE) {
+				GraphNode node = lastNode;
+				int id = node.getID();
+				nodes.put(id,  node);
+			} else if (type == DELETE_EDGE) {
+				GraphEdge edge = lastEdge;
+				int id = edge.getID();
+				edges.put(id, edge);
+			} else if (type == MOVE) {
+				Point xy = selectedTopic.getXY();
+				xy = new Point(xy.x - lastMove.x, xy.y - lastMove.y);
+				selectedTopic.setXY(xy);
+				graphPanel.repaint();
+			}
+			menuItem91.setText("Undo ");
+			menuItem91.setEnabled(false);
+			menuItem92.setText("Redo " + lastChange[type]);
+			menuItem92.setEnabled(true);
+		}
+
+		public void redo() {
+			int type = lastChangeType;
+			System.out.println("Redoing " + lastChange[type]);
+			if (type == DELETE_NODE) {
+				GraphNode node = lastNode;
+				int id = node.getID();
+				nodes.remove(id);
+			} else if (type == DELETE_EDGE) {
+				GraphEdge edge = lastEdge;
+				int id = edge.getID();
+				edges.remove(id);
+			} else if (type == MOVE) {
+				Point xy = selectedTopic.getXY();
+				xy = new Point(xy.x + lastMove.x, xy.y + lastMove.y);
+				selectedTopic.setXY(xy);
+				graphPanel.repaint();
+			}
+			menuItem92.setText("Redo ");
+			menuItem92.setEnabled(false);
+			menuItem91.setText("Undo " + lastChange[type]);
+			menuItem91.setEnabled(true);
+		}
+		
+		public void copy(GraphEdge assoc) {
+			GraphNode topic = assoc.getNode1();	
+			System.out.println("Copying");
+			graphPanel.copyCluster(topic);
+		}
+		
+		public void cut(GraphEdge assoc) {
+			GraphNode topic = assoc.getNode1();	
+			System.out.println("Cutting");
+			graphPanel.copyCluster(topic);
+			deleteCluster(assoc);
+		}
+		
+		public void delete() {
+			System.out.println("Deleting");
+			if (selectedTopic != dummyNode) {
+				deleteNode(selectedTopic);
+				selection.topic = null;
+				graphSelected();
+			} else {
+				deleteEdge(selectedAssoc);
+				graphSelected();
+			}
+		}
 }

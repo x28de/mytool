@@ -1,4 +1,5 @@
 package de.x28hd.tool;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -41,4 +42,5 @@ interface GraphPanelControler {
 	HashSet<GraphEdge> getNonTreeEdges();
 	void replaceByTree(Hashtable<Integer, GraphNode> nodes,
 			Hashtable<Integer, GraphEdge> edges);
+	void commit(int type, GraphNode node, GraphEdge edge, Point move); 
 	}

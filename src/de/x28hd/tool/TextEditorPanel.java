@@ -3,6 +3,11 @@ package de.x28hd.tool;
 
 import java.awt.BorderLayout;
 import java.awt.Desktop;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -40,7 +45,7 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.StyledEditorKit;
 import javax.swing.SwingUtilities;
 
-public class TextEditorPanel extends JPanel implements ActionListener, DocumentListener, HyperlinkListener {
+public class TextEditorPanel extends JPanel implements ActionListener, DocumentListener, HyperlinkListener, ClipboardOwner {
 
 	GraphPanelControler controler;
 	private JTextComponent textComponent;
@@ -109,6 +114,14 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	
 	public void actionPerformed(ActionEvent arg0) {
 		System.out.println("Action " + arg0.getActionCommand() + " performed");
+		if (arg0.getActionCommand() == "Advanced") {
+			String content = textComponent.getText();
+			content = content.replaceAll("<br>", "\n");
+			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+			Transferable t = new StringSelection(content);
+//			clipboard.setContents(t, (ClipboardOwner) controler);
+			clipboard.setContents(t, this);
+		}
 	}
 
 	// hyperlinks (only if editable = false)
@@ -296,6 +309,14 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		pasteItem.setText("Paste");
 		menu.add(pasteItem);
 		
+		Action advancedAction = new StyledEditorKit.PasteAction();
+		String advancedActionCommand = (String) advancedAction.getValue(Action.ACTION_COMMAND_KEY);	
+		JMenuItem advancedItem = new JMenuItem();
+		advancedItem.setActionCommand(advancedActionCommand);
+		advancedItem.addActionListener(this);
+		advancedItem.setText("Advanced");
+		menu.add(advancedItem);
+		
 		menu.show(this, x, y);
 	}
 
@@ -410,6 +431,12 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	
 	public JTextComponent getTextComponent() {
 		return textComponent;
+	}
+
+	@Override
+	public void lostOwnership(Clipboard clipboard, Transferable contents) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
