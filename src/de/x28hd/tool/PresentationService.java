@@ -90,6 +90,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	JMenuItem menuItem93 = null;
 	JMenuItem menuItem94 = null;
 	JMenuItem menuItem95 = null;
+	JMenuItem menuItem98 = null;
 	JCheckBoxMenuItem menuItem41 = null;
 	JCheckBoxMenuItem menuItem42 = null;
 	JCheckBoxMenuItem menuItem43 = null;
@@ -169,6 +170,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 	GraphNode lastNode;
 	GraphEdge lastEdge;
 	Point lastMove = new Point(0, 0);
+	
+	// Finding accessories
+	String findString = "";
+	HashSet<Integer> shownResults = null;
 	
 	// Tree accessories
 	DefaultTreeModel treeModel;
@@ -269,7 +274,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "redo") {
 			redo();
 			
-		//	Copy / Cut / Delete
+		//	Copy / Cut / Delete / Select
 			
 		} else if (command == "copy") {
 			copy(selectedAssoc);
@@ -277,6 +282,17 @@ public final class PresentationService implements ActionListener, MouseListener,
 			cut(selectedAssoc);
 		} else if (command == "delete") {
 			delete();
+		} else if (command == "select") {
+			displayPopup("Select a cluster of connected nodes by clicking an edge;\n" 
+					+ "select a single node by clicking it.\n"
+					+ "(Rectangular rubberband selection is not yet supported.)");
+				
+		//	Find
+			
+		} else if (command == "find") {
+			find(false);
+		} else if (command == "findagain") {
+			find(true);
 			
 		// Paste
 
@@ -641,6 +657,29 @@ public final class PresentationService implements ActionListener, MouseListener,
 	    } 
 	});
 
+	//	Trying animation for find result panning 
+	private Timer animationTimer2 = new Timer(20, new ActionListener() { 
+	    public void actionPerformed (ActionEvent e) {
+	    	if (animationPercent < 100) {
+	    		animationPercent = animationPercent + 5;
+	        	Double dX = -panning.x / 20.0;
+	        	Double dY = -panning.y / 20.0;
+	        	int pannedX = dX.intValue();;
+	        	int pannedY = dY.intValue();;
+	        	graphPanel.translateGraph(pannedX, pannedY);
+	    	} else {
+	    		animationTimer2.stop();
+	    		animationPercent = 0;
+	    		System.out.println("Arrived");
+	        	graphPanel.setModel(nodes, edges);
+	     	}
+	    	updateBounds();
+	    	translation = graphPanel.getTranslation();
+	    	setDefaultCursor();
+	    	graphPanel.repaint();
+	    } 
+	});
+
 	public void createMainWindow(String title) {
 		mainWindow = new JFrame(title) {
 			private static final long serialVersionUID = 1L;
@@ -802,9 +841,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menuItem12.addActionListener(this);
 		menu1.add(menuItem12);
 
-		JMenuItem menuItem13 = new JMenuItem("Save As...", KeyEvent.VK_A);
+		JMenuItem menuItem13 = new JMenuItem("Save As...");
 		menuItem13.setActionCommand("SaveAs");
-		menuItem13.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, shortcutMask));
 		menuItem13.addActionListener(this);
 		menu1.add(menuItem13);
 
@@ -853,7 +891,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menuItem92 = new JMenuItem("Redo");
 		menuItem92.setActionCommand("redo");
 		menuItem92.setEnabled(false);
-		menuItem92.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, shortcutMask));
 		menuItem92.setToolTipText("Revert last undo");
 		menuItem92.addActionListener(this);
 		menu2.add(menuItem92);
@@ -883,13 +920,35 @@ public final class PresentationService implements ActionListener, MouseListener,
 		menuItem21.addActionListener(this);
 		menu2.add(menuItem21);
 
+		menu2.addSeparator();
+
 		menuItem95 = new JMenuItem("Delete");
 		menuItem95.setActionCommand("delete");
 		menuItem95.setEnabled(false);
-		menuItem95.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 		menuItem95.setToolTipText("Delete the selected item");
 		menuItem95.addActionListener(this);
 		menu2.add(menuItem95);
+		
+		JMenuItem menuItem96 = new JMenuItem("Find...");
+		menuItem96.setActionCommand("find");
+		menuItem96.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, shortcutMask));
+		menuItem96.setToolTipText("Find a label");
+		menuItem96.addActionListener(this);
+		menu2.add(menuItem96);
+		
+		menuItem98 = new JMenuItem("Find again");
+		menuItem98.setActionCommand("findagain");
+		menuItem98.setEnabled(false);
+		menuItem98.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, shortcutMask));
+		menuItem98.setToolTipText("Find a label again");
+		menuItem98.addActionListener(this);
+		menu2.add(menuItem98);
+		
+		JMenuItem menuItem97 = new JMenuItem("Select ?");
+		menuItem97.setActionCommand("select");
+		menuItem97.setToolTipText("How to select");
+		menuItem97.addActionListener(this);
+		menu2.add(menuItem97);
 		
 		menu2.addSeparator();
 
@@ -1110,7 +1169,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		
 		menu6.addSeparator();
 
-		JMenuItem menuItem62 = new JMenuItem("About",  KeyEvent.VK_A);
+		JMenuItem menuItem62 = new JMenuItem("About");
 		menuItem62.setActionCommand("about");
 		menuItem62.addActionListener(this);
 		menu6.add(menuItem62);
@@ -1739,8 +1798,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 		GraphNode node;
 		int response = JOptionPane.showConfirmDialog(OK, 
 				"<html><body>Your command implies \"<b>Delete Cluster</b>\".<br />" +
-						"Are you absolutely sure you want to delete the entire <br />" + 
-						"cluster that contains " + (cluster.size() + 2) + " nodes ? " +
+				"Are you absolutely sure you want to delete the entire <br />" + 
+				"cluster that contains approx. " + (cluster.size() + 2) + " nodes ? <br />" +
 				"(There is no Undo for multiples!)</body></html>");
 		if (response != JOptionPane.YES_OPTION) return;
 		Enumeration<GraphNode> e2 = cluster.elements();
@@ -2069,7 +2128,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 	public void commit(int type, GraphNode node, GraphEdge edge, Point move) {
-		menuItem91.setText("Undo " + lastChange[type]);
+		menuItem91.setText("Undo: " + lastChange[type]);
 		lastChangeType = type;
 		menuItem91.setEnabled(true);
 		if (type == DELETE_NODE) {
@@ -2087,8 +2146,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	
 		public void undo() {
 			int type = lastChangeType;
-//			System.out.println("Undoing " + lastChange[type]);
-			menuItem92.setText("Redo " + lastChange[type]);
+			menuItem92.setText("Redo: " + lastChange[type]);
 			if (type == DELETE_NODE) {
 				GraphNode node = lastNode;
 				int id = node.getID();
@@ -2151,9 +2209,53 @@ public final class PresentationService implements ActionListener, MouseListener,
 				deleteNode(selectedTopic);
 				selection.topic = null;
 				graphSelected();
+				graphPanel.repaint();
 			} else {
 				deleteEdge(selectedAssoc);
 				graphSelected();
+			}
+		}
+		
+		public void find(boolean again) {
+			String userRequest;
+			int hitNumber = 0; 
+			if (!again) {
+				findString = "";
+				shownResults = new HashSet<Integer>();
+			}
+			while (hitNumber >= 0) {	//	Exit by user pressing cancel
+				hitNumber++;
+				if (findString.isEmpty()) {
+					userRequest = (String) JOptionPane.showInputDialog("Find (in labels):", findString);
+				} else {
+					userRequest = (String) JOptionPane.showInputDialog("Find (in labels) again:", findString);
+				}
+				if (userRequest == null) {
+					break;
+				}
+				findString = userRequest;
+				menuItem98.setEnabled(true);
+				Enumeration<Integer> nodesEnum = nodes.keys();
+				while (nodesEnum.hasMoreElements()) {
+					int nodeID = nodesEnum.nextElement();
+					System.out.println(nodeID);
+					GraphNode node = nodes.get(nodeID);
+					String label = node.getLabel().toLowerCase();
+					if (label.contains(findString.toLowerCase())) {
+						if (shownResults.contains(nodeID)) continue;
+						shownResults.add(nodeID);
+						Point xy = node.getXY();
+						Point transl = graphPanel.getTranslation();
+						int dx = xy.x - bounds.x - mainWindow.getWidth()/2 + transl.x;
+						int dy = xy.y - bounds.y - mainWindow.getHeight()/2 + transl.y;
+						panning = new Point(dx, dy);
+						System.out.println(label + " " + xy);
+						graphPanel.nodeSelected(node);
+						animationTimer2.start();
+						break;
+					} else continue;
+
+				}
 			}
 		}
 }
