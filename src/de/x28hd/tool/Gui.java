@@ -322,6 +322,7 @@ public class Gui {
 
 		JMenuItem menuItem74 = new JMenuItem("to iMapping iMap file",  KeyEvent.VK_I);
 		menuItem74.setActionCommand("imexp");
+		if (!controler.extended) menuItem74.setEnabled(false);
 		menuItem74.setToolTipText("<html><body><em>(Think Tool iMapping,info)</em></body></html>");
 		menuItem74.addActionListener(controler);
 		menu7.add(menuItem74);

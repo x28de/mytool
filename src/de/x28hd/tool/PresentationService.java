@@ -148,6 +148,11 @@ public final class PresentationService implements ActionListener, MouseListener,
 	"the canvas background.</em></font></body>";
 	
 	Selection selection = null;
+	boolean extended = false;
+	
+	public PresentationService(boolean ext) {
+		extended = ext;
+	}
 
 //
 //	Process menu clicks
@@ -957,7 +962,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		
 		graphPanel.setModel(nodes, edges);
 		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
-		about = (new AboutBuild()).getAbout();
+		about = (new AboutBuild(extended)).getAbout();
 
 		createMainWindow(mainWindowTitle);
 		System.out.println("PS: Initialized");

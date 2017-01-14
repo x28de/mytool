@@ -1,10 +1,15 @@
 package de.x28hd.tool;
 
 public class AboutBuild {
+	String extIndicator = "Basic";
+	public String about;
 	
-	public String about =  " ******** Provisional BANNER ********* " +
+	public AboutBuild(boolean extended) {
+		if (extended) extIndicator = "Extended";
+	
+	about =  " ******** Provisional BANNER ********* " +
 			"\r\n " + 
-			"\r\n This is My Tool, Release 38 Build 2" + 
+			"\r\n This is My Tool, Release 38 Build 2 " + extIndicator +
 			"\r\n running on Java version " + System.getProperty("java.version") +
 			"\r\n on " + System.getProperty("os.name") + " version " + System.getProperty("os.version") +
 			" (os.arch = " + System.getProperty("os.arch") + ")" +
@@ -13,8 +18,10 @@ public class AboutBuild {
 			"\r\n edu.uci.ics.jung and org.sqlite under GPL" +
 			"\r\n " + 
 			"\r\n ******** Provisional BANNER ********* ";
+	}
 	
 	public String getAbout() {
 		return about;
 	}
+	
 }
