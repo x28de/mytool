@@ -132,6 +132,13 @@ public class ZknExport {
 				newManl = oldManl + "," + newManl;
 			}
 			manl.put(zettel1, newManl);
+			//	Reverse link
+			newManl = zettel1 + "";
+			if (manl.containsKey(zettel2)) {
+				String oldManl = manl.get(zettel2);
+				newManl = oldManl + "," + newManl;
+			}
+			manl.put(zettel2, newManl);
 		}
 		
 		//	Create entries

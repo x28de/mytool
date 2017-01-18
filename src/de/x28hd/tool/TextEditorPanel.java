@@ -58,6 +58,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	boolean editableOrClickable = true; //  hyperlinks disabled
 	boolean tablet = false;
 	private static final long serialVersionUID = 1L;
+	int loopdetector = 0;
 
 	int offset = -1;
 	String EndOfLineStringProperty = "NOCH NIX";
@@ -305,6 +306,11 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	}
 
 	public void insertUpdate(DocumentEvent e) {
+		if (loopdetector > 100) {
+			System.out.println("Very strange behavior caused by this text");
+			return;		//	TODO understand
+		}
+		loopdetector++;
 		offset = e.getOffset();
 		int length = e.getDocument().getLength();
 //		System.out.println("insert, offset = " + offset + ", length = " + length);
@@ -395,6 +401,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	}
 	
 	public String getText() {
+		loopdetector = 0;
 		return textComponent.getText();
 	}
 	
