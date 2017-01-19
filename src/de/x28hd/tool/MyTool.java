@@ -77,7 +77,7 @@ public class MyTool extends JApplet {
 	private void initApplication(String[] args) {
 		System.setProperty("com.apple.mrj.application.apple.menu.about.name", "MyTool");
 		try {
-			PresentationService ps = new PresentationService(true);
+			PresentationService ps = new PresentationService(false);
 			new Thread(ps).start();
 			if (args.length >0) ps.setFilename(args[0], 0);
 		} catch (Throwable e) {

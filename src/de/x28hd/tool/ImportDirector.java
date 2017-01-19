@@ -85,7 +85,7 @@ public class ImportDirector implements ActionListener {
 			"TheBrain",
 			"Word",
 			"Endnote",
-			"Citavi",
+			"Citavi *)",
 			"VUE",
 			"RIS",
 			"BibTeX",
@@ -153,7 +153,7 @@ public class ImportDirector implements ActionListener {
 			"<html>If you have a \"Brain XML\" file exported from the TheBrain note management application</html>",
 			"<html>A Microsoft Word Document (we take the plain text from each paragraph)</html>",
 			"<html>If you have an \"Endnote Tagged Import Format\" file exported (we just split it up)</html>",
-			"<html>A Citavi project file (we extract the core knowledge network)</html>",
+			"<html>A Citavi project file (we extract the core knowledge network) <br>*) = Extended version only</html>",
 			"<html>A map file from the VUE (Visual Understanding Environment application</html>",
 			"<html>If you have an \"Research Information System\" file exported (we just split it up)</html>",
 			"<html>If you have an \"BibTeX\" file exported (we just split it up)</html>",
@@ -299,6 +299,11 @@ public class ImportDirector implements ActionListener {
 		//	Import type choice
 	    for (int i = 0; i < importTypes.length; i++) {
 	    	if (action.getActionCommand().equals("type-" + i)) {
+			if (i == 7 && !((PresentationService) controler).extended) {
+				new LimitationMessage();
+		        frame.setVisible(false);
+		        frame.dispose();
+			}
 	    		System.out.println("Type: " + i);
 	    		knownFormat = i;
 	    		continueButton.setEnabled(true);

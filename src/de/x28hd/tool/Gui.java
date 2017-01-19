@@ -281,7 +281,7 @@ public class Gui {
 		JMenuItem menuItem37 = new JMenuItem("Launch the Import Wizard",  new ImageIcon(getClass().getResource("wizard.gif")));
 		menuItem37.setActionCommand("testimp");
 		menuItem37.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, shortcutMask));
-		menuItem37.setToolTipText("");
+		menuItem37.setToolTipText("Import data in one of 15 formats");
 		menuItem37.addActionListener(controler);
 		menu3.add(menuItem37);
 
@@ -320,14 +320,13 @@ public class Gui {
 		menuItem73.addActionListener(controler);
 		menu7.add(menuItem73);
 
-		JMenuItem menuItem74 = new JMenuItem("to iMapping iMap file",  KeyEvent.VK_I);
+		JMenuItem menuItem74 = new JMenuItem("to iMapping iMap file *)",  KeyEvent.VK_I);
 		menuItem74.setActionCommand("imexp");
-		if (!controler.extended) menuItem74.setEnabled(false);
 		menuItem74.setToolTipText("<html><body><em>(Think Tool iMapping,info)</em></body></html>");
 		menuItem74.addActionListener(controler);
 		menu7.add(menuItem74);
 
-		JMenuItem menuItem75 = new JMenuItem("to DenkWerkZeug KGIF file",  KeyEvent.VK_D);
+		JMenuItem menuItem75 = new JMenuItem("to DenkWerkZeug KGIF file *)",  KeyEvent.VK_D);
 		menuItem75.setActionCommand("dwzexp");
 		menuItem75.setToolTipText("<html><body><em>(Think Tool DenkWerkZeug.org)</em></body></html>");
 		menuItem75.addActionListener(controler);
@@ -362,6 +361,12 @@ public class Gui {
 		menuItem79.setToolTipText("Just Character separated Values");
 		menuItem79.addActionListener(controler);
 		menu7.add(menuItem79);
+
+		JMenuItem menuItem82 = new JMenuItem("*) = Extended version only");
+		menuItem82.setActionCommand("extmsg");
+		menuItem82.setToolTipText("click here for the download link");
+		menuItem82.addActionListener(controler);
+		menu7.add(menuItem82);
 
 		menuBar.add(menu7);
 	}
@@ -418,7 +423,7 @@ public class Gui {
 		menu5 = new JMenu("Tools  ");
 		menu5.setMnemonic(KeyEvent.VK_T);
 
-		menuItem51 = new JCheckBoxMenuItem("Centrality Heatmap", false);
+		menuItem51 = new JCheckBoxMenuItem("Centrality Heatmap *)", false);
 		menuItem51.setActionCommand("centcol");
 		menuItem51.setToolTipText("Warmer colors represent higher betweenness centrality");
 		menuItem51.addActionListener(controler);
@@ -444,7 +449,7 @@ public class Gui {
 		menuItem54.addActionListener(controler);
 		menu5.add(menuItem54);
 
-		JMenuItem menuItem53 = new JMenuItem("Make Tree (Experimental)",  KeyEvent.VK_F);
+		JMenuItem menuItem53 = new JMenuItem("Make Tree (Experimental) *)",  KeyEvent.VK_F);
 		menuItem53.setActionCommand("layout");
 		menuItem53.setToolTipText("Generates a tree layout and structure for exporting");
 		menuItem53.addActionListener(controler);
@@ -455,6 +460,12 @@ public class Gui {
 		menuItem56.setToolTipText("One more map (to ALT + Drag node clusters)");
 		menuItem56.addActionListener(controler);
 		menu5.add(menuItem56);
+
+		JMenuItem menuItem57 = new JMenuItem("*) = Extended version only");
+		menuItem57.setActionCommand("extmsg");
+		menuItem57.setToolTipText("click here for the download link");
+		menuItem57.addActionListener(controler);
+		menu5.add(menuItem57);
 
 		menuBar.add(menu5);
 	}

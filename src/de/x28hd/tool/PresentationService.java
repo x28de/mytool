@@ -378,6 +378,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 			displayPopup(preferences);
 
 		} else if (command == "centcol") {
+			if (!extended) new LimitationMessage();
+			else {
 			if (gui.menuItem51.isSelected()) {
 			centralityColoring = new CentralityColoring(nodes, edges);
 				centralityColoring.changeColors();
@@ -385,11 +387,15 @@ public final class PresentationService implements ActionListener, MouseListener,
 				centralityColoring.revertColors();
 			}
 			graphPanel.repaint();
+			}
 			
 		} else if (command == "layout") {
+			if (!extended) new LimitationMessage();
+			else {
 			centralityColoring = new CentralityColoring(nodes, edges);
 				centralityColoring.changeColors(true, this);
 			graphPanel.repaint();
+			}
 			
 		} else if (command == "sibling") {
 			launchSibling();
@@ -414,6 +420,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 			}
 			}
 		} else if (command == "imexp") {
+			if (!extended) new LimitationMessage(); 
+			else {
 			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
 			fd.setFile("im.iMap"); 
 			fd.setVisible(true);
@@ -422,6 +430,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 				storeFilename = fd.getDirectory() + fd.getFile();
 
 				new ImappingExport(nodes, edges, storeFilename, this);
+			}
 			}
 		} else if (command == "zkexp") {
 			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
@@ -434,6 +443,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 				new ZknExport(nodes, edges, storeFilename, this);
 			}
 		} else if (command == "dwzexp") {
+			if (!extended) new LimitationMessage();
+			else {
 			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
 			fd.setFile("dwz.kgif.xml"); 
 			fd.setVisible(true);
@@ -442,6 +453,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 				storeFilename = fd.getDirectory() + fd.getFile();
 
 				new DwzExport(nodes, edges, storeFilename, this);
+			}
 			}
 		} else if (command == "cmapexp") {
 			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
@@ -486,6 +498,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "delCluster") {
 				deleteCluster(selectedAssoc);
 				graphSelected();
+				
+		} else if (command == "extmsg") {
+			new LimitationMessage();
 			
 		//	Context menu command
 
