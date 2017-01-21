@@ -323,6 +323,15 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "TogglePreso") {
 			graphPanel.togglePreso();
 			
+		} else if (command == "ToggleCards") {
+			boolean desiredState = gui.menuItem46.isSelected();
+			graphPanel.toggleCards(desiredState);
+			gui.menuItem47.setSelected(false);	// Auto off
+			
+		} else if (command == "AutoCircles") {
+			boolean desiredState = gui.menuItem47.isSelected();
+			if (desiredState) recount();
+			
 		} else if (command =="ToggleBorders") {
 			graphPanel.toggleBorders();
 			
@@ -601,6 +610,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	private Timer hintTimer = new Timer(25, new ActionListener() { 
 	    public void actionPerformed (ActionEvent e) { 
 			graphPanel.jumpingArrow(true);
+			graphPanel.grabFocus();
 	    } 
 	});
 	//	Trying animation for map insertion 
@@ -912,6 +922,15 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 	}
 	
+	//	Display nodes as cards until edges outweigh
+	public void recount() {
+		boolean moreNodes = (nodes.size() >= edges.size());
+		if (gui.menuItem47.isSelected()) {	// auto 
+			graphPanel.toggleCards(moreNodes);
+			gui.menuItem46.setSelected(moreNodes);
+		}
+	}
+	
 	public void openComposition() {
 		compositionWindow = new CompositionWindow(this);
 		gui.menuItem21.setEnabled(false);	// Main Menu Paste
@@ -1174,6 +1193,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			int newId = newKey(nodes.keySet());
 			GraphNode topic = new GraphNode(newId, xy, Color.decode(gui.nodePalette[paletteID][7]), "", "");
 			nodes.put(newId, topic);
+			recount();
 			updateBounds();
 			graphPanel.nodeSelected(topic);
 			graphPanel.repaint();
@@ -1191,6 +1211,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			GraphEdge assoc = new GraphEdge(newId, topic1, topic2, Color.decode(gui.edgePalette[paletteID][7]), "");  // nicht 239
 			assoc.setID(newId);
 			edges.put(newId, assoc);
+			recount();
 			
 			topic1.addEdge(assoc);
 			topic2.addEdge(assoc);
@@ -1247,6 +1268,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 		int topicKey = topic.getID();
 		nodes.remove(topicKey);
+		recount();
 		updateBounds();
 		setDirty(true);
 		commit(DELETE_NODE, topic, null, null);
@@ -1279,6 +1301,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		edges.remove(assocKey);
 		nodes.put(topicID1,  topic1);
 		nodes.put(topicID2,  topic2);
+		recount();
 		graphPanel.repaint();
 		setDirty(true);
 		commit(DELETE_EDGE, null, assoc, null);
@@ -1552,6 +1575,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   edges = integrateNodes.getEdges();
 
 	   graphPanel.setModel(nodes, edges);
+		recount();
 	   updateBounds();
 	   setDefaultCursor();
 	   graphPanel.repaint();
