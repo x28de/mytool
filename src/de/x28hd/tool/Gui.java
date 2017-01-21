@@ -41,6 +41,8 @@ public class Gui {
 	JCheckBoxMenuItem menuItem42 = null;
 	JCheckBoxMenuItem menuItem43 = null;
 	JCheckBoxMenuItem menuItem45 = null;
+	JCheckBoxMenuItem menuItem46 = null;
+	JCheckBoxMenuItem menuItem47 = null;
 	JCheckBoxMenuItem menuItem51 = null;
 	JCheckBoxMenuItem menuItem52 = null;
 	JCheckBoxMenuItem menuItem55 = null;
@@ -376,6 +378,22 @@ public class Gui {
 		JMenu menu4;
 		menu4 = new JMenu("View  ");
 		menu4.setMnemonic(KeyEvent.VK_V);
+
+		menuItem46 = new JCheckBoxMenuItem("Nodes as Index Cards", false);
+		menuItem46.setActionCommand("ToggleCards");
+		menuItem46.setSelected(true);
+		menuItem46.setToolTipText("Rectangles or circles");
+		menuItem46.addActionListener(controler);
+		menu4.add(menuItem46);
+
+		menuItem47 = new JCheckBoxMenuItem("Cards or Circles: Auto", false);
+		menuItem47.setActionCommand("AutoCircles");
+		menuItem47.setSelected(true);
+		menuItem47.setToolTipText("Show nodes as circles if more edges than nodes exist");
+		menuItem47.addActionListener(controler);
+		menu4.add(menuItem47);
+
+		menu4.addSeparator();
 
 		menuItem41 = new JCheckBoxMenuItem("Hyperlinks", false);
 		menuItem41.setActionCommand("ToggleHyp");

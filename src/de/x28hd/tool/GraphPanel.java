@@ -50,6 +50,7 @@ class GraphPanel extends JDesktopPane  {
 	NewStuff newStuff = null;
 	int ticks = 0;
 	boolean jumpingArrow = false;
+	boolean part1 = true;
 	Point lastPoint = new Point(0, 0);
 	
 	//	Drag accessories
@@ -82,6 +83,7 @@ class GraphPanel extends JDesktopPane  {
 	final static int BORDER_IMAGE_WIDTH = 84;  
 	final static int BORDER_IMAGE_HEIGHT = 12;
 	boolean x28PresoSizedMode = false;
+	boolean indexCards = true;
 	boolean borderOrientation = false;
 	boolean showHints = false;
 	boolean antiAliasing = true;
@@ -197,7 +199,8 @@ class GraphPanel extends JDesktopPane  {
 				}
 			}
 			private void paintJumpingArrow(Graphics g) {
-//				g.setColor(Color.RED);
+				g.setFont(font); 
+			if (part1) {
 				float vel = 5;
 				float grav = .5f;
 				int y = 100;
@@ -228,6 +231,36 @@ class GraphPanel extends JDesktopPane  {
 				g.drawString("Insert", x - 17, y + 32);
 				g.drawString("some", x - 17, y + 45);
 				g.drawString("items ?", x - 17, y + 58);
+			} else {
+				float vel = 20;
+				float grav = 1.5f;
+				int x = width - 300;
+				int y = 170;
+				for (int time = 0; time < ticks - 80; time++) {
+					vel = vel + grav;
+					x = x + (int) vel;
+					y = y - (int) (.33 * vel);
+					if (ticks > 100) break;
+				}
+				vel = 20;
+				grav = 1.5F;
+				for (int time = 0; time < ticks - 100; time++) {
+					vel = vel + grav;
+					x = x + (int) vel;
+					y = y - (int) (.33 * vel);
+					if (ticks > 120) break;
+				}
+				int[] xPoints = {x, x - 30, x - 31, x - 120, x - 124, x - 33, x - 38};
+				int[] yPoints = {y, y + 26, y + 16, y + 45, y + 35, y + 6, y - 4};
+				g.setColor(Color.GRAY);
+				if (x <= width + 30) g.drawPolygon(xPoints, yPoints, 7);
+				g.setColor(Color.BLACK);
+				g.drawString("Then", width - 380, 160);
+				if (ticks > 100) { 
+				g.drawString("let your eyes dart at ", width - 380, 210 + 26);
+				g.drawString("the details corner.", width - 380, 210 + 43);
+				}
+			}
 			}
 		};
 
@@ -283,14 +316,16 @@ class GraphPanel extends JDesktopPane  {
 			iconWidth = 28;
 			iconHeight = 28;
 		}
-//		g.fillOval(p.x - 9, p.y - 9, 18, 18);
-		g.fillOval(p.x - iconWidth/2, p.y - iconHeight/2, iconWidth, iconHeight);
-//		g.fillRect(p.x - iconWidth/2 -2, p.y - iconHeight/2 + 1, iconWidth + 4, iconHeight - 2);
+		if (!indexCards) {
+			g.fillOval(p.x - iconWidth/2, p.y - iconHeight/2, iconWidth, iconHeight);
+		} else {
+			iconWidth = 21;
+			iconHeight = 17;
+			g.fillRect(p.x - iconWidth/2, p.y - iconHeight/2, iconWidth, iconHeight);
+		}
 
 		if (node == selection.topic && selection.mode == Selection.SELECTED_TOPIC) {
 			g.setColor(Color.red);
-//			g.drawRect(p.x - 11, p.y - 11, 21, 21);
-//			g.drawRect(p.x - 12, p.y - 12, 23, 23);
 			g.drawRect(p.x - iconWidth/2 - 2, p.y - iconWidth/2 - 2, iconWidth + 3, iconHeight + 3);
 			g.drawRect(p.x - iconWidth/2 - 3, p.y - iconWidth/2 - 3, iconWidth + 5, iconHeight + 5);
 		}
@@ -852,6 +887,12 @@ class GraphPanel extends JDesktopPane  {
 			repaint();
 		}
 
+		public void toggleCards(boolean onoff) {
+			System.out.println(indexCards + " " + !indexCards);
+			indexCards = onoff;
+			repaint();
+		}
+
 		//	Toggle the simulatedAltDown state
 		//	It is switched on by double-clicking a node or edge,
 		//	it is switched off after its purpose is fulfilled 
@@ -882,13 +923,16 @@ class GraphPanel extends JDesktopPane  {
 			if (!clueless) ticks = 401;
 			if (ticks > 400) {
 				ticks = 0;
+				part1 = !part1;
 				jumpingArrow = false;
 				showHints = borderOrientation || jumpingArrow;
 				repaint();
 				return;
 			}
 			ticks++;
-			if (ticks < 180) {
+			int wait = 180;
+			if (!part1) wait = 80;
+			if (ticks < wait) {
 //				System.out.println("Waiting");
 				jumpingArrow = false;
 				showHints = borderOrientation || jumpingArrow;
