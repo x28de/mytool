@@ -46,13 +46,11 @@ public class SplitIntoNew {
 	}
 	
 	int separateRecords(String rawText) {
-		System.out.println("SplitIntoNew.separateRecords started");
 		StringBuffer recordBuffer;
 		String testForNewLine;
 //		String newLine = System.getProperty("line.separator");
 		String newLine= "\n";
 		int newLineLength = newLine.length();
-//		System.out.println(">" + newLine + "< (" + newLineLength + ")");
 		char testForTab;
 		char tabChar = "\t".charAt(0);
 		char commaChar = ",".charAt(0);
@@ -162,7 +160,6 @@ public class SplitIntoNew {
 //	Turn rows into nodes	
 	
 	void createNodes(int newNodes) {
-		System.out.println("SplitIntoNew.createNodes started");
 		String newNodeColor = controler.getNewNodeColor();
 //		String newLine = System.getProperty("line.separator");
 		String newLine = "\r";
@@ -174,7 +171,6 @@ public class SplitIntoNew {
 		for (int i = 0; i < newNodes; i++) {
 			String topicName = columns[i][0];
 			String verbal = columns[i][1];
-			System.out.println(verbal);
 			if (topicName.equals(newLine)) topicName = "";
 			if (verbal == null || verbal.equals(newLine)) verbal = "";
 			if (topicName.isEmpty() && verbal.isEmpty()) continue;
@@ -192,11 +188,9 @@ public class SplitIntoNew {
 	}
 
 	public Hashtable<Integer, GraphNode> getNodes() {
-		System.out.println("SplitIntoNew returning " + nodes.size() + " nodes");
 		return nodes;
 	}
 	public Hashtable<Integer, GraphEdge> getEdges() {
-		System.out.println("SplitIntoNew returning " + edges.size() + " edges");
 		return edges;
 	}
 

@@ -134,6 +134,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	boolean isDirty = false;
 	boolean presoSizedMode = false;
 	boolean contextPasteAllowed = true;
+	boolean hyp = false;
 	int paletteID = 1;
 
 	// Placeholders
@@ -144,8 +145,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 	String initText = "<body><font color=\"gray\">" +
 	"<em>Click a node for its details, ALT+drag " +
 	"a node to connect it." + 
-	"<br />&nbsp;<br />For help, right-click " +  
-	"the canvas background.</em></font></body>";
+	"<br />&nbsp;<br />Do you have any questions? Contact " +
+		 "<a href=\"mailto:support@x28hd.de\">support@x28hd.de</a></em></font></body>";
 	
 	Selection selection = null;
 	boolean extended = false;
@@ -238,9 +239,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "delete") {
 			delete();
 		} else if (command == "select") {
-			displayPopup("Select a cluster of connected nodes by clicking an edge;\n" 
-					+ "select a single node by clicking it.\n"
-					+ "(Rectangular rubberband selection is not yet supported.)");
+			displayPopup("<html><h3>How to Select</h3>" 
+					+ "Select a cluster of connected nodes by clicking any edge;<br />" 
+					+ "select a single node by clicking it.<br /><br />"
+					+ "(Rectangular rubberband selection is not yet supported.)</html>");
 				
 		//	Find
 			
@@ -580,6 +582,14 @@ public final class PresentationService implements ActionListener, MouseListener,
 			}
 			endTask();
 			
+		} else if (command == "HowToPrint") {
+			displayPopup("<html><h3>How to Print or Snapshot</h3>" 
+					+ "You can <b>Export</b> to a printable HTML page and then<br />" 
+					+ "print, zoom or screenshot from your browser.<br /><br />"
+					+ "Instead of a <i>static</i> snapshot, you may also consider<br />"
+					+ "an <i>interactive</i> HTML page that allows panning<br /> "
+					+ "and selecting.</html>");
+			
 		} else if (command == "Print") {
 			if (lastHTMLFilename.isEmpty()) {
 				if (askForFilename("htm")) {
@@ -848,8 +858,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 	public void displayHelp() {
 		JOptionPane.showMessageDialog(mainWindow,"Provisional Help\n" +
-	"New features since release 16 not yet described.\n" +
-	"\n" +
+	"Do you have any questions? Contact support@x28hd.de\n\n" +
+	"New features since release 16 not yet described.\n\n" +
 	"Nodes:\n" +			
 	"(Left-) Click on a node to view its detail in the right panel;\n" +
 	"(Left-) Drag a node to move it;\n" +
@@ -883,12 +893,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 	
 	public void toggleHyp(int whichWasToggled) {
 		
-		edi.toggleHyp();
+		// Ignore hit if already selected
 		if (whichWasToggled == 1) { 	// hyperlinks 
-			gui.menuItem22.setSelected(!gui.menuItem22.isSelected());
+			if (gui.menuItem41.isSelected() == hyp) return;
 		} else {
-			gui.menuItem41.setSelected(!gui.menuItem41.isSelected());
+			if (gui.menuItem22.isSelected() == !hyp) return;
 		}
+		// Do the work 
+		edi.toggleHyp();
+		hyp = !hyp;
+		// Reflect change in texts
 		int stateHyp = 0;
 		if (gui.menuItem41.isSelected()) stateHyp = 1;
 		displayPopup(gui.popupHyp[stateHyp]);
@@ -959,6 +973,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 //		if (filename.isEmpty()) openComposition();
 		if (filename.isEmpty()) {
 			hintTimer.start();
+
 		}
 	}
 	
@@ -1000,6 +1015,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 		createMainWindow(mainWindowTitle);
 		System.out.println("PS: Initialized");
+		System.out.println("\n\n**** This console window may be ignored ****");
 		
 //		newStuff.tmpInit();
 		if (!filename.isEmpty()) newStuff.setInput(filename, 1);
@@ -1606,7 +1622,6 @@ public final class PresentationService implements ActionListener, MouseListener,
     
 	public void mouseClicked(MouseEvent arg0) {
 		if ((arg0.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
-			System.out.println("Mouse right-clicked");
 			JPopupMenu menu = Utilities.showContextMenu();
 			menu.show(labelField, arg0.getX(), arg0.getY());
 		}
@@ -1767,7 +1782,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 						int dx = xy.x - bounds.x - mainWindow.getWidth()/2 + transl.x;
 						int dy = xy.y - bounds.y - mainWindow.getHeight()/2 + transl.y;
 						panning = new Point(dx, dy);
-						System.out.println(label + " " + xy);
 						graphPanel.nodeSelected(node);
 						animationTimer2.start();
 						break;

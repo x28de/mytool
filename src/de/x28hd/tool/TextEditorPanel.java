@@ -118,7 +118,6 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		HyperlinkEvent.EventType type = arg0.getEventType();
 		final URL url = arg0.getURL();
 		if (type == HyperlinkEvent.EventType.ENTERED) {
-			System.out.println("Entered");
 		} else if (type == HyperlinkEvent.EventType.ACTIVATED) {
 			if (Desktop.isDesktopSupported()) {
 				try {
@@ -138,7 +137,6 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		public void actionPerformed(ActionEvent a) {
 			if (a.getActionCommand().equals("AddToLabel")) {
 				boldAction.actionPerformed(a);
-				System.out.println("Button " + a.getActionCommand() + " pressed once");
 				controler.addToLabel(textToAdd);
 			}
 		}
@@ -221,7 +219,6 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		textComponent.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
-					System.out.println("Rightclick");	
 					int x = e.getX();
 					int y = e.getY();
 					showContextMenu(x, y);
@@ -377,7 +374,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
     		try {
     			inspect = doc.getText(myDot, 1);
     		} catch (BadLocationException e1) {
-    			System.out.println("BadLocationException");
+    			System.out.println("Error TE104 BadLocationException");
     			System.exit(0);
     		}
     		inspectedSeq = (CharSequence) inspect;

@@ -4,12 +4,14 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 
 public class Gui {
@@ -28,7 +30,7 @@ public class Gui {
 //	JMenuBar myMenuBar = null;
 //	boolean showMenuBar = true;
 	JMenuItem menuItem21 = null;
-	JCheckBoxMenuItem menuItem22 = null;
+	JRadioButtonMenuItem menuItem22 = null;
 	JCheckBoxMenuItem menuItem23 = null;
 	JCheckBoxMenuItem menuItem24 = null;
 	JMenuItem menuItem91 = null;
@@ -37,7 +39,7 @@ public class Gui {
 	JMenuItem menuItem94 = null;
 	JMenuItem menuItem95 = null;
 	JMenuItem menuItem98 = null;
-	JCheckBoxMenuItem menuItem41 = null;
+	JRadioButtonMenuItem menuItem41 = null;
 	JCheckBoxMenuItem menuItem42 = null;
 	JCheckBoxMenuItem menuItem43 = null;
 	JCheckBoxMenuItem menuItem45 = null;
@@ -95,7 +97,7 @@ public class Gui {
 		editMenu();
 		insertMenu();
 		exportMenu();
-		viewMenu();
+//		viewMenu();
 		advancedMenu();
 		helpMenu();
 		
@@ -106,7 +108,6 @@ public class Gui {
 
 		JMenu menu1;
 		menu1 = new JMenu("File  ");
-		menu1.setMnemonic(KeyEvent.VK_F);
 
 		JMenuItem menuItem10 = new JMenuItem("New", new ImageIcon(getClass().getResource("new.gif")));
 		menuItem10.setActionCommand("new");
@@ -133,28 +134,16 @@ public class Gui {
 		menuItem13.addActionListener(controler);
 		menu1.add(menuItem13);
 
-		JMenuItem menuItem14 = new JMenuItem("Print", KeyEvent.VK_P);
-		menuItem14.setActionCommand("Print");
-		menuItem14.setToolTipText("HTML graphics to zoom out");
+		JMenuItem menuItem14 = new JMenuItem("Print ?");
+		menuItem14.setActionCommand("HowToPrint");
+		menuItem14.setToolTipText("How to print");
 		menuItem14.addActionListener(controler);
 		menu1.add(menuItem14);
 
-		JMenuItem menuItem15 = new JMenuItem("Snapshot", KeyEvent.VK_H);
-		menuItem15.setActionCommand("MakeHTML");
-		menuItem15.setToolTipText("An HTML snapshot for interactive Read-Only mode");
-		menuItem15.addActionListener(controler);
-		menu1.add(menuItem15);
-
-
-		JMenuItem menuItem16 = new JMenuItem("Legacy Save...");
-		menuItem16.setActionCommand("export");
-		menuItem16.setToolTipText("Export to lagacy zip file format");
-		menuItem16.addActionListener(controler);
-		menu1.add(menuItem16);
-
 		menu1.addSeparator();
 
-		JMenuItem menuItem17 = new JMenuItem("Quit", KeyEvent.VK_Q);
+//		JMenuItem menuItem17 = new JMenuItem("Quit", KeyEvent.VK_Q);
+		JMenuItem menuItem17 = new JMenuItem("Quit");
 		menuItem17.setActionCommand("quit");
 		if (!System.getProperty("os.name").equals("Mac OS X"))
 			menuItem17.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, shortcutMask));
@@ -168,7 +157,6 @@ public class Gui {
 
 		JMenu menu2;
 		menu2 = new JMenu("Edit  ");
-		menu2.setMnemonic(KeyEvent.VK_E);
 
 		menuItem91 = new JMenuItem("Undo");
 		menuItem91.setActionCommand("undo");
@@ -242,25 +230,11 @@ public class Gui {
 
 		menu2.addSeparator();
 
-		menuItem22 = new JCheckBoxMenuItem("Detail Pane", true);
-		menuItem22.setMnemonic(KeyEvent.VK_D);
-		menuItem22.setActionCommand("ToggleDetEdit");
-		menuItem22.setToolTipText(tooltip22[0]);
-		menuItem22.addActionListener(controler);
-		menu2.add(menuItem22);
-
 		menuItem23 = new JCheckBoxMenuItem("Lurid Colors", false);
-		menuItem23.setMnemonic(KeyEvent.VK_L);
 		menuItem23.setActionCommand("TogglePalette");
 		menuItem23.setToolTipText("Color scheme for new nodes and edges");
 		menuItem23.addActionListener(controler);
 		menu2.add(menuItem23);
-
-		menuItem24 = new JCheckBoxMenuItem("Appending", true);
-		menuItem24.setMnemonic(KeyEvent.VK_A);
-		menuItem24.setToolTipText("Exact drop position is ignored and new stuff is just appended");
-		menuItem24.addActionListener(controler);
-		menu2.add(menuItem24);
 
 		menuBar.add(menu2);
 	}
@@ -269,9 +243,8 @@ public class Gui {
 
 		JMenu menu3;
 		menu3 = new JMenu("Insert  ");
-		menu3.setMnemonic(KeyEvent.VK_I);
 
-		JMenuItem menuItem31 = new JMenuItem("Insert Items",  KeyEvent.VK_I);
+		JMenuItem menuItem31 = new JMenuItem("Insert Items");
 		menuItem31.setActionCommand("insert");
 		menuItem31.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, shortcutMask));
 		menuItem31.setToolTipText("Paste, Drop, or Type into a Composition Window");
@@ -294,75 +267,70 @@ public class Gui {
 
 		JMenu menu7;	// TODO change number
 		menu7 = new JMenu("Export  ");
-		menu7.setMnemonic(KeyEvent.VK_X);
 
-		JMenuItem menuItem71 = new JMenuItem("to interactive HTML page", KeyEvent.VK_H);
-		menuItem71.setActionCommand("MakeHTML");
-		menuItem71.setToolTipText("An HTML snapshot for interactive Read-Only mode");
-		menuItem71.addActionListener(controler);
-		menu7.add(menuItem71);
-
-		JMenuItem menuItem72 = new JMenuItem("to printable HTML page", KeyEvent.VK_P);
-		menuItem72.setActionCommand("Print");
-		menuItem72.setToolTipText("HTML graphics to zoom out");
-		menuItem72.addActionListener(controler);
-		menu7.add(menuItem72);
-
-		JMenuItem menuItem80 = new JMenuItem("to anonymized map", KeyEvent.VK_Y);
-		menuItem80.setActionCommand("Anonymize");
-		menuItem80.setToolTipText("Saves a copy with all a-z replaced by x");
-		menuItem80.addActionListener(controler);
-		menu7.add(menuItem80);
-
-		menu7.addSeparator();
-
-		JMenuItem menuItem73 = new JMenuItem("to Wordpress WXP format",  KeyEvent.VK_W);
+		JMenuItem menuItem73 = new JMenuItem("to Wordpress WXP format");
 		menuItem73.setActionCommand("wxp");
-		menuItem73.setToolTipText("<html><body><em>(Wordpress Export Format)</em></body></html>");
+		menuItem73.setToolTipText("(Wordpress Export Format)");
 		menuItem73.addActionListener(controler);
 		menu7.add(menuItem73);
 
-		JMenuItem menuItem74 = new JMenuItem("to iMapping iMap file *)",  KeyEvent.VK_I);
-		menuItem74.setActionCommand("imexp");
-		menuItem74.setToolTipText("<html><body><em>(Think Tool iMapping,info)</em></body></html>");
-		menuItem74.addActionListener(controler);
-		menu7.add(menuItem74);
-
-		JMenuItem menuItem75 = new JMenuItem("to DenkWerkZeug KGIF file *)",  KeyEvent.VK_D);
-		menuItem75.setActionCommand("dwzexp");
-		menuItem75.setToolTipText("<html><body><em>(Think Tool DenkWerkZeug.org)</em></body></html>");
-		menuItem75.addActionListener(controler);
-		menu7.add(menuItem75);
-
-		JMenuItem menuItem76 = new JMenuItem("to CMap CXL file",  KeyEvent.VK_M);
+		JMenuItem menuItem76 = new JMenuItem("to CMap CXL file");
 		menuItem76.setActionCommand("cmapexp");
 		menuItem76.setToolTipText("ConceptMap by cmap.ihmc.us");
 		menuItem76.addActionListener(controler);
 		menu7.add(menuItem76);
 
-		JMenuItem menuItem77 = new JMenuItem("to Brain XML file",  KeyEvent.VK_M);
+		JMenuItem menuItem77 = new JMenuItem("to Brain XML file");
 		menuItem77.setActionCommand("brainexp");
 		menuItem77.setToolTipText("Create a TheBrain PB-XML import file");
 		menuItem77.addActionListener(controler);
 		menu7.add(menuItem77);
 
-		JMenuItem menuItem78 = new JMenuItem("to VUE map file",  KeyEvent.VK_U);
+		JMenuItem menuItem78 = new JMenuItem("to VUE map file");
 		menuItem78.setActionCommand("vueexp");
-		menuItem78.setToolTipText("Create a VUE map file");
+		menuItem78.setToolTipText("(For Visual Understanding Environment)");
 		menuItem78.addActionListener(controler);
 		menu7.add(menuItem78);
 
-		JMenuItem menuItem81 = new JMenuItem("to Zettelkasten XML file", KeyEvent.VK_K);
+		JMenuItem menuItem81 = new JMenuItem("to Zettelkasten XML file");
 		menuItem81.setActionCommand("zkexp");
 		menuItem81.setToolTipText("Note-taking application according to Luhmann ");
 		menuItem81.addActionListener(controler);
 		menu7.add(menuItem81);
 
-		JMenuItem menuItem79 = new JMenuItem("to CSV text file",  KeyEvent.VK_S);
+		JMenuItem menuItem79 = new JMenuItem("to CSV text file");
 		menuItem79.setActionCommand("csvexp");
 		menuItem79.setToolTipText("Just Character separated Values");
 		menuItem79.addActionListener(controler);
 		menu7.add(menuItem79);
+
+		JMenuItem menuItem74 = new JMenuItem("to iMapping iMap file *)");
+		menuItem74.setActionCommand("imexp");
+		menuItem74.setToolTipText("(Think Tool iMapping,info)");
+		menuItem74.addActionListener(controler);
+		menu7.add(menuItem74);
+
+		JMenuItem menuItem75 = new JMenuItem("to DenkWerkZeug KGIF file *)");
+		menuItem75.setActionCommand("dwzexp");
+		menuItem75.setToolTipText("(Think Tool DenkWerkZeug.org)");
+		menuItem75.addActionListener(controler);
+		menu7.add(menuItem75);
+
+		menu7.addSeparator();
+
+		JMenuItem menuItem71 = new JMenuItem("to interactive HTML page");
+		menuItem71.setActionCommand("MakeHTML");
+		menuItem71.setToolTipText("An HTML snapshot for interactive Read-Only mode");
+		menuItem71.addActionListener(controler);
+		menu7.add(menuItem71);
+
+		JMenuItem menuItem72 = new JMenuItem("to printable HTML page");
+		menuItem72.setActionCommand("Print");
+		menuItem72.setToolTipText("HTML graphics to zoom out");
+		menuItem72.addActionListener(controler);
+		menu7.add(menuItem72);
+
+		menu7.addSeparator();
 
 		JMenuItem menuItem82 = new JMenuItem("*) = Extended version only");
 		menuItem82.setActionCommand("extmsg");
@@ -373,34 +341,82 @@ public class Gui {
 		menuBar.add(menu7);
 	}
 
-	public void viewMenu() {
+	public void advancedMenu() {
+		//	was Tools menu
 
-		JMenu menu4;
-		menu4 = new JMenu("View  ");
-		menu4.setMnemonic(KeyEvent.VK_V);
+		JMenu menu5;
+		menu5 = new JMenu("Advanced  ");
+		
+		ButtonGroup buttonGroup = new ButtonGroup();
+
+		menuItem41 = new JRadioButtonMenuItem("Hyperlinks on", false);
+		menuItem41.setActionCommand("ToggleHyp");
+		menuItem41.setToolTipText(tooltip41[1]);
+		menuItem41.addActionListener(controler);
+		buttonGroup.add(menuItem41);
+		menu5.add(menuItem41);
+
+		menuItem22 = new JRadioButtonMenuItem("Hyperlinks off  (Edit Mode)", true);
+		menuItem22.setActionCommand("ToggleDetEdit");
+		menuItem22.setToolTipText(tooltip22[0]);
+		menuItem22.addActionListener(controler);
+		buttonGroup.add(menuItem22);
+		menu5.add(menuItem22);
+
+		menu5.addSeparator();
+
+		menuItem51 = new JCheckBoxMenuItem("Centrality Heatmap *)", false);
+		menuItem51.setActionCommand("centcol");
+		menuItem51.setToolTipText("Warmer colors represent higher betweenness centrality");
+		menuItem51.addActionListener(controler);
+		menu5.add(menuItem51);
+
+		JMenuItem menuItem53 = new JMenuItem("Make Tree *)");
+		menuItem53.setActionCommand("layout");
+		menuItem53.setToolTipText("Generates a tree layout and structure for exporting");
+		menuItem53.addActionListener(controler);
+		menu5.add(menuItem53);
+
+		menuItem55 = new JCheckBoxMenuItem("Tablet Pen Mode", false);
+		menuItem55.setActionCommand("tablet");
+		menuItem55.setToolTipText("Doubleclick improvement, Alt-Key for Pen and Touch");
+		menuItem55.addActionListener(controler);
+		menu5.add(menuItem55);
+
+		menu5.addSeparator();
+
+		JMenuItem menuItem54 = new JMenuItem("Preferences");
+		menuItem54.setActionCommand("prefs");
+		menuItem54.setToolTipText("<html><body><em>(Not yet interesting)</em></body></html>");
+		menuItem54.addActionListener(controler);
+		menu5.add(menuItem54);
 
 		menuItem46 = new JCheckBoxMenuItem("Nodes as Index Cards", false);
 		menuItem46.setActionCommand("ToggleCards");
 		menuItem46.setSelected(true);
 		menuItem46.setToolTipText("Rectangles or circles");
 		menuItem46.addActionListener(controler);
-		menu4.add(menuItem46);
+		menu5.add(menuItem46);
 
-		menuItem47 = new JCheckBoxMenuItem("Cards or Circles: Auto", false);
+		menuItem47 = new JCheckBoxMenuItem("Node Shape Automatic", false);
 		menuItem47.setActionCommand("AutoCircles");
 		menuItem47.setSelected(true);
 		menuItem47.setToolTipText("Show nodes as circles if more edges than nodes exist");
 		menuItem47.addActionListener(controler);
-		menu4.add(menuItem47);
+		menu5.add(menuItem47);
 
-		menu4.addSeparator();
+		JCheckBoxMenuItem menuItem44 = new JCheckBoxMenuItem("Big Icons", false);
+		menuItem44.setActionCommand("TogglePreso");
+//		menuItem44.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, shortcutMask));
+		menuItem44.setToolTipText("Presentation Mode");
+		menuItem44.addActionListener(controler);
+		menu5.add(menuItem44);
 
-		menuItem41 = new JCheckBoxMenuItem("Hyperlinks", false);
-		menuItem41.setActionCommand("ToggleHyp");
-		menuItem41.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, shortcutMask));
-		menuItem41.setToolTipText(tooltip41[1]);
-		menuItem41.addActionListener(controler);
-		menu4.add(menuItem41);
+		menuItem42 = new JCheckBoxMenuItem("Borders", false);
+		menuItem42.setActionCommand("ToggleBorders");
+		menuItem42.setToolTipText("Display arrows pointing to lost areas");
+		menuItem42.addActionListener(controler);
+		menu5.add(menuItem42);
 
 		menuItem45 = new JCheckBoxMenuItem("Accelerate", false);
 		if (System.getProperty("os.name").equals("Linux")) {
@@ -410,50 +426,7 @@ public class Gui {
 		menuItem45.setActionCommand("ToggleHeavy");
 		menuItem45.setToolTipText("Fast but coarse graphics");
 		menuItem45.addActionListener(controler);
-		menu4.add(menuItem45);
-
-		menuItem42 = new JCheckBoxMenuItem("Borders", false);
-		menuItem42.setActionCommand("ToggleBorders");
-		menuItem42.setToolTipText("Display arrows pointing to lost areas");
-		menuItem42.addActionListener(controler);
-		menu4.add(menuItem42);
-
-		menuItem43 = new JCheckBoxMenuItem("Menu Bar", true);
-		menuItem43.setActionCommand("classicMenu");
-		menuItem43.setToolTipText("Hide menu bar (restore via rightclick on canvas)");
-		menuItem43.addActionListener(controler);
-		menu4.add(menuItem43);
-
-		JCheckBoxMenuItem menuItem44 = new JCheckBoxMenuItem("Big Icons", false);
-		menuItem44.setActionCommand("TogglePreso");
-		menuItem44.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, shortcutMask));
-		menuItem44.setToolTipText("Presentation Mode");
-		menuItem44.addActionListener(controler);
-		menu4.add(menuItem44);
-
-		menuBar.add(menu4);
-	}
-
-	public void advancedMenu() {
-		//	was Tools menu
-
-		JMenu menu5;
-		menu5 = new JMenu("Tools  ");
-		menu5.setMnemonic(KeyEvent.VK_T);
-
-		menuItem51 = new JCheckBoxMenuItem("Centrality Heatmap *)", false);
-		menuItem51.setActionCommand("centcol");
-		menuItem51.setToolTipText("Warmer colors represent higher betweenness centrality");
-		menuItem51.addActionListener(controler);
-		menu5.add(menuItem51);
-
-		menu5.addSeparator();
-
-		menuItem55 = new JCheckBoxMenuItem("Tablet Mode", false);
-		menuItem55.setActionCommand("tablet");
-		menuItem55.setToolTipText("Doubleclick improvement, Alt-Key for Pen and Touch");
-		menuItem55.addActionListener(controler);
-		menu5.add(menuItem55);
+		menu5.add(menuItem45);
 
 		menuItem52 = new JCheckBoxMenuItem("Power User Mode", false);
 		menuItem52.setActionCommand("power");
@@ -461,23 +434,42 @@ public class Gui {
 		menuItem52.addActionListener(controler);
 		menu5.add(menuItem52);
 
-		JMenuItem menuItem54 = new JMenuItem("Preferences",  KeyEvent.VK_S);
-		menuItem54.setActionCommand("prefs");
-		menuItem54.setToolTipText("<html><body><em>(Not yet interesting)</em></body></html>");
-		menuItem54.addActionListener(controler);
-		menu5.add(menuItem54);
+		menuItem43 = new JCheckBoxMenuItem("Menu Bar", true);
+		menuItem43.setActionCommand("classicMenu");
+		menuItem43.setToolTipText("Hide menu bar (restore via rightclick on canvas)");
+		menuItem43.addActionListener(controler);
+		menu5.add(menuItem43);
 
-		JMenuItem menuItem53 = new JMenuItem("Make Tree (Experimental) *)",  KeyEvent.VK_F);
-		menuItem53.setActionCommand("layout");
-		menuItem53.setToolTipText("Generates a tree layout and structure for exporting");
-		menuItem53.addActionListener(controler);
-		menu5.add(menuItem53);
+		menu5.addSeparator();
 
-		JMenuItem menuItem56 = new JMenuItem("Another Map Window",  KeyEvent.VK_E);
+		menuItem24 = new JCheckBoxMenuItem("Appending dropped stuff", true);
+		menuItem24.setToolTipText("Exact drop position is ignored and new stuff is just appended");
+		menuItem24.addActionListener(controler);
+		menu5.add(menuItem24);
+
+		menu5.addSeparator();
+
+		JMenuItem menuItem80 = new JMenuItem("Export to anonymized map...");
+		menuItem80.setActionCommand("Anonymize");
+		menuItem80.setToolTipText("Saves a copy with all a-z replaced by x");
+		menuItem80.addActionListener(controler);
+		menu5.add(menuItem80);
+
+		JMenuItem menuItem16 = new JMenuItem("Legacy Save...");
+		menuItem16.setActionCommand("export");
+		menuItem16.setToolTipText("Export to lagacy zip file format");
+		menuItem16.addActionListener(controler);
+		menu5.add(menuItem16);
+
+		menu5.addSeparator();
+
+		JMenuItem menuItem56 = new JMenuItem("Another Map Window");
 		menuItem56.setActionCommand("sibling");
 		menuItem56.setToolTipText("One more map (to ALT + Drag node clusters)");
 		menuItem56.addActionListener(controler);
 		menu5.add(menuItem56);
+
+		menu5.addSeparator();
 
 		JMenuItem menuItem57 = new JMenuItem("*) = Extended version only");
 		menuItem57.setActionCommand("extmsg");
@@ -492,17 +484,33 @@ public class Gui {
 
 		JMenu menu6;
 		menu6 = new JMenu("?");
-		menu6.setMnemonic(KeyEvent.VK_H);
+		menu6.setToolTipText("Help");
 
-		JMenuItem menuItem61 = new JMenuItem("Help",  KeyEvent.VK_H);
+		JMenuItem menuItem61 = new JMenuItem("Help");
+		menuItem61.setToolTipText("<html><em>Shows a provisional help page</em></html>");
 		menuItem61.setActionCommand("?");
 		menuItem61.addActionListener(controler);
 		menu6.add(menuItem61);
+
+		JMenu sub1 = new JMenu("Try right-click");
+		
+		JMenuItem item71 = new JMenuItem("on the background canvas");
+		item71.setToolTipText("to insert new nodes and save");
+		sub1.add(item71);
+		JMenuItem item72 = new JMenuItem("on a node");
+		sub1.add(item72);
+		item72.setToolTipText("to change its color or delete it");
+		JMenuItem item73 = new JMenuItem("on an edge.");
+		item73.setToolTipText("to change its color or delete the edge or a whole cluster");
+		sub1.add(item73);
+		
+		menu6.add(sub1);
 
 		menu6.addSeparator();
 
 		JMenuItem menuItem62 = new JMenuItem("About");
 		menuItem62.setActionCommand("about");
+		menuItem62.setToolTipText("Shows version number etc.");
 		menuItem62.addActionListener(controler);
 		menu6.add(menuItem62);
 
@@ -526,7 +534,7 @@ public class Gui {
 		item2.setText("New node");
 		menu.add(item2);
 
-		JMenuItem item21 = new JMenuItem("Paste", KeyEvent.VK_V);
+		JMenuItem item21 = new JMenuItem("Paste");
 		item21.setActionCommand("paste");
 		item21.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, shortcutMask));
 		item21.addActionListener(controler);

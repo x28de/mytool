@@ -313,15 +313,15 @@ class GraphPanel extends JDesktopPane  {
 		int iconWidth = 18;
 		int iconHeight = 18;
 		if (x28PresoSizedMode) {
-			iconWidth = 28;
-			iconHeight = 28;
+			iconWidth += 10;
+			iconHeight += 10;
 		}
-		if (!indexCards) {
-			g.fillOval(p.x - iconWidth/2, p.y - iconHeight/2, iconWidth, iconHeight);
-		} else {
-			iconWidth = 21;
-			iconHeight = 17;
+		if (indexCards) {
+			iconWidth += 3;
+			iconHeight -= 1;
 			g.fillRect(p.x - iconWidth/2, p.y - iconHeight/2, iconWidth, iconHeight);
+		} else {
+			g.fillOval(p.x - iconWidth/2, p.y - iconHeight/2, iconWidth, iconHeight);
 		}
 
 		if (node == selection.topic && selection.mode == Selection.SELECTED_TOPIC) {
@@ -711,7 +711,6 @@ class GraphPanel extends JDesktopPane  {
 		}
 		
 		private void nodeClicked(GraphNode node, MouseEvent e) {
-			System.out.println("GP: Node clicked " + node.getLabel());
 			nodeSelected(node);	
 			int x = e.getX();
 			int y = e.getY();
@@ -743,7 +742,6 @@ class GraphPanel extends JDesktopPane  {
 		}
 
 		private void graphClicked(MouseEvent e) {
-			System.out.println("GP: Graph clicked ");
 			graphSelected();	
 			if (isPopupTrigger(e)) {	// right-click -- show graph context menu
 					controler.displayContextMenu("graph", e.getX(), e.getY());
@@ -888,7 +886,6 @@ class GraphPanel extends JDesktopPane  {
 		}
 
 		public void toggleCards(boolean onoff) {
-			System.out.println(indexCards + " " + !indexCards);
 			indexCards = onoff;
 			repaint();
 		}

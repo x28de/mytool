@@ -110,14 +110,14 @@ public class NewStuff {
 //        support.setShowDropLocation(true);    // no effect ?
         if (!support.isDataFlavorSupported(DataFlavor.javaFileListFlavor) && 
 			!support.isDataFlavorSupported(DataFlavor.stringFlavor)) {
-			System.out.println("NS dataflavors: " + support.getDataFlavors() + " " + support.getDataFlavors().length);
+//			System.out.println("NS dataflavors: " + support.getDataFlavors() + " " + support.getDataFlavors().length);
 			DataFlavor[] df = support.getDataFlavors();
 			for (int i = 0; i < df.length; i++) {
 				System.out.println("NS dataflavors: " + df[i].getHumanPresentableName());
 			}
         	return false;
         }
-		System.out.println("NS canImport via " + diag);
+//		System.out.println("NS canImport via " + diag);
 		return true;
 	}
 	
@@ -130,14 +130,12 @@ public class NewStuff {
         Transferable t = support.getTransferable();
 		dropLocation = new Point(support.getDropLocation().getDropPoint().x,
 				support.getDropLocation().getDropPoint().y);
-		System.out.println("NS Drop point " + support.getDropLocation().getDropPoint().x + ", " +
-				support.getDropLocation().getDropPoint().y);
+//		System.out.println("NS Drop point " + support.getDropLocation().getDropPoint().x + ", " +
+//				support.getDropLocation().getDropPoint().y);
        
         boolean success = transferTransferable(t);
 		if (!success) {
 			System.out.println("Error NS120.");
-		} else {
-			System.out.println("NS: Drop or Paste content received.");
 		}
 		controler.setDefaultCursor();
         return success;
@@ -489,7 +487,6 @@ public class NewStuff {
 				if (compositionMode) controler.getCWInstance().cancel();
 				TopicMapLoader loader = new TopicMapLoader(doc, controler);
 				bounds = loader.getBounds();
-				System.out.println("Bounds after TL " + bounds);
 				readyMap = true;
 				newNodes = loader.newNodes;
 				newEdges = loader.newEdges;
@@ -560,7 +557,7 @@ public class NewStuff {
 								controler.getCWInstance().cancel();
 							}
 						}
-						System.out.println("NS:" + ext + ", " + k + ", " + file);
+//						System.out.println("NS:" + ext + ", " + k + ", " + file);
 						new ImportDirector(k, file, controler);
 						return;
 					}
@@ -776,7 +773,7 @@ public class NewStuff {
 			parser = dbf.newDocumentBuilder(); 
 			return parser.parse(stream);
 		} catch (Exception e) {
-			System.out.println("Error NS125 (in getParsedDocument from string): " + e);
+			System.out.println("Error NS125 (can be ignored): " + e);
 			return parser.newDocument();
 		}
 	}
@@ -797,7 +794,6 @@ public class NewStuff {
 	}
 	
 	public Hashtable<Integer, GraphNode> getNodes() {
-		System.out.println("NS returns new nodes/ edges now: " + newNodes.size() + "/ " + newEdges.size());
 		return newNodes;
 	}
 	public Hashtable<Integer, GraphEdge> getEdges() {
