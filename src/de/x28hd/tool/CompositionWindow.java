@@ -116,7 +116,10 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 
 		pasteButton = new JButton("<html><body><center>Press here<br />to Paste</center></body></html>");
 		pasteButton.setMnemonic(KeyEvent.VK_V);
-		pasteButton.setToolTipText("Press this button to Paste from Clipboard");
+		pasteButton.setToolTipText("<html>Press this button to Paste from Clipboard<br />" +
+				"-- Tab-separated text lines are interpreted as label + detail;<br />" +
+				"-- short lines are used as labels;<br />" +
+				"-- longer lines will be numbered, instead.</html>");
 		pasteButton.setActionCommand("Paste2");
 		//  TODO Rightclick context menuitem paste2
 

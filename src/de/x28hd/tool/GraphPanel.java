@@ -253,12 +253,16 @@ class GraphPanel extends JDesktopPane  {
 				int[] xPoints = {x, x - 30, x - 31, x - 120, x - 124, x - 33, x - 38};
 				int[] yPoints = {y, y + 26, y + 16, y + 45, y + 35, y + 6, y - 4};
 				g.setColor(Color.GRAY);
-				if (x <= width + 30) g.drawPolygon(xPoints, yPoints, 7);
-				g.setColor(Color.BLACK);
-				g.drawString("Then", width - 380, 160);
-				if (ticks > 100) { 
-				g.drawString("let your eyes dart at ", width - 380, 210 + 26);
-				g.drawString("the details corner.", width - 380, 210 + 43);
+				if (ticks < 210) { 
+					if (x <= width + 30) g.drawPolygon(xPoints, yPoints, 7);
+//					g.setColor(Color.BLACK);
+					g.setColor(Color.GRAY);
+					g.setFont(font);
+					g.drawString("Then", width - 380, 160);
+					if (ticks > 100) { 
+						g.drawString("let your eyes DART at " +
+						"the details corner !", width - 380, 210 + 20);
+					}
 				}
 			}
 			}
@@ -730,7 +734,6 @@ class GraphPanel extends JDesktopPane  {
 		}
 
 		private void edgeClicked(GraphEdge edge, MouseEvent e) {
-			System.out.println("GP: Edge clicked ");
 			edgeSelected(edge);
 			if (e.getClickCount() == 2) {		// double clicked
 				toggleAlt(true);

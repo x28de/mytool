@@ -10,6 +10,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
@@ -179,7 +180,7 @@ public class Gui {
 		menuItem93.setActionCommand("cut");
 		menuItem93.setEnabled(false);
 		menuItem93.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, shortcutMask));
-		menuItem93.setToolTipText("Cut the cluster containing the selected edge");
+		menuItem93.setToolTipText("Cut the cluster containing the selected line");
 		menuItem93.addActionListener(controler);
 		menu2.add(menuItem93);
 
@@ -187,7 +188,7 @@ public class Gui {
 		menuItem94.setActionCommand("copy");
 		menuItem94.setEnabled(false);
 		menuItem94.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, shortcutMask));
-		menuItem94.setToolTipText("Copy the cluster containing the selected edge");
+		menuItem94.setToolTipText("Copy the cluster containing the selected line");
 		menuItem94.addActionListener(controler);
 		menu2.add(menuItem94);
 
@@ -203,7 +204,7 @@ public class Gui {
 		menuItem95 = new JMenuItem("Delete");
 		menuItem95.setActionCommand("delete");
 		menuItem95.setEnabled(false);
-		menuItem95.setToolTipText("Delete the selected item");
+		menuItem95.setToolTipText("Delete the selected item or line");
 		menuItem95.addActionListener(controler);
 		menu2.add(menuItem95);
 
@@ -232,7 +233,7 @@ public class Gui {
 
 		menuItem23 = new JCheckBoxMenuItem("Lurid Colors", false);
 		menuItem23.setActionCommand("TogglePalette");
-		menuItem23.setToolTipText("Color scheme for new nodes and edges");
+		menuItem23.setToolTipText("Color scheme for new icons and lines");
 		menuItem23.addActionListener(controler);
 		menu2.add(menuItem23);
 
@@ -391,17 +392,17 @@ public class Gui {
 		menuItem54.addActionListener(controler);
 		menu5.add(menuItem54);
 
-		menuItem46 = new JCheckBoxMenuItem("Nodes as Index Cards", false);
+		menuItem46 = new JCheckBoxMenuItem("Items as Index Cards", false);
 		menuItem46.setActionCommand("ToggleCards");
 		menuItem46.setSelected(true);
 		menuItem46.setToolTipText("Rectangles or circles");
 		menuItem46.addActionListener(controler);
 		menu5.add(menuItem46);
 
-		menuItem47 = new JCheckBoxMenuItem("Node Shape Automatic", false);
+		menuItem47 = new JCheckBoxMenuItem("Icon Shape Automatic", false);
 		menuItem47.setActionCommand("AutoCircles");
 		menuItem47.setSelected(true);
-		menuItem47.setToolTipText("Show nodes as circles if more edges than nodes exist");
+		menuItem47.setToolTipText("Show items as circles if more lines than items exist");
 		menuItem47.addActionListener(controler);
 		menu5.add(menuItem47);
 
@@ -465,7 +466,7 @@ public class Gui {
 
 		JMenuItem menuItem56 = new JMenuItem("Another Map Window");
 		menuItem56.setActionCommand("sibling");
-		menuItem56.setToolTipText("One more map (to ALT + Drag node clusters)");
+		menuItem56.setToolTipText("One more map (to ALT + Drag item clusters)");
 		menuItem56.addActionListener(controler);
 		menu5.add(menuItem56);
 
@@ -492,22 +493,6 @@ public class Gui {
 		menuItem61.addActionListener(controler);
 		menu6.add(menuItem61);
 
-		JMenu sub1 = new JMenu("Try right-click");
-		
-		JMenuItem item71 = new JMenuItem("on the background canvas");
-		item71.setToolTipText("to insert new nodes and save");
-		sub1.add(item71);
-		JMenuItem item72 = new JMenuItem("on a node");
-		sub1.add(item72);
-		item72.setToolTipText("to change its color or delete it");
-		JMenuItem item73 = new JMenuItem("on an edge.");
-		item73.setToolTipText("to change its color or delete the edge or a whole cluster");
-		sub1.add(item73);
-		
-		menu6.add(sub1);
-
-		menu6.addSeparator();
-
 		JMenuItem menuItem62 = new JMenuItem("About");
 		menuItem62.setActionCommand("about");
 		menuItem62.setToolTipText("Shows version number etc.");
@@ -515,6 +500,34 @@ public class Gui {
 		menu6.add(menuItem62);
 
 		menuBar.add(menu6);
+	}
+	public void displayHelp() {
+		controler.displayPopup("<html>" +
+	"Do you have any questions? Contact support@x28hd.de<br /><br />" +
+	"<b>Icons:</b><br />" +			
+	"Click on an icon to view its detail in the right pane;<br />" +
+	"Drag an icon to move it;<br />" +
+	"ALT-Drag an icon to connect it with another one;<br />" +
+	"Right-Click an icon to change its style or delete it;<br />" +
+	"<br />" +
+	"<b>Lines:</b><br />" +			
+	"Drag a connector-line to move all connected items;<br />" +
+	"Right-Click a line to change its style or delete it;<br />" +
+	"To create a line, drag an icon while pressing the ALT key,<br /> " +
+	"or while pressing the Middle Mouse-button (the wheel), <br />" +
+	"or double-click before dragging.<br />" +
+	"<br />" +
+	"<b>Background:</b><br />" +			
+	"Right-Click the canvas background to <br />" +
+	"-- create a new item,<br />" +
+	"-- save your map,<br />" +
+	"-- or to paste new input;<br />" +
+	"Drag the canvas background to pan the map;<br />" +
+	"<br />" +
+	"<b>Details pane</b> (at the right):<br />" + 
+	"-- click the \"B\"/ \"I\"/ \"U\" for bold/ italic/ underline,<br />" +
+	"-- click the \"B+\" Bold Special to add the marked text to<br />" +
+	"   the item's label above and on the map<br />");
 	}
 		
 //
@@ -531,7 +544,7 @@ public class Gui {
 		JMenuItem item2 = new JMenuItem();
 		item2.addActionListener(controler);
 		item2.setActionCommand("NewNode");
-		item2.setText("New node");
+		item2.setText("New item");
 		menu.add(item2);
 
 		JMenuItem item21 = new JMenuItem("Paste");

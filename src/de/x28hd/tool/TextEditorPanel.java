@@ -206,7 +206,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		String boldSpecialActionCommand = "AddToLabel";
 
 		JButton boldSpecialButton = new JButton("<html><body><b>B+</b></body></html>");
-		boldSpecialButton.setToolTipText("Bold Special: bold and add the marked text to the node's label above and on the map");
+		boldSpecialButton.setToolTipText("Bold Special: bold and add the marked text to the item's label above and on the map");
 		boldSpecialButton.setActionCommand(boldSpecialActionCommand);
 		boldSpecialButton.addActionListener(boldSpecialActionListener);
 		toolbar.add(boldSpecialButton);

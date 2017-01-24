@@ -116,7 +116,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	static final int DELETE_EDGE = 1;
 	static final int MOVE = 2;
 	static final int NONE = 3;
-	String[] lastChange = {"Delete Single Node", "Delete Single Edge", "Single Move", ""};
+	String[] lastChange = {"Delete single item", "Delete single line", "Single move", ""};
 	GraphNode lastNode;
 	GraphEdge lastEdge;
 	Point lastMove = new Point(0, 0);
@@ -143,8 +143,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 	GraphEdge dummyEdge = new GraphEdge(-1, dummyNode, dummyNode, null, null);
 	GraphEdge selectedAssoc = dummyEdge;
 	String initText = "<body><font color=\"gray\">" +
-	"<em>Click a node for its details, ALT+drag " +
-	"a node to connect it." + 
+	"<em>Click an icon for its details, ALT+drag " +
+	"an icon to connect it." + 
 	"<br />&nbsp;<br />Do you have any questions? Contact " +
 		 "<a href=\"mailto:support@x28hd.de\">support@x28hd.de</a></em></font></body>";
 	
@@ -240,8 +240,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 			delete();
 		} else if (command == "select") {
 			displayPopup("<html><h3>How to Select</h3>" 
-					+ "Select a cluster of connected nodes by clicking any edge;<br />" 
-					+ "select a single node by clicking it.<br /><br />"
+					+ "Select a cluster of connected items by clicking any line;<br />" 
+					+ "select a single item by clicking its icon.<br /><br />"
 					+ "(Rectangular rubberband selection is not yet supported.)</html>");
 				
 		//	Find
@@ -380,7 +380,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			toggleTablet();
 			
 		} else if (command == "?") {
-			displayHelp();
+			gui.displayHelp();
 			
 		} else if (command == "about") {
 				displayPopup(about);
@@ -574,7 +574,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 				labelField.requestFocus();
 
 			} else if (command == "?") {
-				displayHelp();
+				gui.displayHelp();
 
 			} else if (command == "tmppaste") {
 				DefaultEditorKit.PasteAction tmpPasteAction = new DefaultEditorKit.PasteAction();
@@ -715,7 +715,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		splitPane.setDividerLocation(960 - 232);
 		splitPane.setResizeWeight(.8);
 		splitPane.setDividerSize(8);
-		splitPane.setToolTipText("sptt");
 
 		graphPanel.setBackground(Color.WHITE);
 		
@@ -775,7 +774,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		JLabel detailBoxLabel = new JLabel("Detail", JLabel.CENTER);
 		detailBoxLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
 		detailBox.add(detailBoxLabel);
-		detailBox.setToolTipText("More text about the selected node, always at yout fingertips.");
+		detailBox.setToolTipText("More text about the selected item, always at yout fingertips.");
 		detailBox.add(edi,"South");
 		rightPanel.add(detailBox,"South");
 
@@ -856,41 +855,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		JOptionPane.showMessageDialog(mainWindow, msg);
 	}
 
-	public void displayHelp() {
-		JOptionPane.showMessageDialog(mainWindow,"Provisional Help\n" +
-	"Do you have any questions? Contact support@x28hd.de\n\n" +
-	"New features since release 16 not yet described.\n\n" +
-	"Nodes:\n" +			
-	"(Left-) Click on a node to view its detail in the right panel;\n" +
-	"(Left-) Drag a node to move it;\n" +
-	"Middlebutton-Drag a node to connect it with another one;\n" +
-	"Right-Click a node to change its style or delete it;\n" +
-	"\n" +
-	"Lines:\n" +			
-	"(Left-) Drag a connector-line to move all connected nodes;\n" +
-	"Right-Click a line to change its style or delete it;\n" +
-	"To create a line, drag a node with the Middle Mouse button or ALT.\n" +
-	"\n" +
-	"Background:\n" +			
-	"Right-Click the canvas background to \n" +
-	"-- create a new node,\n" +
-	"-- save your map to Desktop\\deepamehta-files\\,\n" +
-	"-- or view this help;\n" +
-	"(Left-) Drag the canvas background to move all nodes;\n" +
-	"\n" +
-	"In the right panel,\n" + 
-	"-- click the \"B\"/ \"I\"/ \"U\" for bold/ italic/ underline,\n" +
-	"-- click the \"B+\" Bold Special to add the marked text to\n" +
-	"   the node's label above and on the map\n" +
-	"\n" +
-	"In the Paste Window at Startup map creation,\n" +
-	"-- Tab-separated text lines are interpreted as label + detail;\n" +
-	"-- short lines are used as labels;\n" +
-	"-- longer lines will be numbered, instead;\n" +
-	"-- if most lines have a comma near the beginning,\n" +
-	"   the text is treated as a reference list.");
-	}
-	
 	public void toggleHyp(int whichWasToggled) {
 		
 		// Ignore hit if already selected
@@ -916,7 +880,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		edi.toggleTablet(tablet);
 		graphPanel.toggleTablet(tablet);
 		if (tablet) displayPopup("Now you can simulate the Alt Key either by a toggle \"button\"\n" +
-				"in the lower left, or by double-clicking on a node or edge.\n\n" +
+				"in the lower left, or by double-clicking on an icon or on a line.\n\n" +
 				"Warning: \nSince this functionality is still not satisfying it may be changed again.");
 	}
 	
@@ -1164,7 +1128,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		gui.menuItem93.setEnabled(false);
 		gui.menuItem94.setEnabled(false);
 		gui.menuItem95.setEnabled(true);
-		gui.menuItem95.setToolTipText("Delete the selected node");
+		gui.menuItem95.setToolTipText("Delete the selected item");
 	}
 	
 	public void edgeSelected(GraphEdge edge) {
@@ -1179,7 +1143,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		gui.menuItem93.setEnabled(true);
 		gui.menuItem94.setEnabled(true);
 		gui.menuItem95.setEnabled(true);
-		gui.menuItem95.setToolTipText("Delete the selected edge");
+		gui.menuItem95.setToolTipText("Delete the selected line");
 	}
 
 	public void graphSelected() {
@@ -1192,7 +1156,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		gui.menuItem93.setEnabled(false);
 		gui.menuItem94.setEnabled(false);
 		gui.menuItem95.setEnabled(false);
-		gui.menuItem95.setToolTipText("Delete the selected item");
+		gui.menuItem95.setToolTipText("Delete the selected item or line");
 	}
 	
 	private void ssssssssssseparator2() {
@@ -1264,8 +1228,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 			if (topicName.length() > 30) topicName = topicName.substring(0,30) + "...";
 			//	Some effort to position it near the node to be deleted
 			JOptionPane confirm = new JOptionPane("Are you sure you want to delete " + 
-					"the topic \n \"" + topicName +	
-					"\" with " + neighborCount + " associations ?\n" + 
+					"the item \n \"" + topicName +	
+					"\" with " + neighborCount + " connections ?\n" + 
 					"(There is no good Undo yet!)", 
 					JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_CANCEL_OPTION); 
 			JDialog d = confirm.createDialog(null, "Warning");
@@ -1304,7 +1268,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			if (topicName1.length() > 30) topicName1 = topicName1.substring(0,30) + "...";
 			if (topicName2.length() > 30) topicName2 = topicName2.substring(0,30) + "...";
 			int response = JOptionPane.showConfirmDialog(OK, 
-					"Are you sure you want to delete " + "the association \n" + 
+					"Are you sure you want to delete " + "the connection \n" + 
 					"from \"" + topicName1 + "\" to \""+ topicName2 + "\" ?" + 
 					"\n(There is no good Undo yet!)"); 
 			if (response != JOptionPane.YES_OPTION) return;
@@ -1332,7 +1296,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		int response = JOptionPane.showConfirmDialog(OK, 
 				"<html><body>Your command implies \"<b>Delete Cluster</b>\".<br />" +
 				"Are you absolutely sure you want to delete the entire <br />" + 
-				"cluster that contains approx. " + (cluster.size() + 2) + " nodes ? <br />" +
+				"cluster that contains approx. " + (cluster.size() + 2) + " items ? <br />" +
 				"(There is no Undo for multiples!)</body></html>");
 		if (response != JOptionPane.YES_OPTION) return;
 		Enumeration<GraphNode> e2 = cluster.elements();
