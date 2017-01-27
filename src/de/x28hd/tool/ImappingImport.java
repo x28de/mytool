@@ -34,8 +34,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
@@ -266,7 +264,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 				if (body == null) continue;
 				if (body.equals(rootBody)) {
 					rdfRoot = itemKey;
-					System.out.println("Root item found: " + itemKey);
+//					System.out.println("Root item found: " + itemKey);
 				}
 			}
 
@@ -346,11 +344,9 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 				for (int i = 0; i < assocs.getLength(); i++) {
 					importAssoc((Element) assocs.item(i));
 				}
-				System.out.println("Relations count " + rels.getLength());
 				for (int i = 0; i < rels.getLength(); i++) {
 					importRel((Element) rels.item(i));
 				}
-				System.out.println("IM: " + topicnum + " new topics and " + assocnum + " new assocs read");
 				
 			}
 			
@@ -469,7 +465,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		while (childrenEnum2.hasMoreElements()) {
 			String sourceNodeUri = childrenEnum2.nextElement();
 			if (!uri2num.containsKey(sourceNodeUri)) {
-				System.out.println("skipping child (not included in selection): " + sourceNodeUri);
+//				System.out.println("skipping child (not included in selection): " + sourceNodeUri);
 				continue;
 			}
 			else {
@@ -481,7 +477,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 				String targetNodeUri = parents.get(sourceNodeUri);
 				int targetNodeNum = 0;
 				if (!uri2num.containsKey(targetNodeUri)) {
-					System.out.println("skipping parent (not included in selection) " + targetNodeUri + " ( <- " + sourceNodeUri + ")");
+//					System.out.println("skipping parent (not included in selection) " + targetNodeUri + " ( <- " + sourceNodeUri + ")");
 					continue;
 				}
 				else {
@@ -544,7 +540,6 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 			GraphNode targetNode = nodes.get(targetNodeNum);
 			GraphEdge edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode("#ffff00"), arrowName);
 			edges.put(edgesNum,  edge);
-//			System.out.println(tailName + " " + arrowKey + " " + arrowName + " " + headName);
 		}
 //
 //		Pass on nodes and edges 
@@ -575,7 +570,6 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		topicnum++;
 		String content = element.getElementsByTagName("name").item(0).getTextContent();
 		String key = element.getElementsByTagName("uri").item(0).getTextContent();
-//		System.out.println("special, content = " + content + ", uri = " + key);
 		contents.put(key, content);
 	}
 
@@ -602,7 +596,6 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		assocnum++;
 		String key = element.getElementsByTagName("uri").item(0).getTextContent();
 		String name = element.getElementsByTagName("name").item(0).getTextContent();
-//		System.out.println("IM relation " + key + " " + name);
 		arrownames.put(key, name);
 	}
 	
@@ -702,7 +695,6 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 	public void valueChanged(TreeSelectionEvent arg0) {
 		TreePath[] paths = arg0.getPaths();
 
-		System.out.println("\n");
 		for (int i = 0; i < paths.length; i++) {
 			TreePath selectedPath = paths[i];
 			Object o = selectedPath.getLastPathComponent();

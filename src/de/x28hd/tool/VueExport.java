@@ -199,12 +199,12 @@ private String filterHTML(String html) {
 	try {
 		parser.parse(reader, cb, true);
 	} catch (IOException e2) {
-		System.out.println("Error IM109 " + e2);
+		System.out.println("Error VE109 " + e2);
 	}
 	try {
 		reader.close();
 	} catch (IOException e3) {
-		System.out.println("Error IM110 " + e3.toString());
+		System.out.println("Error VE110 " + e3.toString());
 	}
 	return htmlOut;
 }

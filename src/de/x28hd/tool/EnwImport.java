@@ -1,7 +1,5 @@
 package de.x28hd.tool;
 
-import java.awt.Color;
-import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,7 +22,6 @@ public class EnwImport {
 	String newNodeColor = "#ccdddd";
 	
 	public EnwImport (File file, GraphPanelControler controler) {
-		System.out.println("Endnote");
 		FileInputStream fileInputStream = null;
 		try {
 			fileInputStream = new FileInputStream(file);
@@ -37,7 +34,6 @@ public class EnwImport {
 		String out = "";
 		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i];
-			System.out.println(line);
 			if (line.isEmpty()) {
 				separator++;
 				if (separator < 3) {
@@ -81,17 +77,17 @@ public class EnwImport {
     				writer.write(buffer, 0, n);
     			}
     		} catch (IOException e) {
-    			System.out.println("Error IM117 " + e);
+    			System.out.println("Error ENW117 " + e);
     			try {
     				writer.close();
     			} catch (IOException e1) {
-    				System.out.println("Error IM118 " + e1);
+    				System.out.println("Error ENW118 " + e1);
     			}
     		} finally {
     			try {
     				is.close();
     			} catch (IOException e) {
-    				System.out.println("Error IM119 " + e);
+    				System.out.println("Error ENW119 " + e);
     			}
     		}
     		String convertedString = writer.toString();

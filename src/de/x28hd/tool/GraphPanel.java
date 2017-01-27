@@ -98,7 +98,6 @@ class GraphPanel extends JDesktopPane  {
 		
 	//  For drag/ copy
 		public Transferable createTransferable(JComponent c) {
-			System.out.println("GP: Transferable created ");
 			return new StringSelection(myTransferable);
 		}
 	    public int getSourceActions(JComponent c) {
@@ -108,7 +107,6 @@ class GraphPanel extends JDesktopPane  {
 			bundleInProgress = false;
 			clusterInProgress = false; 
 			toggleAlt(false);
-			System.out.println("GP: Drag & Drop or Copy or Cut Done " + action);
 		}
 		
 //  	For drop ( same as in ComposeWindow)

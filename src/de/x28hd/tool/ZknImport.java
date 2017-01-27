@@ -200,7 +200,7 @@ public class ZknImport implements ActionListener {
 			if (!kwlist.isEmpty()) {
 				String [] kwIDs = kwlist.split(",");
 				for (int c = 0; c < kwIDs.length; c++) {
-					if (!usedKw.add(kwIDs[c])) System.out.println("Duplicate " + kwIDs[c]);
+//					if (!usedKw.add(kwIDs[c])) System.out.println("Duplicate " + kwIDs[c]);
 					relID++;
 					relationshipTo.put(relID, "kw-" + kwIDs[c]);
 					relationshipFrom.put(relID, id);
@@ -242,7 +242,7 @@ public class ZknImport implements ActionListener {
 			j2++;
 			String id = kwIx.next();
 			String label = keywords.get(id);
-			System.out.println("kw " + id + " of " + keywords.size() + " , label = " + label);
+//			System.out.println("kw " + id + " of " + keywords.size() + " , label = " + label);
 			addNode(j2, "kw-" + id, label, "", true);
 		}
 		
@@ -392,7 +392,6 @@ public class ZknImport implements ActionListener {
 			controler.setNonTreeEdges(nonTreeEdges);
 			controler.replaceByTree(nodes, edges);
 		} else {
-			System.out.println("ZI Map: " + nodes.size() + " " + edges.size());
 			try {
 				dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
 			} catch (TransformerConfigurationException e1) {

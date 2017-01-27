@@ -1,9 +1,5 @@
 package de.x28hd.tool;
 
-import java.awt.Color;
-import java.awt.FileDialog;
-import java.awt.Point;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,7 +34,6 @@ public class Export2WXP {
 	
 	public File createTopicmapFile(String filename) throws IOException, TransformerConfigurationException, SAXException {
 		File topicmapFile = new File(filename);
-//			System.out.println(topicmapFile.getCanonicalPath());
 		FileOutputStream out = new FileOutputStream(topicmapFile);
 		exportViewMode(out, filename);
 		out.close();
@@ -130,21 +125,6 @@ public class Export2WXP {
 		}
 
 	}
-//	public void exportAssociations(Enumeration<GraphEdge> assocs, ContentHandler handler, boolean visible) throws SAXException {
-//		while (assocs.hasMoreElements()) {
-//			GraphEdge assoc = assocs.nextElement();
-//
-//			GraphNode topic1 = assoc.getNode1();
-//			if (!nodes.contains(topic1)) {
-//				System.out.println("Nicht OK " + topic1.getLabel());
-//				continue;
-//			} else System.out.println("OK: " + topic1.getLabel());
-//			GraphNode topic2 = assoc.getNode2();
-//			if (!nodes.contains(topic2)) continue;
-//			
-//			exportAsssociation(assoc, handler, visible);
-//		}
-//	}
 
 	private void exportTopic(GraphNode topic, ContentHandler handler, boolean visible) throws SAXException {
 	Hashtable<String, String> attribs = new Hashtable<String, String>();
@@ -164,26 +144,6 @@ public class Export2WXP {
 	textNode((TransformerHandler) handler, "wp:status",  "publish");
 	endElement(handler, "item");
 	}
-
-//	public void exportAsssociation(GraphEdge assoc, ContentHandler handler, boolean visible) throws SAXException {
-//		Hashtable<String, String> attribs = new Hashtable<String, String>();
-//		Color color = assoc.getColor();
-//		int r = color.getRed();
-//		int g = color.getGreen();
-//		int b = color.getBlue();
-//		attribs.put("color", String.format("#%02x%02x%02x", r, g, b));
-//		int n1 = nodeids.get(assoc.getN1());
-//		int n2 = nodeids.get(assoc.getN2());
-//		attribs.put("n1", "" + n1);
-//		attribs.put("n2", "" + n2);
-//
-//		startElement(handler, "assoc", attribs);
-//		startElement(handler, "detail", null);
-//		characters(handler, assoc.getDetail());
-//		endElement(handler, "detail");
-//
-//		endElement(handler, "assoc");
-//	}
 
 //
 //  Accessories for CDATA, start, and end

@@ -178,7 +178,6 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 //		Find DWZ nodes
 		
 		dwzNodes = ((Element) graphContainer.item(0)).getElementsByTagName("node");
-		System.out.println("DI How many Nodes found? " + dwzNodes.getLength());
 		
 		for (int i = 0; i < dwzNodes.getLength(); i++) {
 			Element node = (Element) dwzNodes.item(i);
@@ -207,7 +206,6 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 //		Read DWZ links
 		
 		dwzLinks = ((Element) graphContainer.item(0)).getElementsByTagName("link");
-		System.out.println("DI How many links found: " + dwzLinks.getLength());
 		edgesNum = 0;
 		
 		for (int i = 0; i < dwzLinks.getLength(); i++) {
@@ -252,7 +250,6 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 		Iterator<String> itix = hierarchicalRelations.iterator();
 		while (itix.hasNext()) {
 			String next = itix.next();
-			System.out.println("Hierarchical: " + next);
 			expandableRelations.add(next);
 		}
 		
@@ -276,7 +273,6 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 		itix = expandableRelations.iterator();
 		while (itix.hasNext()) {
 			String next = itix.next();
-			System.out.println("Expandable: " + next);
 			expandableRelations.add(next);
 		}
 		
@@ -599,7 +595,6 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 //			
 //		Pass on the new map
 		
-		System.out.println("DI Map: " + nodes.size() + " " + edges.size());
 		try {
 			dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
 		} catch (TransformerConfigurationException e1) {
@@ -614,7 +609,6 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 	}
 	
 	public boolean isHierarchical(String rel) {
-//		System.out.println("isHierarchical? " + rel);
 		loopDetector++;
 		if (loopDetector > 20) return false;
 		boolean result = false;

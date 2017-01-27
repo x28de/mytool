@@ -2,7 +2,6 @@ package de.x28hd.tool;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.GridLayout;
@@ -18,20 +17,16 @@ import java.io.InputStream;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.JTextComponent;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -291,7 +286,6 @@ public class ImportDirector implements ActionListener {
 		
 		//	Cancel
 	    if (action.getActionCommand().equals("Cancel")) {
-	        System.out.printf("Wizard canceled\n");
 	        frame.setVisible(false);
 	        frame.dispose();
 	    }
@@ -304,7 +298,7 @@ public class ImportDirector implements ActionListener {
 		        frame.setVisible(false);
 		        frame.dispose();
 			}
-	    		System.out.println("Type: " + i);
+//	    		System.out.println("Type: " + i);
 	    		knownFormat = i;
 	    		continueButton.setEnabled(true);
 //	    		step2(knownFormat);
@@ -312,20 +306,17 @@ public class ImportDirector implements ActionListener {
 	    }
 	    //	File chooser response
 	    if (action.getActionCommand().equals("CancelSelection")) {
-	        System.out.printf("CancelSelection\n");
 	        frame.setVisible(false);
 	        frame.dispose();
 	    }
 	    if (action.getActionCommand().equals("ApproveSelection")) {
     		continueButton.setEnabled(true);
 //    		lastStep = true;
-	        System.out.printf("ApproveSelection\n");
 //	    }
 //	    
 //	    if (action.getActionCommand().equals("Next >") && lastStep) {
 //			String filename = fd.getSelectedFile().getPath() + File.separator + fd.getSelectedFile().getName();
 			String filename = fd.getSelectedFile().getName();
-			System.out.println(filename);
 			if (knownFormat == 1) {
 				new ImappingImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == 5) {
@@ -352,7 +343,6 @@ public class ImportDirector implements ActionListener {
 	    }
 	    
 	    if (action.getActionCommand().equals("Next >")) {
-	    	System.out.println("\"Next >\" button pressed, " + knownFormat);
     		step2(knownFormat);
 	    }
 
@@ -362,23 +352,8 @@ public class ImportDirector implements ActionListener {
 //	Open file chooser
 	
 	public void step2(int importType) {
-		
-//        fd = new JFileChooser(System.getProperty("user.home") + File.separator + "Desktop");
-//        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-//        		extDescription[importType], extension[importType]);
-//        Action details = fd.getActionMap().get("viewTypeDetails");
-//        details.actionPerformed(null);
-//        fd.setFileFilter(filter);        
-//        fd.setApproveButtonText("Next");
-//		  fd.setDialogType(FileDialog.LOAD);
-//		  frame.remove(radioPanel);
-//        frame.add(fd);
-//        frame.pack();
-//        fd.addActionListener(this);
-		
 		this.importType = knownFormat;
 		SwingUtilities.invokeLater(fileChooserMac);
-
 	}
 	
 //

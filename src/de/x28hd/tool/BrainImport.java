@@ -134,7 +134,6 @@ public class BrainImport {
 			if (!inputID2num.containsKey(fromItem)) addNode(fromItem);
 			if (!inputID2num.containsKey(toItem)) addNode(toItem);
 			addEdge(fromItem, toItem);
-			System.out.println("edges: " + inputID2num.size());
 		}
 		
 //
@@ -151,7 +150,6 @@ public class BrainImport {
 //			
 //		Pass on the new map
 		
-		System.out.println("BI Map: " + nodes.size() + " " + edges.size());
 		try {
 			dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
 		} catch (TransformerConfigurationException e1) {

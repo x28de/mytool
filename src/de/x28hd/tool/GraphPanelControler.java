@@ -10,9 +10,6 @@ interface GraphPanelControler {
 	void nodeSelected(GraphNode node);
 	void edgeSelected(GraphEdge edge);
 	void graphSelected();
-//	void showNodeMenu(GraphNode node, int x, int y);
-//	void showEdgeMenu(GraphEdge edge, int x, int y);
-//	void showGraphMenu(int x, int y);
 	void displayContextMenu(String menuID, int x, int y) ;
 	void displayPopup(String msg);
 	TextEditorPanel edi = null;

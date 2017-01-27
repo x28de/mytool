@@ -45,7 +45,6 @@ public class VueImport {
 	
 	public VueImport(File file, GraphPanelControler controler) {
 		this.controler = controler;
-		System.out.println("File loaded");
 		Reader fileReader = null;
 		try {
 			fileReader = new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"));
@@ -68,13 +67,13 @@ public class VueImport {
 				System.out.println("Error VI102 ");
 			}
 			if (line.startsWith("<!--")) {
-				System.out.println("Comment skipped");
+//				System.out.println("Comment skipped");
 			} else {
 				firstNonCommentLine = line;
 				break;
 			}
 		}
-    	System.out.println(firstNonCommentLine);
+//    	System.out.println(firstNonCommentLine);
         // (From VUE source:)
         // Reset the reader to the start of the last line read, which should be the <?xml line,
         try {
@@ -109,7 +108,6 @@ public class VueImport {
 			String itemID = node.getAttribute("ID");
 			type = node.getAttributeNS(XSI, "type");
 			
-			System.out.println("type " + type);
 			if (type.equals("node")) {
 				String xString = node.getAttribute("x");
 				String yString = node.getAttribute("y");
@@ -121,7 +119,6 @@ public class VueImport {
 				
 				//	Label
 				String labelString = node.getAttribute("label");
-				System.out.println(itemID + ", " + labelString);
 				inputItems.put(itemID, labelString);
 				
 				//	Color
@@ -143,13 +140,11 @@ public class VueImport {
 				Element link = (Element) itemList.item(i);
 //				String itemID = node.getAttribute("ID");
 				type = link.getAttributeNS(XSI, "type");
-				System.out.println("type " + type);
 			if (type.equals("link")) {
 				NodeList id1container = link.getElementsByTagName("ID1");
 				String id1 = id1container.item(0).getTextContent();
 				NodeList id2container = link.getElementsByTagName("ID2");
 				String id2 = id2container.item(0).getTextContent();
-				System.out.println(id1 + " -> " + id2);
 				addEdge(id1, id2);
 			}
 		}
@@ -157,7 +152,6 @@ public class VueImport {
 //	Pass on the new map
 	
 //		edges.clear();
-	System.out.println("VI Map: " + nodes.size() + " " + edges.size());
 	try {
 		dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
 	} catch (TransformerConfigurationException e1) {

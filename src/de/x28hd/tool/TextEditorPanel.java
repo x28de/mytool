@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,7 +32,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Caret;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.JTextComponent;
@@ -109,7 +107,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	// standard action events (e.g., for Context Menu clicks)
 	
 	public void actionPerformed(ActionEvent arg0) {
-		System.out.println("Action " + arg0.getActionCommand() + " performed");
+//		System.out.println("Action " + arg0.getActionCommand() + " performed");
 	}
 
 	// hyperlinks (only if editable = false)
@@ -151,13 +149,13 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (UnsupportedLookAndFeelException e) {
-			System.out.println("Error PS104 " + e);
+			System.out.println("Error TE104a " + e);
 		} catch (ClassNotFoundException e) {
-			System.out.println("Error PS105" + e);
+			System.out.println("Error TE105" + e);
 		} catch (InstantiationException e) {
-			System.out.println("Error PS106 " + e);
+			System.out.println("Error TE106 " + e);
 		} catch (IllegalAccessException e) {
-			System.out.println("Error PS107 " + e);
+			System.out.println("Error TE107 " + e);
 		}  
 
 		((JEditorPane) textComponent).setContentType("text/html");
@@ -304,7 +302,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 
 	public void insertUpdate(DocumentEvent e) {
 		if (loopdetector > 100) {
-			System.out.println("Very strange behavior caused by this text");
+//			System.out.println("Very strange behavior caused by this text");
 			return;		//	TODO understand
 		}
 		loopdetector++;

@@ -16,7 +16,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
-import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -75,7 +74,6 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 		newStuff = controler.getNSInstance();
 		shortcutMask = ActionEvent.CTRL_MASK;
 		if (System.getProperty("os.name").equals("Mac OS X")) shortcutMask = ActionEvent.META_MASK;
-//		System.out.println("CW calls NS: " + newStuff.getString());
 
 //
 //		Window
@@ -174,8 +172,8 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 //	NewStuff() sends snippets here
 	
 	public void insertSnippet(String dataSnippet) {
-		if (dataSnippet.contains("\r\n")) System.out.println("CW: Dropped or pasted to insert: " + dataSnippet);
-		else System.out.println("CW: Dropped or pasted to insert.");
+//		if (dataSnippet.contains("\r\n")) System.out.println("CW: Dropped or pasted to insert: " + dataSnippet);
+//		else System.out.println("CW: Dropped or pasted to insert.");
 		try {
 			caretPos = textDisplay.getCaretPosition();
 			doc.insertString(caretPos, dataSnippet + "\n", null);
@@ -222,11 +220,9 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 			dataString = textDisplay.getText();
 			controler.finishCompositionMode();
 			newStuff.scoopCompositionWindow(this);
-//			controler.finishCompositionMode();
 			close();
 
 		} else if (a.getActionCommand().equals("cancel")) {
-			System.out.println("CW: Cancel pressed");
 			cancel();
 
 		} else System.out.println("Error CW103 " + a.getActionCommand().toString());

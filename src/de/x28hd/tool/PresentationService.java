@@ -30,11 +30,9 @@ import java.util.Vector;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -42,8 +40,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
-import javax.swing.JTree;
-import javax.swing.KeyStroke;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -168,7 +164,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		JPopupMenu menu = (JPopupMenu) item.getParent();
 		String menuID = menu.getLabel();	// the menuID is stored in the menu's label
 		if (menuID == null) menuID = "Menu Bar";
-//		System.out.println("Action Performed (PS) " + command.toString() + " from menu " + menuID);
 
 		// Open or Insert
 
@@ -660,7 +655,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	    	} else {
 	    		animationTimer2.stop();
 	    		animationPercent = 0;
-	    		System.out.println("Arrived");
 	        	graphPanel.setModel(nodes, edges);
 	     	}
 	    	updateBounds();
@@ -732,19 +726,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 		altButton.setBackground(Color.LIGHT_GRAY);
 		altButton.setPreferredSize(new Dimension(40, 40));
 		altButton.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) {	//	On MS Surface nor working 
-//				System.out.println("Mousebutton pressed ");	
+			public void mousePressed(MouseEvent e) {	//	On MS Surface not working 
 			}
 			public void mouseReleased(MouseEvent e) {
 				altDown = !altDown;
 				graphPanel.toggleAlt(altDown);
 				toggleAltColor(altDown);
-				System.out.println("Alt \"key\" down? " + altDown);	
-//				if (altDown) {
-//					altButton.setBackground(Color.YELLOW);
-//				} else {
-//					altButton.setBackground(Color.LIGHT_GRAY);
-//				}
 			}
 		});
 		footbar.add(altButton, BorderLayout.WEST);
@@ -979,7 +966,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 		createMainWindow(mainWindowTitle);
 		System.out.println("PS: Initialized");
-		System.out.println("\n\n**** This console window may be ignored ****");
+		System.out.println("\n\n**** This console window may be ignored ****\n");
 		
 //		newStuff.tmpInit();
 		if (!filename.isEmpty()) newStuff.setInput(filename, 1);
@@ -1087,7 +1074,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 
 		mainWindow.dispose();
-		System.out.println("Closed");
+		System.out.println("PS: Closed");
 		System.exit(0);
 		return true;
 	}
@@ -1608,7 +1595,6 @@ public final class PresentationService implements ActionListener, MouseListener,
     
 	public void keyPressed(KeyEvent arg0) {
 		if (arg0.getKeyChar() == KeyEvent.VK_ENTER) {
-			System.out.println("Enter Key pressed ");
 			GraphNode justUpdated = selectedTopic;
 			graphSelected();
 			graphPanel.labelUpdateToggle(true);
@@ -1666,7 +1652,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 		public void redo() {
 			int type = lastChangeType;
-			System.out.println("Redoing " + lastChange[type]);
 			if (type == DELETE_NODE) {
 				GraphNode node = lastNode;
 				int id = node.getID();
@@ -1689,19 +1674,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 		
 		public void copy(GraphEdge assoc) {
 			GraphNode topic = assoc.getNode1();	
-			System.out.println("Copying");
 			graphPanel.copyCluster(topic);
 		}
 		
 		public void cut(GraphEdge assoc) {
 			GraphNode topic = assoc.getNode1();	
-			System.out.println("Cutting");
 			graphPanel.copyCluster(topic);
 			deleteCluster(assoc);
 		}
 		
 		public void delete() {
-			System.out.println("Deleting");
 			if (selectedTopic != dummyNode) {
 				deleteNode(selectedTopic);
 				selection.topic = null;
@@ -1735,7 +1717,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 				Enumeration<Integer> nodesEnum = nodes.keys();
 				while (nodesEnum.hasMoreElements()) {
 					int nodeID = nodesEnum.nextElement();
-					System.out.println(nodeID);
 					GraphNode node = nodes.get(nodeID);
 					String label = node.getLabel().toLowerCase();
 					if (label.contains(findString.toLowerCase())) {

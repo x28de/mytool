@@ -133,7 +133,6 @@ public class TopicMapImporter {		//	OLD map format !
 		Element root = inputXml.getDocumentElement();
 
 		NodeList topicsAndAssocs = root.getChildNodes();
-		System.out.println("Reading in " + topicsAndAssocs.getLength() + " items");
 		
 		// Read structure, save in intermediate arrays, and record old ID to new ID mapping
 		
@@ -221,14 +220,13 @@ public class TopicMapImporter {		//	OLD map format !
 				}
 
 			} else {
-				System.out.println(i + " not an Element but: " + node.getNodeType());
+//				System.out.println(i + " not an Element but: " + node.getNodeType());
 			}	//	End of element nodes 
 
 		}
 		
 		//	Processing the topics
 
-		System.out.println("NS: nodenum = " + (nodenum + 1));
 		for (int i = 0; i < nodenum + 1; i++) {
 //			System.out.println("---- x = " + nodesArray[i][0] + ", y = " + nodesArray[i][1] + ", rgb = " + nodesArray[i][2] 
 //					+ ", label = " + nodesArray[i][3] + ", detail length = " + nodesArray[i][4].length());
@@ -243,27 +241,24 @@ public class TopicMapImporter {		//	OLD map format !
 					Color.decode(nodesArray[i][2]), 
 					nodesArray[i][3], 	// label
 					nodesArray[i][4]);	// detail
-//			System.out.println("newNodes contains " + newNodes.size() + " items");
 			newNodes.put(i, node);
 //			System.out.println("newNodes contains now " + newNodes.get(i) + " as key " + i);
 		}
 
 		// Processing the assocs
 		
-		System.out.println("NS: edgenum = " + (edgenum + 1));
 		for (int i = 0; i < edgenum + 1; i++) {
 //			System.out.println("---- n1 = " + edgesArray[i][0] + ", n2 = " + edgesArray[i][1] + ", rgb = " + edgesArray[i][2]);
 			int n1 = Integer.parseInt(edgesArray[i][0]);
 			int n2 = Integer.parseInt(edgesArray[i][1]);
 			if (!newNodes.containsKey(n1) || !newNodes.containsKey(n2)) {
-				System.out.println("NS: " + i + "-th edge not created");
+//				System.out.println("NS: " + i + "-th edge not created");
 				continue;	//  edgesArray[][] == -1 signals when input data corrupt
 			}
 			GraphEdge edge = new GraphEdge(i, newNodes.get(n1), 
 										   newNodes.get(n2),
 										   Color.decode(edgesArray[i][2]), 
 											"");			// detail TODO
-//			System.out.println("newEdges contains " + newEdges.size() + " items");
 //			edge.setID(i);
 			newEdges.put(i, edge);
 			newNodes.get(n1).addEdge(edge);
@@ -275,7 +270,6 @@ public class TopicMapImporter {		//	OLD map format !
 //		
 //		Pass on the new map
 	
-		System.out.println("TI Map: " + newNodes.size() + " " + newEdges.size());
 		try {
 			dataString = new TopicMapStorer(newNodes, newEdges).createTopicmapString();
 		} catch (TransformerConfigurationException e1) {
@@ -353,8 +347,6 @@ public class TopicMapImporter {		//	OLD map format !
 			//	Main types
 			
 			if (child.getNodeType() == Node.CDATA_SECTION_NODE) {
-//				System.out.println("Text length of " + topicid + ": " + child.getNodeValue().length());
-//				System.out.println(topicid + ": " + child.getNodeValue());
 				
 				//	Label
 				if (parent.getNodeName() == "basename") {
@@ -381,7 +373,7 @@ public class TopicMapImporter {		//	OLD map format !
 					if (nodeids.containsKey(end)) {
 						edgesArray[edgeids.get(topicid)][whichend - 1] = nodeids.get(child.getNodeValue()).toString();
 					} else {	// Corrupted; key -1 will skip GraphEdge creation 
-						System.out.println("NS: End node "+ end + " missing");	
+//						System.out.println("NS: End node "+ end + " missing");	
 						edgesArray[edgeids.get(topicid)][whichend - 1] = "-1";
 					}
 				}

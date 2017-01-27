@@ -18,7 +18,7 @@ public class MakeHTML {
 		Hashtable<Integer, Integer> nodeids = new Hashtable<Integer, Integer>();
 		Hashtable<Integer, Integer> edgeids = new Hashtable<Integer, Integer>();
 		Rectangle bounds = controler.getBounds();
-		System.out.println(bounds.x + " - " + bounds.width + " x " + bounds.y + " - " + bounds.height);
+//		System.out.println(bounds.x + " - " + bounds.width + " x " + bounds.y + " - " + bounds.height);
 		int width = bounds.width + 150;
 		int height = bounds.height + 60;
 		if (!graphOnly) {
@@ -82,7 +82,6 @@ public class MakeHTML {
 		i2++;
 		GraphNode node = topics.nextElement();
 		nodenum++;
-//		System.out.println(i2 + ": " + node.getLabel());
 		topicid = node.getID();
 		nodeids.put(topicid, nodenum);
 		Point xy = node.getXY();
@@ -136,8 +135,6 @@ public class MakeHTML {
 		System.out.println("Error MH103 " + e1);
 	}
 
-//	System.out.println("nodenum = " + nodenum);
-
 	for (int i = 0; i < nodenum + 1; i++) {
 //		System.out.println("---- x = " + nodesOut[i][0] + ", y = " + nodesOut[i][1] + ", rgb = " + nodesOut[i][2] 
 //				+ ", label = " + nodesOut[i][3] + ", id = " + nodesOut[i][4]);
@@ -160,8 +157,6 @@ public class MakeHTML {
 	} catch (IOException e1) {
 		System.out.println("Error MH105 " + e1);
 	}
-
-//	System.out.println("edgenum = " + edgenum);
 
 	for (int i = 0; i < edgenum + 1; i++) {
 //		System.out.println("---- n1 = " + edgesOut[i][0] + ", n2 = " + edgesOut[i][1] + ", rgb = " + edgesOut[i][2]);

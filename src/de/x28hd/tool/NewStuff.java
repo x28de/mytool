@@ -181,7 +181,7 @@ public class NewStuff {
 				dataString = l.get(0).getAbsolutePath();
 				inputType = 1;
 				advisableFilename = dataString;
-				System.out.println("NS: was javaFileListFlavor; Inputtype = " + inputType);
+//				System.out.println("NS: was javaFileListFlavor; Inputtype = " + inputType);
 				interceptZips();
 			} else {
 				for (File f : l) {
@@ -190,7 +190,7 @@ public class NewStuff {
 				}
 				inputType = 4;
 				readyMap = false;
-				System.out.println("NS: was javaFileListFlavor; Inputtype = " + inputType);
+//				System.out.println("NS: was javaFileListFlavor; Inputtype = " + inputType);
 				exploitFilelist();
 			}
 			return true;
@@ -222,7 +222,7 @@ public class NewStuff {
 				System.out.println("Error NS113 " + e1);
 				return false;
 			}
-			System.out.println("NS: was htmlSelectionFlavor: \r\n");
+//			System.out.println("NS: was htmlSelectionFlavor: \r\n");
 			inputType = 3;
 			step2();
 			return true;

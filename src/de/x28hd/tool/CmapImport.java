@@ -209,7 +209,6 @@ public class CmapImport {
 //			
 //		Pass on the new map
 		
-		System.out.println("CI Map: " + nodes.size() + " " + edges.size());
 		try {
 			dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
 		} catch (TransformerConfigurationException e1) {

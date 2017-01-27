@@ -14,7 +14,6 @@ import java.util.Hashtable;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.HTMLEditorKit.Parser;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -50,7 +49,6 @@ public class TopicMapStorer {
 			throws IOException, TransformerConfigurationException, SAXException {
 		anonymized = special;
 		File topicmapFile = new File(filename);
-//			System.out.println(topicmapFile.getCanonicalPath());
 		FileOutputStream out = new FileOutputStream(topicmapFile);
 		exportViewMode(out, filename);
 		out.close();
@@ -115,10 +113,8 @@ public class TopicMapStorer {
 
 			GraphNode topic1 = assoc.getNode1();
 			if (!nodes.contains(topic1)) {
-				System.out.println("Nicht OK " + topic1.getLabel());
 				continue;
 			}
-//			} else System.out.println("OK: " + topic1.getLabel());
 			GraphNode topic2 = assoc.getNode2();
 			if (!nodes.contains(topic2)) continue;
 			
@@ -221,7 +217,7 @@ public class TopicMapStorer {
 	public static void createDirectory(File file) {
 		File dstDir = file.getParentFile();
 		if (dstDir.mkdirs()) {
-			System.out.println(">>> document repository has been created: " + dstDir);
+//			System.out.println(">>> document repository has been created: " + dstDir);
 		}
 	}
 	

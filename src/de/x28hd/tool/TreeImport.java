@@ -3,7 +3,6 @@ package de.x28hd.tool;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -16,18 +15,12 @@ import java.io.StringReader;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.border.EmptyBorder;
@@ -62,7 +55,6 @@ public class TreeImport implements ActionListener {
 	JFrame frame;
 	private WindowAdapter myWindowAdapter = new WindowAdapter() {
 		public void windowClosing(WindowEvent e) {
-			System.out.println("TI tmp: JTree closed");
 			finish();
 		}
 	};
@@ -174,7 +166,6 @@ public class TreeImport implements ActionListener {
         	controler.setNonTreeEdges(nonTreeEdges);
         	controler.replaceByTree(nodes, edges);
         } else {
-        	System.out.println("TI Map: " + nodes.size() + " " + edges.size());
         	try {
         		dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
         	} catch (TransformerConfigurationException e1) {
@@ -313,12 +304,12 @@ public class TreeImport implements ActionListener {
 		try {
 			parser.parse(reader, cb, true);
 		} catch (IOException e2) {
-			System.out.println("Error IM109 " + e2);
+			System.out.println("Error TI109 " + e2);
 		}
 		try {
 			reader.close();
 		} catch (IOException e3) {
-			System.out.println("Error IM110 " + e3.toString());
+			System.out.println("Error TI110 " + e3.toString());
 		}
 		return htmlOut;
 	}

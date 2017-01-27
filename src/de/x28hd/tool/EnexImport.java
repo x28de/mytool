@@ -20,7 +20,6 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -157,7 +156,6 @@ public class EnexImport {
 					} else {
 						htmlOut = htmlOut + "<a href=\"" + address + "\">" + address + "</a> ";
 					}
-					System.out.println("Link " + address);
 				}
 			}
 			public void handleText(char[] data, int pos) {
@@ -165,24 +163,20 @@ public class EnexImport {
 				if (ever && !link) {
 					htmlOut = htmlOut + dataString + " ";
 				} else {
-					System.out.println("DataString: " + dataString);
+//					System.out.println("DataString: " + dataString);
 				}
 			}
 			public void handleEndTag(HTML.Tag t, int pos) {
-				System.out.println("</" + t + "> on pos " + pos);
 				if (t.toString() == "a") {
 					link = false;
 				}
 			}
 			public void handleSimpleTag(HTML.Tag t, MutableAttributeSet a, int pos) {
-				System.out.println("Simple <" + t + "> on pos " + pos);
 				if (t.toString().equals("en-note")) {
 					ever = !ever;
-					System.out.println("Switched to " + ever);
 				}
 				if (t.toString().equals("en-media")) {
 					htmlOut = "(Media cannot yet be displayed)";
-					System.out.println("Media");
 					return;
 				}
 			}

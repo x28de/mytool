@@ -32,7 +32,6 @@ public class TopicMapLoader {
 			root = doc.getDocumentElement();
 			
 			if (root.getTagName() == "x28map") {
-				System.out.println("TL Success: new" );
 				readyMap = true;
 			} else {
 				System.out.println("TL Failure.");
@@ -48,8 +47,8 @@ public class TopicMapLoader {
 				importAssoc((Element) assocs.item(i));
 			}
 			
-			System.out.println("TL: " + topicnum + " new topics and " + assocnum + " new assocs loaded");
-			System.out.println("TL recorded " + newNodes.size() + " nodes and " + newEdges.size() + " edges");
+//			System.out.println("TL: " + topicnum + " new topics and " + assocnum + " new assocs loaded");
+//			System.out.println("TL recorded " + newNodes.size() + " nodes and " + newEdges.size() + " edges");
 //
 //			//	Determine extremes
 			width = maxX - minX;
