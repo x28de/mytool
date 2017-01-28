@@ -29,6 +29,10 @@ public class SplitIntoNew {
 		String [] lines = rawText.split("\\r?\\n");
 //		String [] lines = rawText.split(newLine);
 		int numRec = lines.length;
+		if (numRec > 499) {
+			numRec = 499;
+			JOptionPane.showMessageDialog(null,"Truncated to 500 items, sorry\n");
+		}
 		for (int i = 0; i < numRec; i++) {
 			String line = lines[i];
 			int tabOffset = line.indexOf("\t");

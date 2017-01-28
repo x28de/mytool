@@ -452,7 +452,7 @@ public class NewStuff {
 			}
 //			zfile.close();
 		} catch (ZipException e1) {
-			System.out.println("Error NS121 (can be ignored) " + e1);
+//			System.out.println("Error NS121 (can be ignored) " + e1);
 			step2();
 		} catch (IOException err) {
 			System.out.println("Error NS122 " + err);
@@ -475,7 +475,7 @@ public class NewStuff {
 				stream = new FileInputStream(dataString);
 				doc = getParsedDocument(stream);
 			} catch (FileNotFoundException e2) {
-				System.out.println("Error NS127 (can be ignored) "  + e2);
+//				System.out.println("Error NS127 (can be ignored) "  + e2);
 				hope = false;
 			}
 		}
@@ -773,7 +773,7 @@ public class NewStuff {
 			parser = dbf.newDocumentBuilder(); 
 			return parser.parse(stream);
 		} catch (Exception e) {
-			System.out.println("Error NS125 (can be ignored): " + e);
+//			System.out.println("Error NS125 (can be ignored): " + e);
 			return parser.newDocument();
 		}
 	}

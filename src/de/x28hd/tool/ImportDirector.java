@@ -204,6 +204,9 @@ public class ImportDirector implements ActionListener {
 //			new ZknImport(file, controler);
 			} else if (this.knownFormat == 13) {
 			new ZknImport(file, controler);
+		} else {
+			controler.displayPopup("Format autodiscovery failed.\nPlease try the Input Wizard." +
+					"\nOr contact support@x28hd.de");
 		}
 	}
 
