@@ -232,6 +232,7 @@ public class TopicMapStorer {
 				String dataString = new String(data);
 				dataString = dataString.replaceAll("[a-z]","x");
 				dataString = dataString.replaceAll("[A-Z]","X");
+				dataString = dataString.replaceAll("[^\\p{Print}]","-");
 				htmlOut = htmlOut + dataString + " ";
 			}
 			public void handleStartTag(HTML.Tag t, MutableAttributeSet a, int pos) {

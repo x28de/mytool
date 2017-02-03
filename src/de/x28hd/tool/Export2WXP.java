@@ -138,7 +138,10 @@ public class Export2WXP {
 	characters(handler, "Admin User");
 	endElement(handler, "dc:creator");
 	startElement(handler, "content:encoded", null);
-	characters(handler, topic.getDetail());
+	String det = topic.getDetail();
+	det = det.replaceAll("\n", "");
+	det = det.replaceAll("<br>", "<br />");	// If detail was touched by edi.getText()
+	characters(handler, det);
 	endElement(handler, "content:encoded");
 	textNode((TransformerHandler) handler, "wp:post_type",  "post");
 	textNode((TransformerHandler) handler, "wp:status",  "publish");

@@ -1724,8 +1724,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 						shownResults.add(nodeID);
 						Point xy = node.getXY();
 						Point transl = graphPanel.getTranslation();
-						int dx = xy.x - bounds.x - mainWindow.getWidth()/2 + transl.x;
-						int dy = xy.y - bounds.y - mainWindow.getHeight()/2 + transl.y;
+						int dx = xy.x - mainWindow.getWidth()/2 + transl.x + 200;
+						int dy = xy.y - mainWindow.getHeight()/2 + transl.y;
 						panning = new Point(dx, dy);
 						graphPanel.nodeSelected(node);
 						animationTimer2.start();
