@@ -11,6 +11,7 @@ public class IntegrateNodes {
 	Hashtable<Integer, GraphNode> newNodes = new Hashtable<Integer, GraphNode>();
 	Hashtable<Integer, GraphEdge> newEdges = new Hashtable<Integer, GraphEdge>();
 	int maxNodeID = 0;
+	int maxEdgeID = 0;
 	
 	public IntegrateNodes(Hashtable<Integer, GraphNode> nodes, Hashtable<Integer, GraphEdge> edges,
 			Hashtable<Integer, GraphNode> newNodes, Hashtable<Integer, GraphEdge> newEdges) {
@@ -20,10 +21,13 @@ public class IntegrateNodes {
 		this.newEdges = newEdges;
 		
 		maxNodeID = 0;
+		maxEdgeID = 0;
 		Enumeration<GraphNode> nodesEnum;
+		Enumeration<GraphEdge> edgesEnum;
 		
 		if (nodes.size() > 0) {
 			nodesEnum = nodes.elements();
+			edgesEnum = edges.elements();
 		} else return;
     	
 //
@@ -35,6 +39,12 @@ public class IntegrateNodes {
 			int id = node.getID();
 			if (maxNodeID < id) maxNodeID = id;
 		}
+		while (edgesEnum.hasMoreElements()) {
+			GraphEdge edge = edgesEnum.nextElement();	
+			
+			int id = edge.getID();
+			if (maxEdgeID < id) maxEdgeID = id;
+		}
 		return;
 	}
 
@@ -45,7 +55,7 @@ public class IntegrateNodes {
 		Enumeration<GraphNode>nodesEnum = newNodes.elements();
 		Enumeration<GraphEdge>edgesEnum = newEdges.elements();
 		int newNodeID = maxNodeID;
-		int newEdgeID = edges.size();
+		int newEdgeID = maxEdgeID;
 		Hashtable<Integer, Integer> newNodeIDs = new Hashtable<Integer, Integer>();
 		
 		while (nodesEnum.hasMoreElements()) {
