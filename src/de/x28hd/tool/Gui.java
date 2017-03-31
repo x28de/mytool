@@ -625,6 +625,18 @@ public class Gui {
 		delCluster.setText("Delete Cluster");
 		sub2.add(delCluster);
 		
+		JMenuItem flipHori = new JMenuItem();
+		flipHori.addActionListener(controler);
+		flipHori.setActionCommand("flipHori");
+		flipHori.setText("Flip Cluster Horizontal");
+		sub2.add(flipHori);
+		
+		JMenuItem flipVerti = new JMenuItem();
+		flipVerti.addActionListener(controler);
+		flipVerti.setActionCommand("flipVerti");
+		flipVerti.setText("Flip Cluster Vertical");
+		sub2.add(flipVerti);
+		
 		menu.add(sub2);
 	}
 	

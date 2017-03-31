@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
@@ -401,6 +402,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			centralityColoring = new CentralityColoring(nodes, edges);
 				centralityColoring.changeColors(true, this);
 			graphPanel.repaint();
+			gui.menuItem51.setSelected(true);
 			}
 			
 		} else if (command == "sibling") {
@@ -505,6 +507,14 @@ public final class PresentationService implements ActionListener, MouseListener,
 				deleteCluster(selectedAssoc);
 				graphSelected();
 				
+		} else if (command == "flipHori") {
+			flipCluster(selectedAssoc, true);
+			graphSelected();
+			
+		} else if (command == "flipVerti") {
+			flipCluster(selectedAssoc, false);
+			graphSelected();
+			
 		} else if (command == "extmsg") {
 			new LimitationMessage();
 			
@@ -1300,6 +1310,48 @@ public final class PresentationService implements ActionListener, MouseListener,
 		GraphNode topic1 = assoc.getNode1();	
 		graphPanel.copyCluster(topic1);
 		return;
+	}
+
+	public void flipCluster(GraphEdge assoc, boolean horizontal) {
+		GraphNode topic1 = assoc.getNode1();	
+		Hashtable<Integer,GraphNode> cluster = graphPanel.createNodeCluster(topic1);
+		GraphNode node;
+		int min = Integer.MAX_VALUE;
+		int max = Integer.MIN_VALUE;
+		int z;
+		HashSet<Integer> todoList = new HashSet<Integer>();
+		Enumeration<GraphNode> e3 = cluster.elements();
+		while (e3.hasMoreElements()) {
+			node = (GraphNode) e3.nextElement();
+			Point xy = node.getXY();
+			if (horizontal) {
+				z = xy.x;
+			} else {
+				z = xy.y;
+			}
+			if (z < min) min = z;
+			if (z > max) max = z;
+			int key = node.getID();
+			todoList.add(key);
+		}
+		int mid = (max + min)/ 2;
+		Iterator<Integer> todo = todoList.iterator();
+		while (todo.hasNext()) {
+			int key = todo.next();
+			node = (GraphNode) nodes.get(key);
+			Point xy = node.getXY();
+			int x = xy.x;
+			int y = xy.y;
+			if (horizontal) {
+				x = x + 2*(mid - x);
+			} else { 
+				y = y + 2*(mid - y);
+			}
+			xy = new Point(x, y);
+			node.setXY(xy);
+		}
+		graphPanel.repaint();
+		setDirty(true);
 	}
 
 	public Rectangle getBounds() {
