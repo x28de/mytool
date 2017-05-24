@@ -457,7 +457,7 @@ public class Gui {
 
 		JMenuItem menuItem16 = new JMenuItem("Legacy Save...");
 		menuItem16.setActionCommand("export");
-		menuItem16.setToolTipText("Export to lagacy zip file format");
+		menuItem16.setToolTipText("Export to legacy zip file format");
 		menuItem16.addActionListener(controler);
 		menu5.add(menuItem16);
 
@@ -487,7 +487,7 @@ public class Gui {
 		menu6.setToolTipText("Help");
 
 		JMenuItem menuItem61 = new JMenuItem("Help");
-		menuItem61.setToolTipText("<html><em>Shows a provisional help page</em></html>");
+		menuItem61.setToolTipText("<html><em>Shows a short help page</em></html>");
 		menuItem61.setActionCommand("?");
 		menuItem61.addActionListener(controler);
 		menu6.add(menuItem61);
@@ -510,11 +510,11 @@ public class Gui {
 	"Right-Click an icon to change its style or delete it;<br />" +
 	"<br />" +
 	"<b>Lines:</b><br />" +			
-	"Drag a connector-line to move all connected items;<br />" +
 	"Right-Click a line to change its style or delete it;<br />" +
 	"To create a line, drag an icon while pressing the ALT key,<br /> " +
 	"or while pressing the Middle Mouse-button (the wheel), <br />" +
 	"or double-click before dragging.<br />" +
+	"Drag a connector-line to move all connected items;<br />" +
 	"<br />" +
 	"<b>Background:</b><br />" +			
 	"Right-Click the canvas background to <br />" +

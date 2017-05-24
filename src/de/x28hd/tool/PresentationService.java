@@ -771,7 +771,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		JLabel detailBoxLabel = new JLabel("Detail", JLabel.CENTER);
 		detailBoxLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
 		detailBox.add(detailBoxLabel);
-		detailBox.setToolTipText("More text about the selected item, always at yout fingertips.");
+		detailBox.setToolTipText("More text about the selected item, always at your fingertips.");
 		detailBox.add(edi,"South");
 		rightPanel.add(detailBox,"South");
 

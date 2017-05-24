@@ -27,7 +27,7 @@ public class LimitationMessage implements HyperlinkListener {
 		pane.setEditable(false);
 		pane.setBackground(Color.decode("#eeeeee"));
 		pane.setText("<html><body><font face = \"Segoe UI\">Due to their large size, " +
-				"some functiions are <br />only available in the <i>extended</i> version" +
+				"some functions are <br />only available in the <i>extended</i> version" +
 				"<br />which can be downloaded for free from <br />" +
 				"<a href=\"http://x28hd.de/tool/extended/\">http://x28hd.de/tool/extended/</a></body></html>");
 		Object[] array = {pane};
