@@ -9,7 +9,7 @@ public class AboutBuild {
 	
 	about =  " ******** Provisional BANNER ********* " +
 			"\r\n " + 
-			"\r\n This is My Tool, Release 39 Build 8 " + extIndicator +
+			"\r\n This is Condensr Release 40 Build 1 " + extIndicator +
 			"\r\n running on Java version " + System.getProperty("java.version") +
 			"\r\n on " + System.getProperty("os.name") + " version " + System.getProperty("os.version") +
 			" (os.arch = " + System.getProperty("os.arch") + ")" +

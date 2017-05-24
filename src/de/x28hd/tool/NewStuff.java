@@ -85,6 +85,9 @@ public class NewStuff {
 	boolean firstColumn = true;
 	String dataStringResort = "";
 	boolean silentlyResort = false;
+	boolean strongItem = false;
+	boolean afterStrong = false;
+	boolean htmlNoise = true;
 	
 	//	Input file sorting
 	Hashtable<Integer,String> byModDates = new Hashtable<Integer,String>();;
@@ -198,6 +201,23 @@ public class NewStuff {
 
 		//  HTML String?
 
+		if (System.getProperty("java.version").contains("1.8") && 
+				content.isDataFlavorSupported(DataFlavor.fragmentHtmlFlavor)) {
+			try {
+				dataString = (String) content.getTransferData(DataFlavor.fragmentHtmlFlavor);
+				dataStringResort = (String) content.getTransferData(DataFlavor.stringFlavor);
+			} catch (UnsupportedFlavorException e1) {
+				System.out.println("Error NS112a " + e1);
+				return false;
+			} catch (IOException e1) {
+				System.out.println("Error NS113a " + e1);
+				return false;
+			}
+//			System.out.println("NS: was fragmentHtmlFlavor: \r\n");
+			inputType = 3;
+			step2();
+			return true;
+		} else {
 		try {
 			htmlSelectionFlavor = new DataFlavor("text/html;charset=utf-8;class=java.io.InputStream");
 			// "unicode" was wrong: yielded space after each character, 
@@ -227,6 +247,7 @@ public class NewStuff {
 			step2();
 			return true;
 		} 
+		}
 
 		//	Plain string ?
 
@@ -586,27 +607,36 @@ public class NewStuff {
 
 	private String filterHTML(String html) {
 		if (inputType != 3) return html;
+//		System.out.println(html);
 		listItem = false;
 		htmlOut = "";
+		htmlNoise = true;
+		strongItem = false;
+		afterStrong = false;
 		MyHTMLEditorKit htmlKit = new MyHTMLEditorKit();
 		HTMLEditorKit.Parser parser = null;
 		HTMLEditorKit.ParserCallback cb = new HTMLEditorKit.ParserCallback() {
 			public void handleEndTag(HTML.Tag t, int pos) {
 				if (t.toString() == "li") {
 					listItem = false;
-					htmlOut = htmlOut  + "\t\r\n";
+					if (!afterStrong) htmlOut = htmlOut  + "\t\r\n";
 				} else if (t.toString() == "tr") {
 					tableRow = false;
-					htmlOut = htmlOut  + "\r\n";
+					if (!afterStrong) htmlOut = htmlOut  + "\r\n";
 				} else if (t.toString() == "td") {
 					tableCell = false;
 					firstColumn = false;
+				} else if (t == HTML.Tag.STRONG || t == HTML.Tag.B || t.toString().matches("h\\d")) {
+					htmlOut = htmlOut + "\t";
+					strongItem = false;
+					afterStrong = true;
 				}
 
 			}
 			public void handleText(char[] data, int pos) {
 				String dataString = new String(data);
-				if (listItem && !tableCell) htmlOut = htmlOut + dataString;
+				if (htmlNoise) return;
+				if (listItem && !tableCell && !afterStrong) htmlOut = htmlOut + dataString;
 				if (tableRow && tableCell) {
 					if (firstColumn) {
 						htmlOut = htmlOut + dataString  + "\t";
@@ -615,24 +645,40 @@ public class NewStuff {
 						htmlOut = htmlOut + dataString  + "<br />";
 					}
 				}
+				if (strongItem) htmlOut = htmlOut + dataString;
+				if (afterStrong) {
+					htmlOut = htmlOut + dataString; 
+				}
 			}
 			public void handleComment(char[] data, int pos) {
 				String dataString = new String(data);
 				if (dataString.contains("w:WordDocument")) {
 					silentlyResort = true;	//	Word uses styles instead of list items
+					System.out.println("silent");
+				}
+				if (dataString.contains("StartFragment")) {
+					htmlNoise = false;
 				}
 			}
 			public void handleStartTag(HTML.Tag t, MutableAttributeSet a, int pos) {
 //				Enumeration<?> attrs = a.getAttributeNames();
 				if (t.toString() == "li") {
 					if (listItem) htmlOut = htmlOut  + "\t\r\n";
+					if (afterStrong) htmlOut = htmlOut  + "<br /><br />o ";
 					listItem = true;
 				} else if (t.toString() == "tr") {
 					tableRow = true;
 					firstColumn = true;
 				} else if (t.toString() == "td") {
 					tableCell = true;
+				} else if (t == HTML.Tag.STRONG || t == HTML.Tag.B || t.toString().matches("h\\d")) {
+					htmlOut = htmlOut + "\n";
+					afterStrong = false;
+					strongItem = true;
 				}
+			}
+			public void handleSimpleTag(HTML.Tag t, MutableAttributeSet a, int pos) {
+				if (t == HTML.Tag.BR && afterStrong) htmlOut = htmlOut + "<br />";
 			}
 		};
 		parser = htmlKit.getParser();
@@ -648,9 +694,9 @@ public class NewStuff {
 		} catch (IOException e3) {
 			System.out.println("Error NS129 " + e3.toString());
 		}
-		if (htmlOut == "") {
+		if (htmlOut == "" || silentlyResort) {
 			if (!silentlyResort) {
-				controler.displayPopup("No list items found in HTML snippet,\r\n"
+				controler.displayPopup("No items oder headings identified in HTML snippet,\r\n"
 						+ "using raw input string instead.");
 			}
 			htmlOut = dataStringResort;
