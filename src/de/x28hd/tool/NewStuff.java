@@ -87,7 +87,7 @@ public class NewStuff {
 	boolean silentlyResort = false;
 	boolean strongItem = false;
 	boolean afterStrong = false;
-	boolean htmlNoise = true;
+	boolean htmlNoise = false;
 	
 	//	Input file sorting
 	Hashtable<Integer,String> byModDates = new Hashtable<Integer,String>();;
@@ -610,9 +610,12 @@ public class NewStuff {
 //		System.out.println(html);
 		listItem = false;
 		htmlOut = "";
-		htmlNoise = true;
+		htmlNoise = false;
+		if (System.getProperty("os.name").startsWith("Windows")) htmlNoise = true;
+		if (html.startsWith("Version:")) htmlNoise = true;
+		silentlyResort = false;
 		strongItem = false;
-		afterStrong = false;
+		afterStrong = true;	// (misnomer) for normal text before first strong heading
 		MyHTMLEditorKit htmlKit = new MyHTMLEditorKit();
 		HTMLEditorKit.Parser parser = null;
 		HTMLEditorKit.ParserCallback cb = new HTMLEditorKit.ParserCallback() {
@@ -647,6 +650,7 @@ public class NewStuff {
 				}
 				if (strongItem) htmlOut = htmlOut + dataString;
 				if (afterStrong) {
+					if (htmlOut == "") htmlOut = "\t";
 					htmlOut = htmlOut + dataString; 
 				}
 			}
@@ -671,6 +675,8 @@ public class NewStuff {
 					firstColumn = true;
 				} else if (t.toString() == "td") {
 					tableCell = true;
+				} else if (t == HTML.Tag.PRE) {
+					silentlyResort = true;
 				} else if (t == HTML.Tag.STRONG || t == HTML.Tag.B || t.toString().matches("h\\d")) {
 					htmlOut = htmlOut + "\n";
 					afterStrong = false;

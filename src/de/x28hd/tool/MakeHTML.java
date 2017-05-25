@@ -58,7 +58,7 @@ public class MakeHTML {
 				+ "<br />Click a circle on "
 				+ "the left pane to see details in the right pane. </em> \r\n"
 				+ "\r\n&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;<br />" 
-				+ "<em>&nbsp;Powered by <a href=\"http://x28hd.de/tool/\">MyTool</a></em></div>"
+				+ "<em>&nbsp;Powered by <a href=\"http://condensr.de\">Condensr.de</a></em></div>"
 				
 				);
 		}
