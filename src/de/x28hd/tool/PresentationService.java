@@ -371,6 +371,14 @@ public final class PresentationService implements ActionListener, MouseListener,
 					gui.menuItem45.setSelected(false);
 				}
 			}
+		} else if (command == "toggleParse") {
+			String javav = System.getProperty("java.version");
+			if (javav.contains("1.8")) {
+				newStuff.setParseMode(gui.menuItem25.isSelected());
+			} else {
+				displayPopup("Your Java Runtime " + javav + " is too old, 1.8 needed.");
+				gui.menuItem25.setSelected(false);
+			}
 			
 		} else if (command == "tablet") {
 			toggleTablet();

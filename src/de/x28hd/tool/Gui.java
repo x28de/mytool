@@ -33,6 +33,7 @@ public class Gui {
 	JRadioButtonMenuItem menuItem22 = null;
 	JCheckBoxMenuItem menuItem23 = null;
 	JCheckBoxMenuItem menuItem24 = null;
+	JCheckBoxMenuItem menuItem25 = null;
 	JMenuItem menuItem91 = null;
 	JMenuItem menuItem92 = null;
 	JMenuItem menuItem93 = null;
@@ -447,9 +448,15 @@ public class Gui {
 		menuItem24.addActionListener(controler);
 		menu5.add(menuItem24);
 
+		menuItem25 = new JCheckBoxMenuItem("Parsing dropped HTML", false);
+		menuItem25.setToolTipText("Try to find headings or lists");
+		menuItem25.setActionCommand("toggleParse");
+		menuItem25.addActionListener(controler);
+		menu5.add(menuItem25);
+
 		menu5.addSeparator();
 
-		JMenuItem menuItem80 = new JMenuItem("Export to anonymized map...");
+		JMenuItem menuItem80 = new JMenuItem("Copy to anonymized map...");
 		menuItem80.setActionCommand("Anonymize");
 		menuItem80.setToolTipText("Saves a copy with all a-z replaced by x");
 		menuItem80.addActionListener(controler);

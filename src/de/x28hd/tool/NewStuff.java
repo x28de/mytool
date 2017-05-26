@@ -78,16 +78,16 @@ public class NewStuff {
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	
 	//	HTML exploitation
+	boolean parseMode; 
 	String htmlOut = "";
 	boolean listItem = false;
-	boolean tableRow = false;
-	boolean tableCell = false;
 	boolean firstColumn = true;
 	String dataStringResort = "";
 	boolean silentlyResort = false;
-	boolean strongItem = false;
-	boolean afterStrong = false;
+	boolean belowHeading = false;
 	boolean htmlNoise = false;
+	boolean structureFound = false;
+	boolean listStructure = false;
 	
 	//	Input file sorting
 	Hashtable<Integer,String> byModDates = new Hashtable<Integer,String>();;
@@ -201,8 +201,7 @@ public class NewStuff {
 
 		//  HTML String?
 
-		if (System.getProperty("java.version").contains("1.8") && 
-				content.isDataFlavorSupported(DataFlavor.fragmentHtmlFlavor)) {
+		if (parseMode && content.isDataFlavorSupported(DataFlavor.fragmentHtmlFlavor)) {
 			try {
 				dataString = (String) content.getTransferData(DataFlavor.fragmentHtmlFlavor);
 				dataStringResort = (String) content.getTransferData(DataFlavor.stringFlavor);
@@ -606,53 +605,50 @@ public class NewStuff {
 //	Stuff from HTML lists
 
 	private String filterHTML(String html) {
-		if (inputType != 3) return html;
 //		System.out.println(html);
-		listItem = false;
+		if (inputType != 3) return html;
 		htmlOut = "";
+		listItem = false;
+		belowHeading = false;
+		structureFound = false;
+		silentlyResort = false;
+		listStructure = false;
 		htmlNoise = false;
 		if (System.getProperty("os.name").startsWith("Windows")) htmlNoise = true;
 		if (html.startsWith("Version:")) htmlNoise = true;
-		silentlyResort = false;
-		strongItem = false;
-		afterStrong = true;	// (misnomer) for normal text before first strong heading
+
+		// We distinguish headings and lists. Depending on the first such structure found, 
+		// we either insert a TAB between heading and what follows, or leave each item as 
+		// one line (to let SplitIntoNew decide). Headings within lists are ignored, lists 
+		// under headings are formatted within a single detail field.
+		
 		MyHTMLEditorKit htmlKit = new MyHTMLEditorKit();
 		HTMLEditorKit.Parser parser = null;
 		HTMLEditorKit.ParserCallback cb = new HTMLEditorKit.ParserCallback() {
 			public void handleEndTag(HTML.Tag t, int pos) {
 				if (t.toString() == "li") {
 					listItem = false;
-					if (!afterStrong) htmlOut = htmlOut  + "\t\r\n";
-				} else if (t.toString() == "tr") {
-					tableRow = false;
-					if (!afterStrong) htmlOut = htmlOut  + "\r\n";
-				} else if (t.toString() == "td") {
-					tableCell = false;
-					firstColumn = false;
+					if (belowHeading) {
+						htmlOut = htmlOut  + "<br />";
+					} else {
+						htmlOut = htmlOut  + "\r\n";
+					}
 				} else if (t == HTML.Tag.STRONG || t == HTML.Tag.B || t.toString().matches("h\\d")) {
+					if (listStructure) return;
+					belowHeading = true;
+					structureFound = true;
 					htmlOut = htmlOut + "\t";
-					strongItem = false;
-					afterStrong = true;
+				} else if (t == HTML.Tag.P && (belowHeading || !structureFound)) {
+					if (htmlOut.length() > 30) htmlOut = htmlOut + "<br /><br />";
+				} else if (t == HTML.Tag.TABLE && (belowHeading || !structureFound)) {
+					htmlOut = htmlOut + "<br />";
 				}
 
 			}
 			public void handleText(char[] data, int pos) {
 				String dataString = new String(data);
 				if (htmlNoise) return;
-				if (listItem && !tableCell && !afterStrong) htmlOut = htmlOut + dataString;
-				if (tableRow && tableCell) {
-					if (firstColumn) {
-						htmlOut = htmlOut + dataString  + "\t";
-						firstColumn = false;
-					} else {
-						htmlOut = htmlOut + dataString  + "<br />";
-					}
-				}
-				if (strongItem) htmlOut = htmlOut + dataString;
-				if (afterStrong) {
-					if (htmlOut == "") htmlOut = "\t";
-					htmlOut = htmlOut + dataString; 
-				}
+				htmlOut = htmlOut + dataString;
 			}
 			public void handleComment(char[] data, int pos) {
 				String dataString = new String(data);
@@ -666,25 +662,28 @@ public class NewStuff {
 			}
 			public void handleStartTag(HTML.Tag t, MutableAttributeSet a, int pos) {
 //				Enumeration<?> attrs = a.getAttributeNames();
-				if (t.toString() == "li") {
-					if (listItem) htmlOut = htmlOut  + "\t\r\n";
-					if (afterStrong) htmlOut = htmlOut  + "<br /><br />o ";
-					listItem = true;
-				} else if (t.toString() == "tr") {
-					tableRow = true;
-					firstColumn = true;
-				} else if (t.toString() == "td") {
-					tableCell = true;
-				} else if (t == HTML.Tag.PRE) {
+				if (t == HTML.Tag.PRE) {
 					silentlyResort = true;
+				} else if (t.toString() == "li") {
+					if (listItem) htmlOut = htmlOut  + "\t\r\n";	// why ?
+					listItem = true;
+					if (!structureFound) {
+						htmlOut = htmlOut + "\n";
+						listStructure = true;
+						structureFound = true;
+					}
+					if (belowHeading) htmlOut = htmlOut  + "<br /><br />o ";
 				} else if (t == HTML.Tag.STRONG || t == HTML.Tag.B || t.toString().matches("h\\d")) {
+					if (listItem) return;
+					belowHeading = false;	// start of the heading itself
+					if (!structureFound && htmlOut != "") htmlOut = "\t" + htmlOut;
 					htmlOut = htmlOut + "\n";
-					afterStrong = false;
-					strongItem = true;
 				}
 			}
 			public void handleSimpleTag(HTML.Tag t, MutableAttributeSet a, int pos) {
-				if (t == HTML.Tag.BR && afterStrong) htmlOut = htmlOut + "<br />";
+				if (t == HTML.Tag.BR && (belowHeading || !structureFound)) {
+					htmlOut = htmlOut + "<br />";
+				}
 			}
 		};
 		parser = htmlKit.getParser();
@@ -700,7 +699,7 @@ public class NewStuff {
 		} catch (IOException e3) {
 			System.out.println("Error NS129 " + e3.toString());
 		}
-		if (htmlOut == "" || silentlyResort) {
+		if (!structureFound || silentlyResort) {
 			if (!silentlyResort) {
 				controler.displayPopup("No items oder headings identified in HTML snippet,\r\n"
 						+ "using raw input string instead.");
@@ -854,6 +853,10 @@ public class NewStuff {
 	
 	public void setCompositionMode(boolean toggle) {
 		this.compositionMode = toggle;
+	}
+	
+	public void setParseMode(boolean toggle) {
+		this.parseMode = toggle;
 	}
 	
 	public void scoopCompositionWindow(CompositionWindow compositionWindow) {
