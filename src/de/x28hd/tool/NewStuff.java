@@ -665,8 +665,9 @@ public class NewStuff {
 				if (t == HTML.Tag.PRE) {
 					silentlyResort = true;
 				} else if (t.toString() == "li") {
-					if (listItem) htmlOut = htmlOut  + "\t\r\n";	// why ?
-					listItem = true;
+					if (!htmlNoise) {
+						listItem = true;
+					} else return;
 					if (!structureFound) {
 						htmlOut = htmlOut + "\n";
 						listStructure = true;
