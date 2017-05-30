@@ -501,6 +501,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 				new VueExport(nodes, edges, storeFilename, this);
 			}
+		} else if (command == "metamexp") {
+			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
+			fd.setFile("export.csv"); 
+			fd.setVisible(true);
+			if (fd.getFile() != null) {
+				String storeFilename = fd.getFile();
+				storeFilename = fd.getDirectory() + fd.getFile();
+
+				new MetamapsExport(nodes, edges, storeFilename, this);
+			}
 		} else if (command == "csvexp") {
 			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
 			fd.setFile("csv.txt"); 

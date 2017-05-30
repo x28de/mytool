@@ -430,7 +430,7 @@ public class NewStuff {
 				String filename = entry.getName();
 				filename = filename.replace('\\', '/');		
 				if (filename.equals("savefile.xml") || filename.startsWith("topicmap-t-")) {
-					new ImportDirector(14, stream, controler); 
+					new ImportDirector(15, stream, controler); 
 					done = true;
 					break;
 				} else if (filename.endsWith("content.cds.xml")) {
@@ -528,6 +528,7 @@ public class NewStuff {
 					"map",
 					"opml",
 					"(not relevant)",
+					"(not relevant)",
 					"topicmap"
 					};
 			for (int k = 0; k < knownFormats.length; k++) {
@@ -564,6 +565,7 @@ public class NewStuff {
 						"mm",
 						"opml",
 						"zkx3",
+						"csv",		//	need different method
 						"zip"
 						};
 				File file = new File(dataString);

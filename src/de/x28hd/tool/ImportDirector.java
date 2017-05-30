@@ -87,6 +87,7 @@ public class ImportDirector implements ActionListener {
 			"FreeMind",
 			"OPML",
 			"Zettelkasten",
+			"Metamaps",
 			"(Old Format)"
 			};
 	String [] knownFormats = {
@@ -104,6 +105,7 @@ public class ImportDirector implements ActionListener {
 			"map",
 			"opml",
 			"zettelkasten",
+			"(not relevant)",
 			"topicmap"
 			};
 	String [] extension = {
@@ -121,6 +123,7 @@ public class ImportDirector implements ActionListener {
 			"mm",
 			"opml",
 			"zkx3",
+			"csv",
 			"zip"
 			};
 	String [] extDescription = {
@@ -138,6 +141,7 @@ public class ImportDirector implements ActionListener {
 			"mm (FreeMind file)",
 			"opml (Outline file)",
 			"zkx3 (ZKN3 export file)",
+			"csv (Metamaps export file)",
 			"zip (Zipped XML Document)"
 			};
 	String [] longDescription = {
@@ -150,11 +154,12 @@ public class ImportDirector implements ActionListener {
 			"<html>If you have an \"Endnote Tagged Import Format\" file exported (we just split it up)</html>",
 			"<html>A Citavi project file (we extract the core knowledge network) <br>*) = Extended version only</html>",
 			"<html>A map file from the VUE (Visual Understanding Environment application</html>",
-			"<html>If you have an \"Research Information System\" file exported (we just split it up)</html>",
-			"<html>If you have an \"BibTeX\" file exported (we just split it up)</html>",
+			"<html>If you have a \"Research Information System\" file exported (we just split it up)</html>",
+			"<html>If you have a \"BibTeX\" file exported (we just split it up)</html>",
 			"<html>A map file created by the \"FreeMind\" mindmap application or imported into it</html>",
 			"<html>An outline file in the \"OPML\" format. Notes (e.g from Scrivener) are supported.</html>",
-			"<html>If you have an \"ZKX3\" file exported from the Luhmann-inspired notes application.</html>",
+			"<html>If you have a \"ZKX3\" file exported from the Luhmann-inspired notes application.</html>",
+			"<html>If you have a CSV file exported from the Metamaps.cc application.</html>",
 			"Old versions of this tool and its precursor DeepaMehta"
 			};
 	
@@ -204,6 +209,8 @@ public class ImportDirector implements ActionListener {
 //			new ZknImport(file, controler);
 			} else if (this.knownFormat == 13) {
 			new ZknImport(file, controler);
+		} else if (this.knownFormat == 14) {	//	neds different method
+			new MetamapsImport(file, controler);
 		} else {
 			controler.displayPopup("Format autodiscovery failed.\nPlease try the Input Wizard." +
 					"\nOr contact support@x28hd.de");
@@ -214,7 +221,7 @@ public class ImportDirector implements ActionListener {
 	public ImportDirector(int knownFormat, InputStream stream, GraphPanelControler controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
-		if (this.knownFormat == 5 || this.knownFormat == 13 || this.knownFormat == 14) {
+		if (this.knownFormat == 5 || this.knownFormat == 13 || this.knownFormat == 15) {
 			step4(stream);
 		}
 	}
@@ -337,6 +344,8 @@ public class ImportDirector implements ActionListener {
 			} else if (knownFormat == 13) {
 				new ZknImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == 14) {
+				new MetamapsImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == 15) {
 				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
@@ -425,7 +434,7 @@ public class ImportDirector implements ActionListener {
 			new TreeImport(inputXml, controler, 12);
 //		} else if (knownFormat == 13) {
 //			new ZknImport(inputXml, controler, 13);
-		} else if (knownFormat == 14) {
+		} else if (knownFormat == 15) {
 			new TopicMapImporter(inputXml, controler);
 		}
 	}
