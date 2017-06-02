@@ -19,18 +19,22 @@ public class MetamapsExport {
 	String htmlOut;
 	String breaks;
 	boolean start;
+	boolean firstRecord = true;
 	
 	public MetamapsExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
 		String storeFilename, GraphPanelControler controler) {
 		String newLine = System.getProperty("line.separator");
 		
+		// CSV version commented because of current error in Metamaps.cc
 		FileWriter list;
 		try {
 			list = new FileWriter(storeFilename);
-			list.write("Topics\n" +
-					"Id,Name,Metacode,X,Y,Description\n");
+//			list.write("Topics\n" +
+//					"Id,Name,Metacode,X,Y,Description\n");
+			list.write("{\"topics\":[");
 //					"Name\n");
 			Enumeration<GraphNode> nodesEnum = nodes.elements();
+			
 			while (nodesEnum.hasMoreElements()) {
 				GraphNode node = nodesEnum.nextElement();
 				int id = node.getID();
@@ -43,20 +47,44 @@ public class MetamapsExport {
 				detail = filterHTML(detail);
 				detail = textQualifying(detail);
 				int x = node.getXY().x;
+				x = Math.round(x * (float) 1.5);
 				int y = node.getXY().y;
-				list.write(id + "," + label + ",Note," + x + "," + y + "," + 
-						detail + newLine);
+				y = Math.round(y * (float) 1.5);
+				if (firstRecord) {
+					list.write("{\"id\":" + id + ",\"name\":\"" + label + "\"," +
+						"\"metacode\":\"Note\",\"x\":" + x + ",\"y\":" + y + "," +
+						"\"description\":\"" +	detail + "\"}");
+				} else {
+					list.write(",\n{\"id\":" + id + ",\"name\":\"" + label + "\"," +
+						"\"metacode\":\"Note\",\"x\":" + x + ",\"y\":" + y + "," +
+						"\"description\":\"" +	detail + "\"}");
+					
+				}
+				firstRecord = false;
+//				list.write(id + "," + label + ",Note," + x + "," + y + "," + 
+//						detail + newLine);
 //				list.write(id + newLine);
 			}
-			list.write("\nSynapses\n" +
-					"Topic1,Topic2,Category,Description\n");
+//			list.write("\nSynapses\n" +
+//					"Topic1,Topic2,Category,Description\n");
+			list.write("],\"synapses\":[");
+			firstRecord = true;
 			Enumeration<GraphEdge> myEdges = edges.elements();
 			while (myEdges.hasMoreElements()) {
 				GraphEdge edge = myEdges.nextElement();
 				int n1 = edge.getN1();
 				int n2 = edge.getN2();
-				list.write(n1 + "," + n2 + ",from-to,\"is using\"" + newLine);
+				if (firstRecord) {
+					list.write("{\"topic1\":" + n1 + ",\"topic2\":" + n2 + 
+						",\"category\":\"from-to\",\"description\":\"\"}");
+				} else {
+					list.write(",\n{\"topic1\":" + n1 + ",\"topic2\":" + n2 + 
+						",\"category\":\"from-to\",\"description\":\"\"}");
+				}
+				firstRecord = false;
+//				list.write(n1 + "," + n2 + ",from-to,\"is using\"" + newLine);
 			}
+			list.write("]}");
 			list.close();
 		} catch (IOException e) {
 			System.out.println("Error CSV101 " + e);			
@@ -65,7 +93,8 @@ public class MetamapsExport {
 	
 	public String textQualifying(String in) {
 		String out = in;
-		if (out.contains(",")) out = "\"" + in + "\"";
+//		if (out.contains(",")) out = "\"" + in + "\"";
+		out = in.replace("\"", "\\\"");
 		return out;
 	}
 	
@@ -84,7 +113,8 @@ public class MetamapsExport {
 			}
 			public void handleSimpleTag(HTML.Tag t, MutableAttributeSet a, int pos) {
 				if (t.equals(HTML.Tag.BR)) {
-					if (!start) breaks = breaks + "<br />";
+//					if (!start) breaks = breaks + "<br />";
+					if (!start) breaks = breaks + "\\n";
 					return;
 				}
 			}

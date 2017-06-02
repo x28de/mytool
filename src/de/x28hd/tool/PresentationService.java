@@ -503,7 +503,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			}
 		} else if (command == "metamexp") {
 			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
-			fd.setFile("export.csv"); 
+			fd.setFile("export.json"); 
 			fd.setVisible(true);
 			if (fd.getFile() != null) {
 				String storeFilename = fd.getFile();

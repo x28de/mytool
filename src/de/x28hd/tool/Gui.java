@@ -317,7 +317,7 @@ public class Gui {
 		menuItem75.addActionListener(controler);
 		menu7.add(menuItem75);
 
-		JMenuItem menuItem83 = new JMenuItem("to Metamaps CSV file (test)");
+		JMenuItem menuItem83 = new JMenuItem("to Metamaps JSON file (test)");
 		menuItem83.setActionCommand("metamexp");
 		menuItem83.setToolTipText("(Think Tool Metamaps.cc)");
 		menuItem83.addActionListener(controler);

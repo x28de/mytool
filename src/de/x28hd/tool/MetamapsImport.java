@@ -55,6 +55,10 @@ public class MetamapsImport {
 				startSynapses = i + 2;
 			}
 			if (i >= startTopics) {
+				if (fields.length < 6) {
+					controler.displayPopup("Invalid CSV format:\n" + line);
+					return;
+				};
 				int x = Integer.parseInt(fields[3]);
 				int y = Integer.parseInt(fields[4]);
 				addNode(fields[0], fields[1], x, y, fields[5]);
