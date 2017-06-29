@@ -535,6 +535,7 @@ public class Gui {
 	"-- save your map,<br />" +
 	"-- or to paste new input;<br />" +
 	"Drag the canvas background to pan the map;<br />" +
+	"ALT-Drag it to span a rectangle for moving;<br />" +
 	"<br />" +
 	"<b>Details pane</b> (at the right):<br />" + 
 	"-- click the \"B\"/ \"I\"/ \"U\" for bold/ italic/ underline,<br />" +

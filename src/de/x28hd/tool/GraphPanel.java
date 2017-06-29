@@ -22,7 +22,9 @@ import java.awt.event.MouseMotionAdapter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -53,6 +55,12 @@ class GraphPanel extends JDesktopPane  {
 	boolean part1 = true;
 	Point lastPoint = new Point(0, 0);
 	
+	private boolean rectangleInProgress;
+	private boolean rectangleGrowing;
+	Rectangle rectangle;
+	Point rectangleMark;
+	HashSet<GraphNode> rectangleSet = new HashSet<GraphNode>();
+	
 	//	Drag accessories
 	int bundleDelay = 0;
 	boolean bundleInProgress = false;
@@ -70,7 +78,7 @@ class GraphPanel extends JDesktopPane  {
 	//
 	private Hashtable cluster;				// cluster of associated nodes
 	private GraphNode targetNode;			// used while edgeInProgress
-	private int ex, ey;						// used while edgeInProgress
+	private int ex, ey;						// used while edgeInProgress (& rectangleGrowing)
 	private int mX, mY;						// last mouse position
 	private Point translation;
 	//
@@ -164,6 +172,7 @@ class GraphPanel extends JDesktopPane  {
 						System.out.println("GP: Error paintnodes " + t);	
 					}
 				}
+				if (rectangleInProgress) paintRect(g);
 			}
 			private void paintEdges(Graphics g) {
 				Enumeration<GraphEdge> e = edges.elements();
@@ -178,6 +187,29 @@ class GraphPanel extends JDesktopPane  {
 				}
 			} 
 			private static final long serialVersionUID = 1L;
+			private void paintRect(Graphics g) {
+				if (rectangleGrowing) {
+					int x = rectangleMark.x;
+					int y = rectangleMark.y;
+					Point rectangleDot = new Point(ex, ey);
+					int w = rectangleDot.x - x;
+					int h = rectangleDot.y - y;
+					if (w < 0) {
+						x = rectangleDot.x;
+						w = 0 - w;
+					}
+					if (h < 0) {
+						y = rectangleDot.y;
+						h = 0 - h;
+					}
+					g.setColor(Color.RED);
+					g.drawRect(x, y, w, h);
+					rectangle.setBounds(x, y, w, h);
+				} else {
+					g.setColor(Color.RED);
+					g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+				}
+			}
 			private void paintHints(Graphics g) {
 				if (jumpingArrow) paintJumpingArrow(g);
 				if (!borderOrientation) return;
@@ -590,6 +622,17 @@ class GraphPanel extends JDesktopPane  {
 			}
 		}
 	}
+	
+	private void nodeRectangle() {
+		rectangleSet.clear();
+		Enumeration<GraphNode> nodesEnum = nodes.elements();
+		while (nodesEnum.hasMoreElements()) {
+			GraphNode node = nodesEnum.nextElement();
+			Point xy = node.getXY();
+			if (!rectangle.contains(xy)) continue;
+			rectangleSet.add(node);
+		}
+	}
 
 //
 //		Clicking
@@ -614,10 +657,40 @@ class GraphPanel extends JDesktopPane  {
 			} else {
 				graphClicked(e);
 			}
+			
+			if (rectangleInProgress) {
+				if (!rectangle.contains(new Point(x - translation.x, y - translation.y))) {
+					rectangleInProgress = false;
+					repaint();
+				}
+				if (rectangleGrowing) {
+					rectangleInProgress = true;
+					nodeRectangle();
+					rectangleGrowing = false;
+				}
+			}
 		}
 		
 		private void thisPanelDragged(MouseEvent e) {
+			
+			//	Intercept ALT-Drag on Graph -- TODO check if must be here
+			if (selection.mode == Selection.SELECTED_TOPICMAP && isSpecial(e)) {
+				translateInProgress = false;
+				if (!rectangleInProgress) {
+					int x = e.getX();
+					int y = e.getY();
+					rectangleMark = new Point(x - translation.x, y - translation.y);
+					rectangleGrowing = true;
+					rectangleInProgress = true;
+					rectangle = new Rectangle();	// grows in paintRect
+				} else if (rectangleGrowing) {
+					ex = e.getX() - translation.x;
+					ey = e.getY() - translation.y;
+					repaint();
+				}
+			}
 
+			//	Main processing
 			if (moveInProgress || clusterInProgress || translateInProgress) {
 				//	moveInProgess was set in thisPanelClicked ! 
 				if (!dragInProgress) {
@@ -631,7 +704,11 @@ class GraphPanel extends JDesktopPane  {
 				mX = x;
 				mY = y;
 				if (moveInProgress) {
-					translateNode(selection.topic, dx, dy);
+					if (rectangleInProgress ) {	
+						translateRectangle(dx, dy);
+					} else {
+						translateNode(selection.topic, dx, dy);
+					}
 					controler.updateBounds();
 
 				} else if (clusterInProgress) {
@@ -709,10 +786,18 @@ class GraphPanel extends JDesktopPane  {
 					controler.createEdge(node1, node2);
 				}	
 				repaint();		
+			} else if (rectangleInProgress) {
+				int x = e.getX() - translation.x;
+				int y = e.getY() - translation.y;
+				if (!rectangle.contains(new Point(x, y)) && !rectangleGrowing) {
+					rectangleInProgress = false;
+					repaint();
+				}
 			}
 		}
 		
 		private void nodeClicked(GraphNode node, MouseEvent e) {
+			
 			nodeSelected(node);	
 			int x = e.getX();
 			int y = e.getY();
@@ -804,6 +889,16 @@ class GraphPanel extends JDesktopPane  {
 
 	private void translateNode(GraphNode node, int x, int y) {
 		node.getXY().translate(x, y);
+	}
+
+	private void translateRectangle(int x, int y) {
+		rectangle.translate(x,  y);
+		Iterator<GraphNode> rectangleNodes = rectangleSet.iterator();
+		
+		while (rectangleNodes.hasNext()) {
+			GraphNode node = rectangleNodes.next();
+			node.getXY().translate(x, y);
+		}
 	}
 
 	private void translateCluster(int x, int y) {
