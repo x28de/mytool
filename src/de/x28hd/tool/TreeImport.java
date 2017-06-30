@@ -221,6 +221,7 @@ public class TreeImport implements ActionListener {
 					}
 				}
 			} else {
+				if (label.isEmpty()) label = " ";
 				id = readCount++ + "";
 				detail = ((Element) child).getAttribute("_note");
 				detail = detail.replace("\n", " X<br />");
