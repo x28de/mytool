@@ -661,6 +661,7 @@ class GraphPanel extends JDesktopPane  {
 			if (rectangleInProgress) {
 				if (!rectangle.contains(new Point(x - translation.x, y - translation.y))) {
 					rectangleInProgress = false;
+					rectangleGrowing = false;
 					repaint();
 				}
 				if (rectangleGrowing) {
