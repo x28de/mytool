@@ -335,6 +335,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command =="ToggleBorders") {
 			graphPanel.toggleBorders();
 			
+		} else if (command =="ToggleRectangle") {
+			graphPanel.toggleRectangle();
+			
+		} else if (command =="ToggleClusterCopy") {
+			graphPanel.toggleClusterCopy();
+			
 		} else if (command == "TogglePalette") {
 			paletteID = 1 - paletteID;
 

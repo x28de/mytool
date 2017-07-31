@@ -34,6 +34,8 @@ public class Gui {
 	JCheckBoxMenuItem menuItem23 = null;
 	JCheckBoxMenuItem menuItem24 = null;
 	JCheckBoxMenuItem menuItem25 = null;
+	JCheckBoxMenuItem menuItem26 = null;
+	JCheckBoxMenuItem menuItem27 = null;
 	JMenuItem menuItem91 = null;
 	JMenuItem menuItem92 = null;
 	JMenuItem menuItem93 = null;
@@ -448,6 +450,18 @@ public class Gui {
 		menu5.add(menuItem43);
 
 		menu5.addSeparator();
+
+		menuItem26 = new JCheckBoxMenuItem("Rubberband selection enabled", false);
+		menuItem26.setActionCommand("ToggleRectangle");
+		menuItem26.setToolTipText("Enables to Alt-Drag for selection -- may be confusing");
+		menuItem26.addActionListener(controler);
+		menu5.add(menuItem26);
+
+		menuItem27 = new JCheckBoxMenuItem("Cluster Drag&Drop enabled", false);
+		menuItem27.setActionCommand("ToggleClusterCopy");
+		menuItem27.setToolTipText("Enables to copy entire clusters -- may be confusing");
+		menuItem27.addActionListener(controler);
+		menu5.add(menuItem27);
 
 		menuItem24 = new JCheckBoxMenuItem("Appending dropped stuff", true);
 		menuItem24.setToolTipText("Exact drop position is ignored and new stuff is just appended");

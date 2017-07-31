@@ -95,6 +95,8 @@ class GraphPanel extends JDesktopPane  {
 	boolean borderOrientation = false;
 	boolean showHints = false;
 	boolean antiAliasing = true;
+	boolean enableRectangle = false;
+	boolean enableClusterCopy = false;
     
 //
 //  Accessories for drag and drop 
@@ -670,7 +672,7 @@ class GraphPanel extends JDesktopPane  {
 		private void thisPanelDragged(MouseEvent e) {
 			
 			//	Intercept ALT-Drag on Graph -- TODO check if must be here
-			if (selection.mode == Selection.SELECTED_TOPICMAP && isSpecial(e)) {
+			if (enableRectangle && selection.mode == Selection.SELECTED_TOPICMAP && isSpecial(e)) {
 				translateInProgress = false;
 				if (!rectangleInProgress) {
 					int x = e.getX();
@@ -708,7 +710,7 @@ class GraphPanel extends JDesktopPane  {
 					controler.updateBounds();
 
 				} else if (clusterInProgress) {
-					if (isSpecial(e) || simulatedAltDown) {
+					if (enableClusterCopy && (isSpecial(e) || simulatedAltDown)) {
 						bundleForDrag(e);
 					}  
 					if (rectangleInProgress ) {	
@@ -1010,6 +1012,16 @@ class GraphPanel extends JDesktopPane  {
 			borderOrientation = !borderOrientation;
 			showHints = borderOrientation || jumpingArrow;
 			repaint();
+		}
+
+		public void toggleRectangle() {
+			enableRectangle = !enableRectangle;
+			System.out.println("Rectangle ? " + enableRectangle);
+		}
+
+		public void toggleClusterCopy() {
+			enableClusterCopy = !enableClusterCopy;
+			System.out.println("ClusterCopy ? " + enableClusterCopy);
 		}
 
 		public void toggleAntiAliasing() {
