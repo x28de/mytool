@@ -659,11 +659,6 @@ class GraphPanel extends JDesktopPane  {
 			}
 			
 			if (rectangleInProgress) {
-				if (!rectangle.contains(new Point(x - translation.x, y - translation.y))) {
-					rectangleInProgress = false;
-					rectangleGrowing = false;
-					repaint();
-				}
 				if (rectangleGrowing) {
 					rectangleInProgress = true;
 					nodeRectangle();
@@ -716,11 +711,20 @@ class GraphPanel extends JDesktopPane  {
 					if (isSpecial(e) || simulatedAltDown) {
 						bundleForDrag(e);
 					}  
-					translateCluster(dx, dy);
+					if (rectangleInProgress ) {	
+						translateRectangle(dx, dy);
+					} else {
+						translateCluster(dx, dy);
+					}
 					controler.updateBounds();
 
 				} else {
-					translateGraph(dx, dy);
+					if (rectangleInProgress && 
+							rectangle.contains(new Point(e.getX() - translation.x, e.getY() - translation.y))) {
+						translateRectangle(dx, dy);
+					} else {
+						translateGraph(dx, dy);
+					}
 				}
 				repaint();
 
@@ -773,6 +777,13 @@ class GraphPanel extends JDesktopPane  {
 				if (dragInProgress) {
 					controler.endTask();
 					dragInProgress = false;
+				} else if (rectangleInProgress) {
+					int x = e.getX() - translation.x;
+					int y = e.getY() - translation.y;
+					if (rectangle.contains(new Point(x, y)) && !rectangleGrowing) {
+						rectangleInProgress = false;
+						repaint();
+					}
 				}
 			} else if (edgeInProgress) {
 				edgeInProgress = false;
@@ -787,13 +798,6 @@ class GraphPanel extends JDesktopPane  {
 					controler.createEdge(node1, node2);
 				}	
 				repaint();		
-			} else if (rectangleInProgress) {
-				int x = e.getX() - translation.x;
-				int y = e.getY() - translation.y;
-				if (!rectangle.contains(new Point(x, y)) && !rectangleGrowing) {
-					rectangleInProgress = false;
-					repaint();
-				}
 			}
 		}
 		
