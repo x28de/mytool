@@ -238,9 +238,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 			displayPopup("<html><h3>How to Select</h3>" 
 					+ "Select a cluster of connected items by clicking any line;<br />" 
 					+ "select a single item by clicking its icon.<br /><br />"
-					+ "<strike>(Rectangular rubberband selection is not yet supported.)</strike><br>"
-					+ "ALT + Drag the mouse on the canvas for rectangular selection;<br>"
-					+ "click outside the rectangle to dismiss it.</html>");
+					+ "Rectangular rubberband selection must be enabled first: <br>"
+					+ "in the Advanced menu, activate \"Rubberband selection enabled\"; <br>"
+					+ "Then ALT + Drag the mouse on the canvas for spanning the rectangle;<br>"
+					+ "click inside the rectangle to dismiss it.</html>");
 				
 		//	Find
 			

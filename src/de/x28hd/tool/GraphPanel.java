@@ -662,7 +662,6 @@ class GraphPanel extends JDesktopPane  {
 			
 			if (rectangleInProgress) {
 				if (rectangleGrowing) {
-					rectangleInProgress = true;
 					nodeRectangle();
 					rectangleGrowing = false;
 				}
