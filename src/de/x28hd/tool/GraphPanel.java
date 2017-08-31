@@ -670,7 +670,7 @@ class GraphPanel extends JDesktopPane  {
 		
 		private void thisPanelDragged(MouseEvent e) {
 			
-			//	Intercept ALT-Drag on Graph -- TODO check if must be here
+			//	Intercept ALT-Drag on Graph -- TODO simplify & check if must be here
 			if (enableRectangle && selection.mode == Selection.SELECTED_TOPICMAP && isSpecial(e)) {
 				translateInProgress = false;
 				if (!rectangleInProgress) {
@@ -684,7 +684,23 @@ class GraphPanel extends JDesktopPane  {
 					ex = e.getX() - translation.x;
 					ey = e.getY() - translation.y;
 					repaint();
+				} else if (!rectangleGrowing) {	// new rectangle starting?
+					int x = e.getX() - translation.x;
+					int y = e.getY() - translation.y;
+					if (!rectangle.contains(new Point(x, y))) {
+						rectangleInProgress = false;
+						repaint();
+					}
 				}
+			} else if (rectangleInProgress && //	drag node/ edge outside rectangle ?
+					selection.mode != Selection.SELECTED_TOPICMAP) {
+				int x = e.getX() - translation.x;
+				int y = e.getY() - translation.y;
+				if (!rectangle.contains(new Point(x, y))) {	
+					rectangleInProgress = false;
+					repaint();
+				}
+				
 			}
 
 			//	Main processing
