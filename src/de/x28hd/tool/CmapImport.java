@@ -239,7 +239,7 @@ public class CmapImport {
 		topicName = topicName.replace("\r"," ");
 		if (topicName.equals(newLine)) topicName = "";
 		if (verbal == null || verbal.equals(newLine)) verbal = "";
-		if (topicName.isEmpty() && verbal.isEmpty()) return;
+//		if (topicName.isEmpty() && verbal.isEmpty()) return;
 		int id = 100 + j;
 
 		int y = 40 + (j % maxVert) * 50 + (j/maxVert)*5;
@@ -249,6 +249,10 @@ public class CmapImport {
 		GraphNode topic = new GraphNode (id, p, Color.decode(newNodeColor), topicName, verbal);	
 
 		nodes.put(id, topic);
+		if (inputID2num.containsKey(nodeRef)) {
+			System.out.println("Error CI113");
+			return;
+		}
 		inputID2num.put(nodeRef, id);
 	}
 	
