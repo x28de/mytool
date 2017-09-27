@@ -70,6 +70,7 @@ public class ImportDirector implements ActionListener {
 	JButton continueButton = new JButton("Next >");
 //	boolean lastStep = false;	// needed if more steps for layout erc
 	boolean saxError = false;
+	String dirname = "";
 	
 	
 	String [] importTypes = {
@@ -88,6 +89,7 @@ public class ImportDirector implements ActionListener {
 			"OPML",
 			"Zettelkasten",
 			"Metamaps",
+			"Gedcom",
 			"(Old Format)"
 			};
 	String [] knownFormats = {
@@ -106,6 +108,7 @@ public class ImportDirector implements ActionListener {
 			"opml",
 			"zettelkasten",
 			"(not relevant)",
+			"GEDCOM",
 			"topicmap"
 			};
 	String [] extension = {
@@ -124,6 +127,7 @@ public class ImportDirector implements ActionListener {
 			"opml",
 			"zkx3",
 			"csv",
+			"xml",
 			"zip"
 			};
 	String [] extDescription = {
@@ -142,6 +146,7 @@ public class ImportDirector implements ActionListener {
 			"opml (Outline file)",
 			"zkx3 (ZKN3 export file)",
 			"csv (Metamaps export file)",
+			"xml (Gedcom XML file)",
 			"zip (Zipped XML Document)"
 			};
 	String [] longDescription = {
@@ -160,6 +165,7 @@ public class ImportDirector implements ActionListener {
 			"<html>An outline file in the \"OPML\" format. Notes (e.g from Scrivener) are supported.</html>",
 			"<html>If you have a \"ZKX3\" file exported from the Luhmann-inspired notes application.</html>",
 			"<html>If you have a CSV file exported from the Metamaps.cc application.</html>",
+			"<html>A genealogical Gedcom XML 6.0 file</html>",
 			"Old versions of this tool and its precursor DeepaMehta"
 			};
 	
@@ -184,6 +190,8 @@ public class ImportDirector implements ActionListener {
 			new CmapImport(doc, controler);
 		} else if (this.knownFormat == 4) {
 			new BrainImport(doc, controler);
+		} else if (this.knownFormat == 15) {
+			new GedcomImport(doc, controler);
 		} else if (this.knownFormat == 11 || this.knownFormat == 12) {
 			new TreeImport(doc, controler, this.knownFormat);
 		}
@@ -221,7 +229,7 @@ public class ImportDirector implements ActionListener {
 	public ImportDirector(int knownFormat, InputStream stream, GraphPanelControler controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
-		if (this.knownFormat == 5 || this.knownFormat == 13 || this.knownFormat == 15) {
+		if (this.knownFormat == 5 || this.knownFormat == 13 || this.knownFormat == 16) {
 			step4(stream);
 		}
 	}
@@ -345,7 +353,7 @@ public class ImportDirector implements ActionListener {
 				new ZknImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == 14) {
 				new MetamapsImport(fd.getSelectedFile(), controler);
-			} else if (knownFormat == 15) {
+			} else if (knownFormat == 16) {
 				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
@@ -378,6 +386,7 @@ public class ImportDirector implements ActionListener {
 		} catch (FileNotFoundException e) {
 			System.out.println("Error ID101 " + e);
 		}
+		dirname = file.getPath();
 		step4(fileInputStream);
 	}
 	
@@ -396,7 +405,7 @@ public class ImportDirector implements ActionListener {
 		}
 		
 		try {
-			inputXml = db.parse(stream);
+			inputXml = db.parse(stream, dirname);
 			
 			Element inputRoot = null;
 			inputRoot = inputXml.getDocumentElement();
@@ -434,7 +443,7 @@ public class ImportDirector implements ActionListener {
 			new TreeImport(inputXml, controler, 12);
 //		} else if (knownFormat == 13) {
 //			new ZknImport(inputXml, controler, 13);
-		} else if (knownFormat == 15) {
+		} else if (knownFormat == 16) {
 			new TopicMapImporter(inputXml, controler);
 		}
 	}
