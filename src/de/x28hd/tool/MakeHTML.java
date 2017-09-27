@@ -12,8 +12,8 @@ public class MakeHTML {
 	
 	public MakeHTML(boolean graphOnly, Hashtable<Integer,GraphNode> nodesIn, 
 			Hashtable<Integer,GraphEdge> edgesIn, String filename, GraphPanelControler controler) {
-		String nodesOut [][] = new String [1000][5];   // 0 = x, 1 = y, 2 = rgb, 3 = label, 4 = id
-		String edgesOut [][] = new String [1000][3];   // 0 = n1, 1 = n2, 2 = rgb
+		String nodesOut [][] = new String [3000][5];   // 0 = x, 1 = y, 2 = rgb, 3 = label, 4 = id
+		String edgesOut [][] = new String [3000][3];   // 0 = n1, 1 = n2, 2 = rgb
 		// TODO eliminate detour via topicid
 		Hashtable<Integer, Integer> nodeids = new Hashtable<Integer, Integer>();
 		Hashtable<Integer, Integer> edgeids = new Hashtable<Integer, Integer>();

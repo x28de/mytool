@@ -813,6 +813,7 @@ public class NewStuff {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder parser = null; 
 		try  {
+			dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 			parser = dbf.newDocumentBuilder(); 
 			return parser.parse(stream);
 		} catch (Exception e) {

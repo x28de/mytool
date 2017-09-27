@@ -70,7 +70,6 @@ public class ImportDirector implements ActionListener {
 	JButton continueButton = new JButton("Next >");
 //	boolean lastStep = false;	// needed if more steps for layout erc
 	boolean saxError = false;
-	String dirname = "";
 	
 	
 	String [] importTypes = {
@@ -386,7 +385,6 @@ public class ImportDirector implements ActionListener {
 		} catch (FileNotFoundException e) {
 			System.out.println("Error ID101 " + e);
 		}
-		dirname = file.getPath();
 		step4(fileInputStream);
 	}
 	
@@ -399,13 +397,14 @@ public class ImportDirector implements ActionListener {
 		Document inputXml = null;
 
 		try {
+			dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 			db = dbf.newDocumentBuilder();
 		} catch (ParserConfigurationException e2) {
 			System.out.println("Error ID102 " + e2 );
 		}
 		
 		try {
-			inputXml = db.parse(stream, dirname);
+			inputXml = db.parse(stream);
 			
 			Element inputRoot = null;
 			inputRoot = inputXml.getDocumentElement();
@@ -443,6 +442,8 @@ public class ImportDirector implements ActionListener {
 			new TreeImport(inputXml, controler, 12);
 //		} else if (knownFormat == 13) {
 //			new ZknImport(inputXml, controler, 13);
+		} else if (knownFormat == 15) {
+			new GedcomImport(inputXml, controler);
 		} else if (knownFormat == 16) {
 			new TopicMapImporter(inputXml, controler);
 		}

@@ -1,27 +1,18 @@
 package de.x28hd.tool;
 
 import java.awt.Color;
-import java.awt.FileDialog;
 import java.awt.Point;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 
-import javax.swing.JFrame;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.w3c.dom.Document;
@@ -43,6 +34,7 @@ public class GedcomImport {
 	Hashtable<String,Boolean> discoveryPointsBack = new Hashtable<String,Boolean>();
 	Hashtable<Integer,Integer> colFill = new Hashtable<Integer,Integer>();
 	Hashtable<String,String> marriages = new Hashtable<String,String>();
+	Hashtable<String,String> places = new Hashtable<String,String>();
 	
 	//	Keys for nodes and edges, incremented in addNode and addEdge
 	Hashtable<String,Integer> inputID2num = new  Hashtable<String,Integer>();
@@ -59,57 +51,8 @@ public class GedcomImport {
     DefaultTreeModel model = null;
 	
 	//	Constants
-	private static final String XML_ROOT = "GEDCOM";
 	int maxVert = 10;
 	GraphPanelControler controler;
-	
-	public GedcomImport(JFrame mainWindow, GraphPanelControler controler) {	// TODO remove 
-		this.controler = controler;
-		
-//
-//		Open XML document
-		
-		FileDialog fd = new FileDialog(mainWindow);
-		fd.setTitle("Select a Gedcom XML file");
-		fd.setMode(FileDialog.LOAD);
-		fd.setVisible(true);
-		String filename = fd.getDirectory() + File.separator + fd.getFile();
-		File file = new File(filename);
-		FileInputStream fileInputStream = null;
-		try {
-			fileInputStream = new FileInputStream(file);
-		} catch (FileNotFoundException e) {
-			System.out.println("Error GI101 " + e);
-		}
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = null;
-		Document inputXml = null;
-
-		try {
-			db = dbf.newDocumentBuilder();
-		} catch (ParserConfigurationException e2) {
-			System.out.println("Error GI102 " + e2 );
-		}
-		
-		try {
-			inputXml = db.parse(fileInputStream);
-			
-			Element inputRoot = null;
-			inputRoot = inputXml.getDocumentElement();
-			if (inputRoot.getTagName() != XML_ROOT) {
-				System.out.println("Error GI105, unexpected: " + inputRoot.getTagName() );
-				fileInputStream.close();
-				return;
-			} 
-		} catch (IOException e1) {
-			System.out.println("Error GI106 " + e1 + "\n" + e1.getClass());
-		} catch (SAXException e) {
-			System.out.println("Error GI107 " + e );
-		}
-		
-		new GedcomImport(inputXml, controler);
-
-	}
 	
 	public GedcomImport(Document inputXml, GraphPanelControler controler) {
 		
@@ -140,9 +83,27 @@ public class GedcomImport {
 					sn = part;
 				}
 			}
+			String pinfo = "";
+			NodeList pinfoList = node.getElementsByTagName("PersInfo");
+			if (pinfoList.getLength() > 0) {
+				Element pinfoElem = (Element) pinfoList.item(0);
+				NodeList infoList = pinfoElem.getElementsByTagName("Information");
+				if (infoList.getLength() > 0) {
+					pinfo = pinfo + infoList.item(0).getTextContent();
+				}
+			}
+			String note = "";
+			NodeList noteList = node.getElementsByTagName("Note");
+			for (int n = 0; n < noteList.getLength(); n++) {
+				Element noteElem = (Element) noteList.item(n);
+				note = note + noteElem.getTextContent() + "<br />";
+				note = note.replaceAll("\r", "<br />");
+//				System.out.println(gn + " " + note);
+			}
 			String labelString = gn;
 			inputItems.put(itemID, labelString);
-			String detailString = itemID + " " + gnFull + " " + sn;
+			gnFull = gnFull.replace("!", "");
+			String detailString = gnFull + " " + sn + "<p>" + pinfo + "<br />" + note;
 			inputNotes.put(itemID, detailString);
 		}
 		
@@ -173,10 +134,25 @@ public class GedcomImport {
 				String[] dateParts = dateFull.split(" ");
 				year = dateParts[dateParts.length - 1];
 			}
+			
+			NodeList placeList = node.getElementsByTagName("Place");
+			String place = "";
+			if (placeList.getLength() > 0) {
+				Element placeElem = (Element) placeList.item(0);
+				NodeList nameList = placeElem.getElementsByTagName("PlaceName");
+				if (nameList.getLength() > 0) {
+					Element nameElem = (Element) nameList.item(0);
+					place = nameElem.getTextContent();
+					place = place.trim();
+				}
+				System.out.println("Place: " + place);
+			}
+			
 			String eventType = ((Element) eventList.item(i)).getAttribute("Type");
 			
 			if (eventType.equals("marriage")) {
 				marriages.put(itemID, year);
+				places.put(itemID, place);
 			} else {
 				Element link = (Element) node.getElementsByTagName("Link").item(0);
 				String toItem = link.getAttribute("Ref");
@@ -187,13 +163,13 @@ public class GedcomImport {
 				int nodeNum = inputID2num.get(toItem);
 				GraphNode graphNode = nodes.get(nodeNum);
 				String details = graphNode.getDetail();
-				details = details + "<p>" + eventType + " " + year;
+				details = details + "<br />" + eventType + " " + year + " in " + place;
 				graphNode.setDetail(details);
 			}
 		}
 
 //		
-//		Record input links
+//		Record input links and marriages
 		
 		NodeList famList = inputXml.getElementsByTagName("FamilyRec");
 		for (int i = 0; i < famList.getLength(); i++) {
@@ -201,6 +177,7 @@ public class GedcomImport {
 			String itemID = node.getAttribute("Id");
 			
 			String year = "";
+			String place = "";
 			NodeList marrList = node.getElementsByTagName("BasedOn");
 			if (marrList.getLength() > 0) {
 				Element idElem = (Element) marrList.item(0);
@@ -211,13 +188,14 @@ public class GedcomImport {
 					continue;
 				}
 				year = marriages.get(toItem);
+				place = places.get(toItem);
 //				System.out.println("Event " + itemID + ", Marriage = " + toItem + " year " + year);
 			}
 			String labelString = year;
 			
 			inputItems.put(itemID, labelString);
 			inputItems2.put(itemID, labelString);
-			String detailString = itemID;
+			String detailString = year + " in " + place;
 			inputNotes.put(itemID, detailString);
 			addNode(itemID);
 			
