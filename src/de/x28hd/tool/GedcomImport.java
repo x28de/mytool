@@ -55,6 +55,14 @@ public class GedcomImport {
 	GraphPanelControler controler;
 	
 	public GedcomImport(Document inputXml, GraphPanelControler controler) {
+
+		if (!inputXml.getXmlEncoding().equals("UTF-8") && 
+				!System.getProperty("file.encoding").equals("UTF-8")) {
+			controler.displayPopup("<html>Warning: Umlauts may be distorted."
+					+ "<br>Please start the program with"
+					+ "<br><b>java -Dfile.encoding=UTF-8 -jar </b><em>path</em><b>\\dm.jar</b>" 
+					+ "<br>from a command prompt or .bat file.</html>");
+		}
 		
 //
 //		Find input items
@@ -117,7 +125,7 @@ public class GedcomImport {
 		}
 		
 //
-//		Get event dates for individuals above or marriages below
+//		Get event dates & places for individuals above or marriages below
 		
 		NodeList eventList = inputXml.getElementsByTagName("EventRec");
 		for (int i = 0; i < eventList.getLength(); i++) {
@@ -145,7 +153,6 @@ public class GedcomImport {
 					place = nameElem.getTextContent();
 					place = place.trim();
 				}
-				System.out.println("Place: " + place);
 			}
 			
 			String eventType = ((Element) eventList.item(i)).getAttribute("Type");
@@ -163,7 +170,7 @@ public class GedcomImport {
 				int nodeNum = inputID2num.get(toItem);
 				GraphNode graphNode = nodes.get(nodeNum);
 				String details = graphNode.getDetail();
-				details = details + "<br />" + eventType + " " + year + " in " + place;
+				details = details + "<br />" + eventType + " " + year + " " + place;
 				graphNode.setDetail(details);
 			}
 		}
@@ -240,7 +247,7 @@ public class GedcomImport {
 		
 		int nodeID = inputID2num.get(topID);
 		GraphNode node = nodes.get(nodeID);
-		System.out.println("Starting. First node is " + node.getDetail());
+		System.out.println("Starting. First node is: " + node.getDetail());
 		
 		connectFamilies(node);
 		gatherRelatives(topID, topNode);
@@ -391,8 +398,6 @@ public class GedcomImport {
 			String itemID = child.getUserObject().toString();
 			childrenMap.put(itemID, child);
 			int weight = child.getLeafCount();
-//			int weight = child.getDepth();
-//			int weight = child.getChildCount();
 			double dweight = weight;
 			if (orderMap.containsKey(dweight)) {
 				dweight = dweight + disambig;
