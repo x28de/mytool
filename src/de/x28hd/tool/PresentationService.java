@@ -1017,9 +1017,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 		int offs = filename.lastIndexOf(".");
 		if (filename.isEmpty() || offs < 0) {
 			newName = baseDir + File.separator + "storefile." + extension;
-		} else { 
+		} else if (!filename.substring(offs + 1).equals(extension)) {
 			newName = filename.substring(0, offs) + "." + extension;
-		}
+			newName = filename + "." + extension;  // don't suggest to overwrite
+		} 
 		if (System.getProperty("os.name").equals("Mac OS X")) {
 			
 			newName = newName.substring(newName.lastIndexOf(File.separator) + 1);

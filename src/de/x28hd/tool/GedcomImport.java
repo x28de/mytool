@@ -35,6 +35,7 @@ public class GedcomImport {
 	Hashtable<Integer,Integer> colFill = new Hashtable<Integer,Integer>();
 	Hashtable<String,String> marriages = new Hashtable<String,String>();
 	Hashtable<String,String> places = new Hashtable<String,String>();
+	HashSet<Integer> treeEdges = new HashSet<Integer>();
 	
 	//	Keys for nodes and edges, incremented in addNode and addEdge
 	Hashtable<String,Integer> inputID2num = new  Hashtable<String,Integer>();
@@ -71,6 +72,13 @@ public class GedcomImport {
 		for (int i = 0; i < itemList.getLength(); i++) {
 			Element node = (Element) itemList.item(i);
 			String itemID = node.getAttribute("Id");
+			if (first) {
+			    treeNode = new DefaultMutableTreeNode(new BranchInfo(1, itemID));
+			    topNode = treeNode;
+				model = new DefaultTreeModel(topNode);
+				topID = itemID;
+				first = false;
+			}
 			Element idElem = (Element) node.getElementsByTagName("IndivName").item(0);
 			NodeList partList = idElem.getElementsByTagName("NamePart");
 			String gn = "";
@@ -93,11 +101,11 @@ public class GedcomImport {
 			}
 			String pinfo = "";
 			NodeList pinfoList = node.getElementsByTagName("PersInfo");
-			if (pinfoList.getLength() > 0) {
-				Element pinfoElem = (Element) pinfoList.item(0);
+			for (int p = 0; p < pinfoList.getLength(); p++) {
+				Element pinfoElem = (Element) pinfoList.item(p);
 				NodeList infoList = pinfoElem.getElementsByTagName("Information");
 				if (infoList.getLength() > 0) {
-					pinfo = pinfo + infoList.item(0).getTextContent();
+					pinfo = pinfo + infoList.item(0).getTextContent() + "<br />" ;
 				}
 			}
 			String note = "";
@@ -106,12 +114,11 @@ public class GedcomImport {
 				Element noteElem = (Element) noteList.item(n);
 				note = note + noteElem.getTextContent() + "<br />";
 				note = note.replaceAll("\r", "<br />");
-//				System.out.println(gn + " " + note);
 			}
 			String labelString = gn;
 			inputItems.put(itemID, labelString);
 			gnFull = gnFull.replace("!", "");
-			String detailString = gnFull + " " + sn + "<p>" + pinfo + "<br />" + note;
+			String detailString = gnFull + " " + sn + "<p>" + pinfo + note;
 			inputNotes.put(itemID, detailString);
 		}
 		
@@ -202,17 +209,11 @@ public class GedcomImport {
 			
 			inputItems.put(itemID, labelString);
 			inputItems2.put(itemID, labelString);
-			String detailString = year + " in " + place;
+			String prep = "";
+			if (!place.isEmpty()) prep = "in";
+			String detailString = year + " " + prep + " " + place;
 			inputNotes.put(itemID, detailString);
 			addNode(itemID);
-			
-			if (first) {
-			    treeNode = new DefaultMutableTreeNode(new BranchInfo(1, itemID));
-			    topNode = treeNode;
-				model = new DefaultTreeModel(topNode);
-				topID = itemID;
-				first = false;
-			}
 			
 			NodeList fathList = node.getElementsByTagName("HusbFath");
 			if (fathList.getLength() > 0) {
@@ -247,7 +248,8 @@ public class GedcomImport {
 		
 		int nodeID = inputID2num.get(topID);
 		GraphNode node = nodes.get(nodeID);
-		System.out.println("Starting. First node is: " + node.getDetail());
+		System.out.println("Starting. First node is: " + node.getLabel() + " (" + topID + ")" );
+		done.add(topID);
 		
 		connectFamilies(node);
 		gatherRelatives(topID, topNode);
@@ -256,6 +258,15 @@ public class GedcomImport {
 		colFill.put(1,0);	// initialize odd cases
 		colFill.put(-1,0);
 		growGraph(topNode, "", 0, 1);
+		
+		// make cross-links pale
+		Enumeration<Integer> edgeList = edges.keys();
+		while (edgeList.hasMoreElements()) {
+			int id = edgeList.nextElement();
+			if (treeEdges.contains(id)) continue;
+			GraphEdge edge = edges.get(id);
+			edge.setColor("#f0f0f0");
+		}
 		
 //			
 //		Pass on the new map
@@ -308,7 +319,6 @@ public class GedcomImport {
 		GraphEdge edge = null;
 		String newEdgeColor = "#c0c0c0";
 		if (!inputID2num.containsKey(fromRef) || !inputID2num.containsKey(toRef)) {
-			System.out.println(fromRef + " -> " + toRef);
 			return;
 		}
 		edgesNum++;
@@ -340,6 +350,7 @@ public class GedcomImport {
 			discoveredVia.put(otherEndID, nodeID);
 			
 			int edgeID = edge.getID();
+			treeEdges.add(edgeID);
 //			if (back) {
 //				String edgeColor = "#ff0000";
 //				edge.setColor(edgeColor);
