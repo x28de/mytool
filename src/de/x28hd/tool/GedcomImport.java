@@ -35,7 +35,7 @@ public class GedcomImport {
 	Hashtable<Integer,Integer> colFill = new Hashtable<Integer,Integer>();
 	Hashtable<String,String> marriages = new Hashtable<String,String>();
 	Hashtable<String,String> places = new Hashtable<String,String>();
-	HashSet<Integer> treeEdges = new HashSet<Integer>();
+	HashSet<Integer> nonTreeEdges = new HashSet<Integer>();
 	
 	//	Keys for nodes and edges, incremented in addNode and addEdge
 	Hashtable<String,Integer> inputID2num = new  Hashtable<String,Integer>();
@@ -260,12 +260,12 @@ public class GedcomImport {
 		growGraph(topNode, "", 0, 1);
 		
 		// make cross-links pale
-		Enumeration<Integer> edgeList = edges.keys();
-		while (edgeList.hasMoreElements()) {
-			int id = edgeList.nextElement();
-			if (treeEdges.contains(id)) continue;
+		Enumeration<Integer> edgeList2 = edges.keys();
+		while (edgeList2.hasMoreElements()) {
+			int id = edgeList2.nextElement();
 			GraphEdge edge = edges.get(id);
-			edge.setColor("#f0f0f0");
+			if (nonTreeEdges.contains(id)) edge.setColor("#f0f0f0");
+//			if (nonTreeEdges.contains(id)) edge.setColor("#ff0000");
 		}
 		
 //			
@@ -331,33 +331,84 @@ public class GedcomImport {
 	}
 
 	public void connectFamilies(GraphNode node) {
+		
 		int nodeNum = node.getID();
 		String nodeID = num2inputID.get(nodeNum);
+		String previousTrail = discoveredVia.get(nodeID);
+
+//
+//		Any neighbor
+		
 		Enumeration<GraphEdge> neighbors = node.getEdges();
 		while (neighbors.hasMoreElements()) {
 			GraphEdge edge = neighbors.nextElement();
 			GraphNode otherEnd = node.relatedNode(edge);
+			
+			// If the arrow points away from the neighbor, the discovery direction is "back"
 			int otherEndNum = otherEnd.getID();
 			boolean back = false;
 			int n1 = edge.getN1();
 			if (otherEndNum == n1){
 				back = true;
 			}
+			
+//
+// Analyze "otherEnd" to detect cross links
+			
 			String otherEndID = num2inputID.get(otherEndNum);
-			if (done.contains(otherEndID)) continue;
-			if (discoveredVia.containsKey(otherEndID)) continue;
-			if (discoveredVia.containsKey(nodeID) && discoveredVia.get(nodeID).equals(otherEndID)) continue;
+			boolean xref = false;
+			
+			if (otherEndID.equals(previousTrail)) continue;  // trivial case
+			if (done.contains(otherEndID)) xref = true;
+			else if (discoveredVia.containsKey(otherEndID)) xref= true;
+			else if (discoveredVia.containsKey(nodeID) && discoveredVia.get(nodeID).equals(otherEndID)) {
+				System.out.println("Error GI122: Odd case: " + nodeID + " -> " + otherEndID);
+				continue;
+			}
+			
+			//	Cross link found: swap discovery hierarchy 
+			
+			if (xref) {
+				String currentTrail = discoveredVia.get(otherEndID);
+				if (currentTrail != nodeID) {	// TODO maybe just topID ?
+					
+					// Family node XOR link back, this means a children link and should not  
+					// be a cross link. Swap it with a marriage link  
+					
+					if (inputItems2.containsKey(nodeID) != back) {
+						
+						// Find the edge to be recolored
+						Enumeration<GraphEdge> neighbors2 = node.getEdges();
+						int wantedEdgeID = -1;
+						while (neighbors2.hasMoreElements()) {
+							GraphEdge edge2 = neighbors2.nextElement();
+							GraphNode otherEnd2 = node.relatedNode(edge2);
+							int previousNum = inputID2num.get(previousTrail);
+							GraphNode previousNode = nodes.get(previousNum);
+							if (otherEnd2 != previousNode) continue;
+							wantedEdgeID = edge2.getID();
+						}
+						nonTreeEdges.add(wantedEdgeID);
+						
+						// Re-specify discovery order
+						discoveredVia.put(nodeID, otherEndID);
+						discoveryPointsBack.put(nodeID, back);
+						done.add(otherEndID);
+						continue;
+
+					// is already a marriage link, just re-color it
+					} else {
+						nonTreeEdges.add(edge.getID());
+						continue;
+					}
+				}
+			}
+			
+			// Normal tree links
 			discoveredVia.put(otherEndID, nodeID);
-			
-			int edgeID = edge.getID();
-			treeEdges.add(edgeID);
-//			if (back) {
-//				String edgeColor = "#ff0000";
-//				edge.setColor(edgeColor);
-//			}
 			discoveryPointsBack.put(otherEndID, back);
-			
 			done.add(otherEndID);
+//			if (!xref) connectFamilies(otherEnd);
 			connectFamilies(otherEnd);
 		}
 	}
