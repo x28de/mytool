@@ -625,8 +625,20 @@ class GraphPanel extends JDesktopPane  {
 		}
 	}
 	
-	private void nodeRectangle() {
+	public Hashtable<Integer,GraphNode> createNodeRectangle() {
+		Hashtable<Integer,GraphNode> cluster = new Hashtable<Integer,GraphNode>();
+		Iterator<GraphNode> rectangleNodes = rectangleSet.iterator();
+		while (rectangleNodes.hasNext()) {
+			GraphNode node = rectangleNodes.next();
+			int id = node.getID();
+			cluster.put(id, node);
+		}
+		return cluster;
+	}
+	private void nodeRectangle(boolean on) {
 		rectangleSet.clear();
+		controler.toggleRectanglePresent(on);
+		if (!on) return;
 		Enumeration<GraphNode> nodesEnum = nodes.elements();
 		while (nodesEnum.hasMoreElements()) {
 			GraphNode node = nodesEnum.nextElement();
@@ -659,13 +671,6 @@ class GraphPanel extends JDesktopPane  {
 			} else {
 				graphClicked(e);
 			}
-			
-			if (rectangleInProgress) {
-				if (rectangleGrowing) {
-					nodeRectangle();
-					rectangleGrowing = false;
-				}
-			}
 		}
 		
 		private void thisPanelDragged(MouseEvent e) {
@@ -689,6 +694,7 @@ class GraphPanel extends JDesktopPane  {
 					int y = e.getY() - translation.y;
 					if (!rectangle.contains(new Point(x, y))) {
 						rectangleInProgress = false;
+						nodeRectangle(false);
 						repaint();
 					}
 				}
@@ -698,6 +704,7 @@ class GraphPanel extends JDesktopPane  {
 				int y = e.getY() - translation.y;
 				if (!rectangle.contains(new Point(x, y))) {	
 					rectangleInProgress = false;
+					nodeRectangle(false);
 					repaint();
 				}
 				
@@ -799,6 +806,7 @@ class GraphPanel extends JDesktopPane  {
 					int y = e.getY() - translation.y;
 					if (rectangle.contains(new Point(x, y)) && !rectangleGrowing) {
 						rectangleInProgress = false;
+						nodeRectangle(false);
 						repaint();
 					}
 				}
@@ -815,6 +823,11 @@ class GraphPanel extends JDesktopPane  {
 					controler.createEdge(node1, node2);
 				}	
 				repaint();		
+			}
+			if (rectangleGrowing) {	
+				rectangleInProgress = true;
+				nodeRectangle(true);
+				rectangleGrowing = false;
 			}
 		}
 		
@@ -869,9 +882,9 @@ class GraphPanel extends JDesktopPane  {
 		
 		public void nodeSelected(GraphNode node) {
 			if (node != selection.topic && !labelUpdate) {
+				selection.mode = Selection.SELECTED_TOPIC;
 				controler.nodeSelected(node);
 				repaint();
-				selection.mode = Selection.SELECTED_TOPIC;
 				selection.topic = node;
 				selection.assoc = null;
 			}
@@ -879,9 +892,9 @@ class GraphPanel extends JDesktopPane  {
 
 		private void edgeSelected(GraphEdge edge) {
 			if (edge != selection.assoc) {
+				selection.mode = Selection.SELECTED_ASSOCIATION;
 				controler.edgeSelected(edge);
 				repaint();
-				selection.mode = Selection.SELECTED_ASSOCIATION;
 				selection.assoc = edge;
 				selection.topic = null;
 			}
@@ -961,8 +974,13 @@ class GraphPanel extends JDesktopPane  {
 	
 	// Variant of drag bundle: copy
 		
-	public void copyCluster(GraphNode topic) {
-		Hashtable<Integer,GraphNode> cluster = createNodeCluster(topic);
+	public void copyCluster(boolean rectangle, GraphNode topic) {
+		Hashtable<Integer,GraphNode> cluster = new Hashtable<Integer,GraphNode>();
+		if (rectangle) {
+			cluster = createNodeRectangle();
+		} else {
+			cluster = createNodeCluster(topic);
+		}
 		myTransferable = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<x28map></x28map>";
 		try {
 			myTransferable = new TopicMapStorer(cluster, edges).createTopicmapString();
@@ -1031,7 +1049,6 @@ class GraphPanel extends JDesktopPane  {
 
 		public void toggleRectangle() {
 			enableRectangle = !enableRectangle;
-			System.out.println("Rectangle ? " + enableRectangle);
 		}
 
 		public void toggleClusterCopy() {

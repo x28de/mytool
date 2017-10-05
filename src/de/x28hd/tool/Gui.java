@@ -182,7 +182,7 @@ public class Gui {
 		menuItem93.setActionCommand("cut");
 		menuItem93.setEnabled(false);
 		menuItem93.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, shortcutMask));
-		menuItem93.setToolTipText("Cut the cluster containing the selected line");
+		menuItem93.setToolTipText("Cut the content of the rubberband rectangle");
 		menuItem93.addActionListener(controler);
 		menu2.add(menuItem93);
 
@@ -190,7 +190,7 @@ public class Gui {
 		menuItem94.setActionCommand("copy");
 		menuItem94.setEnabled(false);
 		menuItem94.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, shortcutMask));
-		menuItem94.setToolTipText("Copy the cluster containing the selected line");
+		menuItem94.setToolTipText("Copy the content of the rubberband rectangle");
 		menuItem94.addActionListener(controler);
 		menu2.add(menuItem94);
 
@@ -204,9 +204,9 @@ public class Gui {
 		menu2.addSeparator();
 
 		menuItem95 = new JMenuItem("Delete");
-		menuItem95.setActionCommand("delete");
+		menuItem95.setActionCommand("delCluster");
 		menuItem95.setEnabled(false);
-		menuItem95.setToolTipText("Delete the selected item or line");
+		menuItem95.setToolTipText("Delete the content of the rubberband rectangle");
 		menuItem95.addActionListener(controler);
 		menu2.add(menuItem95);
 
@@ -651,6 +651,18 @@ public class Gui {
 		delCluster.setActionCommand("delCluster");
 		delCluster.setText("Delete Cluster");
 		sub2.add(delCluster);
+		
+		JMenuItem cutCluster = new JMenuItem();
+		cutCluster.addActionListener(controler);
+		cutCluster.setActionCommand("cut");
+		cutCluster.setText("Cut Cluster");
+		sub2.add(cutCluster);
+		
+		JMenuItem copyCluster = new JMenuItem();
+		copyCluster.addActionListener(controler);
+		copyCluster.setActionCommand("copy");
+		copyCluster.setText("Copy Cluster");
+		sub2.add(copyCluster);
 		
 		JMenuItem flipHori = new JMenuItem();
 		flipHori.addActionListener(controler);

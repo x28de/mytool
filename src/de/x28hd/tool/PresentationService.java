@@ -133,6 +133,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	boolean contextPasteAllowed = true;
 	boolean hyp = false;
 	int paletteID = 1;
+	boolean rectangle = false;
 
 	// Placeholders
 	GraphNode dummyNode = new GraphNode(-1, null, null, null, null);
@@ -229,9 +230,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 		//	Copy / Cut / Delete / Select
 			
 		} else if (command == "copy") {
-			copy(selectedAssoc);
+			copy(rectangle, selectedAssoc);
 		} else if (command == "cut") {
-			cut(selectedAssoc);
+			cut(rectangle, selectedAssoc);
 		} else if (command == "delete") {
 			delete();
 		} else if (command == "select") {
@@ -531,7 +532,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 				new CsvExport(nodes, edges, storeFilename, this);
 			}
 		} else if (command == "delCluster") {
-				deleteCluster(selectedAssoc);
+				deleteCluster(rectangle, selectedAssoc);
 				graphSelected();
 				
 		} else if (command == "flipHori") {
@@ -1151,12 +1152,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 		String labelText = selectedTopic.getLabel();
 		labelField.setText(labelText);
 		edi.repaint();
-		gui.menuItem93.setEnabled(false);
-		gui.menuItem94.setEnabled(false);
-		gui.menuItem95.setEnabled(true);
-		gui.menuItem95.setToolTipText("Delete the selected item");
+		updateCcpGui();
 	}
-	
+
 	public void edgeSelected(GraphEdge edge) {
 		deselect(selectedAssoc);
 		deselect(selectedTopic);
@@ -1166,10 +1164,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		edi.getTextComponent().setCaretPosition(0);
 //		edi.getTextComponent().requestFocus();
 		edi.repaint();
-		gui.menuItem93.setEnabled(true);
-		gui.menuItem94.setEnabled(true);
-		gui.menuItem95.setEnabled(true);
-		gui.menuItem95.setToolTipText("Delete the selected line");
+		updateCcpGui();
 	}
 
 	public void graphSelected() {
@@ -1179,10 +1174,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		selectedAssoc = dummyEdge;
 		edi.setText(initText);
 		graphPanel.grabFocus();		//  was crucial
-		gui.menuItem93.setEnabled(false);
-		gui.menuItem94.setEnabled(false);
-		gui.menuItem95.setEnabled(false);
-		gui.menuItem95.setToolTipText("Delete the selected item or line");
+		updateCcpGui();
 	}
 	
 	private void ssssssssssseparator2() {
@@ -1314,11 +1306,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 		return;
 	}
 
-	public void deleteCluster(GraphEdge assoc) {
-		GraphNode topic1 = assoc.getNode1();	
-		GraphNode topic2 = assoc.getNode2();
-		Hashtable<Integer,GraphNode> cluster = graphPanel.createNodeCluster(topic1);
+	public void deleteCluster(boolean rectangle, GraphEdge assoc) {
+		Hashtable<Integer,GraphNode> cluster = new Hashtable<Integer,GraphNode>();
 		GraphNode node;
+		if (!rectangle) {
+			GraphNode topic1 = assoc.getNode1();	
+			GraphNode topic2 = assoc.getNode2();
+			cluster = graphPanel.createNodeCluster(topic1);
+		} else {
+			cluster = graphPanel.createNodeRectangle();
+		}
 		int response = JOptionPane.showConfirmDialog(OK, 
 				"<html><body>Your command implies \"<b>Delete Cluster</b>\".<br />" +
 				"Are you absolutely sure you want to delete the entire <br />" + 
@@ -1335,9 +1332,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 		return;
 	}
 
-	public void copyCluster(GraphEdge assoc) {
+	public void copyCluster(boolean rectangle, GraphEdge assoc) {
 		GraphNode topic1 = assoc.getNode1();	
-		graphPanel.copyCluster(topic1);
+		graphPanel.copyCluster(rectangle, topic1);
 		return;
 	}
 
@@ -1559,6 +1556,13 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   return nonTreeEdges;
    }
 
+   public void toggleRectanglePresent(boolean on) {
+	   rectangle = on;
+	   updateCcpGui();
+   }
+	
+   // Major class exchanges
+   
    public void triggerUpdate(boolean existingMap) {
 	   translation = graphPanel.getTranslation();
 	   this.existingMap = existingMap;
@@ -1753,15 +1757,15 @@ public final class PresentationService implements ActionListener, MouseListener,
 			gui.menuItem91.setEnabled(true);
 		}
 		
-		public void copy(GraphEdge assoc) {
+		public void copy(boolean rectangle, GraphEdge assoc) {
 			GraphNode topic = assoc.getNode1();	
-			graphPanel.copyCluster(topic);
+			graphPanel.copyCluster(rectangle, topic);
 		}
 		
-		public void cut(GraphEdge assoc) {
+		public void cut(boolean rectangle, GraphEdge assoc) {
 			GraphNode topic = assoc.getNode1();	
-			graphPanel.copyCluster(topic);
-			deleteCluster(assoc);
+			graphPanel.copyCluster(rectangle, topic);
+			deleteCluster(rectangle, assoc);
 		}
 		
 		public void delete() {
@@ -1774,6 +1778,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 				deleteEdge(selectedAssoc);
 				graphSelected();
 			}
+		}
+		
+		public void updateCcpGui() {
+			gui.menuItem93.setEnabled(rectangle);
+			gui.menuItem94.setEnabled(rectangle);
+			gui.menuItem95.setEnabled(rectangle);
 		}
 		
 		public void find(boolean again) {

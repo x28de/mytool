@@ -265,7 +265,6 @@ public class GedcomImport {
 			int id = edgeList2.nextElement();
 			GraphEdge edge = edges.get(id);
 			if (nonTreeEdges.contains(id)) edge.setColor("#f0f0f0");
-//			if (nonTreeEdges.contains(id)) edge.setColor("#ff0000");
 		}
 		
 //			

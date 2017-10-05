@@ -39,5 +39,5 @@ interface GraphPanelControler {
 	HashSet<GraphEdge> getNonTreeEdges();
 	void replaceByTree(Hashtable<Integer, GraphNode> nodes,
 			Hashtable<Integer, GraphEdge> edges);
-	void commit(int type, GraphNode node, GraphEdge edge, Point move); 
+	void commit(int type, GraphNode node, GraphEdge edge, Point move);
 	}
