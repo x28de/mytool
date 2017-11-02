@@ -72,6 +72,12 @@ public class GedcomImport {
 		for (int i = 0; i < itemList.getLength(); i++) {
 			Element node = (Element) itemList.item(i);
 			String itemID = node.getAttribute("Id");
+			String gn = "";
+			String gnFull = "";
+			String sn = "";
+			
+			NodeList IndivList = node.getElementsByTagName("IndivName");
+		if (IndivList.getLength() > 0) {
 			if (first) {
 			    treeNode = new DefaultMutableTreeNode(new BranchInfo(1, itemID));
 			    topNode = treeNode;
@@ -81,24 +87,27 @@ public class GedcomImport {
 			}
 			Element idElem = (Element) node.getElementsByTagName("IndivName").item(0);
 			NodeList partList = idElem.getElementsByTagName("NamePart");
-			String gn = "";
-			String gnFull = "";
-			String sn = "";
-			for (int p = 0; p < partList.getLength(); p++) {
-				String partType = ((Element) partList.item(p)).getAttribute("Type");
-				String part = partList.item(p).getTextContent();
-				if (partType.equals("given name")) {
-					gnFull = part;
-					int bangOffset = gnFull.indexOf("!");
-					if (bangOffset > 0) {
-						gn = gnFull.substring(0, bangOffset);
+			if (partList.getLength() <= 0) {
+				gn = idElem.getTextContent();
+				System.out.println(itemID + " " + gn);
+			} else {
+				for (int p = 0; p < partList.getLength(); p++) {
+					String partType = ((Element) partList.item(p)).getAttribute("Type");
+					String part = partList.item(p).getTextContent();
+					if (partType.equals("given name")) {
+						gnFull = part;
+						int bangOffset = gnFull.indexOf("!");
+						if (bangOffset > 0) {
+							gn = gnFull.substring(0, bangOffset);
+						} else {
+							gn = gnFull;
+						}
 					} else {
-						gn = gnFull;
+						sn = part;
 					}
-				} else {
-					sn = part;
 				}
 			}
+		}
 			String pinfo = "";
 			NodeList pinfoList = node.getElementsByTagName("PersInfo");
 			for (int p = 0; p < pinfoList.getLength(); p++) {
@@ -215,6 +224,15 @@ public class GedcomImport {
 			inputNotes.put(itemID, detailString);
 			addNode(itemID);
 			
+			NodeList childList = node.getElementsByTagName("Child");
+//			if (childList.getLength() <= 0) continue;
+			for (int c = 0; c < childList.getLength(); c++) {
+				Element idElem = (Element) childList.item(c);
+				Element link = (Element) idElem.getElementsByTagName("Link").item(0);
+				String toItem = link.getAttribute("Ref");
+				addEdge(itemID, toItem);
+			} 
+		
 			NodeList fathList = node.getElementsByTagName("HusbFath");
 			if (fathList.getLength() > 0) {
 				Element idElem = (Element) fathList.item(0);
@@ -231,14 +249,6 @@ public class GedcomImport {
 				addEdge(toItem, itemID);
 			}
 			
-			NodeList childList = node.getElementsByTagName("Child");
-			for (int c = 0; c < childList.getLength(); c++) {
-				Element idElem = (Element) childList.item(c);
-				Element link = (Element) idElem.getElementsByTagName("Link").item(0);
-				String toItem = link.getAttribute("Ref");
-				addEdge(itemID, toItem);
-				
-			}
 		}
 
 //
