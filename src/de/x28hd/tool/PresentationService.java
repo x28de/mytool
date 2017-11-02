@@ -1327,6 +1327,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			node = (GraphNode) e2.nextElement();
 			deleteNode(node, true);
 		}
+		graphPanel.nodeRectangle(false);
 		graphPanel.repaint();
 		setDirty(true);
 		return;

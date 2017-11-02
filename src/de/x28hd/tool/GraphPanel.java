@@ -635,8 +635,9 @@ class GraphPanel extends JDesktopPane  {
 		}
 		return cluster;
 	}
-	private void nodeRectangle(boolean on) {
+	void nodeRectangle(boolean on) {
 		rectangleSet.clear();
+		rectangleInProgress = on;
 		controler.toggleRectanglePresent(on);
 		if (!on) return;
 		Enumeration<GraphNode> nodesEnum = nodes.elements();
