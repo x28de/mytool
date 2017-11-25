@@ -41,4 +41,5 @@ interface GraphPanelControler {
 			Hashtable<Integer, GraphEdge> edges);
 	void commit(int type, GraphNode node, GraphEdge edge, Point move);
 	void toggleRectanglePresent(boolean on);
+	void stopHint();
 	}

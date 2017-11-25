@@ -727,7 +727,7 @@ public class NewStuff {
 
 		int maxX = bounds.x + bounds.width;
 		int minY = bounds.y;
-		int minXtop = maxX - bounds.width/2;
+		int minXtop = maxX;
 		if (bounds.width < 726) {	//	graphPanel width, 960 window - 232 right pane
 			minXtop = maxX - bounds.width/2;
 		}
@@ -741,7 +741,7 @@ public class NewStuff {
 				if (x < minXtop) minXtop = x;
 			}
 		}
-		return new Point(minXtop - 40, minY - 40);
+		return new Point(minXtop - 440, minY - 40);
 	}
 
 	public Hashtable<Integer, GraphNode> fetchToUpperLeft(Hashtable<Integer,GraphNode> nodes) {

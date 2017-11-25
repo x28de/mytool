@@ -367,6 +367,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 					graphPanel.toggleAntiAliasing();
 					gui.menuItem45.setSelected(true);
 				}
+				if (!gui.menuItem26.isSelected()) {
+					graphPanel.toggleRectangle();
+					gui.menuItem26.setSelected(true);
+				}
 			} else {
 				if (gui.menuItem42.isSelected()) {
 					graphPanel.toggleBorders();
@@ -379,6 +383,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 				if (gui.menuItem45.isSelected()) {
 					graphPanel.toggleAntiAliasing();
 					gui.menuItem45.setSelected(false);
+				}
+				if (gui.menuItem26.isSelected()) {
+					graphPanel.toggleRectangle();
+					gui.menuItem26.setSelected(false);
 				}
 			}
 		} else if (command == "toggleParse") {
@@ -1560,6 +1568,11 @@ public final class PresentationService implements ActionListener, MouseListener,
    public void toggleRectanglePresent(boolean on) {
 	   rectangle = on;
 	   updateCcpGui();
+   }
+   
+   public void stopHint() {
+	   hintTimer.stop();
+	   graphPanel.jumpingArrow(false);
    }
 	
    // Major class exchanges

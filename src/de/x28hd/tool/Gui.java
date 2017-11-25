@@ -439,7 +439,7 @@ public class Gui {
 
 		menuItem52 = new JCheckBoxMenuItem("Power User Mode", false);
 		menuItem52.setActionCommand("power");
-		menuItem52.setToolTipText("Acceleration, Lurid Colors, and Borders");
+		menuItem52.setToolTipText("Acceleration, Lurid Colors, Borders, and Rubberband Selection");
 		menuItem52.addActionListener(controler);
 		menu5.add(menuItem52);
 
