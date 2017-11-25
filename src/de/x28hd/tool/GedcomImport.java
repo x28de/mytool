@@ -1,7 +1,15 @@
 package de.x28hd.tool;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -11,6 +19,19 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.xml.transform.TransformerConfigurationException;
@@ -20,7 +41,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class GedcomImport {
+import de.x28hd.tool.GedcomImport.Item;
+
+public class GedcomImport implements ListSelectionListener, ActionListener {
 	
 	//	Major fields
 	String dataString = "";
@@ -36,6 +59,9 @@ public class GedcomImport {
 	Hashtable<String,String> marriages = new Hashtable<String,String>();
 	Hashtable<String,String> places = new Hashtable<String,String>();
 	HashSet<Integer> nonTreeEdges = new HashSet<Integer>();
+	Hashtable<String,String> nextUp = new Hashtable<String,String>();
+	Hashtable<String,String> nextDown = new Hashtable<String,String>();
+	TreeMap<String,String> namePicker = new TreeMap<String,String>();
 	
 	//	Keys for nodes and edges, incremented in addNode and addEdge
 	Hashtable<String,Integer> inputID2num = new  Hashtable<String,Integer>();
@@ -48,14 +74,49 @@ public class GedcomImport {
     DefaultMutableTreeNode topNode = null;
     DefaultMutableTreeNode newNode = null;
     String topID = "";
+    String topPick;
     Boolean first = true;
     DefaultTreeModel model = null;
+    HashSet<String> ancestors = new HashSet<String>(); 
+    
+    //	Accessories for user elections
+    int scope = 0;
+    JFrame frame;
+	private WindowAdapter myWindowAdapter = new WindowAdapter() {
+		public void windowClosing(WindowEvent e) {
+			discovery();
+		}
+	};
+    JList<Item> list;
+    class Item {
+    	private String id;
+    	private String description;
+    	public Item(String id, String description) {
+    		this.id = id;
+    		this.description = description;
+    	}
+    	public String getId() {
+    		return id;
+    	}
+    	public String getDescription() {
+    		return description;
+    	}
+    	public String toString() {
+    		return description;
+    	}
+    }
+    JButton continueButton;
+	boolean transit = false;
+	JCheckBox transitBox = null;
+	Item topItem;
+	JLabel instruction2;
 	
 	//	Constants
 	int maxVert = 10;
 	GraphPanelControler controler;
 	
 	public GedcomImport(Document inputXml, GraphPanelControler controler) {
+		this.controler = controler;
 
 		if (!inputXml.getXmlEncoding().equals("UTF-8") && 
 				!System.getProperty("file.encoding").equals("UTF-8")) {
@@ -84,12 +145,12 @@ public class GedcomImport {
 				model = new DefaultTreeModel(topNode);
 				topID = itemID;
 				first = false;
+				topItem = new Item(itemID, sn + ", " + gn);
 			}
 			Element idElem = (Element) node.getElementsByTagName("IndivName").item(0);
 			NodeList partList = idElem.getElementsByTagName("NamePart");
 			if (partList.getLength() <= 0) {
 				gn = idElem.getTextContent();
-				System.out.println(itemID + " " + gn);
 			} else {
 				for (int p = 0; p < partList.getLength(); p++) {
 					String partType = ((Element) partList.item(p)).getAttribute("Type");
@@ -108,6 +169,10 @@ public class GedcomImport {
 				}
 			}
 		}
+		String pickString = sn + ", " + gn;
+		if (namePicker.containsKey(pickString)) pickString = pickString + " (" + itemID + ")";
+		namePicker.put(pickString, itemID);
+			
 			String pinfo = "";
 			NodeList pinfoList = node.getElementsByTagName("PersInfo");
 			for (int p = 0; p < pinfoList.getLength(); p++) {
@@ -139,6 +204,7 @@ public class GedcomImport {
 			String item = itemEnum.nextElement();
 			addNode(item);
 		}
+		
 		
 //
 //		Get event dates & places for individuals above or marriages below
@@ -231,6 +297,7 @@ public class GedcomImport {
 				Element link = (Element) idElem.getElementsByTagName("Link").item(0);
 				String toItem = link.getAttribute("Ref");
 				addEdge(itemID, toItem);
+				if (!nextUp.containsKey(toItem)) nextUp.put(toItem, itemID);
 			} 
 		
 			NodeList fathList = node.getElementsByTagName("HusbFath");
@@ -239,6 +306,7 @@ public class GedcomImport {
 				Element link = (Element) idElem.getElementsByTagName("Link").item(0);
 				String toItem = link.getAttribute("Ref");
 				addEdge(toItem, itemID);
+				if (!nextDown.containsKey(toItem)) nextDown.put(toItem, itemID);
 			}
 			
 			NodeList mothList = node.getElementsByTagName("WifeMoth");
@@ -247,9 +315,89 @@ public class GedcomImport {
 				Element link = (Element) idElem.getElementsByTagName("Link").item(0);
 				String toItem = link.getAttribute("Ref");
 				addEdge(toItem, itemID);
+				if (!nextDown.containsKey(toItem)) nextDown.put(toItem, itemID);
 			}
-			
 		}
+		
+		SortedMap<String,String> nameSorter = (SortedMap<String,String>) namePicker;
+		SortedSet<String> nameSet = (SortedSet<String>) nameSorter.keySet();
+		Iterator<String> it = nameSet.iterator();
+		DefaultListModel<Item> listModel = new DefaultListModel<Item>();
+		while (it.hasNext()) {
+			String pickName = it.next();
+			String pickID = namePicker.get(pickName);
+			Item item = new Item(pickID, pickName);
+			if (pickID == topID) topItem = item;
+			listModel.addElement(item);
+		}
+        frame = new JFrame("Import options");
+        frame.setLocation(100, 170);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.addWindowListener(myWindowAdapter);
+		frame.setLayout(new BorderLayout());
+		
+        list = new JList<Item>(listModel);
+        list.setSelectedValue(topItem, true);
+        list.addListSelectionListener(this);
+        list.setBorder(new EmptyBorder(10, 10, 10, 10));
+        frame.add(new JScrollPane(list));
+        
+        JPanel topbar = new JPanel();
+        topbar.setLayout(new BorderLayout());
+		topbar.setBorder(new EmptyBorder(10, 10, 10, 10));
+		JLabel instruction1 = new JLabel("<html><body>" +
+			    "Start with <b>" + topItem.description + 
+			    "</b> &nbsp; or select another &nbsp;<em>birthname, givenname</em></body></html>");
+		topbar.add(instruction1, "West");
+		frame.add(topbar,"North");
+
+		JPanel toolbar = new JPanel();
+        toolbar.setLayout(new BorderLayout());
+		toolbar.setBorder(new EmptyBorder(10, 10, 10, 10));
+		instruction2 = new JLabel("<html><body>" +
+	    "Which relatives of <b>" + topItem.description + 
+	    "</b> should be included?</body></html>");
+		toolbar.add(instruction2, "North");
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new BorderLayout());
+        continueButton = new JButton("Continue");
+        continueButton.addActionListener(this);
+        continueButton.setSelected(true);
+		JButton cancelButton = new JButton("Cancel");
+	    cancelButton.addActionListener(this);
+        buttons.add(continueButton, "East");
+		buttons.add(cancelButton, "West");
+		toolbar.add(buttons,"East");
+		
+		JPanel radioPanel = new JPanel(new FlowLayout());
+		ButtonGroup buttonGroup = new ButtonGroup();
+		
+		String[] radioCaptions = {"Just ancestors", "Ancestors plus descendants", 
+				"Descendants of all ancestors", "All"};
+		for (int i = 0; i < 4; i++) {
+			JRadioButton radio = new JRadioButton(radioCaptions[i]);
+			radio.setActionCommand(i + "");
+			radio.addActionListener(this);
+			if (i == 3) radio.setSelected(true);
+			buttonGroup.add(radio);
+			radioPanel.add(radio);
+		}
+		
+		
+//		transitBox = new JCheckBox ("Just ancestors?", false);
+		toolbar.add(radioPanel, "West");
+
+		frame.add(toolbar,"South");
+        frame.pack();
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		frame.setLocation(dim.width/2 - 298, dim.height/2 - 209);		
+        frame.setMinimumSize(new Dimension(596, 418));
+        controler.stopHint();	//	to keep the frame in front
+        frame.setVisible(true);
+	}
+	
+	public void discovery() {
+		
 
 //
 //		Create discovery tree
@@ -260,9 +408,61 @@ public class GedcomImport {
 		GraphNode node = nodes.get(nodeID);
 		System.out.println("Starting. First node is: " + node.getLabel() + " (" + topID + ")" );
 		done.add(topID);
+		ancestors.add(topID);
+		discoveredVia.put(topID,  "");
 		
-		connectFamilies(node);
+		if (scope == 3) {	//	All
+			connectFamilies(node);
+			gatherRelatives(topID, topNode);
+		} else {
+			
+		//	Up: find ancestors and build the upward part of the discovery tree
+		connectFamilies2(node);
 		gatherRelatives(topID, topNode);
+		
+		//	Down: find descendants of all ancestors
+		if (scope > 0) { 
+			
+			if (scope == 1) { //  Just my topID's descendants
+				int nodeNum = inputID2num.get(topID);
+				GraphNode gnode = nodes.get(nodeNum);
+				connectFamilies3(gnode, false);
+			} else { 
+				Enumeration<DefaultMutableTreeNode> ancestorTree = topNode.breadthFirstEnumeration();
+				while (ancestorTree.hasMoreElements()) {
+					DefaultMutableTreeNode nestNode = ancestorTree.nextElement();
+					String myID = nestNode.getUserObject().toString();
+					int nodeNum = inputID2num.get(myID);
+					GraphNode gnode = nodes.get(nodeNum);
+					connectFamilies3(gnode, false);
+				}
+			}
+
+			//	Clear the up tree and start one with up and down
+			topNode.removeAllChildren();
+			gatherRelatives2(topID, topNode);
+		}
+		
+		//	Delete all unused nodes
+		Enumeration<Integer> pruneCheckList = nodes.keys();
+		while (pruneCheckList.hasMoreElements()) {
+			int testNum = pruneCheckList.nextElement();
+			String testID = num2inputID.get(testNum);
+			if (!discoveredVia.containsKey(testID)) {
+				GraphNode node2 = nodes.get(testNum);
+//				System.out.println("Removing " + node2.getLabel());
+				Enumeration<GraphEdge> edgeList = node2.getEdges();
+				while (edgeList.hasMoreElements()) {
+					GraphEdge edge = edgeList.nextElement();
+					int edgeID = edge.getID();
+					GraphNode otherEnd2 = node2.relatedNode(edge);
+					otherEnd2.removeEdge(edge);
+					edges.remove(edgeID);
+				}
+				nodes.remove(testNum);
+			}
+		}
+		}
 		
 		// traverse the discovery tree
 		colFill.put(1,0);	// initialize odd cases
@@ -315,7 +515,7 @@ public class GedcomImport {
 		if (topicName.isEmpty() && verbal.isEmpty()) return;
 		int id = 100 + j;
 
-		Point p = new Point(40, 40);
+		Point p = new Point(40, -40);
 		
 		GraphNode topic = new GraphNode (id, p, Color.decode(newNodeColor), topicName, verbal);	
 
@@ -417,11 +617,53 @@ public class GedcomImport {
 			discoveredVia.put(otherEndID, nodeID);
 			discoveryPointsBack.put(otherEndID, back);
 			done.add(otherEndID);
-//			if (!xref) connectFamilies(otherEnd);
 			connectFamilies(otherEnd);
 		}
 	}
 	
+	public void connectFamilies2(GraphNode node) {
+		int nodeNum = node.getID();
+		String nodeID = num2inputID.get(nodeNum);
+		
+		if (ancestors.contains(nodeID)) {
+			Enumeration<GraphEdge> edgeList2 = edges.elements();
+			while (edgeList2.hasMoreElements()) {
+				GraphEdge edge = edgeList2.nextElement();
+				int n1 = edge.getN1();
+				GraphNode node1 = edge.getNode1();
+				GraphNode node2 = edge.getNode2();
+				if (node != node2) continue;
+				String testUp = num2inputID.get(n1);
+				if (!discoveredVia.containsKey(testUp)) {
+					discoveredVia.put(testUp, nodeID);
+					discoveryPointsBack.put(testUp, true);
+				} else continue;
+				ancestors.add(testUp);
+				connectFamilies2(node1);	// recurse
+			}
+		}
+	}
+	
+	public void connectFamilies3(GraphNode node, boolean recursive) {
+		int nodeNum = node.getID();
+		String nodeID = num2inputID.get(nodeNum);
+		
+		Enumeration<GraphEdge> edgeList1 = edges.elements();
+		while (edgeList1.hasMoreElements()) {
+			GraphEdge edge = edgeList1.nextElement();
+			int n2 = edge.getN2();
+			GraphNode node1 = edge.getNode1();
+			GraphNode node2 = edge.getNode2();
+			if (node != node1) continue;
+			String testDown = num2inputID.get(n2);
+			if (!discoveredVia.containsKey(testDown)) {
+				discoveredVia.put(testDown, nodeID);
+				discoveryPointsBack.put(testDown, false);
+			} else continue;
+			connectFamilies3(node2, true);	// recurse
+		}
+	}
+
 	public void gatherRelatives(String parent, DefaultMutableTreeNode treeNode) {
 		Enumeration<String> parentsEnum = discoveredVia.keys();
 		while (parentsEnum.hasMoreElements()) {
@@ -435,6 +677,26 @@ public class GedcomImport {
 				newNode = new DefaultMutableTreeNode(new BranchInfo(hori, testChild));
 				treeNode.add(newNode);
 				gatherRelatives(testChild, newNode);
+			}
+		}
+	}
+
+	public void gatherRelatives2(String parent, DefaultMutableTreeNode treeNode) {
+		Enumeration<String> parentsEnum = discoveredVia.keys();
+		while (parentsEnum.hasMoreElements()) {
+			String testChild = parentsEnum.nextElement();
+			String testParent = discoveredVia.get(testChild);
+			if (!testParent.equals(parent)) {
+				continue;
+			} else {
+				int hori = 1;
+				if (discoveryPointsBack.get(testChild)) {
+					hori = -1;
+					if (!ancestors.contains(parent)) continue;
+				}
+				newNode = new DefaultMutableTreeNode(new BranchInfo(hori, testChild));
+				treeNode.add(newNode);
+				gatherRelatives2(testChild, newNode);
 			}
 		}
 	}
@@ -526,5 +788,46 @@ public class GedcomImport {
 		int x = col * 150;
 		int y = fill * 50;
 		return new Point(x, y);
+	}
+
+	public void valueChanged(ListSelectionEvent arg0) {
+		Item selected = (Item) list.getSelectedValue();
+		String itemID = selected.getId();
+		treeNode = new DefaultMutableTreeNode(new BranchInfo(1, itemID));
+		topNode = treeNode;
+		model = new DefaultTreeModel(topNode);
+		topID = itemID;
+		topItem = selected;
+		continueButton.setEnabled(false);
+		continueButton.setSelected(false);
+		instruction2.setText("<html><body>" +
+			    "Which relatives of <b>" + topItem.description + 
+			    "</b> should be included?</body></html>");
+		frame.repaint();
+
+//		frame.dispose();
+//		discovery();
+	}
+
+	public void actionPerformed(ActionEvent arg0) {
+		String command = arg0.getActionCommand();
+		if (command == "Cancel") {
+			transit = false;
+		} else if (command == "Continue") {
+	        frame.setVisible(false);
+	        frame.dispose();
+	        discovery();
+	        return;
+		}
+		scope = -1;
+	    for (int i = 0; i < 4; i++) {
+	    	if (command.equals(i + "")) scope = i;
+	    }
+		System.out.println("Radio: " + scope);
+		continueButton.setEnabled(true);
+		continueButton.setSelected(true);
+//        frame.setVisible(false);
+//        frame.dispose();
+//        discovery();
 	}
 }
