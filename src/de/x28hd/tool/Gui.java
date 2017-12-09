@@ -51,6 +51,7 @@ public class Gui {
 	JCheckBoxMenuItem menuItem51 = null;
 	JCheckBoxMenuItem menuItem52 = null;
 	JCheckBoxMenuItem menuItem55 = null;
+	JCheckBoxMenuItem menuItem58 = null;
 	String [] tooltip22 = { 
 			"Click to disable editing in the detail pane but enable hyperlinks",
 			"Click to enable editing in the detail pane but disable hyperlinks"};
@@ -413,6 +414,13 @@ public class Gui {
 		menuItem47.setToolTipText("Show items as circles if more lines than items exist");
 		menuItem47.addActionListener(controler);
 		menu5.add(menuItem47);
+
+		menuItem58 = new JCheckBoxMenuItem("Zoom", false);
+		menuItem58.setActionCommand("zoom");
+		menuItem58.setSelected(false);
+		menuItem58.setToolTipText("Zoomable view (less-than-ideal solution)");
+		menuItem58.addActionListener(controler);
+		menu5.add(menuItem58);
 
 		JCheckBoxMenuItem menuItem44 = new JCheckBoxMenuItem("Big Icons", false);
 		menuItem44.setActionCommand("TogglePreso");
