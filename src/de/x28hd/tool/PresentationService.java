@@ -39,7 +39,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.Timer;
@@ -47,8 +46,6 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.DefaultEditorKit;
@@ -81,8 +78,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	JSplitPane splitPane = null;
 	JPanel rightPanel = null;
 	int dividerPos = 0;
-	JSlider slider;
-	int zoomFactor = 0;
 	GraphPanelZoom graphPanelZoom;
 	
 	JMenuBar myMenuBar = null;
@@ -1857,31 +1852,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 		public void zoom() {
 			dividerPos = splitPane.getDividerLocation();
 			if (gui.menuItem58.isSelected()) {
-
-				slider = new JSlider(JSlider.VERTICAL);
+				Point transl = graphPanel.getTranslation();
+				graphPanelZoom = new GraphPanelZoom(transl);
 				splitPane.setDividerLocation(dividerPos);
-				slider.setValue(slider.getMaximum());
-//				slider.setPaintLabels(true);
-				slider.setPaintTicks(true);
-				ChangeListener l = new ChangeListener() {
-					public void stateChanged(ChangeEvent arg0) {
-						int v = slider.getValue();
-						graphPanelZoom.zoom(v);
-					}};
-					slider.addChangeListener(l);
-					slider.updateUI();
-					splitPane.setRightComponent(slider);
-
-					Point transl = graphPanel.getTranslation();
-					graphPanelZoom = new GraphPanelZoom(transl);
-					graphPanelZoom.setModel(nodes, edges);
-					splitPane.setLeftComponent(graphPanelZoom);
-
+				splitPane.setRightComponent(graphPanelZoom.createSlider());
+				graphPanelZoom.setModel(nodes, edges);
+				splitPane.setLeftComponent(graphPanelZoom);
 			} else {
 				splitPane.setDividerLocation(dividerPos);
 				splitPane.setLeftComponent(graphPanel);
 				splitPane.setRightComponent(rightPanel);
-				splitPane.setDividerLocation(dividerPos);
 			}
 		}
 }
