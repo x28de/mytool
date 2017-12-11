@@ -404,7 +404,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			}
 			
 		} else if (command == "zoom") {
-			zoom();
+			zoom(true);
 			
 		} else if (command == "tablet") {
 			toggleTablet();
@@ -558,6 +558,23 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "flipVerti") {
 			flipCluster(selectedAssoc, false);
 			graphSelected();
+			
+		} else if (command == "jump") {
+			GraphNode end = selectedAssoc.getNode2();
+			Point xy = end.getXY();
+			Point transl = graphPanel.getTranslation();
+			Rectangle viewPort = mainWindow.getBounds();
+			viewPort.translate(-transl.x, -transl.y);
+			if (viewPort.contains(xy)) {
+				GraphNode end2 = selectedAssoc.getNode1();
+				Point xy2 = end2.getXY();
+				if (!viewPort.contains(xy2)) xy = xy2;
+			}
+			int dx = xy.x - mainWindow.getWidth()/2 + transl.x + 200;
+			int dy = xy.y - mainWindow.getHeight()/2 + transl.y;
+			panning = new Point(dx, dy);
+			graphPanel.nodeSelected(end);
+			animationTimer2.start();
 			
 		} else if (command == "extmsg") {
 			new LimitationMessage();
@@ -760,6 +777,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		setSystemUI(true);
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
 		splitPane.setOneTouchExpandable(true);
+		splitPane.setDividerLocation(960 - 232);
 		splitPane.setDividerLocation(960 - 232);
 		splitPane.setResizeWeight(.8);
 		splitPane.setDividerSize(8);
@@ -1849,19 +1867,23 @@ public final class PresentationService implements ActionListener, MouseListener,
 			}
 		}
 		
-		public void zoom() {
+		public void zoom(boolean on) {
 			dividerPos = splitPane.getDividerLocation();
-			if (gui.menuItem58.isSelected()) {
+			if (on) {
 				Point transl = graphPanel.getTranslation();
-				graphPanelZoom = new GraphPanelZoom(transl);
+				graphPanelZoom = new GraphPanelZoom(transl, this);
 				splitPane.setDividerLocation(dividerPos);
 				splitPane.setRightComponent(graphPanelZoom.createSlider());
 				graphPanelZoom.setModel(nodes, edges);
 				splitPane.setLeftComponent(graphPanelZoom);
-			} else {
+				toggleClassicMenu();
+			} 
+			if (!on) {
+				gui.menuItem58.setSelected(false);
 				splitPane.setDividerLocation(dividerPos);
 				splitPane.setLeftComponent(graphPanel);
 				splitPane.setRightComponent(rightPanel);
+				toggleClassicMenu();
 			}
 		}
 }

@@ -42,4 +42,5 @@ interface GraphPanelControler {
 	void commit(int type, GraphNode node, GraphEdge edge, Point move);
 	void toggleRectanglePresent(boolean on);
 	void stopHint();
+	void zoom(boolean on);
 	}

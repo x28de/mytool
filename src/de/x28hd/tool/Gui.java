@@ -684,6 +684,12 @@ public class Gui {
 		flipVerti.setText("Flip Cluster Vertical");
 		sub2.add(flipVerti);
 		
+		JMenuItem jump = new JMenuItem();
+		jump.addActionListener(controler);
+		jump.setActionCommand("jump");
+		jump.setText("Jump to End");
+		sub2.add(jump);
+
 		menu.add(sub2);
 	}
 	

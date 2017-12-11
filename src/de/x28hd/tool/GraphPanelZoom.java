@@ -1,5 +1,6 @@
 package de.x28hd.tool;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -7,6 +8,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -14,25 +19,38 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class GraphPanelZoom extends JComponent implements ChangeListener {
+public class GraphPanelZoom extends JComponent implements ChangeListener, ItemListener, ActionListener {
 	private static final long serialVersionUID = 1L;
 	JComponent graphPanelZoom;
 	Hashtable<Integer,GraphNode> nodes;
 	Hashtable<Integer,GraphEdge> edges;
 	private Point translation;
+	GraphPanelControler controler;
 	int zoomFactor = 100;
 	int mX;
 	int mY;
 	Font font = new Font("monospace", Font.PLAIN, 12);
 	JSlider slider;
+	final static float dash1[] = {10.0f};
+    final static BasicStroke dashed =
+        new BasicStroke(1.0f,
+                        BasicStroke.CAP_BUTT,
+                        BasicStroke.JOIN_MITER,
+                        10.0f, dash1, 0.0f);
+    JCheckBox markerBox;
 
-	public GraphPanelZoom(Point transl) {
+	public GraphPanelZoom(Point transl, GraphPanelControler controler) {
+		this.controler = controler;
 		translation = transl;
 		
 		graphPanelZoom = new JComponent() {
@@ -41,12 +59,18 @@ public class GraphPanelZoom extends JComponent implements ChangeListener {
 						RenderingHints.VALUE_ANTIALIAS_ON);
 				g.setColor(getBackground());
 				g.fillRect(0, 0, getWidth(), getHeight());
+				//	crosshair
+				if (markerBox.isSelected()) {
 				g.setColor(Color.RED);
-				g.fillOval(getWidth()/2 - 2,  getHeight()/2 - 2, 4,  4);
+				g.drawLine(getWidth()/2 - 3,  getHeight()/2, getWidth()/2 + 3,  getHeight()/2);
+				g.drawLine(getWidth()/2,  getHeight()/2 - 3, getWidth()/2,  getHeight()/2 + 3);
+				((Graphics2D) g).setStroke(dashed);
 				g.drawRect(getWidth()/2 * (100 - zoomFactor)/100, 
 						getHeight()/2 * (100 - zoomFactor)/100, 
 						getWidth() * zoomFactor/100 - 1,
 						getHeight() * zoomFactor/100 - 1);
+				((Graphics2D) g).setStroke(new BasicStroke());
+				}
 				g.setColor(getForeground());
 				
 				g.translate(translation.x, translation.y);
@@ -151,7 +175,7 @@ public class GraphPanelZoom extends JComponent implements ChangeListener {
 	
 	//	Preparations
 	
-	public JSlider createSlider() {
+	public JPanel createSlider() {
 		slider = new JSlider(JSlider.VERTICAL);
 		slider.setValue(slider.getMaximum());
 		slider.setPaintLabels(true);
@@ -167,7 +191,30 @@ public class GraphPanelZoom extends JComponent implements ChangeListener {
 		slider.setLabelTable((Dictionary<Integer,JComponent>) labelDict);
 		slider.addChangeListener(this);
 		slider.updateUI();
-		return slider;
+		
+		JButton backButton = new JButton("Return");
+		backButton.setToolTipText("Return to normal size and functionality, panned to the marked area");
+		backButton.addActionListener(this);
+		backButton.setSelected(true);
+		
+		JPanel top = new JPanel();
+		top.setLayout(new BorderLayout());
+		top.add(backButton, "East");
+		
+		markerBox = new JCheckBox (" Mark the targeted area", true);
+		markerBox.addItemListener(this);
+
+		JPanel bottom = new JPanel();
+		bottom.setLayout(new BorderLayout());
+		bottom.add(markerBox, "West");
+		
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		panel.add(slider);
+		panel.add(top, "North");
+		panel.add(bottom, "South");
+		return panel;
 	}
 	
 	void setModel(Hashtable<Integer, GraphNode> nodes, Hashtable<Integer, GraphEdge> edges) {
@@ -198,5 +245,13 @@ public class GraphPanelZoom extends JComponent implements ChangeListener {
 	public void translateGraph(int x, int y) {
 		translation.x += (x * 100) / zoomFactor;
 		translation.y += (y * 100) / zoomFactor;
+	}
+
+	public void actionPerformed(ActionEvent arg0) {
+		controler.zoom(false);
+	}
+
+	public void itemStateChanged(ItemEvent arg0) {
+		repaint();
 	}
 }
