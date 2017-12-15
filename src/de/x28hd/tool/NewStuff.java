@@ -741,7 +741,7 @@ public class NewStuff {
 				if (x < minXtop) minXtop = x;
 			}
 		}
-		return new Point(minXtop - 440, minY - 40);
+		return new Point(minXtop - 40, minY - 40);
 	}
 
 	public Hashtable<Integer, GraphNode> fetchToUpperLeft(Hashtable<Integer,GraphNode> nodes) {

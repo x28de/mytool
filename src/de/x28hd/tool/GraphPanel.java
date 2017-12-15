@@ -677,7 +677,7 @@ class GraphPanel extends JDesktopPane  {
 		private void thisPanelDragged(MouseEvent e) {
 			
 			//	Intercept ALT-Drag on Graph -- TODO simplify & check if must be here
-			if (enableRectangle && selection.mode == Selection.SELECTED_TOPICMAP && isSpecial(e)) {
+			if (enableRectangle && selection.mode == Selection.SELECTED_TOPICMAP && (isSpecial(e) || simulatedAltDown)) {
 				translateInProgress = false;
 				if (!rectangleInProgress) {
 					int x = e.getX();
@@ -736,7 +736,7 @@ class GraphPanel extends JDesktopPane  {
 					if (enableClusterCopy && (isSpecial(e) || simulatedAltDown)) {
 						bundleForDrag(e);
 					}  
-					if (rectangleInProgress ) {	
+					if (rectangleInProgress ) {	//	TODO check if necessary
 						translateRectangle(dx, dy);
 					} else {
 						translateCluster(dx, dy);
@@ -829,6 +829,7 @@ class GraphPanel extends JDesktopPane  {
 				rectangleInProgress = true;
 				nodeRectangle(true);
 				rectangleGrowing = false;
+				toggleAlt(false);
 			}
 		}
 		
@@ -870,7 +871,7 @@ class GraphPanel extends JDesktopPane  {
 			} else {	// default -- start moving the graph
 				translateInProgress = true;
 			}
-			toggleAlt(false);
+			if (!simulatedAltDown) toggleAlt(false);
 		}
 
 //
