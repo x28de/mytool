@@ -838,9 +838,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 		rightPanel.add(detailBox,"South");
 
 		boolean dirtyBefore = isDirty;
-		edi.setText("<html>Es ist untersagt, metallbeschichtete Luftballons mit Gasfüllung "
-				+ "in Tunnelbahnhöfen mit elektrischer Oberleitung unverpackt "
-				+ "<a href=\"http://x28hd.de\">mitzuführen</a>.</html>");
+		edi.setText("<html>Es ist untersagt, metallbeschichtete Luftballons mit Gasfuellung "
+				+ "in Tunnelbahnhoefen mit elektrischer Oberleitung unverpackt "
+				+ "<a href=\"http://x28hd.de\">mitzufuehren</a>.</html>");
 		isDirty = dirtyBefore;
 //		edi.getTextComponent().setCaretPosition(18);
 		

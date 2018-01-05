@@ -153,7 +153,7 @@ public class GraphPanelZoom extends JComponent implements ChangeListener, ItemLi
 		return p;
 	}
 	
-	// Directly copied from Jörg Richter's DeepaMehta 2	(like much of this class)
+	// Directly copied from Joerg Richter's DeepaMehta 2	(like much of this class)
 	public static void paintLine(Graphics g, int x1, int y1, int x2, int y2,
 			boolean hasDirection) {
 		if (hasDirection) {

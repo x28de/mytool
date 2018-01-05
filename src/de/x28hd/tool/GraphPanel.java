@@ -400,7 +400,7 @@ class GraphPanel extends JDesktopPane  {
 		}
 	}
 
-	// Directly copied from Jörg Richter's DeepaMehta 2	(like much of this class)
+	// Directly copied from Joerg Richter's DeepaMehta 2	(like much of this class)
 	public static void paintLine(Graphics g, int x1, int y1, int x2, int y2,
 			boolean hasDirection) {
 		if (hasDirection) {
@@ -448,6 +448,9 @@ class GraphPanel extends JDesktopPane  {
 		URL imgURL = getClass().getResource(imagefile);
 		ImageIcon ii;
 		Image img = null;
+		if (imgURL == null) {
+			imgURL = getClass().getClassLoader().getResource(imagefile);
+		}
 		if (imgURL == null) {
 			controler.displayPopup("Image " + imagefile + " not loaded");
 		} else {

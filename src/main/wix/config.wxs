@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Product Id="d8df1c0f-de90-45be-a7fe-f56d7c13fe60" Name="mytool Tool" Language="1033" Version="1.1.2" Manufacturer="Matthias Melcher, x28hd.de" UpgradeCode="d8df1c0f-de90-45be-a7fe-f56d7c13fe60">
+    <Package Id="*" Keywords="Installer" Platform="x64" Description="mytool Tool" Comments="None" Manufacturer="Matthias Melcher" InstallerVersion="200" Languages="1033" Compressed="yes" SummaryCodepage="1252" />
+    <Media Id="1" />
+    <Property Id="APPLICATIONFOLDER">
+      <RegistrySearch Key="SOFTWARE\Matthias Melcher, x28hd.de\mytool-windows-44.2" Root="HKLM" Type="raw" Id="APPLICATIONFOLDER_REGSEARCH" Name="Path" />
+    </Property>
+    <DirectoryRef Id="APPLICATIONFOLDER">
+      <Component Id="CleanupMainApplicationFolder" Guid="*" Win64="yes">
+        <RegistryValue Root="HKLM" Key="SOFTWARE\Matthias Melcher, x28hd.de\mytool-windows-44.2" Name="Path" Type="string" Value="[APPLICATIONFOLDER]" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <?ifndef Platform ?>
+    <?define Platform="default" ?>
+    <?error Platform is not defined! ?>
+    <?endif?>
+    <?include bundle.wxi ?>
+  </Product>
+</Wix>

@@ -1,8 +1,10 @@
 package de.x28hd.tool;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.net.URL;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -25,6 +27,12 @@ public class Gui {
 	NewStuff newStuff;
 
 	JMenuBar menuBar;
+	
+	private Image newImage;
+	private Image openImage;
+	private Image saveImage;
+	private Image pasteImage;
+	private Image wizardImage;
 
 	int shortcutMask;
 //	JMenuBar myMenuBar = null;
@@ -95,6 +103,12 @@ public class Gui {
 		shortcutMask = ActionEvent.CTRL_MASK;
 		if (System.getProperty("os.name").equals("Mac OS X")) shortcutMask = ActionEvent.META_MASK;
 
+		newImage = getImage("new.gif");
+		openImage = getImage("open.gif");
+		saveImage = getImage("save.gif");
+		pasteImage = getImage("paste.gif");
+		wizardImage = getImage("wizard.gif");
+		
 		menuBar = new JMenuBar();
 		
 		fileMenu();
@@ -113,21 +127,21 @@ public class Gui {
 		JMenu menu1;
 		menu1 = new JMenu("File  ");
 
-		JMenuItem menuItem10 = new JMenuItem("New", new ImageIcon(getClass().getResource("new.gif")));
+		JMenuItem menuItem10 = new JMenuItem("New", new ImageIcon(newImage));
 		menuItem10.setActionCommand("new");
 		menuItem10.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, shortcutMask));
 		menuItem10.setToolTipText("Start a new map via the Composition Window");
 		menuItem10.addActionListener(controler);
 		menu1.add(menuItem10);
 
-		JMenuItem menuItem11 = new JMenuItem("Open...",  new ImageIcon(getClass().getResource("open.gif")));
+		JMenuItem menuItem11 = new JMenuItem("Open...",  new ImageIcon(openImage));
 		menuItem11.setActionCommand("open");
 		menuItem11.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, shortcutMask));
 		menuItem11.setToolTipText("Open an existing map, or one or more files whose text or names are to be inserted");
 		menuItem11.addActionListener(controler);
 		menu1.add(menuItem11);
 
-		JMenuItem menuItem12 = new JMenuItem("Save", new ImageIcon(getClass().getResource("save.gif")));
+		JMenuItem menuItem12 = new JMenuItem("Save", new ImageIcon(saveImage));
 		menuItem12.setActionCommand("Store");
 		menuItem12.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, shortcutMask));
 		menuItem12.addActionListener(controler);
@@ -195,7 +209,7 @@ public class Gui {
 		menuItem94.addActionListener(controler);
 		menu2.add(menuItem94);
 
-		menuItem21 = new JMenuItem("Paste", new ImageIcon(getClass().getResource("paste.gif")));
+		menuItem21 = new JMenuItem("Paste", new ImageIcon(pasteImage));
 		menuItem21.setActionCommand("paste");
 		menuItem21.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, shortcutMask));
 		menuItem21.setToolTipText("Paste contents of the system clipboard");
@@ -257,7 +271,7 @@ public class Gui {
 
 		menu3.addSeparator();
 
-		JMenuItem menuItem37 = new JMenuItem("Launch the Import Wizard",  new ImageIcon(getClass().getResource("wizard.gif")));
+		JMenuItem menuItem37 = new JMenuItem("Launch the Import Wizard",  new ImageIcon(wizardImage));
 		menuItem37.setActionCommand("testimp");
 		menuItem37.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, shortcutMask));
 		menuItem37.setToolTipText("Import data in one of 15 formats");
@@ -704,6 +718,23 @@ public class Gui {
 		if (styleNumber == 7) styleItem.setText("Pale");
 		if (styleNumber == 8) styleItem.setText("Dark");
 		return styleItem;
+	}
+
+	// TODO consolidate with GraphPanel
+	public Image getImage(String imagefile) {
+		URL imgURL = getClass().getResource(imagefile);
+		ImageIcon ii;
+		Image img = null;
+		if (imgURL == null) {
+			imgURL = getClass().getClassLoader().getResource(imagefile);
+		}
+		if (imgURL == null) {
+			controler.displayPopup("Image " + imagefile + " not loaded");
+		} else {
+			ii = new ImageIcon(imgURL);
+			img = ii.getImage();
+		}
+		return img;
 	}
 
 }

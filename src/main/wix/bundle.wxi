@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Include>
+  <Directory
+    Id='TARGETDIR'
+    Name='SourceDir'
+  >
+    <Directory
+      Id='ProgramFiles64Folder'
+      Name='PFiles'
+    >
+      <Directory
+        Id='APPLICATIONFOLDER'
+        Name='mytool'
+      >
+        <Component
+          DiskId='1'
+          Guid='d8df1c0f-de90-45be-a7fe-f56d7c13fe60'
+          Id='comp0'
+          Win64='yes'
+        >
+          <CreateFolder />
+          <RemoveFolder
+            Id='RemoveDir0'
+            On='uninstall'
+           />
+          <RegistryKey
+            Key='SOFTWARE\Matthias Melcher, x28hd.de\mytool-windows-1.1.5-SNAPSHOT'
+            Root='HKCU'
+          >
+            <RegistryValue
+              KeyPath='yes'
+              Name='Version'
+              Type='string'
+              Value='1.0'
+             />
+          </RegistryKey>
+        </Component>
+    </Directory>
+    </Directory>
+  </Directory>
+  <Feature
+    Id='DefaultFeature'
+    Level='1'
+    Title='Main Feature'
+  >
+    <ComponentRef
+      Id='comp0'
+     />
+    <ComponentRef
+      Id='CleanupMainApplicationFolder'
+     />
+  </Feature>
+</Include>
