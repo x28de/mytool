@@ -1,20 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-  <Product Id="d8df1c0f-de90-45be-a7fe-f56d7c13fe60" Name="mytool Tool" Language="1033" Version="1.1.2" Manufacturer="Matthias Melcher, x28hd.de" UpgradeCode="d8df1c0f-de90-45be-a7fe-f56d7c13fe60">
-    <Package Id="*" Keywords="Installer" Platform="x64" Description="mytool Tool" Comments="None" Manufacturer="Matthias Melcher" InstallerVersion="200" Languages="1033" Compressed="yes" SummaryCodepage="1252" />
-    <Media Id="1" />
-    <Property Id="APPLICATIONFOLDER">
-      <RegistrySearch Key="SOFTWARE\Matthias Melcher, x28hd.de\mytool-windows-44.2" Root="HKLM" Type="raw" Id="APPLICATIONFOLDER_REGSEARCH" Name="Path" />
-    </Property>
-    <DirectoryRef Id="APPLICATIONFOLDER">
-      <Component Id="CleanupMainApplicationFolder" Guid="*" Win64="yes">
-        <RegistryValue Root="HKLM" Key="SOFTWARE\Matthias Melcher, x28hd.de\mytool-windows-44.2" Name="Path" Type="string" Value="[APPLICATIONFOLDER]" KeyPath="yes" />
-      </Component>
-    </DirectoryRef>
-    <?ifndef Platform ?>
-    <?define Platform="default" ?>
-    <?error Platform is not defined! ?>
-    <?endif?>
-    <?include bundle.wxi ?>
-  </Product>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Product Id="d8df1c0f-de90-45be-a7fe-f56d7c13fe60" Name="deploytest Tool" 
+             Language="1033" Version="1.3.0"
+             Manufacturer="x28hd.de" 
+			 UpgradeCode="2B7EA473-349F-4861-AB69-C48870F66034">
+
+        <Package 
+		Id='*' 
+        Keywords='Installer' 
+        Platform="x64"
+        Description="deploytest Tool" 
+		Comments="None"
+        Manufacturer='x28hd.de'
+        InstallerVersion='200' 
+        Languages='1033' 
+        Compressed='yes' 
+        SummaryCodepage='1252' />
+		
+		<MajorUpgrade
+		AllowDowngrades="no" DowngradeErrorMessage="Es ist bereits eine neuere Version des deploytest Tools installiert. Bitte deinstallieren Sie diese zunächst, wenn Sie wirklich eine ältere Version installieren möchten."
+		AllowSameVersionUpgrades="yes"
+		/>
+		
+        <Media Id="1" Cabinet="simple.cab" EmbedCab="yes" />
+
+        <!-- We use RemoveFolderEx to ensure application folder is fully 
+             removed on uninstall. Including files created outside of MSI
+             after application had been installed (e.g. on AU or user state).
+             
+             Hovewer, RemoveFolderEx is only available in WiX 3.6, 
+             we will comment it out if we running older WiX.
+
+             RemoveFolderEx requires that we "remember" the path for uninstall.
+             Read the path value and set the APPLICATIONFOLDER property with the value.
+        -->
+       <Property Id="APPLICATIONFOLDER">
+			<RegistrySearch Key="SOFTWARE\x28hd.de\deploytest-windows-__VERSION_NUMBER__" Root="HKLM" Type="raw" Id="APPLICATIONFOLDER_REGSEARCH" Name="Path"/> 
+		
+		</Property>
+        <DirectoryRef Id="APPLICATIONFOLDER">
+            <Component Id="CleanupMainApplicationFolder" Guid="*" Win64='yes'>
+                <RegistryValue Root="HKLM"
+                                   Key="SOFTWARE\x28hd.de\deploytest-windows-__VERSION_NUMBER__"
+                                   Name="Path" Type="string" Value="[APPLICATIONFOLDER]"
+                                   KeyPath="yes" />
+                <!-- We need to use APPLICATIONFOLDER variable here or RemoveFolderEx
+                     will not remove on "install". But only if WiX 3.6 is used. -->
+                     
+               
+                
+            </Component>
+        </DirectoryRef>        
+		<?ifndef Platform ?>
+	<?define Platform="default" ?>
+	<?error Platform is not defined! ?>
+	<?endif?>
+		<?include bundle.wxi ?>
+      
+				 <Property Id="INSTALLDESKTOPSHORTCUT" Value="0" />
+				 <Property Id="INSTALLSTARTMENUSHORTCUT" Value="0"/>
+		<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="deploytest Tool nach Schließen dieses Fensters starten" />
+		
+		<!-- For launch application after install -->
+		<Property Id="WixShellExecTarget" Value="[#LauncherId]" />
+		<CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+
+        <Icon Id="DesktopIcon.exe" SourceFile="deploytest-windows-__VERSION_NUMBER__.ico" />
+        <Icon Id="StartMenuIcon.exe" SourceFile="deploytest-windows-__VERSION_NUMBER__.ico" />
+
+    </Product>
 </Wix>
