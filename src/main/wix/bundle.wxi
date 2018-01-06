@@ -12,7 +12,7 @@
 <!-- Name geändert -->
       <Directory
         Id='APPLICATIONFOLDER'
-        Name='deploytest'
+        Name='condensr'
       >
         <Component
           DiskId='1'
@@ -26,7 +26,7 @@
             On='uninstall'
            />
           <RegistryKey
-            Key='Software\x28hd.de\deploytest-windows-__VERSION_NUMBER__'
+            Key='Software\x28hd.de\condensr-windows-__VERSION_NUMBER__'
             Root='HKCU'
           >
             <RegistryValue
@@ -39,8 +39,8 @@
 <!-- Exe-Name geändert -->
           <File
             Id='LauncherId'
-            Name='deploytest Tool.exe'
-            Source='deploytest-windows-__VERSION_NUMBER__.exe'
+            Name='condensr Tool.exe'
+            Source='condensr-windows-__VERSION_NUMBER__.exe'
           >
 <!-- ShortCut-Namen im Startmenü geändert -->
             <Shortcut
@@ -49,14 +49,14 @@
               Icon='StartMenuIcon.exe'
               IconIndex='0'
               Id='ExeShortcut'
-              Name='Deploytest'
+              Name='condensr'
              />
           </File>
 <!-- FileExtionsions hinzugefügt -->
           <ProgId
-            Description='deploytest'
+            Description='condensr'
             Icon='LauncherId'
-            Id='deploytest Tool.exe'
+            Id='condensr Tool.exe'
           >
             <Extension
               ContentType='application/x28'
@@ -108,13 +108,13 @@
              />
             <File
               Id='FileId4'
-              Name='deploytest-windows-__VERSION_NUMBER__-jfx.jar'
-              Source='app\deploytest-windows-__VERSION_NUMBER__-jfx.jar'
+              Name='condensr-windows-__VERSION_NUMBER__-jfx.jar'
+              Source='app\condensr-windows-__VERSION_NUMBER__-jfx.jar'
             ></File>
 			<File
               Id='ConfigFile'
-              Name='deploytest Tool.cfg'
-              Source='app\deploytest-windows-__VERSION_NUMBER__.cfg'
+              Name='condensr Tool.cfg'
+              Source='app\condensr-windows-__VERSION_NUMBER__.cfg'
             ></File>
           </Component>
           <Directory
@@ -1164,9 +1164,9 @@
 			  Directory='DesktopFolder'
 			  Icon='DesktopIcon.exe'
 			  Id='DesktopShortcut'
-			  Name='Deploytest - drop stuff here'
+			  Name='condensr - drop stuff here'
 			  ShortName='depltest'
-			  Target='[APPLICATIONFOLDER]deploytest Tool.exe'
+			  Target='[APPLICATIONFOLDER]condensr Tool.exe'
 			 />
 		</Component>
 	</Directory>
