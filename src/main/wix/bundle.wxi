@@ -12,7 +12,7 @@
 <!-- Name geändert -->
       <Directory
         Id='APPLICATIONFOLDER'
-        Name='condensr'
+        Name='Condensr'
       >
         <Component
           DiskId='1'
@@ -26,7 +26,7 @@
             On='uninstall'
            />
           <RegistryKey
-            Key='Software\x28hd.de\condensr-windows-__VERSION_NUMBER__'
+            Key='Software\x28hd.de\condensr-__VERSION_NUMBER__'
             Root='HKCU'
           >
             <RegistryValue
@@ -39,8 +39,8 @@
 <!-- Exe-Name geändert -->
           <File
             Id='LauncherId'
-            Name='condensr Tool.exe'
-            Source='condensr-windows-__VERSION_NUMBER__.exe'
+            Name='Condensr.exe'
+            Source='condensr-__VERSION_NUMBER__.exe'
           >
 <!-- ShortCut-Namen im Startmenü geändert -->
             <Shortcut
@@ -49,14 +49,14 @@
               Icon='StartMenuIcon.exe'
               IconIndex='0'
               Id='ExeShortcut'
-              Name='condensr'
+              Name='Condensr'
              />
           </File>
 <!-- FileExtionsions hinzugefügt -->
           <ProgId
-            Description='condensr'
+            Description='Condensr'
             Icon='LauncherId'
-            Id='condensr Tool.exe'
+            Id='condensr.exe'
           >
             <Extension
               ContentType='application/x28'
@@ -108,13 +108,13 @@
              />
             <File
               Id='FileId4'
-              Name='condensr-windows-__VERSION_NUMBER__-jfx.jar'
-              Source='app\condensr-windows-__VERSION_NUMBER__-jfx.jar'
+              Name='condensr-__VERSION_NUMBER__-jfx.jar'
+              Source='app\condensr-__VERSION_NUMBER__-jfx.jar'
             ></File>
 			<File
               Id='ConfigFile'
-              Name='condensr Tool.cfg'
-              Source='app\condensr-windows-__VERSION_NUMBER__.cfg'
+              Name='condensr.cfg'
+              Source='app\condensr-__VERSION_NUMBER__.cfg'
             ></File>
           </Component>
           <Directory
@@ -1164,9 +1164,9 @@
 			  Directory='DesktopFolder'
 			  Icon='DesktopIcon.exe'
 			  Id='DesktopShortcut'
-			  Name='condensr - drop stuff here'
+			  Name='Condensr - drop stuff here'
 			  ShortName='depltest'
-			  Target='[APPLICATIONFOLDER]condensr Tool.exe'
+			  Target='[APPLICATIONFOLDER]condensr.exe'
 			 />
 		</Component>
 	</Directory>
