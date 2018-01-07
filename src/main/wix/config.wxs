@@ -58,7 +58,7 @@
 	<?endif?>
 		<?include bundle.wxi ?>
       
-				 <Property Id="INSTALLDESKTOPSHORTCUT" Value="0" />
+				 <Property Id="INSTALLDESKTOPSHORTCUT" Value="1" />
 				 <Property Id="INSTALLSTARTMENUSHORTCUT" Value="0"/>
 		<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch the Condensr after finish" />
 		

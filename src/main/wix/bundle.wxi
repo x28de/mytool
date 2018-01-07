@@ -58,7 +58,7 @@
             Icon='LauncherId'
             Id='condensr.exe'
           >
-            <Extension
+<!--            <Extension
               ContentType='application/x28'
               Id='x28'
             >
@@ -68,7 +68,7 @@
                 Id='open'
                 TargetFile='LauncherId'
                />
-            </Extension>
+            </Extension>  -->
           </ProgId>
 		  <File
               Id='packager'
