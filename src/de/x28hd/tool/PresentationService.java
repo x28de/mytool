@@ -1012,8 +1012,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 			System.setProperty("apple.laf.useScreenMenuBar", "true");	// otherwise very alien for Mac users
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "My Tool");
 			new AppleHandler(this);			// for QuitHandler
-			com.apple.eawt.Application app = com.apple.eawt.Application.getApplication();
-			java.awt.Image dockImage = (new ImageIcon(getClass().getResource("logo.png"))).getImage();
+//			com.apple.eawt.Application app = com.apple.eawt.Application.getApplication();
+//			java.awt.Image dockImage = (new ImageIcon(getClass().getResource("logo.png"))).getImage();
 //			app.setDockIconImage(dockImage);
 		}
 		baseDir = null;
