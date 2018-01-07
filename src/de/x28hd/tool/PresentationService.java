@@ -1014,7 +1014,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			new AppleHandler(this);			// for QuitHandler
 			com.apple.eawt.Application app = com.apple.eawt.Application.getApplication();
 			java.awt.Image dockImage = (new ImageIcon(getClass().getResource("logo.png"))).getImage();
-			app.setDockIconImage(dockImage);
+//			app.setDockIconImage(dockImage);
 		}
 		baseDir = null;
 		try {
