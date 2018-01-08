@@ -1143,7 +1143,7 @@
 	  Id='DesktopFolder'
 	  Name='Desktop'
 	>
-		<Component
+	<!--	<Component
 		  Guid='*'
 		  Id='DesktopShortcut'
 		  Win64='yes'
@@ -1168,7 +1168,7 @@
 			  ShortName='depltest'
 			  Target='[APPLICATIONFOLDER]condensr.exe'
 			 />
-		</Component>
+		</Component>   -->
 	</Directory>
 </Directory>
 <Feature
@@ -1176,9 +1176,9 @@
   Level='1'
   Title='Main Feature'
 >
-	<ComponentRef
+<!--	<ComponentRef
 	  Id='DesktopShortcut'
-	/>
+	/>   -->
 	<ComponentRef
 	  Id='CleanupMainApplicationFolder'
 	/>
