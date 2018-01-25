@@ -59,6 +59,12 @@ public class CsvExport {
 					return;
 				}
 			}
+			public void handleStartTag(HTML.Tag t, MutableAttributeSet a, int pos) {
+				if (t.equals(HTML.Tag.P)) {
+					if (!start) breaks = breaks + "<br />";
+					return;
+				}
+			}
 		};
 		parser = htmlKit.getParser();
 		Reader reader; 
