@@ -66,6 +66,7 @@ public class TopicMapLoader {
 
 		String label = topic.getFirstChild().getTextContent();
 		String detail = topic.getLastChild().getTextContent();
+		int id = Integer.parseInt(topic.getAttribute("ID"));
 		int x = Integer.parseInt(topic.getAttribute("x"));
 		int y = Integer.parseInt(topic.getAttribute("y"));
 		if (x < minX) minX = x;
@@ -74,7 +75,7 @@ public class TopicMapLoader {
 		if (y > maxY) maxY = y;
 		String color = topic.getAttribute("color");
 
-		node = new GraphNode(topicnum, new Point(x,y), Color.decode(color), label, detail);
+		node = new GraphNode(id, new Point(x,y), Color.decode(color), label, detail);
 		newNodes.put(node.getID(), node);
 	}
 
