@@ -7,7 +7,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.x28hd.mytool</groupId>
-	<version>45.3</version>
+	<version>45.4</version>
 	<artifactId>condensr</artifactId>
 	<name>condensr native deployment for Windows</name>
 	<description>condensr native deployment for MS Windows</description>

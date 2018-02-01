@@ -77,6 +77,7 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
     String topPick;
     Boolean first = true;
     DefaultTreeModel model = null;
+    int shiftedOutliers = 1;
     
     //	Accessories for user selections
     int scope = 3;
@@ -109,6 +110,8 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 	JCheckBox transitBox = null;
 	Item topItem;
 	JLabel instruction2;
+	boolean shift = false;
+	JCheckBox shiftBox = null;
 	
 	//	Constants
 	int maxVert = 10;
@@ -388,7 +391,12 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 			radioPanel.add(radio);
 		}
 		
-		toolbar.add(radioPanel, "West");
+		JPanel options = new JPanel(new BorderLayout());
+		options.add(radioPanel, "North");
+		shiftBox = new JCheckBox("Improve view of shifted generations (e.g. for history by dynasties) ?");
+//		shiftBox.setActionCommand("shift");
+		options.add(shiftBox, "South");
+		toolbar.add(options, "West");
 
 		frame.add(toolbar,"South");
         frame.pack();
@@ -469,12 +477,26 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 		colFill.put(-1,0);
 		growGraph(topNode, "", 0, 1);
 		
+		// final touches:
 		// make cross-links pale
+		// and shift superficially visible generation gaps
 		Enumeration<Integer> edgeList2 = edges.keys();
 		while (edgeList2.hasMoreElements()) {
 			int id = edgeList2.nextElement();
 			GraphEdge edge = edges.get(id);
 			if (nonTreeEdges.contains(id)) edge.setColor("#f0f0f0");
+			if (shift) shiftRight(edge);
+		}
+		if (shift) {
+			while (shiftedOutliers > 0) {
+				shiftedOutliers = 0;
+				Enumeration<Integer> edgeList3 = edges.keys();
+				while (edgeList3.hasMoreElements()) {
+					int id = edgeList3.nextElement();
+					GraphEdge edge = edges.get(id);
+					shiftOutliers(edge);
+				}
+			}
 		}
 		
 //			
@@ -493,6 +515,48 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 		controler.getNSInstance().setInput(dataString, 2);
 	}
 	
+	private void shiftRight(GraphEdge edge) {
+		GraphNode node1 = edge.getNode1();
+		GraphNode node2 = edge.getNode2();
+		Point p = node2.getXY();
+		int x1 = node1.getXY().x;
+		int x2 = p.x;
+		int diff = x2 - x1;
+		if (diff > 0) return;
+		p.translate(300, 0);
+		Enumeration<GraphEdge> neighbors = node2.getEdges();
+		while(neighbors.hasMoreElements()) {
+			GraphEdge edge2 = neighbors.nextElement();
+			shiftRight(edge2);		// recursive
+		}
+	}
+	
+	private boolean shiftOutliers(GraphEdge edge) {
+		boolean allowed = true;
+		GraphNode node1 = edge.getNode1();
+		GraphNode node2 = edge.getNode2();
+		Point p = node1.getXY();
+		int x1 = p.x;
+		int x2 = node2.getXY().x;
+		int diff = x2 - x1;
+		if (diff <= 150) return true;	// allowed but not necessary
+		Enumeration<GraphEdge> neighbors = node1.getEdges();
+		while(neighbors.hasMoreElements()) {
+			GraphEdge edge2 = neighbors.nextElement();
+			if (edge2 == edge) continue;	// this edge was just processed
+			GraphNode node3 = edge2.getNode1();
+			if (node3 == node1) return false;	// another branch? shift too complicated
+			
+			allowed = allowed && shiftOutliers(edge2);		// recursive
+		}
+		if (allowed) {
+			p.translate(diff - 150, 0);
+			shiftOutliers(edge);
+			shiftedOutliers++;
+		}
+		return allowed;
+	}
+
 	public void addNode(String nodeRef) { 
 		boolean linkingPhrase = (inputItems2.containsKey(nodeRef));	// denotes a marriage here
 		j++;
@@ -809,6 +873,7 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 		if (command == "Cancel") {
 			transit = false;
 		} else if (command == "Continue") {
+			shift = shiftBox.isSelected();
 	        frame.setVisible(false);
 	        frame.dispose();
 	        discovery();
