@@ -69,7 +69,7 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 	JButton cancelButton;
 	int shortcutMask;
 	
-	public CompositionWindow(final GraphPanelControler controler) {
+	public CompositionWindow(final GraphPanelControler controler, int zoomedSize) {
 		this.controler = controler;
 		newStuff = controler.getNSInstance();
 		shortcutMask = ActionEvent.CTRL_MASK;
@@ -106,6 +106,8 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 		}
 		textDisplay.setEditable(true);
 		textDisplay.setCaretPosition(0);
+		textDisplay.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
+		textDisplay.setFont(new Font(Font.DIALOG, Font.PLAIN, zoomedSize + 2));
 
 //
 //		Buttons

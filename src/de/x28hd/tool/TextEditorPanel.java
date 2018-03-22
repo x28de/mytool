@@ -3,6 +3,7 @@ package de.x28hd.tool;
 
 import java.awt.BorderLayout;
 import java.awt.Desktop;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -398,6 +399,13 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	public String getText() {
 		loopdetector = 0;
 		return textComponent.getText();
+	}
+	
+	public void setSize(int size) {
+		if (System.getProperty("os.name").equals("Mac OS X")) size = size + 2;
+		((JEditorPane) textComponent).putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
+		((JEditorPane) textComponent).setFont(new Font("Serif", Font.PLAIN, size + 2));
+		repaint();
 	}
 	
 	public void toggleHyp() {

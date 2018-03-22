@@ -1065,6 +1065,11 @@ class GraphPanel extends JDesktopPane  {
 			antiAliasing = !antiAliasing;
 			repaint();
 		}
+		
+		public void setSize(int size) {
+			font = new Font(font.getName(), font.getStyle(), size);
+			repaint();
+		}
 
 		public void jumpingArrow(boolean clueless) {
 			if (!clueless) ticks = 401;

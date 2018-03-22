@@ -6,8 +6,10 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FileDialog;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -48,6 +50,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.plaf.FontUIResource;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.tree.DefaultTreeModel;
 import javax.xml.transform.TransformerConfigurationException;
@@ -86,6 +89,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 	public String about =  " ******** Provisional BANNER ********* " +
 			"\r\n ******** Provisional BANNER ********* ";
 	public String preferences = "No preferences yet (no installation)";
+	
+	int initialSize = 12;
+	int zoomedSize = initialSize;
 	
 	//	Graphics accessories
 	Point clickedSpot = null;
@@ -568,7 +574,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 			if (viewPort.contains(xy)) {
 				GraphNode end2 = selectedAssoc.getNode1();
 				Point xy2 = end2.getXY();
-				if (!viewPort.contains(xy2)) xy = xy2;
+				if (!viewPort.contains(xy2)) {
+					xy = xy2;
+					end = end2;
+				}
 			}
 			int dx = xy.x - mainWindow.getWidth()/2 + transl.x + 200;
 			int dy = xy.y - mainWindow.getHeight()/2 + transl.y;
@@ -674,6 +683,19 @@ public final class PresentationService implements ActionListener, MouseListener,
 				new MakeHTML(false, nodes, edges, lastHTMLFilename, this);
 			}
 			
+		} else if (command == "zoomin") {
+			zoomedSize += 4;
+			edi.setSize(zoomedSize);
+			graphPanel.setSize(zoomedSize);
+		} else if (command == "zoomout") {
+			zoomedSize -= 4;
+			edi.setSize(zoomedSize);
+			graphPanel.setSize(zoomedSize);
+		} else if (command == "zoomreset") {
+			zoomedSize = initialSize;
+			edi.setSize(zoomedSize);
+			graphPanel.setSize(zoomedSize);
+
 		} else {
 			System.out.println("PS: Wrong action: " + command);
 		}
@@ -907,6 +929,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 			} catch (IllegalAccessException e) {
 				System.out.println("Error PS147 " + e);
 			}  
+			FontUIResource fontResource = new FontUIResource(Font.DIALOG, Font.PLAIN, initialSize);
+			UIManager.put("MenuItem.font", fontResource);
+			UIManager.put("Menu.font", fontResource);
 		}
 	}
 	
@@ -969,7 +994,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 	
 	public void openComposition() {
-		compositionWindow = new CompositionWindow(this);
+		compositionWindow = new CompositionWindow(this, zoomedSize);
 		gui.menuItem21.setEnabled(false);	// Main Menu Paste
 		contextPasteAllowed = false;	// Context Menu Paste
 		newStuff.setCompositionMode(true);
@@ -991,7 +1016,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 	
 	public synchronized void run() {
 		initialize();
+		graphPanel.setSize(initialSize);
 		mainWindow.setVisible(true);
+		edi.setSize(initialSize);
 		//	For compatibility, prompt a compositionWindow
 //		if (filename.isEmpty()) openComposition();
 		if (filename.isEmpty()) {
@@ -1015,6 +1042,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 //			com.apple.eawt.Application app = com.apple.eawt.Application.getApplication();
 //			java.awt.Image dockImage = (new ImageIcon(getClass().getResource("logo.png"))).getImage();
 //			app.setDockIconImage(dockImage);
+			initialSize = 12;
+			zoomedSize = initialSize;
+		} else {
+			int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
+			initialSize = dpi / 8;
+			zoomedSize = initialSize;
 		}
 		baseDir = null;
 		try {

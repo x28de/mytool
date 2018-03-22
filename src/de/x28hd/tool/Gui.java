@@ -371,6 +371,28 @@ public class Gui {
 		JMenu menu5;
 		menu5 = new JMenu("Advanced  ");
 		
+		JMenu sub3 = new JMenu("Zoom the text");
+
+		JMenuItem zoomin = new JMenuItem("Larger text");
+		zoomin.setActionCommand("zoomin");
+		zoomin.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, shortcutMask));
+		zoomin.addActionListener(controler);
+		sub3.add(zoomin);
+
+		JMenuItem zoomreset = new JMenuItem("Reset text size");
+		zoomreset.setActionCommand("zoomreset");
+		zoomreset.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0, shortcutMask));
+		zoomreset.addActionListener(controler);
+		sub3.add(zoomreset);
+
+		JMenuItem zoomout = new JMenuItem("Smaller text");
+		zoomout.setActionCommand("zoomout");
+		zoomout.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, shortcutMask));
+		zoomout.addActionListener(controler);
+		sub3.add(zoomout);
+		
+		menu5.add(sub3);
+
 		ButtonGroup buttonGroup = new ButtonGroup();
 
 		menuItem41 = new JRadioButtonMenuItem("Hyperlinks on", false);
@@ -428,8 +450,8 @@ public class Gui {
 		menuItem47.setToolTipText("Show items as circles if more lines than items exist");
 		menuItem47.addActionListener(controler);
 		menu5.add(menuItem47);
-
-		menuItem58 = new JCheckBoxMenuItem("Zoom", false);
+		
+		menuItem58 = new JCheckBoxMenuItem("Zoom the map...", false);
 		menuItem58.setActionCommand("zoom");
 		menuItem58.setSelected(false);
 		menuItem58.setToolTipText("Zoomable view (less-than-ideal solution)");
