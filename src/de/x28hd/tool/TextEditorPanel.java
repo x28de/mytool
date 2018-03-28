@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -60,6 +61,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	StyledEditorKit.BoldAction boldAction = new StyledEditorKit.BoldAction();
 	String textToAdd = "";
 	CaretListener myCaretAdapter;
+	MyMouseMotionAdapter myMouseMotionAdapter = new MyMouseMotionAdapter();
 ;
 	int selMark;
 	int selDot;
@@ -77,6 +79,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	boolean breakIsTrailing;
 	
 	boolean bundleInProgress = false;
+	boolean dragFake = true;
 	String myTransferable = "";
 	String htmlOut = "";
 	
@@ -125,9 +128,13 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		
 	//  For drag/ copy
 		public Transferable createTransferable(JComponent c) {
+			if (!dragFake) {
 				String blubb = textComponent.getText();
 				blubb = filterHTML(blubb);
 				myTransferable = blubb;
+			} else myTransferable = textToAdd + "\nDisclosure:\t"
+					+ "Sorry, this  was a fake mockup and won't work here normally. "
+					+ "But from a good browser it WILL work !";
 			return new StringSelection(myTransferable);
 		}
 	    public int getSourceActions(JComponent c) {
@@ -135,6 +142,12 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	    }
 		protected void exportDone(JComponent c, Transferable data, int action) {
 			bundleInProgress = false;
+			if (dragFake) {
+				textComponent.removeMouseMotionListener(myMouseMotionAdapter);
+				textComponent.addCaretListener(myCaretAdapter);
+				selDot = 0;
+				dragFake = false;
+			}
 		}
 	}	
 	
@@ -264,6 +277,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 				if (tablet && e.getClickCount() > 1) {		// double clicked
 		            doubleclickReselect();
 				}
+				if (dragFake) selDot = 0;
 			}
 		});
 
@@ -283,6 +297,17 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		}
 	}
 
+	class MyMouseMotionAdapter implements MouseMotionListener {
+		public void mouseDragged(MouseEvent e) {
+			if (!dragFake) return;
+			MyTransferHandler t = new MyTransferHandler();
+			textComponent.setTransferHandler(t);
+			t.exportAsDrag(textComponent, e, TransferHandler.COPY);
+		}
+		public void mouseMoved(MouseEvent arg0) {
+		}
+	};
+	
 	public void processClicks() {
 		int selectedLen = selDot - selMark;
 		if (selectedLen < 0) {
@@ -295,7 +320,10 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 			System.out.println("Error TE103 " + e1);
 			textToAdd = "";
 		}
-		if (!textToAdd.isEmpty()) {
+		if (!textToAdd.isEmpty() && dragFake) {
+			//	enable drag
+			textComponent.removeCaretListener(myCaretAdapter);
+			textComponent.addMouseMotionListener(myMouseMotionAdapter);
 		}
 	}
 
@@ -481,6 +509,12 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
     	}
     }
 
+//
+//	Accessory for demo trick
+    public void setFake() {
+    	dragFake = true;
+    }
+    
 //
 //	Main Methods
 	

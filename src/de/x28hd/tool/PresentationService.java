@@ -145,6 +145,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	boolean hyp = false;
 	int paletteID = 1;
 	boolean rectangle = false;
+	boolean dragFake = false;
 
 	// Placeholders
 	GraphNode dummyNode = new GraphNode(-1, null, null, null, null);
@@ -588,6 +589,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			
 		} else if (command == "loadhelp") {
 			newStuff.setInput(gui.getSample(true), 2);
+			dragFake = true;
 			
 		//	Context menu command
 
@@ -1219,6 +1221,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		edi.getTextComponent().requestFocus();
 		String labelText = selectedTopic.getLabel();
 		labelField.setText(labelText);
+		if (dragFake && labelText.equals("Drop input")) edi.setFake();
 		edi.repaint();
 		updateCcpGui();
 	}
