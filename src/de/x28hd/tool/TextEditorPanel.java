@@ -4,12 +4,18 @@ package de.x28hd.tool;
 import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -18,12 +24,14 @@ import java.util.regex.Pattern;
 
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.CaretEvent;
@@ -36,7 +44,10 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.StyledEditorKit;
+import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.SwingUtilities;
 
 public class TextEditorPanel extends JPanel implements ActionListener, DocumentListener, HyperlinkListener {
@@ -49,6 +60,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	StyledEditorKit.BoldAction boldAction = new StyledEditorKit.BoldAction();
 	String textToAdd = "";
 	CaretListener myCaretAdapter;
+;
 	int selMark;
 	int selDot;
 	int myMark;
@@ -63,6 +75,10 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	String EndOfLineStringProperty = "NOCH NIX";
 	String peekEndOfLineStringProperty;
 	boolean breakIsTrailing;
+	
+	boolean bundleInProgress = false;
+	String myTransferable = "";
+	String htmlOut = "";
 	
 //
 //	Accessory for saving line breaks permanently in the HTML (find them in
@@ -104,10 +120,30 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	
 //
 //  Accessories
+	public class MyTransferHandler extends TransferHandler {
+		private static final long serialVersionUID = 1L;
+		
+	//  For drag/ copy
+		public Transferable createTransferable(JComponent c) {
+				String blubb = textComponent.getText();
+				blubb = filterHTML(blubb);
+				myTransferable = blubb;
+			return new StringSelection(myTransferable);
+		}
+	    public int getSourceActions(JComponent c) {
+	        return TransferHandler.COPY;
+	    }
+		protected void exportDone(JComponent c, Transferable data, int action) {
+			bundleInProgress = false;
+		}
+	}	
+	
 	
 	// standard action events (e.g., for Context Menu clicks)
 	
 	public void actionPerformed(ActionEvent arg0) {
+		if (arg0.getActionCommand().equals("copyAsList")) copyAsList();
+
 //		System.out.println("Action " + arg0.getActionCommand() + " performed");
 	}
 
@@ -293,6 +329,14 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		pasteItem.setText("Paste");
 		menu.add(pasteItem);
 		
+		menu.addSeparator();
+		
+		JMenuItem copyListItem = new JMenuItem();
+		copyListItem.setActionCommand("copyAsList");
+		copyListItem.addActionListener(this);
+		copyListItem.setText("Copy As List");
+		menu.add(copyListItem);
+		
 		menu.show(this, x, y);
 	}
 
@@ -384,6 +428,56 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
     			myDot++;
     		}
     		textComponent.setSelectionEnd(myDot);
+    	}
+    }
+
+//
+//	Accessory for copy as list
+    
+    public void copyAsList() {
+		bundleInProgress = true;
+		MyTransferHandler t = new MyTransferHandler();
+		this.setTransferHandler(t);
+		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+		t.exportToClipboard(this, clipboard, TransferHandler.COPY);  // This uses my above myTransferable
+    }
+
+	private String filterHTML(String html) {
+		htmlOut = "";
+		
+		MyHTMLEditorKit htmlKit = new MyHTMLEditorKit();
+		HTMLEditorKit.Parser parser = null;
+		HTMLEditorKit.ParserCallback cb = new HTMLEditorKit.ParserCallback() {
+			public void handleText(char[] data, int pos) {
+				String dataString = new String(data);
+				htmlOut = htmlOut + dataString;
+			}
+			public void handleSimpleTag(HTML.Tag t, MutableAttributeSet a, int pos) {
+				if (t == HTML.Tag.BR ) {
+					htmlOut = htmlOut + "\n";
+				}
+			}
+		};
+		parser = htmlKit.getParser();
+		Reader reader; 
+		reader = (Reader) new StringReader(html);
+		try {
+			parser.parse(reader, cb, true);
+		} catch (IOException e2) {
+			System.out.println("Error NS128 " + e2);
+		}
+		try {
+			reader.close();
+		} catch (IOException e3) {
+			System.out.println("Error NS129 " + e3.toString());
+		}
+		return htmlOut;
+	}
+    private static class MyHTMLEditorKit extends HTMLEditorKit {
+    	private static final long serialVersionUID = 7279700400657879527L;
+
+    	public Parser getParser() {
+    		return super.getParser();
     	}
     }
 
