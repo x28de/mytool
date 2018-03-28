@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.net.URL;
+import java.util.Locale;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -262,14 +263,26 @@ public class Gui {
 		JMenu menu3;
 		menu3 = new JMenu("Insert  ");
 
+		JMenuItem menuItem32 = new JMenuItem("Import the Intro Game");
+		menuItem32.setActionCommand("introgame");
+		menuItem32.setToolTipText("Load a little whodunnit ");
+		menuItem32.addActionListener(controler);
+		menu3.add(menuItem32);
+
+		JMenuItem menuItem33 = new JMenuItem("Import the Tutorial");
+		menuItem33.setActionCommand("loadhelp");
+		menuItem33.setToolTipText("Insert items that contain some help info ");
+		menuItem33.addActionListener(controler);
+		menu3.add(menuItem33);
+
+		menu3.addSeparator();
+
 		JMenuItem menuItem31 = new JMenuItem("Insert Items");
 		menuItem31.setActionCommand("insert");
 		menuItem31.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, shortcutMask));
 		menuItem31.setToolTipText("Paste, Drop, or Type into a Composition Window");
 		menuItem31.addActionListener(controler);
 		menu3.add(menuItem31);
-
-		menu3.addSeparator();
 
 		JMenuItem menuItem37 = new JMenuItem("Launch the Import Wizard",  new ImageIcon(wizardImage));
 		menuItem37.setActionCommand("testimp");
@@ -758,5 +771,283 @@ public class Gui {
 		}
 		return img;
 	}
+
+	public String getInitText(boolean empty) {
+		if (empty) {
+			return initText1;
+		} else {
+			return initText2;
+		}
+	}
+
+	public static final String initText1 = "<body><font color=\"gray\">"
+			+ "<em>To get started, insert some items. Then: </em><br />&nbsp;<br />"
+			+ "<em>Click an icon for its details, ALT+drag an icon to connect it."
+			+ "</font></body>";
+
+	public static final String initText2 = "<body><font color=\"gray\">"
+			+ "<em>Click an icon for its details, ALT+drag an icon to connect it."
+			+ "<br />&nbsp;<br />Do you have any questions? Contact "
+			+ "<a href=\"mailto:support@x28hd.de\">support@x28hd.de</a></em>"
+			+ "</font></body>";
+
+	public String getSample(boolean help) {
+		if (help) return HELP_EN;
+		String lang = Locale.getDefault().getLanguage();
+		if (lang == "de") {
+			return INTRO_DE;
+		} else{
+			return INTRO_EN;
+		}
+	}
+	
+	public static final String HELP_EN = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+			+ "<!-- This is not for human readers but for http://x28hd.de/tool/ --><x28map>"
+			+ "<topic x=\"40\" ID=\"1\" color=\"#ffbbbb\" y=\"40\">"
+			+ "<label><![CDATA[Click this and look right]]></label>"
+			+ "<detail><![CDATA[Click an item on the left pane to view its details on the "
+			+ "right pane.<br /><br />It is a bit like turning cards face up in the game "
+			+ "of Pairs (aka Memory or Concentration) -- just that it won't cost you scores."
+			+ " 'Turn' as often as you need.]]></detail>"
+			+ "</topic>"
+			
+			+ "<topic x=\"40\" ID=\"2\" color=\"#d2bbd2\" y=\"90\">"
+			+ "<label><![CDATA[Move]]></label>"
+			+ "<detail><![CDATA[To move an icon, drag it, i.e., press and hold the left "
+			+ "mouse-button, move the mouse-pointer, and release the mouse-button.<br />"
+			+ "<br />Do that to move similar items close to each other.]]></detail>"
+			+ "</topic>"
+			
+			+ "<topic x=\"40\" ID=\"3\" color=\"#d2bbd2\" y=\"140\">"
+			+ "<label><![CDATA[Connect]]></label>"
+			+ "<detail><![CDATA[To connect one icon to a second icon, you will ALT + drag it, "
+			+ "i.e. <br />- point at the first icon, <br />- press and hold the ALT key, "
+			+ "<br />- then drag the mouse until you reach the second icon,<br />- then "
+			+ "release both the mouse-button and the ALT key.<br /><br />Exercise: Connect "
+			+ "the 'ALT + drag' icon to some related icon.]]></detail>"
+			+ "</topic>"
+			
+			+ "<topic x=\"40\" ID=\"4\" color=\"#d2bbd2\" y=\"190\">"
+			+ "<label><![CDATA[Pan]]></label>"
+			+ "<detail><![CDATA[To pan the canvas, drag its background.<br /><br />Try it! "
+			+ "Does it work?]]></detail>"
+			+ "</topic>"
+			
+			+ "<topic x=\"40\" ID=\"5\" color=\"#bbbbff\" y=\"240\">"
+			+ "<label><![CDATA[Drop input]]></label>"
+			+ "<detail><![CDATA[The easiest way to get your input into the map is <br />- "
+			+ "to select some text in another window<br />- and just drag and drop it onto "
+			+ "the canvas.<br /><br />Just try it (except on Safari & IE). Don't be confused "
+			+ "by the unexpected shapes of the mouse pointer -- once the mouse is over the "
+			+ "canvas, it will change.<br /><br />Exercise: Select the two items below and "
+			+ "drag them to the canvas: "
+			+ "<br /><pre>Item 1\tdemo\nItem 2\tdemo</pre>"
+			+ "<br />Now try text from a different window.]]></detail>"
+			+ "</topic>"
+			
+			+ "<topic x=\"40\" ID=\"6\" color=\"#bbbbff\" y=\"290\">"
+			+ "<label><![CDATA[Drop a file]]></label>"
+			+ "<detail><![CDATA[You may drop a file onto the canvas. Plenty of import formats "
+			+ "are supported (see Insert > Import wizard) -- including a simple text file, "
+			+ "in which case each line becomes an item. You may separate the 'detail' part from "
+			+ "the 'label' by a TAB character.]]></detail>"
+			+ "</topic>"
+			
+			+ "<topic x=\"40\" ID=\"7\" color=\"#bbbbff\" y=\"340\">"
+			+ "<label><![CDATA[Add single items]]></label>"
+			+ "<detail><![CDATA[Right-click the canvas and select 'New item', "
+			+ "then fill in the 'Label' and/ or 'Details' fields."
+			+ "<br /><br />Single icons are "
+			+ "useful if you want to create 'towns' amidst the 'villages' on your thought "
+			+ "map. But unlike categories, they don't even need a name!]]></detail>"
+			+ "</topic>"
+			
+			+ "<topic x=\"40\" ID=\"9\" color=\"#bbffbb\" y=\"390\">"
+			+ "<label><![CDATA[Export]]></label>"
+			+ "<detail><![CDATA[Use the 'Export' menu to take your map to various other apps..]]></detail>"
+			+ "</topic>"
+			
+			+ "<topic x=\"40\" ID=\"10\" color=\"#ffff99\" y=\"440\">"
+			+ "<label><![CDATA[Re-color]]></label>"
+			+ "<detail><![CDATA[Right-click an icon, and select a new color.]]></detail>"
+			+ "</topic>"
+			+ "<topic x=\"190\" ID=\"11\" color=\"#d2bbd2\" y=\"90\">"
+			+ "<label><![CDATA[Drag]]></label>"
+			+ "<detail><![CDATA[Drag an icon to move it. Drag the canvas background to "
+			+ "pan.]]></detail>"
+			+ "</topic>"
+			
+			+ "<topic x=\"190\" ID=\"12\" color=\"#d2bbd2\" y=\"140\">"
+			+ "<label><![CDATA[ALT + drag]]></label>"
+			+ "<detail><![CDATA[ALT + drag an icon to connect it.]]></detail>"
+			+ "</topic></x28map>";
+	
+	public static final String INTRO_EN = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+			+ "<!-- This is not for human readers but for http://x28hd.de/tool/ --><x28map>"
+			
+			+ "<topic ID=\"1\" x=\"40\" y=\"40\" color=\"#ccdddd\">"
+			+ "<label><![CDATA[Lady's Uncle]]></label>"
+			+ "<detail><![CDATA[lies dead in the fishpond. Who does not have an alibi?]]></detail>"
+			+ "</topic>"
+			
+			+ "<topic ID=\"2\" x=\"40\" y=\"90\" color=\"#bbbbff\">"
+			+ "<label><![CDATA[Butler]]></label>"
+			+ "<detail><![CDATA[was in the fireside lounge]]></detail></topic>"
+			
+			+ "<topic ID=\"3\" x=\"40\" y=\"140\" color=\"#bbbbff\">"
+			+ "<label><![CDATA[Gardener]]></label>"
+			+ "<detail><![CDATA[was in the horse stable]]></detail></topic>"
+			
+			+ "<topic ID=\"4\" x=\"40\" y=\"190\" color=\"#ffbbbb\">"
+			+ "<label><![CDATA[Cook]]></label>"
+			+ "<detail><![CDATA[was in the fireside lounge]]></detail>"
+			
+			+ "</topic><topic ID=\"5\" x=\"40\" y=\"240\" color=\"#bbbbff\">"
+			+ "<label><![CDATA[Nephew]]></label>"
+			+ "<detail><![CDATA[was in the tower chamber]]></detail></topic>"
+			
+			+ "<topic ID=\"6\" x=\"40\" y=\"290\" color=\"#bbbbff\">"
+			+ "<label><![CDATA[Coachman]]></label>"
+			+ "<detail><![CDATA[was in the smoking room]]></detail></topic>"
+			
+			+ "<topic ID=\"7\" x=\"40\" y=\"340\" color=\"#bbbbff\">"
+			+ "<label><![CDATA[Pianist]]></label>"
+			+ "<detail><![CDATA[was in the music room]]></detail></topic>"
+			
+			+ "<topic ID=\"8\" x=\"40\" y=\"390\" color=\"#bbbbff\">"
+			+ "<label><![CDATA[Pastor]]></label>"
+			+ "<detail><![CDATA[was in the wine cellar]]></detail></topic>"
+			
+			+ "<topic ID=\"9\" x=\"40\" y=\"440\" color=\"#ffbbbb\">"
+			+ "<label><![CDATA[Chambermaid]]></label>"
+			+ "<detail><![CDATA[was in the tower chamber]]></detail></topic>"
+			
+			+ "<topic ID=\"10\" x=\"40\" y=\"490\" color=\"#bbbbff\">"
+			+ "<label><![CDATA[Stable-lad]]></label>"
+			+ "<detail><![CDATA[was in the garden shed]]></detail></topic>"
+			
+			+ "<topic ID=\"11\" x=\"190\" y=\"40\" color=\"#ffbbbb\">"
+			+ "<label><![CDATA[Flower girl]]></label>"
+			+ "<detail><![CDATA[was in der Library]]></detail></topic>"
+			
+			+ "<topic ID=\"12\" x=\"190\" y=\"90\" color=\"#bbbbff\">"
+			+ "<label><![CDATA[Tutor]]></label>"
+			+ "<detail><![CDATA[was in the Blue Parlour]]></detail></topic>"
+			
+			+ "<topic ID=\"13\" x=\"190\" y=\"140\" color=\"#bbbbff\"><label>"
+			+ "<![CDATA[Neighbour boy]]></label>"
+			+ "<detail><![CDATA[was in the garden shed]]></detail></topic>"
+			
+			+ "<topic ID=\"14\" x=\"190\" y=\"190\" color=\"#ffbbbb\">"
+			+ "<label><![CDATA[Governess]]></label>"
+			+ "<detail><![CDATA[was in the wine cellar]]></detail></topic>"
+			
+			+ "<topic ID=\"15\" x=\"190\" y=\"240\" color=\"#ffbbbb\">"
+			+ "<label><![CDATA[Aunt from America]]></label>"
+			+ "<detail><![CDATA[was in the horse stable]]></detail></topic>"
+			
+			+ "<topic ID=\"16\" x=\"190\" y=\"290\" color=\"#bbbbff\">"
+			+ "<label><![CDATA[Riding instructor]]></label>"
+			+ "<detail><![CDATA[was in the smoking room]]></detail></topic>"
+			
+			+ "<topic ID=\"17\" x=\"190\" y=\"340\" color=\"#bbbbff\">"
+			+ "<label><![CDATA[Brother in law]]></label>"
+			+ "<detail><![CDATA[was in the Onyx bathroom]]></detail></topic>"
+			
+			+ "<topic ID=\"18\" x=\"190\" y=\"390\" color=\"#bbbbff\">"
+			+ "<label><![CDATA[Lord]]></label>"
+			+ "<detail><![CDATA[was in the music room]]></detail></topic>"
+			
+			+ "<topic ID=\"19\" x=\"190\" y=\"440\" color=\"#ffbbbb\">"
+			+ "<label><![CDATA[Lady]]></label>"
+			+ "<detail><![CDATA[was in der Library]]></detail></topic>"
+			
+			+ "<topic ID=\"20\" x=\"190\" y=\"490\" color=\"#ffbbbb\">"
+			+ "<label><![CDATA[Lady's Sister]]></label>"
+			+ "<detail><![CDATA[was in the Blue Parlour]]></detail></topic>"
+			+ "</x28map>";
+	
+	public static final String INTRO_DE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+			+ "<!-- This is not for human readers but for http://x28hd.de/tool/ --><x28map>"
+			+ "<topic x=\"40\" ID=\"1\" color=\"#808080\" y=\"40\">"
+			+ "<label><![CDATA[Lady's Onkel]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> liegt tot im Fischteich. Wer hat kein Alibi? </body></html>]]></detail></topic>"
+			+ "<topic x=\"42\" ID=\"2\" color=\"#bbbbff\" y=\"88\">"
+			+ "<label><![CDATA[Butler]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Kaminzimmer </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"42\" ID=\"3\" color=\"#bbbbff\" y=\"138\">"
+			+ "<label><![CDATA[Gärtner]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Pferdestall </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"42\" ID=\"4\" color=\"#ffbbbb\" y=\"188\">"
+			+ "<label><![CDATA[Köchin]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Kaminzimmer </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"42\" ID=\"5\" color=\"#ffbbbb\" y=\"238\">"
+			+ "<label><![CDATA[Zimmermädchen]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Turmzimmer </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"42\" ID=\"6\" color=\"#bbbbff\" y=\"288\">"
+			+ "<label><![CDATA[Chauffeur]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Raucherzimmer </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"42\" ID=\"7\" color=\"#bbbbff\" y=\"338\">"
+			+ "<label><![CDATA[Klavierspieler]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Musikzimmer </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"42\" ID=\"8\" color=\"#bbbbff\" y=\"388\">"
+			+ "<label><![CDATA[Pastor]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Weinkeller </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"42\" ID=\"9\" color=\"#bbbbff\" y=\"438\">"
+			+ "<label><![CDATA[Neffe]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Turmzimmer </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"42\" ID=\"10\" color=\"#bbbbff\" y=\"488\">"
+			+ "<label><![CDATA[Stallbursche]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Gartenh&#228;uschen </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"189\" ID=\"11\" color=\"#ffbbbb\" y=\"41\">"
+			+ "<label><![CDATA[Gouvernante]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war in der Bibliothek </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"192\" ID=\"12\" color=\"#bbbbff\" y=\"93\">"
+			+ "<label><![CDATA[Hauslehrer]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Blauen Salon </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"192\" ID=\"13\" color=\"#bbbbff\" y=\"143\">"
+			+ "<label><![CDATA[Nachbarsjunge]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Gartenh&#228;uschen </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"192\" ID=\"14\" color=\"#ffbbbb\" y=\"193\">"
+			+ "<label><![CDATA[Blumenfrau]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Weinkeller </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"192\" ID=\"15\" color=\"#ffbbbb\" y=\"243\">"
+			+ "<label><![CDATA[Tante aus Amerika]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Pferdestall </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"192\" ID=\"16\" color=\"#bbbbff\" y=\"293\">"
+			+ "<label><![CDATA[Reitlehrer]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Raucherzimmer </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"192\" ID=\"17\" color=\"#bbbbff\" y=\"343\">"
+			+ "<label><![CDATA[Schwager]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Onyx-Bad </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"192\" ID=\"18\" color=\"#0000ff\" y=\"393\">"
+			+ "<label><![CDATA[Lord]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Musikzimmer </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"192\" ID=\"19\" color=\"#ff0000\" y=\"443\">"
+			+ "<label><![CDATA[Lady]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war in der Bibliothek </body></html>]]></detail></topic>"
+			
+			+ "<topic x=\"192\" ID=\"20\" color=\"#ffbbbb\" y=\"493\">"
+			+ "<label><![CDATA[Lady's Schwester]]></label>"
+			+ "<detail><![CDATA[<html> <head> </head> <body> war im Blauen Salon </body></html>]]></detail></topic>"
+			+ "</x28map>";
+
 
 }

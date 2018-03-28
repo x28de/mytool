@@ -151,11 +151,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	GraphNode selectedTopic = dummyNode;		// TODO integrate into Selection()
 	GraphEdge dummyEdge = new GraphEdge(-1, dummyNode, dummyNode, null, null);
 	GraphEdge selectedAssoc = dummyEdge;
-	String initText = "<body><font color=\"gray\">" +
-	"<em>Click an icon for its details, ALT+drag " +
-	"an icon to connect it." + 
-	"<br />&nbsp;<br />Do you have any questions? Contact " +
-		 "<a href=\"mailto:support@x28hd.de\">support@x28hd.de</a></em></font></body>";
 	
 	Selection selection = null;
 	boolean extended = false;
@@ -587,6 +582,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 			
 		} else if (command == "extmsg") {
 			new LimitationMessage();
+			
+		} else if (command == "introgame") {
+			newStuff.setInput(gui.getSample(false), 2);
+			
+		} else if (command == "loadhelp") {
+			newStuff.setInput(gui.getSample(true), 2);
 			
 		//	Context menu command
 
@@ -1239,7 +1240,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		selectedTopic = dummyNode;
 		deselect(selectedAssoc);
 		selectedAssoc = dummyEdge;
-		edi.setText(initText);
+		edi.setText(gui.getInitText(nodes.size() <= 0));
 		graphPanel.grabFocus();		//  was crucial
 		updateCcpGui();
 	}
@@ -1706,6 +1707,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   graphPanel.repaint();
 	   pasteHere = false;
 	   dropHere = false;
+	   graphSelected();
    }
 
    public void replaceByTree(Hashtable<Integer,GraphNode> replacingNodes, 

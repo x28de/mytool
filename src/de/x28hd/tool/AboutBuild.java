@@ -1,5 +1,7 @@
 package de.x28hd.tool;
 
+
+
 public class AboutBuild {
 	String extIndicator = "Basic";
 	public String about;
@@ -9,7 +11,7 @@ public class AboutBuild {
 	
 	about =  " ******** Provisional BANNER ********* " +
 			"\r\n " + 
-			"\r\n This is Condensr Release 45 Build 5 " + extIndicator +
+			"\r\n This is Condensr Release 45 Build 6 " + extIndicator +
 			"\r\n running on Java version " + System.getProperty("java.version") +
 			"\r\n on " + System.getProperty("os.name") + " version " + System.getProperty("os.version") +
 			" (os.arch = " + System.getProperty("os.arch") + ")" +
