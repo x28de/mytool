@@ -79,7 +79,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	boolean breakIsTrailing;
 	
 	boolean bundleInProgress = false;
-	boolean dragFake = true;
+	boolean dragFake = false;
 	String myTransferable = "";
 	String htmlOut = "";
 	

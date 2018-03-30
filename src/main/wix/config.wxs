@@ -2,7 +2,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <Product Id="d8df1c0f-de90-45be-a7fe-f56d7c13fe60" Name="Condensr" 
-             Language="1033" Version="0.45.4"
+             Language="1033" Version="0.45.8"
              Manufacturer="Matthias Melcher, x28hd.de" 
 			 UpgradeCode="2B7EA473-349F-4861-AB69-C48870F66034">
 
