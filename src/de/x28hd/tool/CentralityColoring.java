@@ -1,5 +1,6 @@
 package de.x28hd.tool;
 
+import java.util.HashSet;
 import java.util.Hashtable;
 
 public class CentralityColoring {
@@ -18,6 +19,9 @@ public class CentralityColoring {
 	}
 
 	public void revertColors() {
+	}
+
+	public void treeLayout(HashSet<GraphEdge> nonTreeEdges) {
 	}
 
 }   

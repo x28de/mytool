@@ -43,4 +43,5 @@ interface GraphPanelControler {
 	void toggleRectanglePresent(boolean on);
 	void stopHint();
 	void zoom(boolean on);
+	boolean getExtended();
 	}

@@ -412,11 +412,15 @@ public class NewStuff {
 	}
 	
 //
-//	Intercept some peculiarities contained in ZIP files
+//	Intercept some peculiarities contained in ZIP files, plus folder trees
 	
 	public void interceptZips() {
 		Charset CP850 = Charset.forName("CP850");
 		File file = new File(dataString);	//	Brute force testing for zip
+		if (new File(dataString).isDirectory()) {
+			new ImportDirector(17, new File(dataString), controler);
+			return;
+		}
 		ZipFile zfile = null;
 		String filelist = "";
 		int entryCount = 0;
@@ -530,7 +534,9 @@ public class NewStuff {
 					"(not relevant)",
 					"(not relevant)",
 					"GEDCOM",
-					"topicmap"
+					"topicmap",
+					"(not relevant)",
+					"urlset"
 					};
 			for (int k = 0; k < knownFormats.length; k++) {
 				if (root.getTagName() == knownFormats[k]) {
@@ -568,7 +574,9 @@ public class NewStuff {
 						"zkx3",
 						"csv",		//	need different method
 						"xml",
-						"zip"
+						"zip",
+						"none",
+						"xml",
 						};
 				File file = new File(dataString);
 				String filename = file.getName();

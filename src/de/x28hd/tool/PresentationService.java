@@ -1628,6 +1628,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   return nonTreeEdges;
    }
 
+   
+   public boolean getExtended() {
+	   return extended;
+   }
    public void toggleRectanglePresent(boolean on) {
 	   rectangle = on;
 	   updateCcpGui();
