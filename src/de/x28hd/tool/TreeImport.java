@@ -136,7 +136,9 @@ public class TreeImport implements ActionListener {
 			int level) {
 	
 		File[] dirList = file.listFiles();
+		String content = "";
 		for (File f : dirList) {
+			content = content + "<br /><a href=\"" + f.toURI().toString() + "\">" + f.getName() + "</a>";
 			monitor++;
 			if (monitor % 250 > 248) controler.displayPopup(monitor + " enties processed ...");
 			String id = readCount++ + "";
@@ -164,20 +166,25 @@ public class TreeImport implements ActionListener {
 				String label = f.getName();
 				inputItems.put(id, label);
 				byPaths.put(id, f.getAbsolutePath());
-				String detail = "<html><body>Open file <a href=\"" + f.toURI().toString()  + "\">" + f.getName() + "</a></body></html>";
+				String detail = "<html><body>Open folder <a href=\"" + f.toURI().toString()  + "\">" + f.getName() + "</a></body></html>";
 				addNode(id, detail);
+				int nodeNum= inputID2num.get(id);
 				DefaultMutableTreeNode branch = 
-						new DefaultMutableTreeNode(new BranchInfo(inputID2num.get(id), label));
+						new DefaultMutableTreeNode(new BranchInfo(nodeNum, label));
 				parentInTree.add(branch);
 
 				// recurse
 				fileTree(f, id, branch, level + 1);
+				
+				String moreDetail = "<html><body>Open folder <a href=\"" + f.toURI().toString()  + "\">" + f.getName() + 
+						"</a><br />" + content + "</body></html>";
+				GraphNode node = nodes.get(nodeNum);
+				node.setDetail(moreDetail);
 
 				// add color and edge
 				String treeColor = "";
 				if (extended) {
 					treeColor = colors[level % 6];
-					int nodeNum = inputID2num.get(id);
 					nodeColors.put(nodeNum, treeColor);
 				}
 				addEdge(parentID, id, false, treeColor);
@@ -239,7 +246,7 @@ public class TreeImport implements ActionListener {
 			inputItems.put(destID, leaf);
 			byPaths.put(destID, desti);
 			File f = new File(desti);
-			String detail = "<html><body>Open file <a href=\"" + f.toURI().toString()  + "\">" + desti + "</a></body></html>";
+			String detail = "<html><body>Open folder <a href=\"" + f.toURI().toString()  + "\">" + desti + "</a></body></html>";
 			int type = 1;
 //			if (desti == topNode) type = 0;
 			addNode(destID, detail, desti != topNode);
@@ -443,14 +450,12 @@ public class TreeImport implements ActionListener {
         			int id = edge.getID();
         			GraphNode node1 = edge.getNode1();
         			GraphNode node2 = edge.getNode2();
-        			System.out.println("Removing edge from " + node1.getLabel() + " to " + node2.getLabel());
         			edges.remove(id);
         		}
         		Iterator<GraphNode> xrefTreeIter2 = xrefTreeNodes.iterator();
         		while (xrefTreeIter2.hasNext()) {
         			System.out.println("# nodes " + xrefTreeNodes.size());
         			GraphNode node = xrefTreeIter2.next();
-        			System.out.println("Removing node " + node.getDetail());
         			int id = node.getID();
         			nodes.remove(id);
         		}
