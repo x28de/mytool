@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -58,6 +60,8 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	Hashtable<String,String> byPaths = new Hashtable<String,String>();;
 	TreeMap<String,String> pathsMap = new TreeMap<String,String>();
 	SortedMap<String,String> pathsList = (SortedMap<String,String>) pathsMap;
+	TreeMap<Long,Integer> datesMap = new TreeMap<Long,Integer>();
+	SortedMap<Long,Integer> datesList = (SortedMap<Long,Integer>) datesMap;
 	
 	// Auxiliary stuff
 	Hashtable<String,String> inputItems = new Hashtable<String,String>();
@@ -69,6 +73,8 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	HashSet<GraphNode> xrefTreeNodes = new HashSet<GraphNode>();
 	GraphPanelControler controler;
 	Hashtable<Integer,String> nodeColors = new Hashtable<Integer,String>();
+	Hashtable<Integer,String> nodeDetails = new Hashtable<Integer,String>();
+	Hashtable<Integer,Long> nodeDates = new Hashtable<Integer,Long>();
 	
 	JTree tree;
 	JFrame frame;
@@ -83,7 +89,12 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	// Accessories for progress bar
 	public Void doInBackground() {
 		setProgress(0);
+		try {
 		loadStuff(file, controler, knownFormat);
+		} catch (Exception ex)  {
+			System.out.println("Error TI113 " + ex);
+		}
+
 		return null;
 	}
 	public void done() {
@@ -115,6 +126,13 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			"#00ff00",
 			"#0000ff",
 			"#b200b2"};
+	String[] colors2 = {
+			"#ffbbbb",
+			"#ffe8aa", 
+			"#ffff99", 
+			"#bbffbb", 
+			"#bbbbff", 
+			"#d2bbd2"};
 	String fs = "";
 	
 	//	Overriden later
@@ -167,7 +185,65 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		    top = new DefaultMutableTreeNode(new BranchInfo(inputID2num.get(topNode), file.getName()));
 			myProgress = 5;
 			setProgress(myProgress);
+			SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
+			
 		    fileTree(file, topNode, top, 0);
+		    
+		    // Color the folders by age
+ 			SortedSet<Long> datesSet = (SortedSet<Long>) datesList.keySet();
+ 			Iterator<Long> ixit = datesSet.iterator(); 
+ 			if (datesSet.size() > 0) {
+ 				int rangeSize = (datesSet.size() / 6) + 1;
+				int counter = datesSet.size();
+ 				
+ 				// Prepare legend 
+ 				int previousCol = -1;
+ 				String legendID = readCount++ + "";
+ 				inputItems.put(legendID, "Legend");
+ 				addNode(legendID, "Look at the colored nodes connected to this one, "
+ 						+ "<br />from red (newest) to purple (oldest). "
+ 						+ "<br /><br />(Note that edge colors, don't reflect change dates "
+ 						+ "but just hierarchy levels.)");
+ 				
+ 				while (ixit.hasNext()) {
+  					int colID = counter / rangeSize;
+					counter--;
+ 					Long modDate = ixit.next();
+ 					int nodeNum = datesList.get(modDate);
+ 					
+ 					nodeColors.put(nodeNum, colors[colID]);
+ 					
+ 					//	Legend item
+ 					Date date = new Date(modDate);
+ 					String dateText = df2.format(date);
+ 					if (colID != previousCol) {
+ 						String id2 = readCount++ + "";
+ 						String label = dateText + " +";
+ 						if (colID == 0) label = label + " (newest)";
+ 						if (colID == 5) label = label + " (oldest)";
+ 						inputItems.put(id2, label);
+ 						addNode(id2, "Folders modified from " + dateText + " are shown in this color");
+ 						addEdge(legendID, id2, false, false, "");
+ 						int nodeNumL = inputID2num.get(id2);
+ 						nodeColors.put(nodeNumL, colors[colID]);
+ 						previousCol = colID;
+ 					}
+ 				}
+ 			}
+ 			
+// 			//	Color edges like target node	TODO maybe an option
+// 			if (extended) {
+// 				Enumeration<GraphEdge> edgesEnum = edges.elements();
+// 				while (edgesEnum.hasMoreElements()) {
+// 					GraphEdge edge = edgesEnum.nextElement();
+// 					if (nonTreeEdges.contains(edge)) continue;
+// 					if (xrefTreeEdges.contains(edge)) continue;
+// 					GraphNode node2 = edge.getNode2();
+// 					int nodeKey = node2.getID();
+// 					String colString = nodeColors.get(nodeKey);
+// 					edge.setColor(colString);
+// 				}
+// 			}
 		}
 		
 		//	Collect relationships
@@ -178,7 +254,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			String toRef = relationshipTo.get(relID);
 			addEdge(fromRef, toRef, true, true, "");
 		}
-		return;
 	}
 	
 	public void fileTree(File file, String parentID, DefaultMutableTreeNode parentInTree,
@@ -186,8 +261,16 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	
 		File[] dirList = file.listFiles();
 		String content = "";
+		Long modDate = 0L;
+		Long maxModDate = 0L;
+		SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
+        
 		for (File f : dirList) {
+	        
+			if (f.isHidden()) continue;
 			content = content + "<br /><a href=\"" + f.toURI().toString() + "\">" + f.getName() + "</a>";
+			
+			//	For progress bar (slow shortcut lookup)
 			monitor++;
 			if (monitor % 250 > 248) {
 				if (myProgress < 97) {
@@ -198,10 +281,12 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 				}
 				setProgress(myProgress);
 			}
+			
 			String id = readCount++ + "";
 			String desti = "";
+
 			if (f.isDirectory()) {
-				if (!windows) {
+				if (!windows) {	// Maybe symlink
 					try {
 						desti = f.getCanonicalPath();
 					} catch (IOException e) {
@@ -219,13 +304,15 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 						continue;
 					}
 				} 
-				//	add node
+				
+				//	add folder node
 				String label = f.getName();
 				inputItems.put(id, label);
 				byPaths.put(id, f.getAbsolutePath());
 				String detail = "<html><body>Open folder <a href=\"" + f.toURI().toString()  + "\">" + f.getName() + "</a></body></html>";
 				addNode(id, detail);
 				int nodeNum= inputID2num.get(id);
+				
 				DefaultMutableTreeNode branch = 
 						new DefaultMutableTreeNode(new BranchInfo(nodeNum, label));
 				parentInTree.add(branch);
@@ -233,20 +320,31 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 				// recurse
 				fileTree(f, id, branch, level + 1);
 				
+				// specify folder details (leaf entries and their newest date)
+		        String content2 = nodeDetails.get(nodeNum);
+		        Long modDate2 = nodeDates.get(nodeNum);
+		        Date date = new Date(modDate2);
+		        String dateText = df2.format(date);
 				String moreDetail = "<html><body>Open folder <a href=\"" + f.toURI().toString()  + "\">" + f.getName() + 
-						"</a><br />" + content + "</body></html>";
+						"</a> (" + dateText + ") <br />" + content2 + "<br /></body></html>";
 				GraphNode node = nodes.get(nodeNum);
 				node.setDetail(moreDetail);
 
 				// add color and edge
-				String treeColor = "";
+				String edgeColor = "";
 				if (extended) {
-					treeColor = colors[level % 6];
-					nodeColors.put(nodeNum, treeColor);
+					nodeColors.put(nodeNum, colors[level % 6]);
+					edgeColor = colors2[level % 6];
 				}
-				addEdge(parentID, id, false, treeColor);
-			} else { // not a directory 
-				if (windows) {
+				addEdge(parentID, id, false, edgeColor);
+
+			} else { // not a directory
+				
+				modDate = f.lastModified();
+				if (modDate > maxModDate) maxModDate = modDate;
+				
+				if (windows) {	// maybe shortcut
+					if (!f.getName().endsWith(".lnk")) continue;
 					try {
 						WindowsShortcut ws = new WindowsShortcut(f);
 
@@ -266,13 +364,23 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 						continue;
 					} catch (ParseException e) {
 						if (!e.toString().endsWith("magic is missing")) {
-							System.out.println("Error TI105 " + e.getMessage());
+							System.out.println("Error TI105 " + f.getAbsolutePath() + " " + e.getMessage());
 						}
 						continue;
 					}
 				}
 			}
 		}
+		
+		// details for parent
+		int parentNum = inputID2num.get(parentID);
+		nodeDetails.put(parentNum, content);
+		if (!file.isDirectory()) return;
+		if (maxModDate <= 0L) maxModDate = file.lastModified(); // only last resort
+		
+		while (datesMap.containsKey(maxModDate)) maxModDate++;
+		datesMap.put(maxModDate, parentNum);
+		nodeDates.put(parentNum, maxModDate);
 	}
 	
 	public String createRelatedNode(String desti, boolean siteMap) {
