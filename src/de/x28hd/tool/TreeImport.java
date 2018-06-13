@@ -92,7 +92,8 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		try {
 		loadStuff(file, controler, knownFormat);
 		} catch (Exception ex)  {
-			System.out.println("Error TI113 " + ex);
+			System.out.println("Error TI113 ");
+			ex.printStackTrace();
 		}
 
 		return null;
@@ -251,7 +252,8 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		while (relEnum.hasMoreElements()) {
 			Integer relID = relEnum.nextElement();
 			String fromRef = relationshipFrom.get(relID);
-			String toRef = relationshipTo.get(relID);
+			String toPath = relationshipTo.get(relID);
+			String toRef = createRelatedNode(toPath, false);
 			addEdge(fromRef, toRef, true, true, "");
 		}
 	}
@@ -296,11 +298,11 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 					if (!desti.equals(f.getAbsolutePath())) {
 						
 						//	Recursive
-						String destID = createRelatedNode(desti, false);
+//						String destID = createRelatedNode(desti, false);
 
 						relID++;
 						relationshipFrom.put(relID, parentID);
-						relationshipTo.put(relID, destID);
+						relationshipTo.put(relID, desti);
 						continue;
 					}
 				} 
@@ -354,11 +356,11 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 						desti = ws.getRealFilename();
 
 						//	Recursive
-						String destID = createRelatedNode(desti, false);
+//						String destID = createRelatedNode(desti, false);
 
 						relID++;
 						relationshipFrom.put(relID, parentID);
-						relationshipTo.put(relID, destID);
+						relationshipTo.put(relID, desti);
 					} catch (IOException e) {
 						System.out.println("Error TI104 " + e.getMessage());
 						continue;
@@ -419,6 +421,10 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			fromRef = createRelatedNode(ancestors, false);	// recurse
 			
 			addEdge(fromRef, destID, false, true, "");
+			if (!f.exists()) {
+				int num = inputID2num.get(destID);
+				nodeColors.put(num, "#000000");
+			}
 			return destID;
 		}
 	}
