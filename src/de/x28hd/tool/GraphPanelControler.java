@@ -44,4 +44,5 @@ interface GraphPanelControler {
 	void stopHint();
 	void zoom(boolean on);
 	boolean getExtended();
+	void toggleHyp(int whichWasToggled, boolean auto);
 	}

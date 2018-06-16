@@ -114,7 +114,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	JPanel radioPanel = null;
 	boolean transit = false;
 	JCheckBox transitBox = null;
-	boolean layoutOpt = true;
+	boolean layoutOpt = false;
 	JCheckBox layoutBox = null;
 	boolean colorOpt = false;
 	JCheckBox colorBox = null;
@@ -159,6 +159,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		this.controler = controler;
 		this.knownFormat = knownFormat;
 		showJTree = false;
+		layoutOpt = true;
 
 		progressBar = new JProgressBar(0, 100);
 		progressBar.setValue(0);
@@ -202,7 +203,9 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			
 		    fileTree(file, topNode, top, 0);
 		    
-		    // Prepare coloring the folders by age (by hierarchy is done via addEdge)
+		    // Prepare coloring the folders by age 
+		    // (by hierarchy is done via addEdge) 			TODO make more transparent
+		    
  			SortedSet<Long> datesSet = (SortedSet<Long>) datesList.keySet();
  			Iterator<Long> ixit = datesSet.iterator(); 
  			if (datesSet.size() > 0) {
@@ -391,8 +394,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			byPaths.put(destID, desti);
 			File f = new File(desti);
 			String detail = "<html><body>Open folder <a href=\"" + f.toURI().toString()  + "\">" + desti + "</a></body></html>";
-			int type = 1;
-//			if (desti == topNode) type = 0;
 			addNode(destID, detail, desti != topNode);
 			
 			fromRef = createRelatedNode(ancestors, false);	// recurse
@@ -419,27 +420,27 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			labelAttr = "TEXT";
 			idAttr = "ID";
 		}
-	if (knownFormat != 18) {
-		NodeList graphContainer = inputXml.getElementsByTagName(topNode);
-		inputItems.put(topNode, "ROOT");
-		addNode(topNode, "");
-		Element graph = (Element) graphContainer.item(0);
-		
-		int idForJTree = inputID2num.get(topNode);
-	    top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, " "));
-		
-		//	Collect nested nodes
-		nest(graph, topNode, top, 0);
-		
-		//	Collect relationships
-		Enumeration<Integer> relEnum = relationshipFrom.keys();
-		while (relEnum.hasMoreElements()) {
-			Integer relID = relEnum.nextElement();
-			String fromRef = relationshipFrom.get(relID);
-			String toRef = relationshipTo.get(relID);
-			addEdge(fromRef, toRef, true, "");
-		}
-		
+		if (knownFormat != 18) {
+			NodeList graphContainer = inputXml.getElementsByTagName(topNode);
+			inputItems.put(topNode, "ROOT");
+			addNode(topNode, "");
+			Element graph = (Element) graphContainer.item(0);
+
+			int idForJTree = inputID2num.get(topNode);
+			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, " "));
+
+			//	Collect nested nodes
+			nest(graph, topNode, top, 0);
+
+			//	Collect relationships
+			Enumeration<Integer> relEnum = relationshipFrom.keys();
+			while (relEnum.hasMoreElements()) {
+				Integer relID = relEnum.nextElement();
+				String fromRef = relationshipFrom.get(relID);
+				String toRef = relationshipTo.get(relID);
+				addEdge(fromRef, toRef, true, "");
+			}
+
 		} else {	
 
 			// Sitemap
@@ -465,7 +466,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 					//	Extract stuff 
 					String path = ((Element) child).getTextContent();
 					String id = readCount++ + "";
-//					path = path.replace("https://", "");
 					if (path.endsWith("/")) path = path.substring(0, path.length() - 1);
 					if (path.indexOf("/") < 0) continue;
 					inputItems.put(id, path.substring(path.lastIndexOf("/") + 1));
@@ -473,24 +473,25 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 					pathsMap.put(path, id);
 				}
 			}
-		}
-		fs = "/";
-		SortedSet<String> pathsSet = (SortedSet<String>) pathsList.keySet();
-		Iterator<String> ixit = pathsSet.iterator(); 
-		if (pathsSet.size() > 0) {
-			while (ixit.hasNext()) {
-				String alphaPos = ixit.next();
-				String key = pathsList.get(alphaPos);
-				String path = byPaths.get(key);
-				int slashPos = path.lastIndexOf(fs) + 1;
-				String detail = "<html><body><a href=\"" + path + "\">" + path.substring(slashPos) + "</a></body></html>";
-				addNode(key, detail);
-				String path2 = path.replace(fs, "/");
-				String levels[] = path2.split("/");
-				int level = levels.length;
-				linkToParent(path, "", key, level);
+			fs = "/";
+			SortedSet<String> pathsSet = (SortedSet<String>) pathsList.keySet();
+			Iterator<String> ixit = pathsSet.iterator(); 
+			if (pathsSet.size() > 0) {
+				while (ixit.hasNext()) {
+					String alphaPos = ixit.next();
+					String key = pathsList.get(alphaPos);
+					String path = byPaths.get(key);
+					int slashPos = path.lastIndexOf(fs) + 1;
+					String detail = "<html><body><a href=\"" + path + "\">" + path.substring(slashPos) + "</a></body></html>";
+					addNode(key, detail);
+					String path2 = path.replace(fs, "/");
+					String levels[] = path2.split("/");
+					int level = levels.length;
+					linkToParent(path, "", key, level);
+				}
 			}
 		}
+		
 		commonPart();
 	}
 	
@@ -537,6 +538,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		if (knownFormat == 18) { // not available for sitemap 
 			showJTree = false;
 		}
+		layoutOpt = !showJTree;
 		
 //
 //		Create a JTree 
@@ -547,7 +549,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	    tree = new JTree(model);
 	    
 	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
-//	    tree.addTreeSelectionListener(this);
 	    
         frame = new JFrame("Options");
         frame.setLocation(100, 170);
@@ -590,7 +591,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		toolbar2.setLayout(new BorderLayout());
 		JPanel optics = new JPanel();
 		optics.setLayout(new FlowLayout());
-		layoutBox = new JCheckBox ("Tree layout", true);
+		layoutBox = new JCheckBox ("Tree layout", layoutOpt);
 		layoutBox.addActionListener(this);
 		optics.add(layoutBox);
 		colorBox = new JCheckBox ("Node color by change date", true);
@@ -612,7 +613,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
         frame.pack();
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(dim.width/2 - 298, dim.height/2 - 209);		
-//        frame.setMinimumSize(new Dimension(400, 300));
         frame.setMinimumSize(new Dimension(596, 418));
 
         frame.setVisible(true);
@@ -648,8 +648,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 				while (xrefTreeIter.hasNext()) {
 					GraphEdge edge = xrefTreeIter.next();
 					int id = edge.getID();
-					GraphNode node1 = edge.getNode1();
-					GraphNode node2 = edge.getNode2();
 					edges.remove(id);
 				}
 				Iterator<GraphNode> xrefTreeIter2 = xrefTreeNodes.iterator();
@@ -772,7 +770,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			int childcount = nest(child, id, branch, level + 1);
 			
 			int nodeNum = inputID2num.get(id);
-//			System.out.println(nodes.get(nodeNum).getLabel() + ": childcount " + childcount);
 			String treeColor = "";
 			if (childcount > 0) {
 				treeColor = colors[level % 6];
@@ -836,8 +833,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode(newEdgeColor), "");
 		edges.put(edgesNum, edge);
 		if (!treeColor.isEmpty()) edgeColors.put(edgesNum, treeColor);
-//		if (type == 1 || type == 3) nonTreeEdges.add(edge);
-//		if (type == 2 || type == 3) xrefTreeEdges.add(edge);
 		if (xref) nonTreeEdges.add(edge);
 		if (removeBeforeReexport) xrefTreeEdges.add(edge);
 	}
@@ -912,6 +907,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
         frame.setVisible(false);
         frame.dispose();
         finish();
+		if (!showJTree) controler.toggleHyp(1, true);
 	}
 
 	@Override

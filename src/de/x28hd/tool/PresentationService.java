@@ -325,9 +325,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 		//	Various toggles	
 			
 		} else if (command == "ToggleHyp") {
-			toggleHyp(1);
+			toggleHyp(1, false);
 		} else if (command == "ToggleDetEdit") {
-			toggleHyp(0);
+			toggleHyp(0, false);
 			
 		} else if (command == "TogglePreso") {
 			graphPanel.togglePreso();
@@ -942,17 +942,23 @@ public final class PresentationService implements ActionListener, MouseListener,
 		JOptionPane.showMessageDialog(mainWindow, msg);
 	}
 
-	public void toggleHyp(int whichWasToggled) {
+	public void toggleHyp(int whichWasToggled, boolean silent) {
 		
-		// Ignore hit if already selected
-		if (whichWasToggled == 1) { 	// hyperlinks 
-			if (gui.menuItem41.isSelected() == hyp) return;
+		if (!silent) {
+			// Ignore hit if already selected
+			if (whichWasToggled == 1) { 	// hyperlinks 
+				if (gui.menuItem41.isSelected() == hyp) return;
+			} else {
+				if (gui.menuItem22.isSelected() == !hyp) return;
+			}
 		} else {
-			if (gui.menuItem22.isSelected() == !hyp) return;
+			gui.menuItem41.setSelected(!hyp);
+			gui.menuItem22.setSelected(hyp);
 		}
 		// Do the work 
 		edi.toggleHyp();
 		hyp = !hyp;
+		System.out.println("hyp " + hyp);
 		// Reflect change in texts
 		int stateHyp = 0;
 		if (gui.menuItem41.isSelected()) stateHyp = 1;
@@ -1301,7 +1307,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	public void deleteNode(GraphNode topic) {
 		deleteNode(topic, false);
 	}
-	public void deleteNode(GraphNode topic, boolean silent) {
+	public void deleteNode(GraphNode topic, boolean auto) {
 		Enumeration<GraphEdge> e = topic.getEdges();
 		Vector<GraphEdge> todoList = new Vector<GraphEdge>();
 		GraphEdge edge;
@@ -1312,7 +1318,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			neighborCount++;
 		};
 		
-		if (!silent) {
+		if (!auto) {
 			String topicName = topic.getLabel();
 			if (topicName.length() > 30) topicName = topicName.substring(0,30) + "...";
 			//	Some effort to position it near the node to be deleted
