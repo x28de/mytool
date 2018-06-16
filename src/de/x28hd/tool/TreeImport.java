@@ -3,6 +3,7 @@ package de.x28hd.tool;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -75,6 +76,8 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	Hashtable<Integer,String> nodeColors = new Hashtable<Integer,String>();
 	Hashtable<Integer,String> nodeDetails = new Hashtable<Integer,String>();
 	Hashtable<Integer,Long> nodeDates = new Hashtable<Integer,Long>();
+	Hashtable<Integer,String> edgeColors = new Hashtable<Integer,String>();
+	String[] legend = new String[6];
 	
 	JTree tree;
 	JFrame frame;
@@ -111,9 +114,16 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	JPanel radioPanel = null;
 	boolean transit = false;
 	JCheckBox transitBox = null;
+	boolean layoutOpt = true;
+	JCheckBox layoutBox = null;
+	boolean colorOpt = false;
+	JCheckBox colorBox = null;
+	boolean legendOpt = false;
+	JCheckBox legendBox = null;
 	int relID = -1;
 	boolean extended = false;
 	boolean windows = false;
+	boolean showJTree = true;
 	int monitor = 0;
 	int myProgress = 0;
 	int alternate = -1;
@@ -148,6 +158,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		this.file = file;
 		this.controler = controler;
 		this.knownFormat = knownFormat;
+		showJTree = false;
 
 		progressBar = new JProgressBar(0, 100);
 		progressBar.setValue(0);
@@ -180,6 +191,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		windows = (System.getProperty("os.name").startsWith("Windows"));
 		
 		if (knownFormat == 17) {	//	Filepaths list
+			colorOpt = true;
 			fs = System.getProperty("file.separator");
 			topNode = file.getAbsolutePath();
 			topNode = createRelatedNode(file.getAbsolutePath(), false);
@@ -190,21 +202,13 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			
 		    fileTree(file, topNode, top, 0);
 		    
-		    // Color the folders by age
+		    // Prepare coloring the folders by age (by hierarchy is done via addEdge)
  			SortedSet<Long> datesSet = (SortedSet<Long>) datesList.keySet();
  			Iterator<Long> ixit = datesSet.iterator(); 
  			if (datesSet.size() > 0) {
  				int rangeSize = (datesSet.size() / 6) + 1;
-				int counter = datesSet.size();
- 				
- 				// Prepare legend 
+				int counter = datesSet.size() - 1;
  				int previousCol = -1;
- 				String legendID = readCount++ + "";
- 				inputItems.put(legendID, "Legend");
- 				addNode(legendID, "Look at the colored nodes connected to this one, "
- 						+ "<br />from red (newest) to purple (oldest). "
- 						+ "<br /><br />(Note that edge colors, don't reflect change dates "
- 						+ "but just hierarchy levels.)");
  				
  				while (ixit.hasNext()) {
   					int colID = counter / rangeSize;
@@ -218,33 +222,14 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
  					Date date = new Date(modDate);
  					String dateText = df2.format(date);
  					if (colID != previousCol) {
- 						String id2 = readCount++ + "";
  						String label = dateText + " +";
  						if (colID == 0) label = label + " (newest)";
  						if (colID == 5) label = label + " (oldest)";
- 						inputItems.put(id2, label);
- 						addNode(id2, "Folders modified from " + dateText + " are shown in this color");
- 						addEdge(legendID, id2, false, false, "");
- 						int nodeNumL = inputID2num.get(id2);
- 						nodeColors.put(nodeNumL, colors[colID]);
+ 						legend[colID] = label;
  						previousCol = colID;
  					}
  				}
  			}
- 			
-// 			//	Color edges like target node	TODO maybe an option
-// 			if (extended) {
-// 				Enumeration<GraphEdge> edgesEnum = edges.elements();
-// 				while (edgesEnum.hasMoreElements()) {
-// 					GraphEdge edge = edgesEnum.nextElement();
-// 					if (nonTreeEdges.contains(edge)) continue;
-// 					if (xrefTreeEdges.contains(edge)) continue;
-// 					GraphNode node2 = edge.getNode2();
-// 					int nodeKey = node2.getID();
-// 					String colString = nodeColors.get(nodeKey);
-// 					edge.setColor(colString);
-// 				}
-// 			}
 		}
 		
 		//	Collect relationships
@@ -266,7 +251,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		Long modDate = 0L;
 		Long maxModDate = 0L;
 		SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
-        
+
 		for (File f : dirList) {
 	        
 			if (f.isHidden()) continue;
@@ -297,9 +282,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 					}
 					if (!desti.equals(f.getAbsolutePath())) {
 						
-						//	Recursive
-//						String destID = createRelatedNode(desti, false);
-
 						relID++;
 						relationshipFrom.put(relID, parentID);
 						relationshipTo.put(relID, desti);
@@ -334,10 +316,8 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 
 				// add color and edge
 				String edgeColor = "";
-				if (extended) {
 					nodeColors.put(nodeNum, colors[level % 6]);
 					edgeColor = colors2[level % 6];
-				}
 				addEdge(parentID, id, false, edgeColor);
 
 			} else { // not a directory
@@ -354,9 +334,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 						if (!ws.isPotentialValidLink(f)) continue;
 						if (!ws.isDirectory()) continue;
 						desti = ws.getRealFilename();
-
-						//	Recursive
-//						String destID = createRelatedNode(desti, false);
 
 						relID++;
 						relationshipFrom.put(relID, parentID);
@@ -423,6 +400,8 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			addEdge(fromRef, destID, false, true, "");
 			if (!f.exists()) {
 				int num = inputID2num.get(destID);
+				GraphNode node = nodes.get(num);
+				node.setColor("#000000");
 				nodeColors.put(num, "#000000");
 			}
 			return destID;
@@ -546,21 +525,19 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			linkToParent(ancestors, meAndDescendants, fromRef, level - 1);	// recurse 
 		}
 		String toRef = myKey;
-		if (extended) {
 			treeColor = colors[level % 6];
 			int nodeNum = inputID2num.get(toRef);
 			nodeColors.put(nodeNum, treeColor);
-		}
 		
 		addEdge(fromRef, toRef, false, treeColor);
 	}
 	
 	public void commonPart() {
 		
-		if (knownFormat == 18) { // not available for sitemap and file tree
-			finish();
-			return;
+		if (knownFormat == 18) { // not available for sitemap 
+			showJTree = false;
 		}
+		
 //
 //		Create a JTree 
 	    
@@ -572,12 +549,15 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 //	    tree.addTreeSelectionListener(this);
 	    
-        frame = new JFrame("Found this tree structure:");
+        frame = new JFrame("Options");
         frame.setLocation(100, 170);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.addWindowListener(myWindowAdapter);
 		frame.setLayout(new BorderLayout());
-        frame.add(new JScrollPane(tree));
+		if (showJTree) {
+			frame.add(new JScrollPane(tree));
+			frame.setTitle("Found this tree structure:");
+		}
 
         JPanel toolbar = new JPanel();
         toolbar.setLayout(new BorderLayout());
@@ -595,9 +575,38 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	    cancelButton.addActionListener(this);
         buttons.add(continueButton, "East");
 		buttons.add(cancelButton, "West");
-		toolbar.add(buttons,"East");
 		transitBox = new JCheckBox ("Just for re-export", false);
+		transitBox.setActionCommand("transit");
+		transitBox.addActionListener(this);
+		if (knownFormat == 18) { 
+			instruction.setEnabled(false);
+			transitBox.setEnabled(false);
+			JLabel sorry = new JLabel("<html><em> (Sorry, currently unavailable)</em></html>");
+			toolbar.add(sorry, "Center");
+		}
 		toolbar.add(transitBox, "West");
+		
+		JPanel toolbar2 = new JPanel();
+		toolbar2.setLayout(new BorderLayout());
+		JPanel optics = new JPanel();
+		optics.setLayout(new FlowLayout());
+		layoutBox = new JCheckBox ("Tree layout", true);
+		layoutBox.addActionListener(this);
+		optics.add(layoutBox);
+		colorBox = new JCheckBox ("Node color by change date", true);
+		colorBox.setActionCommand("colorDate");
+		colorBox.addActionListener(this);
+		optics.add(colorBox);
+		legendBox = new JCheckBox ("Show legend", false);
+		legendBox.addActionListener(this);
+		optics.add(legendBox);
+		if (knownFormat != 17) {	// folder tree
+			colorBox.setVisible(false);
+			legendBox.setVisible(false);
+		}
+		toolbar2.add(buttons,"East");
+		toolbar2.add(optics, "West");
+		toolbar.add(toolbar2, "South");
 
 		frame.add(toolbar,"South");
         frame.pack();
@@ -613,36 +622,79 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 //		Pass on the new map
 
 	public void finish() {
-        if (transit) { 
-        	if (knownFormat == 17) {
-        		Iterator<GraphEdge> xrefTreeIter = xrefTreeEdges.iterator();
-        		while (xrefTreeIter.hasNext()) {
-        			GraphEdge edge = xrefTreeIter.next();
-        			int id = edge.getID();
-        			GraphNode node1 = edge.getNode1();
-        			GraphNode node2 = edge.getNode2();
-        			edges.remove(id);
-        		}
-        		Iterator<GraphNode> xrefTreeIter2 = xrefTreeNodes.iterator();
-        		while (xrefTreeIter2.hasNext()) {
-         			GraphNode node = xrefTreeIter2.next();
-        			int id = node.getID();
-        			nodes.remove(id);
-        		}
-        	}
-        	controler.setNonTreeEdges(nonTreeEdges);
-        	controler.replaceByTree(nodes, edges);
-        } else {
-			if (extended) {
+		if (legendOpt) {
+			String legendID = readCount++ + "";
+			inputItems.put(legendID, "Legend");
+			addNode(legendID, "Look at the colored nodes connected to this one, "
+					+ "<br />from red (newest) to purple (oldest). "
+					+ "<br /><br />Black icons are dead shortcuts (maybe just character variations)."
+					+ "<br />Grey icons are parents."
+					+ "<br /><br />(Note that edge colors don't reflect change dates "
+					+ "but just hierarchy levels.)", true);
+			for (int colID = 0; colID < 6; colID++) {
+				String id2 = readCount++ + "";
+				String label = legend[colID];
+				if (label == null) break;
+				inputItems.put(id2, label);
+				addNode(id2, "Folders modified from " + legend[colID] + " are shown in this color", true);
+				addEdge(legendID, id2, false, true, "");
+				int nodeNumL = inputID2num.get(id2);
+				nodeColors.put(nodeNumL, colors[colID]);
+			}
+		}
+		if (transit) { 
+			if (knownFormat == 17) {
+				Iterator<GraphEdge> xrefTreeIter = xrefTreeEdges.iterator();
+				while (xrefTreeIter.hasNext()) {
+					GraphEdge edge = xrefTreeIter.next();
+					int id = edge.getID();
+					GraphNode node1 = edge.getNode1();
+					GraphNode node2 = edge.getNode2();
+					edges.remove(id);
+				}
+				Iterator<GraphNode> xrefTreeIter2 = xrefTreeNodes.iterator();
+				while (xrefTreeIter2.hasNext()) {
+					GraphNode node = xrefTreeIter2.next();
+					int id = node.getID();
+					nodes.remove(id);
+				}
+			}
+			controler.setNonTreeEdges(nonTreeEdges);
+			controler.replaceByTree(nodes, edges);
+		} else {
+			if (layoutOpt) {
+
 				CentralityColoring centralityColoring = new CentralityColoring(nodes, edges);
 				centralityColoring.treeLayout(nonTreeEdges);
-				//	Recolor the nodes
+				//	Recolor 
+				Enumeration<Integer> edgeColEnum = edgeColors.keys();
+				while (edgeColEnum.hasMoreElements()) {
+					int key = edgeColEnum.nextElement();
+					String treeColor = edgeColors.get(key);
+					GraphEdge edge = edges.get(key);
+					edge.setColor(treeColor);
+				}
 				Enumeration<Integer> nodeColEnum = nodeColors.keys();
 				while (nodeColEnum.hasMoreElements()) {
 					int key = nodeColEnum.nextElement();
 					String treeColor = nodeColors.get(key);
 					GraphNode node = nodes.get(key);
 					node.setColor(treeColor);
+				}
+				if (!colorOpt) {
+					//	Color nodes like edges end
+					Enumeration<Integer> edgesEnum = edges.keys();
+					while (edgesEnum.hasMoreElements()) {
+						int edgeNum = edgesEnum.nextElement();
+						GraphEdge edge = edges.get(edgeNum);
+						if (nonTreeEdges.contains(edge)) continue;
+						if (xrefTreeEdges.contains(edge)) continue;
+						GraphNode node2 = edge.getNode2();
+						if (edgeColors.containsKey(edgeNum)) {
+							String colString = edgeColors.get(edgeNum);
+							node2.setColor(colString);
+						}
+					}
 				}
 			}
         	try {
@@ -722,7 +774,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			int nodeNum = inputID2num.get(id);
 //			System.out.println(nodes.get(nodeNum).getLabel() + ": childcount " + childcount);
 			String treeColor = "";
-			if (childcount > 0 && extended) {
+			if (childcount > 0) {
 				treeColor = colors[level % 6];
 				nodeColors.put(nodeNum, treeColor);
 			}
@@ -767,13 +819,9 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		GraphEdge edge = null;
 		String newEdgeColor = "#c0c0c0";
 		if (xref) {
-			if (extended) {
-				newEdgeColor = "#f0f0f0";
-			} else {
-				newEdgeColor = "#ffff00";
-			}
+			newEdgeColor = "#ffff00";
+			treeColor = "#f0f0f0";
 		}
-		if (!treeColor.isEmpty()) newEdgeColor = treeColor;
 		edgesNum++;
 		if (!inputID2num.containsKey(fromRef)) {
 			System.out.println("Error TI101 " + fromRef + ", " + xref);
@@ -787,6 +835,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		GraphNode targetNode = nodes.get(inputID2num.get(toRef));
 		edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode(newEdgeColor), "");
 		edges.put(edgesNum, edge);
+		if (!treeColor.isEmpty()) edgeColors.put(edgesNum, treeColor);
 //		if (type == 1 || type == 3) nonTreeEdges.add(edge);
 //		if (type == 2 || type == 3) xrefTreeEdges.add(edge);
 		if (xref) nonTreeEdges.add(edge);
@@ -837,6 +886,28 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			transit = false;
 		} else if (command == "Continue") {
 			transit = transitBox.isSelected();
+			
+		// Options interdependent
+		} else if (command == "transit"){
+			transit = transitBox.isSelected();
+			layoutBox.setEnabled(!transit);
+			colorBox.setEnabled(!transit);
+			legendBox.setEnabled(!transit);
+			frame.repaint();
+			return;
+		} else if (command == "Tree layout"){
+			layoutOpt = layoutBox.isSelected();
+			colorBox.setEnabled(layoutOpt);
+			legendBox.setEnabled(layoutOpt);
+			return;
+		} else if (command == "colorDate"){
+			colorOpt = colorBox.isSelected();
+			legendBox.setEnabled(colorOpt);
+			return;
+		} else if (command == "Show legend"){
+			System.out.println("legend");
+			legendOpt = legendBox.isSelected();
+			return;
 		}
         frame.setVisible(false);
         frame.dispose();
@@ -851,5 +922,4 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
             progressBar.setString(monitor + "");
         } 
 	}
-
 }
