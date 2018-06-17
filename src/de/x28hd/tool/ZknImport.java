@@ -60,6 +60,7 @@ public class ZknImport implements ActionListener {
 //	Hashtable<String,String> kwlists = new Hashtable<String,String>();
 	Hashtable<String,String> keywords = new Hashtable<String,String>();
 	HashSet<String> usedKw = new HashSet<String>();
+	Hashtable<Integer,Integer> edgeColors = new Hashtable<Integer,Integer>();
 	
 	GraphPanelControler controler;
 	
@@ -72,6 +73,9 @@ public class ZknImport implements ActionListener {
 	int j = -1;
 	int edgesNum = 0;
 	int relID = -1;
+	String[] colors = {"#ff0000", "#ffaa00", "#ffff00", "#00ff00", "#0000ff", "#b200b2"};
+	String[] colors2 = {"#ffbbbb", "#ffe8aa", "#ffff99", "#bbffbb", "#bbbbff", "#d2bbd2",
+			"#f0f0f0"};
 	
 	JTree tree;
 	JFrame frame;
@@ -82,6 +86,8 @@ public class ZknImport implements ActionListener {
 	};
 	boolean transit = false;
 	JCheckBox transitBox = null;
+	boolean layoutOpt = true;
+	JCheckBox layoutBox = null;
 	
 	public ZknImport(File file, GraphPanelControler controler) {
 		Charset CP850 = Charset.forName("CP850");
@@ -227,7 +233,7 @@ public class ZknImport implements ActionListener {
 					new DefaultMutableTreeNode(new BranchInfo(topicID, label));
 			String childlist = childlists.get(id);
 			if (!childlist.isEmpty()) {
-				nest(id, "-1", top);
+				nest(id, "-1", top, 0);
 			} else {
 				top.add(treeNode);
 			}
@@ -288,8 +294,10 @@ public class ZknImport implements ActionListener {
         continueButton.setSelected(true);
 		JButton cancelButton = new JButton("Cancel");
 	    cancelButton.addActionListener(this);
+		layoutBox = new JCheckBox ("Tree layout           ", true);
+		buttons.add(layoutBox, "West");
+		buttons.add(cancelButton, "Center");
         buttons.add(continueButton, "East");
-		buttons.add(cancelButton, "West");
 		toolbar.add(buttons,"East");
 		transitBox = new JCheckBox ("Just for re-export", false);
 		toolbar.add(transitBox, "West");
@@ -327,7 +335,8 @@ public class ZknImport implements ActionListener {
 //
 //	Descend the tree
 	
-	public void nest(String myID, String parentID, DefaultMutableTreeNode parentInTree) {
+	public void nest(String myID, String parentID, DefaultMutableTreeNode parentInTree,
+			int level) {
 		
 		String label = "";
 		int topicID = -2;
@@ -346,6 +355,7 @@ public class ZknImport implements ActionListener {
 			int otherEndID = inputID2num.get(parentID);
 			GraphNode otherEnd = nodes.get(otherEndID);
 			String newEdgeColor = "#c0c0c0";
+			edgeColors.put(edgesNum,  level % 6);
 			GraphEdge edge = new GraphEdge(edgesNum, topic, otherEnd, Color.decode(newEdgeColor), "");
 			edges.put(edgesNum, edge);
 			edgesNum++;
@@ -356,7 +366,7 @@ public class ZknImport implements ActionListener {
 			String [] children = childlist.split(",");
 			for (int c = 0; c < children.length; c++) {
 				String grandChild = children[c];
-				nest(grandChild, myID, child);
+				nest(grandChild, myID, child, level + 1);
 			}
 		}
 	}
@@ -367,7 +377,7 @@ public class ZknImport implements ActionListener {
 	public void addEdge(String fromRef, String toRef, boolean xref) {
 		GraphEdge edge = null;
 		String newEdgeColor = "#c0c0c0";
-		if (xref) newEdgeColor = "#ffff00";
+//		if (xref) newEdgeColor = "#ffff00";
 		edgesNum++;
 		if (!inputID2num.containsKey(fromRef)) {
 			System.out.println("Error ZI111 " + fromRef + ", " + xref);
@@ -377,6 +387,10 @@ public class ZknImport implements ActionListener {
 		if (!inputID2num.containsKey(toRef)) {
 			System.out.println("Error ZI112 " + toRef);
 			return;
+		}
+		if (xref) {
+			newEdgeColor = "#ffff00";
+			edgeColors.put(edgesNum, 6);
 		}
 		GraphNode targetNode = nodes.get(inputID2num.get(toRef));
 		edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode(newEdgeColor), "");
@@ -388,6 +402,20 @@ public class ZknImport implements ActionListener {
 //	Pass on the new map
 
 	public void finish() {
+		if (layoutOpt) {
+			CentralityColoring centralityColoring = new CentralityColoring(nodes, edges);
+			centralityColoring.treeLayout(nonTreeEdges, true);
+			// recolor
+			Enumeration<Integer> edgeColEnum = edgeColors.keys();
+			while (edgeColEnum.hasMoreElements()) {
+				int key = edgeColEnum.nextElement();
+				int treeColor = edgeColors.get(key);
+				GraphEdge edge = edges.get(key);
+				edge.setColor(colors2[treeColor]);
+				GraphNode node1 = edge.getNode1();
+				if (treeColor < 6) node1.setColor(colors[treeColor]);
+			}
+		}
 		if (transit) { 
 			controler.setNonTreeEdges(nonTreeEdges);
 			controler.replaceByTree(nodes, edges);
@@ -417,6 +445,7 @@ public class ZknImport implements ActionListener {
 		} else if (command == "Continue") {
 			transit = transitBox.isSelected();
 		}
+		layoutOpt = layoutBox.isSelected();
         frame.setVisible(false);
         frame.dispose();
         finish();

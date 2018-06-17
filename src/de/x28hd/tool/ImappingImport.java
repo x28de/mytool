@@ -21,6 +21,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.SortedMap;
@@ -30,6 +31,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -77,6 +79,12 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
 	Hashtable<String,Integer> uri2num = new Hashtable<String,Integer>();
 	Hashtable<String,String> fusedContent = new Hashtable<String,String>();
+	HashSet<GraphEdge> nonTreeEdges = new HashSet<GraphEdge>();
+	
+	Hashtable<String,Integer> nodeColors = new Hashtable<String,Integer>(); 
+		// by node references, set with JTree construction and used with edge creation
+	Hashtable<Integer,Integer> edgeColors = new Hashtable<Integer,Integer>();
+		// by edge keys, recorded with edge creation, used after layout for edges and nodes
 	
 	private static final String RDF_FILENAME = "layout.rdf.nt";
 	private static final String CDS_FILENAME = "content.cds.xml";
@@ -110,12 +118,17 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 	boolean noSelectionMade = true;
 	int order;
 	JFrame frame;
+	boolean layoutOpt = true;
+	JCheckBox layoutBox = null;
 
 	int x;
 	int y;
 	int maxVert = 10;
 	int j = 0;
 	int edgesNum = 0;
+	String[] colors = {"#ff0000", "#ffaa00", "#ffff00", "#00ff00", "#0000ff", "#b200b2"};
+	String[] colors2 = {"#ffbbbb", "#ffe8aa", "#ffff99", "#bbffbb", "#bbbbff", "#d2bbd2",
+			"#f0f0f0"};
 	
 	boolean success = false;
 
@@ -135,6 +148,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 			noSelectionMade = true;
 		}
 		frame.dispose();
+		layoutOpt = layoutBox.isSelected();
 		processChildren();
 		if (!success) failed();
 		controler.getNSInstance().setInput(dataString, 2);
@@ -314,10 +328,14 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 			"Do do so, select one or more branches. <br />" + 
 		    "Specify multiple selections as usual by holding " + multSel + 
 		    " or Shift while clicking. <br />&nbsp;<br />");
-	        toolbar.add(continueButton, okLocation);
-			toolbar.add(cancelButton, cancelLocation);
-			
+			JPanel buttons = new JPanel();
+			buttons.setLayout(new BorderLayout());
+			buttons.add(continueButton, okLocation);
+			buttons.add(cancelButton, cancelLocation);
+			toolbar.add(buttons, "East");
 			toolbar.add(instruction, "North");
+			layoutBox = new JCheckBox ("Tree layout", true);
+			toolbar.add(layoutBox, "West");
 			toolbar.setBorder(new EmptyBorder(10, 10, 10, 10));
 	        frame.add(toolbar,"South");
 	        frame.pack();
@@ -487,6 +505,8 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 					GraphNode targetNode = nodes.get(targetNodeNum);
 					GraphEdge edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode("#c0c0c0"), "hasParent");
 					edges.put(edgesNum,  edge);
+					int treeColor = nodeColors.get(sourceNodeUri);
+					edgeColors.put(edgesNum, treeColor);
 				}
 			}
 		}
@@ -540,7 +560,24 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 			GraphNode targetNode = nodes.get(targetNodeNum);
 			GraphEdge edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode("#ffff00"), arrowName);
 			edges.put(edgesNum,  edge);
+			nonTreeEdges.add(edge);
+			if (layoutOpt) edge.setColor("#f0f0f0");
 		}
+		if (layoutOpt) {
+			CentralityColoring centralityColoring = new CentralityColoring(nodes, edges);
+			centralityColoring.treeLayout(nonTreeEdges, true);
+			// recolor
+			Enumeration<Integer> edgeColEnum = edgeColors.keys();
+			while (edgeColEnum.hasMoreElements()) {
+				int key = edgeColEnum.nextElement();
+				int treeColor = edgeColors.get(key);
+				GraphEdge edge = edges.get(key);
+				edge.setColor(colors2[treeColor]);
+				GraphNode node1 = edge.getNode1();
+				if (treeColor < 6) node1.setColor(colors[treeColor]);
+			}
+		}
+
 //
 //		Pass on nodes and edges 
 		
@@ -649,6 +686,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
         DefaultMutableTreeNode branch = null;
         BranchInfo categoryInfo = (BranchInfo) top.getUserObject();
         String parentKey = categoryInfo.getKey();
+        nodeColors.put(parentKey, top.getLevel() % 6);
         String childKey = "";
         String branchLabel = "";
         
@@ -767,6 +805,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		GraphNode targetNode = nodes.get(targetNodeNum);
 		GraphEdge edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode("#e0e0e0"), "hasParent");
 		edges.put(edgesNum,  edge);
+//		nonTreeEdges.add(edge);
 	}
 	
 //

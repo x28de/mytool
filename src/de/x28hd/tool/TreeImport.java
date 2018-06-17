@@ -120,6 +120,8 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	JCheckBox colorBox = null;
 	boolean legendOpt = false;
 	JCheckBox legendBox = null;
+	boolean hypOpt = true;
+	JCheckBox hypBox = null;
 	int relID = -1;
 	boolean extended = false;
 	boolean windows = false;
@@ -586,7 +588,10 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			toolbar.add(sorry, "Center");
 		}
 		toolbar.add(transitBox, "West");
-		
+		hypBox = new JCheckBox ("Turns hyperlinks on but text editing off", true);
+		hypBox.setActionCommand("hyp");
+		hypBox.addActionListener(this);
+		if (!showJTree) toolbar.add(hypBox, "East");
 		JPanel toolbar2 = new JPanel();
 		toolbar2.setLayout(new BorderLayout());
 		JPanel optics = new JPanel();
@@ -900,14 +905,16 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			legendBox.setEnabled(colorOpt);
 			return;
 		} else if (command == "Show legend"){
-			System.out.println("legend");
 			legendOpt = legendBox.isSelected();
+			return;
+		} else if (command == "hyp"){
+			hypOpt = hypBox.isSelected();
 			return;
 		}
         frame.setVisible(false);
         frame.dispose();
         finish();
-		if (!showJTree) controler.toggleHyp(1, true);
+		if (hypOpt) controler.toggleHyp(1, true);
 	}
 
 	@Override

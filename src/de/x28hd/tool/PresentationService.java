@@ -946,17 +946,17 @@ public final class PresentationService implements ActionListener, MouseListener,
 				if (gui.menuItem22.isSelected() == !hyp) return;
 			}
 		} else {
+			if (hyp) return;
 			gui.menuItem41.setSelected(!hyp);
 			gui.menuItem22.setSelected(hyp);
 		}
 		// Do the work 
 		edi.toggleHyp();
 		hyp = !hyp;
-		System.out.println("hyp " + hyp);
 		// Reflect change in texts
 		int stateHyp = 0;
 		if (gui.menuItem41.isSelected()) stateHyp = 1;
-		displayPopup(gui.popupHyp[stateHyp]);
+		if (!silent) displayPopup(gui.popupHyp[stateHyp]);
 		gui.menuItem22.setToolTipText(gui.tooltip22[stateHyp]);
 		gui.menuItem41.setToolTipText(gui.tooltip41[1 - stateHyp]);
 	}

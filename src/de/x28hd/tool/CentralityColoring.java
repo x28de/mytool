@@ -372,8 +372,10 @@ public class CentralityColoring implements TreeSelectionListener {
         
         treeLayout(g2);
 	}
-	
 	public void treeLayout(HashSet<GraphEdge> nonTreeEdges) {
+		treeLayout(nonTreeEdges, false);
+	}	
+	public void treeLayout(HashSet<GraphEdge> nonTreeEdges, boolean reverse) {
 //		this.nonTreeEdges = nonTreeEdges;
 		Enumeration<GraphEdge> edgesEnum = edges.elements();
 
@@ -388,7 +390,11 @@ public class CentralityColoring implements TreeSelectionListener {
 			int n1 = edge.getN1();
 			int n2 = edge.getN2();
 			EdgeType edgeType = EdgeType.DIRECTED; 	//	For trees
+			if (reverse) {
+				g2.addEdge(edgeID, n2, n1, edgeType);
+			} else {
 			g2.addEdge(edgeID, n1, n2, edgeType);
+			}
 		}
 		treeLayout(g2);
 	}

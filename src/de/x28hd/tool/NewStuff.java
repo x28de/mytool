@@ -571,7 +571,7 @@ public class NewStuff {
 						"bib",
 						"mm",
 						"opml",
-						"zkx3",
+						"zkn3",
 						"csv",		//	need different method
 						"xml",
 						"zip",

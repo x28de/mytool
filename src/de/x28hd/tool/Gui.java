@@ -424,13 +424,13 @@ public class Gui {
 
 		menu5.addSeparator();
 
-		menuItem51 = new JCheckBoxMenuItem("Centrality Heatmap *)", false);
+		menuItem51 = new JCheckBoxMenuItem("Centrality Heatmap", false);
 		menuItem51.setActionCommand("centcol");
 		menuItem51.setToolTipText("Warmer colors represent higher betweenness centrality");
 		menuItem51.addActionListener(controler);
 		menu5.add(menuItem51);
 
-		JMenuItem menuItem53 = new JMenuItem("Make Tree *)");
+		JMenuItem menuItem53 = new JMenuItem("Make Tree");
 		menuItem53.setActionCommand("layout");
 		menuItem53.setToolTipText("Generates a tree layout and structure for exporting");
 		menuItem53.addActionListener(controler);
@@ -552,14 +552,6 @@ public class Gui {
 		menuItem56.setToolTipText("One more map (to ALT + Drag item clusters)");
 		menuItem56.addActionListener(controler);
 		menu5.add(menuItem56);
-
-		menu5.addSeparator();
-
-		JMenuItem menuItem57 = new JMenuItem("*) = Extended version only");
-		menuItem57.setActionCommand("extmsg");
-		menuItem57.setToolTipText("click here for the download link");
-		menuItem57.addActionListener(controler);
-		menu5.add(menuItem57);
 
 		menuBar.add(menu5);
 	}
