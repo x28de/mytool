@@ -421,8 +421,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			displayPopup(preferences);
 
 		} else if (command == "centcol") {
-			if (!extended) new LimitationMessage();
-			else {
 			if (gui.menuItem51.isSelected()) {
 			centralityColoring = new CentralityColoring(nodes, edges);
 				centralityColoring.changeColors();
@@ -430,16 +428,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 				centralityColoring.revertColors();
 			}
 			graphPanel.repaint();
-			}
 			
 		} else if (command == "layout") {
-			if (!extended) new LimitationMessage();
-			else {
 			centralityColoring = new CentralityColoring(nodes, edges);
 				centralityColoring.changeColors(true, this);
 			graphPanel.repaint();
 			gui.menuItem51.setSelected(true);
-			}
 			
 		} else if (command == "sibling") {
 			launchSibling();
