@@ -300,6 +300,8 @@ public class ZknImport implements ActionListener {
         buttons.add(continueButton, "East");
 		toolbar.add(buttons,"East");
 		transitBox = new JCheckBox ("Just for re-export", false);
+		transitBox.setActionCommand("transit");
+		transitBox.addActionListener(this);
 		toolbar.add(transitBox, "West");
 
 		frame.add(toolbar,"South");
@@ -309,6 +311,7 @@ public class ZknImport implements ActionListener {
         frame.setMinimumSize(new Dimension(596, 418));
 
         frame.setVisible(true);
+        controler.stopHint();
         //	Continues with finish() after acterPerformed
 	}
 	
@@ -403,8 +406,40 @@ public class ZknImport implements ActionListener {
 
 	public void finish() {
 		if (layoutOpt) {
+			// no tree, force a circle
+			if (nonTreeEdges.size() == edges.size()) {
+				HashSet<GraphEdge> extTreeEdges = new HashSet<GraphEdge>();
+				HashSet<GraphNode> extTreeNodes = new HashSet<GraphNode>();
+				GraphNode center = new GraphNode(j + 1, new Point(0, 0), Color.decode("#c0c0c0"), "", "");
+				extTreeNodes.add(center);
+				Enumeration<GraphNode> allNodes = nodes.elements();
+				while (allNodes.hasMoreElements()) {
+					edgesNum++;
+					GraphNode node = allNodes.nextElement();
+					GraphEdge edge = new GraphEdge(edgesNum, node, center, Color.decode("#f0f0f0"), "");
+					edges.put(edgesNum, edge);
+					extTreeEdges.add(edge);
+				}
+				nodes.put(j + 1, center);
+				CentralityColoring centralityColoring = new CentralityColoring(nodes, edges);
+				centralityColoring.treeLayout(nonTreeEdges, true);
+				Iterator<GraphEdge> extTreeIter = extTreeEdges.iterator();
+				while (extTreeIter.hasNext()) {
+					GraphEdge edge = extTreeIter.next();
+					int id = edge.getID();
+					edges.remove(id);
+				}
+				Iterator<GraphNode> extTreeIter2 = extTreeNodes.iterator();
+				while (extTreeIter2.hasNext()) {
+					GraphNode node = extTreeIter2.next();
+					int id = node.getID();
+					nodes.remove(id);
+				}
+			} else {
 			CentralityColoring centralityColoring = new CentralityColoring(nodes, edges);
 			centralityColoring.treeLayout(nonTreeEdges, true);
+			}
+			
 			// recolor
 			Enumeration<Integer> edgeColEnum = edgeColors.keys();
 			while (edgeColEnum.hasMoreElements()) {
@@ -444,6 +479,11 @@ public class ZknImport implements ActionListener {
 			transit = false;
 		} else if (command == "Continue") {
 			transit = transitBox.isSelected();
+		} else if (command == "transit") {
+			transit = transitBox.isSelected();
+			layoutBox.setEnabled(!transit);
+			layoutBox.setSelected(!transit);
+			return;
 		}
 		layoutOpt = layoutBox.isSelected();
         frame.setVisible(false);

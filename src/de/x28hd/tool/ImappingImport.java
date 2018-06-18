@@ -345,6 +345,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 	        frame.setMinimumSize(new Dimension(596, 418));
 
 	        frame.setVisible(true);
+	        controler.stopHint();
 
 //	        
 //			Read in the cross links
@@ -686,7 +687,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
         DefaultMutableTreeNode branch = null;
         BranchInfo categoryInfo = (BranchInfo) top.getUserObject();
         String parentKey = categoryInfo.getKey();
-        nodeColors.put(parentKey, top.getLevel() % 6);
+        nodeColors.put(parentKey, (top.getLevel() - 1) % 6);	// level 0 uncolored
         String childKey = "";
         String branchLabel = "";
         
