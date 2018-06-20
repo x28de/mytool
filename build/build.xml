@@ -24,6 +24,18 @@
 			<fileset dir="/Users/matthias/Desktop">
 				<filename name="orange-extensions-1.3.0.jar"/>
 			</fileset>
+			<fileset dir="/Users/matthias/Desktop">
+				<filename name="jung-algorithms-2.0.1.jar"/>
+			</fileset>
+			<fileset dir="/Users/matthias/Desktop">
+				<filename name="jung-graph-impl-2.0.1.jar"/>
+			</fileset>
+			<fileset dir="/Users/matthias/Desktop">
+				<filename name="jung-api-2.0.1.jar"/>
+			</fileset>
+			<fileset dir="/Users/matthias/Desktop">
+				<filename name="collections-generic-4.01.jar"/>
+			</fileset>
 		</copy>
 	
 		<mkdir dir="project" />
@@ -44,7 +56,7 @@
 		<!-- Copy project-libs references -->
 		<copy todir="build/libs">
 			<fileset dir="externalLibs">
-				<include name="orange-extensions-1.3.0.jar"/>
+				<include name="*"/>
 			</fileset>
 		</copy>
 	
@@ -57,7 +69,7 @@
 			</fileset>
 		</copy>
 	
-		<javac includeantruntime="false" source="1.7" target="1.7" srcdir="build/src" destdir="build/classes" encoding="UTF-8">
+		<javac includeantruntime="false" srcdir="build/src" destdir="build/classes" encoding="UTF-8">
 			<classpath>
 				<fileset dir="build/libs">
 					<include name="*"/>
