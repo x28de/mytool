@@ -101,6 +101,8 @@ public class ZknExport {
 		if (treeModel != null) {
 			nonTreeEdges = controler.getNonTreeEdges();
 			DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) treeModel.getRoot();
+			BranchInfo info = (BranchInfo) treeNode.getUserObject();
+			System.out.println("Top key " + info.toString() + ": " + info.getKey());
 
 			descendTree(treeNode, 0, "");
 			
@@ -217,6 +219,7 @@ public class ZknExport {
 		indent = indent + "  ";
 		BranchInfo info = (BranchInfo) treeNode.getUserObject();
 		int topicID = info.getKey();
+		if (topicID == -1) return;
 		if (topicID != -1) zettelNumber++;
 		int myZettel = zettelNumber;
 		

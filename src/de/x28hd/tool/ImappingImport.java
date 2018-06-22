@@ -115,9 +115,13 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 	String htmlOut = "";
 
 	JTree tree;
+    DefaultMutableTreeNode top = null;
+    DefaultTreeModel model = null;
 	boolean noSelectionMade = true;
 	int order;
 	JFrame frame;
+	boolean transit = false;
+	JCheckBox transitBox = null;
 	boolean layoutOpt = true;
 	JCheckBox layoutBox = null;
 
@@ -139,7 +143,6 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		public void windowClosing(WindowEvent e) {
 			noSelectionMade = true;
 			processChildren();
-			controler.getNSInstance().setInput(dataString, 2);
 		}
 	};
 	
@@ -148,10 +151,10 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 			noSelectionMade = true;
 		}
 		frame.dispose();
+		transit = transitBox.isSelected();
 		layoutOpt = layoutBox.isSelected();
 		processChildren();
 		if (!success) failed();
-		controler.getNSInstance().setInput(dataString, 2);
 	}
 
 	public ImappingImport(JFrame mainWindow, GraphPanelControler controler) {
@@ -289,11 +292,10 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 			}
 			
 			//	Show tree
-		    DefaultMutableTreeNode top = 
-		    		new DefaultMutableTreeNode(new BranchInfo(rdfRoot, "All"));
+		    top = new DefaultMutableTreeNode(new BranchInfo(rdfRoot, "All"));
 		    createSelectionNodes(top);
 		    
-		    DefaultTreeModel model = new DefaultTreeModel(top);
+		    model = new DefaultTreeModel(top);
 		    tree = new JTree(model);
 		    
 		    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
@@ -323,17 +325,31 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		    	cancelLocation = "West";
 		    	multSel = "CMD";
 		    }
+	        JPanel instructionPanel = new JPanel();
+	        instructionPanel.setLayout(new BorderLayout());
 			JLabel instruction = new JLabel("<html><body>" +
 		    "You may restrict your import. " +
 			"Do do so, select one or more branches. <br />" + 
 		    "Specify multiple selections as usual by holding " + multSel + 
 		    " or Shift while clicking. <br />&nbsp;<br />");
+			instructionPanel.add(instruction, "North");
+			JLabel instruction2 = new JLabel("<html><body>" +
+			"You may use this tree structure for re-exporting \n"
+			+ "if you use the map for nothing else:</body></html>");
+			instructionPanel.add(instruction2, "South");
+			
+			JPanel toolbar2 = new JPanel();
+	        toolbar2.setLayout(new BorderLayout());
+			toolbar2.add(instructionPanel, "North");
+			transitBox = new JCheckBox ("Just for re-export", false);
+			toolbar2.add(transitBox, "West");
+
 			JPanel buttons = new JPanel();
 			buttons.setLayout(new BorderLayout());
 			buttons.add(continueButton, okLocation);
 			buttons.add(cancelButton, cancelLocation);
 			toolbar.add(buttons, "East");
-			toolbar.add(instruction, "North");
+			toolbar.add(toolbar2, "North");
 			layoutBox = new JCheckBox ("Tree layout", true);
 			toolbar.add(layoutBox, "West");
 			toolbar.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -564,6 +580,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 			nonTreeEdges.add(edge);
 			if (layoutOpt) edge.setColor("#f0f0f0");
 		}
+		
 		if (layoutOpt) {
 			CentralityColoring centralityColoring = new CentralityColoring(nodes, edges);
 			centralityColoring.treeLayout(nonTreeEdges, true);
@@ -582,8 +599,26 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 //
 //		Pass on nodes and edges 
 		
+		if (transit) {
+			Enumeration<DefaultMutableTreeNode> treeEnum = top.breadthFirstEnumeration();
+			while (treeEnum.hasMoreElements()) {
+				DefaultMutableTreeNode node = treeEnum.nextElement();
+				BranchInfo branchInfo = (BranchInfo) node.getUserObject();
+				String refString = branchInfo.getKey();
+				int refNum = -1;
+				if (uri2num.containsKey(refString)) refNum = uri2num.get(refString);
+				de.x28hd.tool.BranchInfo newInfo = 
+						new de.x28hd.tool.BranchInfo(refNum, branchInfo.toString());
+				node.setUserObject(newInfo);
+			}
+		    controler.setTreeModel(model);
+			controler.setNonTreeEdges(nonTreeEdges);
+			controler.replaceByTree(nodes, edges);
+		} else 
+		
 		try {
 			dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
+			controler.getNSInstance().setInput(dataString, 2);
 		} catch (TransformerConfigurationException e1) {
 			System.out.println("Error IM105 " + e1);
 		} catch (IOException e1) {

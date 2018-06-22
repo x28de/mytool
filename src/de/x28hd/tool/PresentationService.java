@@ -692,6 +692,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 			zoomedSize = initialSize;
 			edi.setSize(zoomedSize);
 			graphPanel.setSize(zoomedSize);
+		} else if (command.startsWith("faceColor")) {
+			int faceNum = Integer.parseInt(command.substring(9));
+			String colorString =  gui.nodePalette[1][7 + faceNum];			
+			selectedTopic.setColor(colorString);
 
 		} else {
 			System.out.println("PS: Wrong action: " + command);

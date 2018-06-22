@@ -197,13 +197,20 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			colorOpt = true;
 			fs = System.getProperty("file.separator");
 			topNode = file.getAbsolutePath();
-			topNode = createRelatedNode(file.getAbsolutePath(), false);
-		    top = new DefaultMutableTreeNode(new BranchInfo(inputID2num.get(topNode), file.getName()));
+			topNode = createRelatedNode(topNode, false);
+			int topNum = inputID2num.get(topNode);
+			top = new DefaultMutableTreeNode(new BranchInfo(topNum, file.getName()));
 			myProgress = 5;
 			setProgress(myProgress);
 			SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
 			
 		    fileTree(file, topNode, top, 0);
+		    
+		    String content2 = nodeDetails.get(topNum);
+		    String moreDetail = "<html><body>Open folder <a href=\"" + file.toURI().toString()  + "\">" + file.getName() + 
+		    		"</a>" + "<br />" + content2 + "<br /></body></html>";
+		    GraphNode node = nodes.get(topNum);
+		    node.setDetail(moreDetail);
 		    
 		    // Prepare coloring the folders by age 
 		    // (by hierarchy is done via addEdge) 			TODO make more transparent
@@ -257,6 +264,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		Long maxModDate = 0L;
 		SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
 
+		if (dirList != null) {
 		for (File f : dirList) {
 	        
 			if (f.isHidden()) continue;
@@ -354,6 +362,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 					}
 				}
 			}
+		}
 		}
 		
 		// details for parent

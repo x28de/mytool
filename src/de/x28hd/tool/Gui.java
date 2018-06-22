@@ -78,7 +78,8 @@ public class Gui {
 		{{"#b200b2", "#0000ff", "#00ff00", "#ffff00", 	// purple, blue, green, yellow
 		"#ffc800", "#ff0000", "#c0c0c0", "#808080"},	// orange, red, pale, dark
 		{"#d2bbd2", "#bbbbff", "#bbffbb", "#ffff99", 
-		"#ffe8aa", "#ffbbbb", "#eeeeee", "#ccdddd"}};
+		"#ffe8aa", "#ffbbbb", "#eeeeee", "#ccdddd",
+		"#fbefe8", "#fcf0d0", "#fdf1b8", "#e59f63", "#65473c"}};	
 //		"#ffe8aa", "#ffbbbb", "#e0e0e0", "#a0a0a0"}};
 	String [][] edgePalette = 
 		{{"#b200b2", "#0000ff", "#00ff00", "#ffff00", 
@@ -89,7 +90,9 @@ public class Gui {
 		{{"#b200b2", "#0000ff", "#00ff00", "#ffff00", 	
 		"#ffc800", "#ff0000", "#c0c0c0", "#808080"},	
 		{"#b277b2", "#7777ff", "#77ff77", "#ffff77", 
-		"#ffc877", "#ff7777", "#d8d8d8", "#b0b0b0"}};
+		"#ffc877", "#ff7777", "#d8d8d8", "#b0b0b0",
+		"#fbefe8", "#fcf0d0", "#fdf1b8", "#e59f63", "#65473c"}};	
+//		"#fbcad0", "#fde1a8", "#d1651d", "#977649", "#65473c"}};	
 	
 	
 	public Gui(PresentationService ps, GraphPanel gp, TextEditorPanel te, NewStuff ns) {
@@ -664,6 +667,14 @@ public class Gui {
 		menu.add(styleSwitcher(6, "red", menuPalette[paletteID][5], true));
 		menu.add(styleSwitcher(7, "lightGray", menuPalette[paletteID][6], false));
 		menu.add(styleSwitcher(8, "gray", menuPalette[paletteID][7], true));
+		
+		JMenu sub4 = new JMenu("Human");
+		sub4.add(styleSwitcher(9, "faceColor1", menuPalette[1][8], false));
+		sub4.add(styleSwitcher(10, "faceColor2", menuPalette[1][9], false));
+		sub4.add(styleSwitcher(11, "faceColor3", menuPalette[1][10], false));
+		sub4.add(styleSwitcher(12, "faceColor4", menuPalette[1][11], true));
+		sub4.add(styleSwitcher(13, "faceColor5", menuPalette[1][12], true));
+		menu.add(sub4);
 
 		menu.addSeparator();
 
