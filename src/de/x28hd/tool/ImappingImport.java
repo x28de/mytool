@@ -130,9 +130,10 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 	int maxVert = 10;
 	int j = 0;
 	int edgesNum = 0;
-	String[] colors = {"#ff0000", "#ffaa00", "#ffff00", "#00ff00", "#0000ff", "#b200b2"};
+	String[] colors = {"#ff0000", "#ffaa00", "#ffff00", "#00ff00", "#0000ff", "#b200b2",
+			"#eeeeee"};
 	String[] colors2 = {"#ffbbbb", "#ffe8aa", "#ffff99", "#bbffbb", "#bbbbff", "#d2bbd2",
-			"#f0f0f0"};
+			"#c0c0c0", "#f0f0f0"};
 	
 	boolean success = false;
 
@@ -493,6 +494,16 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 			j++;
 		}
 		
+		// Add unselected parents of selected nodes
+		Enumeration<String> selectedEnum = selected.keys();
+		while (selectedEnum.hasMoreElements()) {
+			String key = selectedEnum.nextElement();
+			if (!selected.get(key)) continue;
+			if (!fusedContent.containsKey(key) || !parents.containsKey(key)) continue;
+			String parentKey = parents.get(key);
+			if (!selected.get(parentKey)) createRelatedNode(parentKey);
+		}
+		
 //
 //		Generate edges
 		
@@ -592,8 +603,11 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 				GraphEdge edge = edges.get(key);
 				edge.setColor(colors2[treeColor]);
 				GraphNode node1 = edge.getNode1();
-				if (treeColor < 6) node1.setColor(colors[treeColor]);
+				if (treeColor < 7) node1.setColor(colors[treeColor]);
 			}
+			int rootNum = uri2num.get(rdfRoot);
+			GraphNode root = nodes.get(rootNum);
+			root.setColor(colors[6]);
 		}
 
 //
@@ -605,7 +619,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 				DefaultMutableTreeNode node = treeEnum.nextElement();
 				BranchInfo branchInfo = (BranchInfo) node.getUserObject();
 				String refString = branchInfo.getKey();
-				int refNum = -1;
+				int refNum = de.x28hd.tool.BranchInfo.NOZETTEL;
 				if (uri2num.containsKey(refString)) refNum = uri2num.get(refString);
 				de.x28hd.tool.BranchInfo newInfo = 
 						new de.x28hd.tool.BranchInfo(refNum, branchInfo.toString());
@@ -722,7 +736,10 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
         DefaultMutableTreeNode branch = null;
         BranchInfo categoryInfo = (BranchInfo) top.getUserObject();
         String parentKey = categoryInfo.getKey();
-        nodeColors.put(parentKey, (top.getLevel() - 1) % 6);	// level 0 uncolored
+        int level = top.getLevel();
+        int color = 6;
+        if (level > 0) color = (level - 1) % 6;
+        nodeColors.put(parentKey, color);
         String childKey = "";
         String branchLabel = "";
         
@@ -842,6 +859,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		GraphEdge edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode("#e0e0e0"), "hasParent");
 		edges.put(edgesNum,  edge);
 //		nonTreeEdges.add(edge);
+		edgeColors.put(edgesNum, 6);
 	}
 	
 //

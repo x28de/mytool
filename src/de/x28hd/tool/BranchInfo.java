@@ -3,6 +3,9 @@ package de.x28hd.tool;
 public class BranchInfo {
     public Integer branchKey;
     public String branchLabel;
+    
+    static final int ROOTZETTEL = -1;
+    static final int NOZETTEL = -2;
 
     public BranchInfo(int branchKey, String branchLabel) {
     	this.branchKey = branchKey;
