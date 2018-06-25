@@ -12,6 +12,10 @@ public class MakeHTML {
 	
 	public MakeHTML(boolean graphOnly, Hashtable<Integer,GraphNode> nodesIn, 
 			Hashtable<Integer,GraphEdge> edgesIn, String filename, GraphPanelControler controler) {
+		if (nodesIn.size() > 3000 || edgesIn.size() > 3000) {
+			controler.displayPopup("Sorry, current size limit is 3000 nodes/ edges");
+			return;  	//	TODO get rid of limitation
+		}
 		String nodesOut [][] = new String [3000][5];   // 0 = x, 1 = y, 2 = rgb, 3 = label, 4 = id
 		String edgesOut [][] = new String [3000][3];   // 0 = n1, 1 = n2, 2 = rgb
 		// TODO eliminate detour via topicid
