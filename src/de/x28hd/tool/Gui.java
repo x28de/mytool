@@ -332,11 +332,17 @@ public class Gui {
 		menuItem81.addActionListener(controler);
 		menu7.add(menuItem81);
 
-		JMenuItem menuItem79 = new JMenuItem("to CSV text file");
+		JMenuItem menuItem79 = new JMenuItem("items to CSV text file");
 		menuItem79.setActionCommand("csvexp");
 		menuItem79.setToolTipText("Just Character separated Values");
 		menuItem79.addActionListener(controler);
 		menu7.add(menuItem79);
+
+		JMenuItem menuItem84 = new JMenuItem("lines to CSV text file");
+		menuItem84.setActionCommand("edgeexp");
+		menuItem84.setToolTipText("Labels, IDs and relationships to CSV");
+		menuItem84.addActionListener(controler);
+		menu7.add(menuItem84);
 
 		JMenuItem menuItem74 = new JMenuItem("to iMapping iMap file *)");
 		menuItem74.setActionCommand("imexp");

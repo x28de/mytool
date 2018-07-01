@@ -20,11 +20,16 @@ public class CsvExport {
 	
 	public CsvExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
 		String storeFilename, GraphPanelControler controler) {
+		new CsvExport(nodes, edges, storeFilename, controler, false);
+	}
+	public CsvExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
+		String storeFilename, GraphPanelControler controler, boolean lines) {
 		String newLine = System.getProperty("line.separator");
 		
 		FileWriter list;
 		try {
 			list = new FileWriter(storeFilename);
+			if (!lines) {
 			Enumeration<GraphNode> nodesEnum = nodes.elements();
 			while (nodesEnum.hasMoreElements()) {
 				GraphNode node = nodesEnum.nextElement();
@@ -34,6 +39,22 @@ public class CsvExport {
 				detail = detail.replace("\n", "");
 				detail = filterHTML(detail);
 				list.write(label + "\t" + detail + newLine);
+			}
+			} else {
+				Enumeration<GraphEdge> edgesEnum = edges.elements();
+				while (edgesEnum.hasMoreElements()) {
+					GraphEdge edge = edgesEnum.nextElement();
+					GraphNode node1 = edge.getNode1();
+					String label1 = node1.getLabel();
+					label1 = label1.replace("\n", "");
+					int id1 = node1.getID();
+					GraphNode node2 = edge.getNode2();
+					String label2 = node2.getLabel();
+					label2 = label2.replace("\n", "");
+					int id2 = node2.getID();
+					list.write(id1 + "\t" + label1 + "\t" + id2 + "\t" + label2 + 
+							newLine);
+				}
 			}
 			list.close();
 		} catch (IOException e) {

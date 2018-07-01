@@ -543,6 +543,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 				new CsvExport(nodes, edges, storeFilename, this);
 			}
+		} else if (command == "edgeexp") {
+			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
+			fd.setFile("csv.txt"); 
+			fd.setVisible(true);
+			if (fd.getFile() != null) {
+				String storeFilename = fd.getFile();
+				storeFilename = fd.getDirectory() + fd.getFile();
+
+				new CsvExport(nodes, edges, storeFilename, this, true);
+			}
 		} else if (command == "delCluster") {
 				deleteCluster(rectangle, selectedAssoc);
 				graphSelected();
