@@ -3,6 +3,7 @@ package de.x28hd.tool;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.HashSet;
 import java.util.Hashtable;
 
 import org.w3c.dom.Document;
@@ -12,6 +13,7 @@ import org.w3c.dom.NodeList;
 public class TopicMapLoader {
 	Hashtable<Integer, GraphNode> newNodes = new Hashtable<Integer, GraphNode>();
 	Hashtable<Integer, GraphEdge> newEdges = new Hashtable<Integer, GraphEdge>();
+	HashSet<GraphEdge> nonTreeEdges = new HashSet<GraphEdge>();
 	String dataString = "";
 	int topicnum = 0;
 	int assocnum = 0;
@@ -25,15 +27,16 @@ public class TopicMapLoader {
 	int height;
 	Point upperLeft = new Point(0, 0);
 	Point lowerLeft = new Point(580, 0);
+	boolean tree = false;
 
-	public TopicMapLoader(Document doc, GraphPanelControler controler) {
-
+	public TopicMapLoader(Document doc, GraphPanelControler controler, boolean tree) {
+		this.tree = tree;
 		if (doc.hasChildNodes()) {
 			root = doc.getDocumentElement();
 			
 			if (root.getTagName() == "x28map") {
 				readyMap = true;
-			} else {
+			} else if (!tree) {
 				System.out.println("TL Failure.");
 				return;
 			}
@@ -87,11 +90,14 @@ public class TopicMapLoader {
 		int n1 = Integer.parseInt(assoc.getAttribute("n1"));
 		int n2 = Integer.parseInt(assoc.getAttribute("n2"));
 		String color = assoc.getAttribute("color");
+		String xref = assoc.getAttribute("tree"); 
 
 		edge = new GraphEdge(assocnum, newNodes.get(n1), newNodes.get(n2), Color.decode(color), detail);
+//		if (tree && assocnum % 10 == 0) System.out.println(xref + " " + newNodes.get(n1).getLabel() + " -> " + newNodes.get(n2).getLabel());
 		newEdges.put(assocnum, edge);
 		newNodes.get(n1).addEdge(edge);
 		newNodes.get(n2).addEdge(edge);
+		if (tree && !xref.isEmpty()) nonTreeEdges.add(edge);
 	}
 	
 	public Rectangle getBounds() {

@@ -431,7 +431,17 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			labelAttr = "TEXT";
 			idAttr = "ID";
 		}
-		if (knownFormat != 18) {
+		if (knownFormat == 19) {
+			TopicMapLoader loader = new TopicMapLoader(inputXml, controler, true);
+			nodes = loader.newNodes;
+			edges = loader.newEdges;
+			nonTreeEdges = loader.nonTreeEdges;
+//			System.out.println(nodes.size() + " " + edges.size() + " " + nonTreeEdges.size());
+			layoutOpt = true;
+			finish();
+			return;
+			
+		} else if (knownFormat != 18) {
 			NodeList graphContainer = inputXml.getElementsByTagName(topNode);
 			inputItems.put(topNode, "ROOT");
 			addNode(topNode, "");
@@ -677,7 +687,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			if (layoutOpt) {
 
 				CentralityColoring centralityColoring = new CentralityColoring(nodes, edges);
-				centralityColoring.treeLayout(nonTreeEdges);
+				centralityColoring.treeLayout(nonTreeEdges, this.knownFormat == 19);
 				//	Recolor 
 				Enumeration<Integer> edgeColEnum = edgeColors.keys();
 				while (edgeColEnum.hasMoreElements()) {

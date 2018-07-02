@@ -509,7 +509,7 @@ public class NewStuff {
 			//	Try if known XML format
 			if (root.getTagName() == "x28map") {
 				if (compositionMode) controler.getCWInstance().cancel();
-				TopicMapLoader loader = new TopicMapLoader(doc, controler);
+				TopicMapLoader loader = new TopicMapLoader(doc, controler, false);
 				bounds = loader.getBounds();
 				readyMap = true;
 				newNodes = loader.newNodes;
@@ -536,7 +536,8 @@ public class NewStuff {
 					"GEDCOM",
 					"topicmap",
 					"(not relevant)",
-					"urlset"
+					"urlset",
+					"x28tree"
 					};
 			for (int k = 0; k < knownFormats.length; k++) {
 				if (root.getTagName() == knownFormats[k]) {
@@ -576,6 +577,7 @@ public class NewStuff {
 						"xml",
 						"zip",
 						"none",
+						"xml",
 						"xml",
 						};
 				File file = new File(dataString);

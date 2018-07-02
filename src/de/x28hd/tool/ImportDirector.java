@@ -91,7 +91,8 @@ public class ImportDirector implements ActionListener {
 			"Gedcom",
 			"(Old Format)",
 			"(Filetree)",
-			"(Sitemap)"
+			"(Sitemap)",
+			"(x28tree)"
 			};
 	String [] knownFormats = {
 			"en-export", 
@@ -113,6 +114,7 @@ public class ImportDirector implements ActionListener {
 			"topicmap",
 			"(not relevant)",
 			"urlset",
+			"x28tree",
 			};
 	String [] extension = {
 			"enex", 
@@ -133,6 +135,7 @@ public class ImportDirector implements ActionListener {
 			"xml",
 			"zip",
 			"none",
+			"xml",
 			"xml"
 			};
 	String [] extDescription = {
@@ -154,7 +157,8 @@ public class ImportDirector implements ActionListener {
 			"xml (Gedcom XML file)",
 			"zip (Zipped XML Document)",
 			"none (invisible)",
-			"xml (Sitemap)"
+			"xml (Sitemap)",
+			"xml (x28tree)"
 			};
 	String [] longDescription = {
 			"<html>If you have an \"ENEX\" export file exported from the Evernote note taking application</html>)", 
@@ -175,7 +179,8 @@ public class ImportDirector implements ActionListener {
 			"<html>A genealogical Gedcom XML 6.0 file</html>",
 			"Old versions of this tool and its precursor DeepaMehta",
 			"Folder paths (invisible)",
-			"Sitemap (invisible)"
+			"Sitemap (invisible)",
+			"x28tree (invisible)"
 			};
 	
 	//	Nothing given => Launch wizard
@@ -202,7 +207,8 @@ public class ImportDirector implements ActionListener {
 		} else if (this.knownFormat == 15) {
 			new GedcomImport(doc, controler);
 		} else if (this.knownFormat == 11 || this.knownFormat == 12 || 
-				this.knownFormat == 18) {	// freemind, opml, sitemap
+				this.knownFormat == 18 || this.knownFormat == 19) {	
+				// (freemind, opml, sitemap, x28tree)
 			new TreeImport(doc, controler, this.knownFormat);
 		}
 	}
@@ -262,7 +268,7 @@ public class ImportDirector implements ActionListener {
 		radioPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		radioPanel.add(new JLabel("<html>Choose a format:"));
 
-		for (int i = 0; i < importTypes.length - 3; i++) {
+		for (int i = 0; i < importTypes.length - 4; i++) {
 			JRadioButton radio = new JRadioButton(importTypes[i]);
 			radio.setActionCommand("type-" + i);
 			radio.addActionListener(this);
@@ -275,7 +281,7 @@ public class ImportDirector implements ActionListener {
         descriptionsPanel = new JPanel(new GridLayout(0, 1));
 		descriptionsPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		descriptionsPanel.add(new JLabel(" "));
-		for (int i = 0; i < importTypes.length - 3; i++) {
+		for (int i = 0; i < importTypes.length - 4; i++) {
 			JLabel descr = new JLabel();
 	        descr.setText(longDescription[i]);
 	        descriptionsPanel.add(descr);
@@ -320,7 +326,7 @@ public class ImportDirector implements ActionListener {
 	    }
 		
 		//	Import type choice
-	    for (int i = 0; i < importTypes.length - 2; i++) {
+	    for (int i = 0; i < importTypes.length - 3; i++) {
 	    	if (action.getActionCommand().equals("type-" + i)) {
 			if (i == 7 && !((PresentationService) controler).extended) {
 				new LimitationMessage();
@@ -460,6 +466,8 @@ public class ImportDirector implements ActionListener {
 			new TopicMapImporter(inputXml, controler);
 		} else if (knownFormat == 18) {
 			new TreeImport(inputXml, controler, 18);
+		} else if (knownFormat == 19) {
+			new TreeImport(inputXml, controler, 19);
 		}
 	}
 	
