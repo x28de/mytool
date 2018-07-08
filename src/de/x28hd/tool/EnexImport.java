@@ -116,7 +116,7 @@ public class EnexImport {
 			nodes.put(id, topic);
 			
 			if (i == 0) dataString = topicName + "\t"+ verbal + "\r\n";
-			else dataString = dataString + topicName + "\t" + verbal + "\r\n";
+			else dataString += topicName + "\t" + verbal + "\r\n";
 		}
 		
 		//	Pass on
