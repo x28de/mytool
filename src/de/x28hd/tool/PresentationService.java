@@ -707,6 +707,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 			String colorString =  gui.nodePalette[1][7 + faceNum];			
 			selectedTopic.setColor(colorString);
 
+		} else if (command == "wxr") {
+			new WXR2SQL(mainWindow);
 		} else {
 			System.out.println("PS: Wrong action: " + command);
 		}

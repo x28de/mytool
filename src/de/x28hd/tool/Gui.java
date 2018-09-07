@@ -562,6 +562,12 @@ public class Gui {
 		menuItem56.addActionListener(controler);
 		menu5.add(menuItem56);
 
+		JMenuItem menuItem57 = new JMenuItem("WXR to SQL");
+		menuItem57.setActionCommand("wxr");
+		menuItem57.setToolTipText("experimental");
+		menuItem57.addActionListener(controler);
+		menu5.add(menuItem57);
+
 		menuBar.add(menu5);
 	}
 
