@@ -709,6 +709,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 		} else if (command == "wxr") {
 			new WXR2SQL(mainWindow);
+		} else if (command == "dag") {
+			new DAG(nodes, edges, this);
 		} else {
 			System.out.println("PS: Wrong action: " + command);
 		}

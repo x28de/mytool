@@ -17,6 +17,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -48,6 +49,11 @@ public class WXR2SQL {
 	HashSet<String> catSet = new HashSet<String>();
 	
 	public  WXR2SQL(JFrame mainWindow) {
+		
+		String msg = "Use at your own risk.\n\n"
+				+ "It does not copy attachments, comments etc.;\n"
+				+ "It drops the tables x28text and x28cat if exist.";
+		JOptionPane.showMessageDialog(mainWindow, msg);
 		
 		// Get XML file
 		

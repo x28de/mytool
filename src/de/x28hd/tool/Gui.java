@@ -445,6 +445,12 @@ public class Gui {
 		menuItem53.addActionListener(controler);
 		menu5.add(menuItem53);
 
+		JMenuItem menuItem59 = new JMenuItem("DAG Layout");
+		menuItem59.setActionCommand("dag");
+		menuItem59.setToolTipText("Directed Acyclic Graph, depth last");
+		menuItem59.addActionListener(controler);
+		menu5.add(menuItem59);
+
 		menuItem55 = new JCheckBoxMenuItem("Tablet Pen Mode", false);
 		menuItem55.setActionCommand("tablet");
 		menuItem55.setToolTipText("Doubleclick improvement, Alt-Key for Pen and Touch");
