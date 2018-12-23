@@ -1,6 +1,7 @@
 package de.x28hd.tool;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.datatransfer.Transferable;
@@ -11,7 +12,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -69,6 +72,14 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 	JButton cancelButton;
 	int shortcutMask;
 	
+	JPanel advancedToolbar = null;
+	JCheckBox advancedBox = null;
+	boolean closeReading = false;
+	JCheckBox closeReadingBox = null;
+	boolean veryCloseReading = false;
+	JCheckBox veryCloseReadingBox = null;
+	String p = "§§";
+	
 	public CompositionWindow(final GraphPanelControler controler, int zoomedSize) {
 		this.controler = controler;
 		newStuff = controler.getNSInstance();
@@ -112,6 +123,8 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 //
 //		Buttons
 		
+		JPanel outerToolbar = new JPanel(new BorderLayout());
+		advancedToolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		toolbar = new JPanel();
 
 		pasteButton = new JButton("<html><body><center>Press here<br />to Paste</center></body></html>");
@@ -143,12 +156,24 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 		continueButton.setEnabled(false);
 		toolbar.add(continueButton);
 		toolbar.add(cancelButton);
+		
+		advancedBox = new JCheckBox("Show Advanced Options");
+		advancedBox.setActionCommand("advanced");
+		advancedBox.setToolTipText("Support close reading");
+		advancedBox.addActionListener(this);
+		advancedToolbar.add(advancedBox);
+		closeReadingBox = new JCheckBox("Split by double line-break");
+		closeReadingBox.setToolTipText("Create paragraphs manually; See also: Advanced > Parsing dropped HTML");
+		veryCloseReadingBox = new JCheckBox("Split by period");
+		veryCloseReadingBox.setToolTipText("Handle single sentences");
+		outerToolbar.add(advancedToolbar, "North");
+		outerToolbar.add(toolbar, "South");
 
 //
 //		Put it all together
 
 		compositionWindow.add(scroll,"Center");
-		compositionWindow.add(toolbar,"South");
+		compositionWindow.add(outerToolbar,"South");
 		Point whereOnScreen = new Point(300,50);
 		compositionWindow.setLocation(whereOnScreen);
 		compositionWindow.setVisible(true);
@@ -220,6 +245,12 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 
 			// send assembled insert to caller
 			dataString = textDisplay.getText();
+			if (veryCloseReadingBox.isSelected()) {
+				dataString = veryCloseRead(dataString);
+			} else if (closeReadingBox.isSelected()) {
+				dataString = closeRead(dataString);
+			}
+
 			controler.finishCompositionMode();
 			newStuff.scoopCompositionWindow(this);
 			close();
@@ -227,6 +258,53 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 		} else if (a.getActionCommand().equals("cancel")) {
 			cancel();
 
+		} else if (a.getActionCommand().equals("advanced")) {
+			if (advancedBox.isSelected()) {
+				advancedToolbar.remove(advancedBox);
+				JLabel advancedLabel = new JLabel(" Advanced Options: ");
+				advancedToolbar.add(advancedLabel, "West");
+				advancedToolbar.setVisible(false);
+				advancedToolbar.add(closeReadingBox, "Center");
+				advancedToolbar.add(veryCloseReadingBox, "East");
+				advancedToolbar.setVisible(true);
+				return;
+			}
+
 		} else System.out.println("Error CW103 " + a.getActionCommand().toString());
+	}
+
+	public String closeRead(String dataString2) {
+		dataString2 = dataString2.replaceAll("\\r?\\n\\r?\\n", p);
+		dataString2 = dataString2.replaceAll("\\r?\\n", "<br>");
+		dataString2 = dataString2.replaceAll(p, "\r\n");
+		return dataString2;
+	}
+
+	public String veryCloseRead(String dataString2) {
+		dataString2 = dataString2.replaceAll("\\r?\\n", p);
+		dataString2 = dataString2.replaceAll(p + p, p);
+		dataString2 = dataString2.replaceAll("\\. ", ".\r\n");
+		
+		String[] sentences = dataString2.split("\r\n");
+		dataString2 = "";
+		boolean abbr = false;
+		for (int i = 0; i < sentences.length; i++) {
+			if (sentences[i].length() < 5 && !sentences[i].equals(" ")) { 	
+				dataString2 = dataString2.substring(0, dataString2.length() - 1) + ". " + sentences[i];
+				abbr = true; // probably an abbreviation
+				continue;
+			} else {
+				if (abbr) {
+					dataString2 = dataString2 + " " + sentences[i];
+					abbr = false;
+				} else {
+					dataString2 = dataString2 + "\r\n" + sentences[i];
+				}
+			}
+		}
+		dataString2 = dataString2.replaceAll("\\? ", "?\r\n");
+		dataString2 = dataString2.replaceAll("\\! ", "!\r\n");
+		dataString2 = dataString2.replaceAll(p, "\n \n");
+		return dataString2;
 	}
 }

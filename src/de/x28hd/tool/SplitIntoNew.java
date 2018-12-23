@@ -178,6 +178,10 @@ public class SplitIntoNew {
 			if (topicName.equals(newLine)) topicName = "";
 			if (verbal == null || verbal.equals(newLine)) verbal = "";
 			if (topicName.isEmpty() && verbal.isEmpty()) continue;
+			if (topicName.trim().isEmpty() && verbal.trim().isEmpty()) {
+				j++;	// leave space
+				continue;
+			}
 			int id = 100 + j;
 			y = 40 + (j % maxVert) * 50 + (j/maxVert)*5;
 			x = 40 + (j/maxVert) * 150;
