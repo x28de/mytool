@@ -90,6 +90,7 @@ public class DAG {
 				if (colorString.equals("#ffbbbb")) forwardEdge.setColor("#ff0000");
 			}
 		}
+		Utilities.displayLayoutWarning(controler, false);
 	}
 	
 	public void connectFamiliesAll(int nodeID, String indent) {

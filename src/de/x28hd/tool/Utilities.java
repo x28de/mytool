@@ -49,4 +49,13 @@ public class Utilities {
 
 		return menu;
 	}
+	
+	public static void displayLayoutWarning(GraphPanelControler controler, boolean recolor) {
+		String msg = "<html>After the Auto-Layout, the map may appear empty.<br>"
+				+ "Then zoom out via <b>Advanced > Zoom the map...</b> to pan.";
+		if (recolor) msg = msg + "<br>To undo the recoloring, uncheck "
+				+ "<b>Advanced > Centrality Heatmap</b>";
+		msg = msg + "</html>";
+		controler.displayPopup(msg);
+	}
 }

@@ -59,6 +59,7 @@ public class CentralityColoring implements TreeSelectionListener {
 	
 	private WindowAdapter myWindowAdapter = new WindowAdapter() {
 		public void windowClosing(WindowEvent e) {
+			Utilities.displayLayoutWarning(controler, true);
 		}
 	};
 	Hashtable<Integer,Integer> parents = new Hashtable<Integer,Integer>();
