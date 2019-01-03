@@ -18,7 +18,7 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
 
 
-public class Export2WXP {
+public class Export2WXR {
 	Hashtable<Integer,GraphNode> nodes;
 	Hashtable<Integer,GraphEdge> edges;
 	String basedir;
@@ -27,7 +27,7 @@ public class Export2WXP {
 	String commentString = "\nThis should work like genuine WP but was generated from http://x28hd.de/tool/ \n";
 	char[] commentChars = commentString.toCharArray();
 	
-	public Export2WXP(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges) {
+	public Export2WXR(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges) {
 		this.nodes = nodes;
 		this.edges = edges;
 	}

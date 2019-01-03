@@ -438,16 +438,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "sibling") {
 			launchSibling();
 			
-		} else if (command == "wxp") {
+		} else if (command == "wxr") {
 			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
-			fd.setFile("wxp.xml"); 
+			fd.setFile("wxr.xml"); 
 			fd.setVisible(true);
 			if (fd.getFile() != null) {
 			String storeFilename = fd.getFile();
 			storeFilename = fd.getDirectory() + fd.getFile();
 
 			try {
-				File storeFile = new Export2WXP(nodes, edges).createTopicmapFile(storeFilename);
+				File storeFile = new Export2WXR(nodes, edges).createTopicmapFile(storeFilename);
 				storeFilename = storeFile.getName();
 			} catch (IOException e2) {
 				System.out.println("Error PS128" + e2);

@@ -302,8 +302,8 @@ public class Gui {
 		JMenu menu7;	// TODO change number
 		menu7 = new JMenu("Export  ");
 
-		JMenuItem menuItem73 = new JMenuItem("to Wordpress WXP format");
-		menuItem73.setActionCommand("wxp");
+		JMenuItem menuItem73 = new JMenuItem("to Wordpress WXR format");
+		menuItem73.setActionCommand("wxr");
 		menuItem73.setToolTipText("(Wordpress Export Format)");
 		menuItem73.addActionListener(controler);
 		menu7.add(menuItem73);
