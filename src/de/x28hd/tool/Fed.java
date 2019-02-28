@@ -37,6 +37,8 @@ public class Fed {
 	Color nodeColor = Color.decode("#ccdddd");
 	Color edgeColor = Color.decode("#c0c0c0");
 
+	public Fed(GraphPanelControler controler) {
+		JFrame mainWindow = controler.getMainWindow();
 		String pageDir = "";
 		try {
 			pageDir = System.getProperty("user.home") + 
