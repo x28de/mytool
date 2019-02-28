@@ -37,6 +37,7 @@ public class AnnoImport {
 	String [] palette = {"#d2bbd2", "#bbffbb", 	// purple, green
 			"#ffbbbb", "#bbbbff", "#ffe8aa", 	// red, blue, orange
 			"#fbefe8", "#fcf0d0", "#fdf1b8", "#e59f63", "#65473c"};  // 5 human skins
+	Hashtable<String,String> edgesBuffer = new Hashtable<String,String>();
 
 	int j = 0;
 	int nodeID = 100;
@@ -87,7 +88,7 @@ public class AnnoImport {
 							id + "\">open on https://hyp.is</a>", user);
 					order++;
 					locMap.put(order, id);
-					if (!lastRef.isEmpty()) addEdge(id, lastRef);
+					if (!lastRef.isEmpty()) edgesBuffer.put(id, lastRef);
 				} else {
 					
 					//	Location
@@ -119,7 +120,7 @@ public class AnnoImport {
 					addNode(id, start + "", (detail + "<br /><br /><a href=\"https://hyp.is/" + 
 							id + "\">open on https://hyp.is</a>"), user);
 					order = start * 1000;
-					if (locMap.containsKey(order)) order++;
+					while (locMap.containsKey(order)) order++;
 					locMap.put(order, id);
 				}
 			}
@@ -143,6 +144,14 @@ public class AnnoImport {
 			int x = 40 + (j/10) * 150;
 			Point p = new Point(x, y);
 			current.setXY(p);
+		}
+
+		// Add buffered edges
+		Enumeration<String> fromRefs = edgesBuffer.keys();
+		while (fromRefs.hasMoreElements()) {
+			String fromRef = fromRefs.nextElement();
+			String toRef = edgesBuffer.get(fromRef);
+			addEdge(fromRef, toRef);
 		}
 		
 		// Pass on
