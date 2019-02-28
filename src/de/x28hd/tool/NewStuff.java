@@ -418,7 +418,7 @@ public class NewStuff {
 		Charset CP850 = Charset.forName("CP850");
 		File file = new File(dataString);	//	Brute force testing for zip
 		if (new File(dataString).isDirectory()) {
-			new ImportDirector(17, new File(dataString), controler);
+			new ImportDirector(19, new File(dataString), controler);
 			return;
 		}
 		ZipFile zfile = null;
@@ -434,7 +434,7 @@ public class NewStuff {
 				String filename = entry.getName();
 				filename = filename.replace('\\', '/');		
 				if (filename.equals("savefile.xml") || filename.startsWith("topicmap-t-")) {
-					new ImportDirector(16, stream, controler); 
+					new ImportDirector(18, stream, controler); 
 					done = true;
 					break;
 				} else if (filename.endsWith("content.cds.xml")) {
@@ -534,6 +534,8 @@ public class NewStuff {
 					"(not relevant)",
 					"(not relevant)",
 					"GEDCOM",
+					"(not relevant)",
+					"(not relevant)",
 					"topicmap",
 					"(not relevant)",
 					"urlset",
@@ -575,6 +577,8 @@ public class NewStuff {
 						"zkn3",
 						"csv",		//	need different method
 						"xml",
+						"none",
+						"json",		//	need different method
 						"zip",
 						"none",
 						"xml",

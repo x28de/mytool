@@ -89,6 +89,8 @@ public class ImportDirector implements ActionListener {
 			"Zettelkasten",
 			"Metamaps",
 			"Gedcom",
+			"FedWiki",
+			"Hypothes.is",
 			"(Old Format)",
 			"(Filetree)",
 			"(Sitemap)",
@@ -109,6 +111,8 @@ public class ImportDirector implements ActionListener {
 			"map",
 			"opml",
 			"zettelkasten",
+			"(not relevant)",
+			"(not relevant)",
 			"(not relevant)",
 			"GEDCOM",
 			"topicmap",
@@ -133,6 +137,8 @@ public class ImportDirector implements ActionListener {
 			"zkn3",
 			"csv",
 			"xml",
+			"none",
+			"json",
 			"zip",
 			"none",
 			"xml",
@@ -155,6 +161,8 @@ public class ImportDirector implements ActionListener {
 			"zkn3 (ZKN3 export file)",
 			"csv (Metamaps export file)",
 			"xml (Gedcom XML file)",
+			"none (invisible)",
+			"json (Hypothes.is export file)",
 			"zip (Zipped XML Document)",
 			"none (invisible)",
 			"xml (Sitemap)",
@@ -177,6 +185,8 @@ public class ImportDirector implements ActionListener {
 			"<html>If you have a \"ZKN3\" file exported from the Luhmann-inspired notes application.</html>",
 			"<html>If you have a CSV file exported from the Metamaps.cc application.</html>",
 			"<html>A genealogical Gedcom XML 6.0 file</html>",
+			"<html>Page names and structure from a local Smallest Federated Wiki</html>",
+			"<html>If you have a JSON file exported from Hypothes.is, see <a href=\"https://jonudell.info/h/\">jonudell.info/h/</a>.</html>",
 			"Old versions of this tool and its precursor DeepaMehta",
 			"Folder paths (invisible)",
 			"Sitemap (invisible)",
@@ -207,7 +217,7 @@ public class ImportDirector implements ActionListener {
 		} else if (this.knownFormat == 15) {
 			new GedcomImport(doc, controler);
 		} else if (this.knownFormat == 11 || this.knownFormat == 12 || 
-				this.knownFormat == 18 || this.knownFormat == 19) {	
+				this.knownFormat == 20 || this.knownFormat == 21) {	
 				// (freemind, opml, sitemap, x28tree)
 			new TreeImport(doc, controler, this.knownFormat);
 		}
@@ -235,8 +245,8 @@ public class ImportDirector implements ActionListener {
 			new ZknImport(file, controler);
 		} else if (this.knownFormat == 14) {	//	neds different method
 			new MetamapsImport(file, controler);
-		} else if (this.knownFormat == 17) { 
-			new TreeImport(file, controler, 17);
+		} else if (this.knownFormat == 19) { 
+			new TreeImport(file, controler, 19);
 		} else {
 			controler.displayPopup("Format autodiscovery failed.\nPlease try the Input Wizard." +
 					"\nOr contact support@x28hd.de");
@@ -247,7 +257,7 @@ public class ImportDirector implements ActionListener {
 	public ImportDirector(int knownFormat, InputStream stream, GraphPanelControler controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
-		if (this.knownFormat == 5 || this.knownFormat == 13 || this.knownFormat == 16) {
+		if (this.knownFormat == 5 || this.knownFormat == 13 || this.knownFormat == 18) {
 			step4(stream);
 		}
 	}
@@ -332,6 +342,10 @@ public class ImportDirector implements ActionListener {
 				new LimitationMessage();
 		        frame.setVisible(false);
 		        frame.dispose();
+			} else if (i == 16) {
+				new Fed(controler);
+				frame.dispose();
+				return;
 			}
 //	    		System.out.println("Type: " + i);
 	    		knownFormat = i;
@@ -370,7 +384,9 @@ public class ImportDirector implements ActionListener {
 				new ZknImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == 14) {
 				new MetamapsImport(fd.getSelectedFile(), controler);
-			} else if (knownFormat == 16) {
+			} else if (knownFormat == 17) {
+				new AnnoImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == 18) {
 				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
@@ -462,12 +478,12 @@ public class ImportDirector implements ActionListener {
 //			new ZknImport(inputXml, controler, 13);
 		} else if (knownFormat == 15) {
 			new GedcomImport(inputXml, controler);
-		} else if (knownFormat == 16) {
-			new TopicMapImporter(inputXml, controler);
 		} else if (knownFormat == 18) {
-			new TreeImport(inputXml, controler, 18);
-		} else if (knownFormat == 19) {
-			new TreeImport(inputXml, controler, 19);
+			new TopicMapImporter(inputXml, controler);
+		} else if (knownFormat == 20) {
+			new TreeImport(inputXml, controler, 20);
+		} else if (knownFormat == 21) {
+			new TreeImport(inputXml, controler, 21);
 		}
 	}
 	

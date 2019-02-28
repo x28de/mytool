@@ -439,15 +439,17 @@ public final class PresentationService implements ActionListener, MouseListener,
 			launchSibling();
 			
 		} else if (command == "wxr") {
+			Export2WXR export2WXR = new Export2WXR(nodes, edges);
 			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
 			fd.setFile("wxr.xml"); 
 			fd.setVisible(true);
 			if (fd.getFile() != null) {
 			String storeFilename = fd.getFile();
 			storeFilename = fd.getDirectory() + fd.getFile();
+			String dir = fd.getDirectory();
 
 			try {
-				File storeFile = new Export2WXR(nodes, edges).createTopicmapFile(storeFilename);
+				File storeFile = export2WXR.createTopicmapFile(storeFilename, dir);
 				storeFilename = storeFile.getName();
 			} catch (IOException e2) {
 				System.out.println("Error PS128" + e2);
@@ -1614,6 +1616,10 @@ public final class PresentationService implements ActionListener, MouseListener,
     
     public NewStuff getNSInstance() {
     	return newStuff;
+    }
+    
+    public JFrame getMainWindow() {
+    	return mainWindow;
     }
     
     public CompositionWindow getCWInstance() {

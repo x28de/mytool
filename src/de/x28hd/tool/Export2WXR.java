@@ -1,11 +1,30 @@
 package de.x28hd.tool;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
@@ -18,7 +37,7 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
 
 
-public class Export2WXR {
+public class Export2WXR implements ActionListener{
 	Hashtable<Integer,GraphNode> nodes;
 	Hashtable<Integer,GraphEdge> edges;
 	String basedir;
@@ -27,13 +46,77 @@ public class Export2WXR {
 	String commentString = "\nThis should work like genuine WP but was generated from http://x28hd.de/tool/ \n";
 	char[] commentChars = commentString.toCharArray();
 	
+	JDialog dialog;
+	HashSet<Color> catColorsChoice = new HashSet<Color>();
+	Hashtable<Color,JCheckBox> colorSelections = new Hashtable<Color,JCheckBox>();
+	Hashtable<Color,Integer> colorCounts = new Hashtable<Color,Integer>();
+	JButton continueButton = new JButton("Continue");
+	HashSet<Color> catColors = new HashSet<Color>();
+	Hashtable<GraphNode,String> nicenames = new Hashtable<GraphNode,String>();
+	String dateString = "";
+	SimpleDateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+	String dir = "";
+	
 	public Export2WXR(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges) {
 		this.nodes = nodes;
 		this.edges = edges;
+		
+		// Ask for category colors
+		
+		Enumeration<GraphNode> nodesEnum = nodes.elements();
+		while (nodesEnum.hasMoreElements()) {
+			Color color = nodesEnum.nextElement().getColor();
+			if (!catColorsChoice.contains(color)) {
+				colorCounts.put(color, 1);
+			} else {
+				int count = colorCounts.get(color);
+				count++;
+				colorCounts.put(color, count);
+			}
+			catColorsChoice.add(color);
+		}
+		dialog = new JDialog();
+		dialog.setModal(true);
+		dialog.setTitle("Options");
+		if (System.getProperty("os.name").startsWith("Windows")) {
+			dialog.setMinimumSize(new Dimension(596, 417));
+		} else {
+			dialog.setMinimumSize(new Dimension(796, 417));
+		}
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		dialog.setLocation(dim.width/2-dialog.getSize().width/2 - 298, 
+				dim.height/2-dialog.getSize().height/2 - 209);		
+        dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        
+        JPanel panel = new JPanel();
+        JScrollPane outerPanel = new JScrollPane(panel);
+		panel.setLayout(new GridLayout(0, 1));
+		outerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		panel.add(new JLabel("(Optional:) Which color are your categories?"));
+		
+		Iterator<Color> iter = (Iterator<Color>) catColorsChoice.iterator();
+		while (iter.hasNext()) {
+			Color color = iter.next();
+			JCheckBox box = new JCheckBox("" + colorCounts.get(color));
+			colorSelections.put(color, box);
+			JPanel outerBox = new JPanel();
+			box.setBackground(color);
+			outerBox.add(box);
+			panel.add(outerBox);
+		}
+		dialog.add(outerPanel);
+		JPanel toolbar = new JPanel(new BorderLayout());
+		toolbar.add(continueButton, "East");
+		toolbar.setBorder(new EmptyBorder(10, 10, 10, 10));
+		continueButton.addActionListener(this);
+		dialog.add(toolbar, "South");
+		
+		dialog.setVisible(true);
 	}
 	
-	public File createTopicmapFile(String filename) throws IOException, TransformerConfigurationException, SAXException {
+	public File createTopicmapFile(String filename, String dir) throws IOException, TransformerConfigurationException, SAXException {
 		File topicmapFile = new File(filename);
+		this.dir = dir;
 		FileOutputStream out = new FileOutputStream(topicmapFile);
 		exportViewMode(out, filename);
 		out.close();
@@ -119,8 +202,18 @@ public class Export2WXR {
 //	}
 
 	public void exportTopics(Enumeration<GraphNode> topics, ContentHandler handler, boolean visible) throws SAXException {
+//		SimpleDateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		Date date = new Date();
 		while (topics.hasMoreElements()) {
+			// Increment date to keep sorting enabled
+			Long dateLong = date.getTime();
+			dateLong++;
+			date = new Date(dateLong);
+			dateString = df2.format(date);
+			
 			GraphNode topic = topics.nextElement();
+			Color seeIfCat = topic.getColor();
+			if (catColors.contains(seeIfCat)) continue;
 			exportTopic(topic, handler, visible);
 		}
 
@@ -141,11 +234,43 @@ public class Export2WXR {
 	String det = topic.getDetail();
 	det = det.replaceAll("\n", "");
 	det = det.replaceAll("<br>", "<br />");	// If detail was touched by edi.getText()
+	
+	det = det.replaceAll("<html>", "");	// TODO get rid of this Java kind of html encoding
+	det = det.replaceAll("</html>", "");
+	det = det.replaceAll("<head>", "");
+	det = det.replaceAll("</head>", "");
+	det = det.replaceAll("<body>", "");
+	det = det.replaceAll("</body>", "");
+	det = det.replaceAll("^ +", "");
 	characters(handler, det);
 	endElement(handler, "content:encoded");
 	textNode((TransformerHandler) handler, "wp:post_type",  "post");
 	textNode((TransformerHandler) handler, "wp:status",  "publish");
+	
+	if (nicenames.containsKey(topic)) {
+	String nicename = nicenames.get(topic);
+	nicename = nicename.toLowerCase();
+	nicename = nicename.replaceAll(" ", "-");
+	attribs.put("nicename", nicename);
+	attribs.put("domain", "category");
+	startElement(handler, "category", attribs);
+	characters(handler, nicename);
+	endElement(handler, "category");
+	}
+	attribs.clear();
+	startElement(handler, "wp:post_date", attribs);
+	//  Dirty hack tailored to my own use:
+	//	Try to look up mod date for items named like files in the same folder as WXR
+	File f = new File(dir + File.separator + topic.getLabel());
+	if (f.exists()) {
+		Long dateLong = f.lastModified();
+		dateString = df2.format(dateLong);
+	}
+	System.out.println(dateString);
+	characters(handler, dateString);
+	endElement(handler, "wp:post_date");
 	endElement(handler, "item");
+	
 	}
 
 //
@@ -191,6 +316,36 @@ public class Export2WXR {
 		File dstDir = file.getParentFile();
 		if (dstDir.mkdirs()) {
 			System.out.println(">>> document repository has been created: " + dstDir);
+		}
+	}
+
+	public void actionPerformed(ActionEvent arg0) {
+		Iterator<Color> iter = (Iterator<Color>) catColorsChoice.iterator();
+		while (iter.hasNext()) {
+			Color color = iter.next();
+			JCheckBox box = colorSelections.get(color);
+			if (box.isSelected()) catColors.add(color);
+		}
+		Iterator<Color> iter2 = (Iterator<Color>) catColors.iterator();
+		while (iter2.hasNext()) {
+			Color color = iter2.next();
+			System.out.println(color);
+		}
+		dialog.dispose();
+		
+		Enumeration<GraphNode> nodesEnum = nodes.elements();
+		while (nodesEnum.hasMoreElements()) {
+			GraphNode node = nodesEnum.nextElement();
+			Color color = node.getColor();
+			if (catColors.contains(color)) continue;
+			Enumeration<GraphEdge> neighbors = node.getEdges();
+			while (neighbors.hasMoreElements()) {
+				GraphEdge edge = neighbors.nextElement();
+				GraphNode otherEnd = node.relatedNode(edge);
+				Color otherColor = otherEnd.getColor();
+				if (!catColors.contains(otherColor)) continue; // TODO insert hyperlink?
+				nicenames.put(node, otherEnd.getLabel());
+			}
 		}
 	}
 	

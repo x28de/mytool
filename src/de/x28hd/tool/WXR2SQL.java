@@ -117,7 +117,7 @@ public class WXR2SQL {
 			int key = datesList.get(dateString);
 			String excerptString = excerpts.get(key);
 			if (excerptString == null) excerptString ="(no excerpt)";
-			String contentString = "<![CDATA[" + contents.get(key) + "]]>";
+			String contentString = contents.get(key);
 			String catString = categories.get(key);
 			if (catString == null) catString ="Uncategorized";
 			String titleString = titles.get(key);

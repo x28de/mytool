@@ -4,6 +4,7 @@ import java.awt.Rectangle;
 import java.util.HashSet;
 import java.util.Hashtable;
 
+import javax.swing.JFrame;
 import javax.swing.tree.DefaultTreeModel;
 
 interface GraphPanelControler {
@@ -45,4 +46,5 @@ interface GraphPanelControler {
 	void zoom(boolean on);
 	boolean getExtended();
 	void toggleHyp(int whichWasToggled, boolean auto);
+	JFrame getMainWindow();
 	}

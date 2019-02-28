@@ -193,7 +193,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		extended = controler.getExtended();
 		windows = (System.getProperty("os.name").startsWith("Windows"));
 		
-		if (knownFormat == 17) {	//	Filepaths list
+		if (knownFormat == 19) {	//	Filepaths list
 			colorOpt = true;
 			fs = System.getProperty("file.separator");
 			topNode = file.getAbsolutePath();
@@ -431,17 +431,17 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			labelAttr = "TEXT";
 			idAttr = "ID";
 		}
-		if (knownFormat == 19) {
+		if (knownFormat == 21) {
 			TopicMapLoader loader = new TopicMapLoader(inputXml, controler, true);
 			nodes = loader.newNodes;
 			edges = loader.newEdges;
 			nonTreeEdges = loader.nonTreeEdges;
-//			System.out.println(nodes.size() + " " + edges.size() + " " + nonTreeEdges.size());
+			System.out.println(nodes.size() + " " + edges.size() + " " + nonTreeEdges.size());
 			layoutOpt = true;
 			finish();
 			return;
 			
-		} else if (knownFormat != 18) {
+		} else if (knownFormat != 20) {
 			NodeList graphContainer = inputXml.getElementsByTagName(topNode);
 			inputItems.put(topNode, "ROOT");
 			addNode(topNode, "");
@@ -556,7 +556,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	
 	public void commonPart() {
 		
-		if (knownFormat == 18) { // not available for sitemap 
+		if (knownFormat == 20) { // not available for sitemap 
 			showJTree = false;
 		}
 		layoutOpt = !showJTree;
@@ -600,7 +600,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		transitBox = new JCheckBox ("Just for re-export", false);
 		transitBox.setActionCommand("transit");
 		transitBox.addActionListener(this);
-		if (knownFormat == 18) { 
+		if (knownFormat == 20) { 
 			instruction.setEnabled(false);
 			transitBox.setEnabled(false);
 			JLabel sorry = new JLabel("<html><em> (Sorry, currently unavailable)</em></html>");
@@ -625,7 +625,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		legendBox = new JCheckBox ("Show legend", false);
 		legendBox.addActionListener(this);
 		optics.add(legendBox);
-		if (knownFormat != 17) {	// folder tree
+		if (knownFormat != 19) {	// folder tree
 			colorBox.setVisible(false);
 			legendBox.setVisible(false);
 		}
@@ -667,7 +667,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			}
 		}
 		if (transit) { 
-			if (knownFormat == 17) {
+			if (knownFormat == 19) {
 				Iterator<GraphEdge> xrefTreeIter = xrefTreeEdges.iterator();
 				while (xrefTreeIter.hasNext()) {
 					GraphEdge edge = xrefTreeIter.next();
@@ -687,7 +687,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			if (layoutOpt) {
 
 				CentralityColoring centralityColoring = new CentralityColoring(nodes, edges);
-				centralityColoring.treeLayout(nonTreeEdges, this.knownFormat == 19);
+				centralityColoring.treeLayout(nonTreeEdges, this.knownFormat == 21);
 				//	Recolor 
 				Enumeration<Integer> edgeColEnum = edgeColors.keys();
 				while (edgeColEnum.hasMoreElements()) {
