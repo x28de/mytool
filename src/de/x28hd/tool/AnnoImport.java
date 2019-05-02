@@ -101,20 +101,7 @@ public class AnnoImport {
 						if (!type.equals("TextPositionSelector")) continue;
 						start = (int) selector.getInt("start");
 					}
-					
-					// color recurring users of previous thread 
-					Enumeration<Integer> thread = threadUsers.keys();
-					while (thread.hasMoreElements()) {
-						int itemID = thread.nextElement();
-						String itemUser = threadUsers.get(itemID);
-						if (!userColors.containsKey(itemUser)) continue;
-						int userColor = userColors.get(itemUser);
-						GraphNode node = nodes.get(itemID);
-						node.setColor(palette[userColor]);
-					}
-					threadUsers.clear();
-					userColors.clear();
-					colorNum = 0;
+					colorUsers();
 					text = (String) itemObj.get("text");
 					String detail = "\"" + quote + "\"<p>" + user + ": <br /><br />" + text;
 					addNode(id, start + "", (detail + "<br /><br /><a href=\"https://hyp.is/" + 
@@ -124,6 +111,7 @@ public class AnnoImport {
 					locMap.put(order, id);
 				}
 			}
+			colorUsers();  // last thread
 
 		} catch (JSONException e) {
 			System.out.println("Error AI102 " + e);
@@ -168,6 +156,22 @@ public class AnnoImport {
     	controler.getNSInstance().setInput(dataString, 2);
     	controler.setTreeModel(null);
     	controler.setNonTreeEdges(null);
+	}
+	
+	public void colorUsers() {
+		// color recurring users of previous thread 
+		Enumeration<Integer> thread = threadUsers.keys();
+		while (thread.hasMoreElements()) {
+			int itemID = thread.nextElement();
+			String itemUser = threadUsers.get(itemID);
+			if (!userColors.containsKey(itemUser)) continue;
+			int userColor = userColors.get(itemUser);
+			GraphNode node = nodes.get(itemID);
+			node.setColor(palette[userColor]);
+		}
+		threadUsers.clear();
+		userColors.clear();
+		colorNum = 0;
 	}
 	
 	public void addNode(String refID, String label, String detail, String user) {

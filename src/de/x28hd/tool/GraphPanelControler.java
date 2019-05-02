@@ -47,4 +47,6 @@ interface GraphPanelControler {
 	boolean getExtended();
 	void toggleHyp(int whichWasToggled, boolean auto);
 	JFrame getMainWindow();
+	void replaceForLayout(Hashtable<Integer,GraphNode> replacingNodes, 
+			   Hashtable<Integer,GraphEdge> replacingEdges); 
 	}

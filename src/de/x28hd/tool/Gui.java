@@ -445,6 +445,12 @@ public class Gui {
 		menuItem53.addActionListener(controler);
 		menu5.add(menuItem53);
 
+		JMenuItem menuItem60 = new JMenuItem("Make Circle");
+		menuItem60.setActionCommand("makecircle");
+		menuItem60.setToolTipText("Separates trees and chains from core circle");
+		menuItem60.addActionListener(controler);
+		menu5.add(menuItem60);
+
 		JMenuItem menuItem59 = new JMenuItem("DAG Layout");
 		menuItem59.setActionCommand("dag");
 		menuItem59.setToolTipText("Directed Acyclic Graph, depth last");
