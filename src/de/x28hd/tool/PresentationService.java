@@ -566,6 +566,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "flipVerti") {
 			flipCluster(selectedAssoc, false);
 			graphSelected();
+
+		} else if (command == "subtree") {
+			new SubtreeLayout(selectedTopic, nodes, edges, this, translation);
 			
 		} else if (command == "jump") {
 			GraphNode end = selectedAssoc.getNode2();
@@ -645,6 +648,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 //				selection.assoc = null;
 				graphSelected();
 			}
+
 			graphPanel.repaint();
 
 		//	Graph menu
@@ -713,6 +717,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 			new WXR2SQL(mainWindow);
 		} else if (command == "dag") {
 			new DAG(nodes, edges, this);
+		} else if (command == "makecircle") {
+			new MakeCircle(nodes, edges, this);
 		} else {
 			System.out.println("PS: Wrong action: " + command);
 		}
@@ -1759,6 +1765,20 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   graphPanel.jumpingArrow(false);
 	   graphPanel.repaint();
    }
+   
+   public void replaceForLayout(Hashtable<Integer,GraphNode> replacingNodes, 
+		   Hashtable<Integer,GraphEdge> replacingEdges) {	
+	   // TODO integrate with replaceByTree
+	   nodes = replacingNodes;
+	   edges = replacingEdges;
+	   graphPanel.setModel(nodes, edges);
+	   updateBounds();
+	   setDefaultCursor();
+	   hintTimer.stop();	// Any action => no more hint
+	   graphPanel.jumpingArrow(false);
+	   graphPanel.repaint();
+   }
+   
 //
 //	Accessories intended for right-click (paste) in labelfield
     
