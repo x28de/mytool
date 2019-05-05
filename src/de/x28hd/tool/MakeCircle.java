@@ -281,6 +281,7 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 		while (anchorList.hasMoreElements()) {
 			int nodeID = anchorList.nextElement();
 			GraphNode node = realNodes.get(nodeID);
+			new SubtreeLayout(node, realNodes, realEdges, controler, null, true);
 		}
 		
 		controler.getMainWindow().repaint();

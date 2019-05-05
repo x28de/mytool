@@ -568,6 +568,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			graphSelected();
 
 		} else if (command == "subtree") {
+			new SubtreeLayout(selectedTopic, nodes, edges, this, translation);
 			
 		} else if (command == "jump") {
 			GraphNode end = selectedAssoc.getNode2();
