@@ -53,16 +53,13 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 		private static final long serialVersionUID = 8340239963129661032L;
 	}
 	HashSet<Chain> chains = new HashSet<Chain>();
-	Hashtable<Integer,Integer> tangentSizes = new Hashtable<Integer,Integer>();
 	DefaultMutableTreeNode top = new DefaultMutableTreeNode(new BranchInfo(0, "ROOT"));
 	String [] colors = 
 		{"#b200b2", "#0000ff", "#00ff00", "#ffff00", 	// purple, blue, green, yellow
 		"#ffc800", "#ff0000", "#c0c0c0", "#808080"};	// orange, red, pale, dark
 	int size;
 	Point center;
-	HashSet<Integer> anchors = new HashSet<Integer>();
 	JDialog nextReady;
-	int stackCounter = 0;
 	
 	public MakeCircle(Hashtable<Integer,GraphNode> realNodes, Hashtable<Integer,GraphEdge> realEdges, 
 			GraphPanelControler controler) {
@@ -123,6 +120,11 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 		while (elimCount > 0) elimCount = eliminate();
 		
 		// First iteration (shorten distances by swapping nodes)
+		nextReady = new JDialog(controler.getMainWindow(), "Optimizing the core circle...");
+		nextReady.setLocation(800, 30);
+		nextReady.setMinimumSize(new Dimension(300, 170));
+		nextReady.setVisible(true);
+		
 		initializeGraph();
 		size = graph.getVertexCount();
 		circleLayout();
@@ -156,6 +158,8 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 				}
 			}
 			System.out.println("Iteration number " + iteration++ + " ...");
+			nextReady.setTitle("Optimizing the core circle, step " + iteration + " ...");
+
 		}
 		
 //
@@ -179,16 +183,15 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 		controler.replaceForLayout(nodes,  edges);
 		
 		// Prompt for Step 2
-		nextReady = new JDialog(controler.getMainWindow());
-		nextReady.setLocation(800, 30);
-		nextReady.setMinimumSize(new Dimension(300, 100));
 		JButton nextButton = new JButton("<html>Click here when done with "
 				+ "<br />rearranging the core circle "
-				+ "<br />to arrange the tangents</html>");
+				+ "<br />to arrange the tangents."
+				+ "<br /><br />Note: After the Auto-Layout, "
+				+ "<br>the map may appear empty." 
+				+ "<br />Then use Advanced > Zoom</html>");
 		nextReady.add(nextButton);
-		nextReady.setVisible(true);
 		nextButton.addActionListener(this);
-		nextReady.setVisible(true);
+		nextReady.setTitle("Ready?");
 	}
 
 	public void step2() {
@@ -240,6 +243,7 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 			growChain(nodeID, null);
 		}
 		
+		// Place the chains
 		Iterator<Chain> chainList = chains.iterator();
 		while (chainList.hasNext()) {
 			Chain chain = chainList.next();
@@ -266,8 +270,17 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 				int x = (int) doubleX;
 				int y = (int) doubleY;
 				if (item == 0 || item == chain.size() - 1) continue;
-				node.setXY(new Point(x, y));
+				int fugal = 0;
+				if (distance(head, tail) < radius/3.) fugal = 1;
+				placing(nextID, fugal, 0, new Point(x, y));
 			}
+		}
+		
+		// Disentangle the simple trees (not those anchored in a chain link)
+		Enumeration<Integer> anchorList = nodes.keys();
+		while (anchorList.hasMoreElements()) {
+			int nodeID = anchorList.nextElement();
+			GraphNode node = realNodes.get(nodeID);
 		}
 		
 		controler.getMainWindow().repaint();
@@ -362,6 +375,7 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 		node2.addEdge(replacement);
 		
 		// not safe to omit these but convenient for mixed tree/ chain cases
+		// more: it even leaves chain links in the core circle! TODO rewrite
 //		node1.removeEdge(edge1);
 //		node2.removeEdge(edge2);
 		
@@ -556,7 +570,6 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 			} else {
 				System.out.println("Error GS106 " + realNodes.get(nodeID).getLabel());
 				a = nodeID;
-				anchors.add(a);
 			}
 		}
 		return a;
@@ -566,6 +579,10 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 		int anchorID = anchor(nodeID);
 		GraphNode anchorNode = realNodes.get(anchorID);
 		Point anchorPoint = anchorNode.getXY();
+		placing(nodeID, level, index, anchorPoint);
+	}
+
+	public void placing(int nodeID, int level, int index, Point anchorPoint) {
 		double dx = anchorPoint.x - center.x;
 		double dy = anchorPoint.y - center.y;
 

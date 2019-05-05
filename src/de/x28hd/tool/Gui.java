@@ -702,6 +702,12 @@ public class Gui {
 
 		menu.addSeparator();
 
+		JMenuItem subtree = new JMenuItem();
+		subtree.addActionListener(controler);
+		subtree.setActionCommand("subtree");
+		subtree.setText("Tree layout");
+		menu.add(subtree);
+		
 		JMenuItem delTopic = new JMenuItem();
 		delTopic.addActionListener(controler);
 		delTopic.setActionCommand("delTopic");

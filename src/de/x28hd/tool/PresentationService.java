@@ -566,6 +566,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "flipVerti") {
 			flipCluster(selectedAssoc, false);
 			graphSelected();
+
+		} else if (command == "subtree") {
 			
 		} else if (command == "jump") {
 			GraphNode end = selectedAssoc.getNode2();
@@ -645,6 +647,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 //				selection.assoc = null;
 				graphSelected();
 			}
+
 			graphPanel.repaint();
 
 		//	Graph menu
