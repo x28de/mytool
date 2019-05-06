@@ -19,6 +19,7 @@ import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
 import edu.uci.ics.jung.graph.DelegateForest;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
+import edu.uci.ics.jung.graph.util.TreeUtils;
 
 public class SubtreeLayout {
 
@@ -31,10 +32,12 @@ public class SubtreeLayout {
 	String loopMsg = "This is no tree; loops were detected at:\n\n";
 	Hashtable<GraphEdge,String> normalColors = new Hashtable<GraphEdge,String>();
 	Hashtable<GraphEdge,String> alertColors = new Hashtable<GraphEdge,String>();
+	static EdgeType edgeType = EdgeType.DIRECTED; 
 	
 	public SubtreeLayout(GraphNode clickedNode, Hashtable<Integer,GraphNode> nodes, 
 			Hashtable<Integer,GraphEdge> edges, GraphPanelControler controler,
-			Point translation) {
+			boolean warn, Point translation) {
+		if (warn) controler.displayPopup("MakeTree broke this. Save & restart.");
 		new SubtreeLayout(clickedNode, nodes, edges, controler, translation, false);
 	}
 	public SubtreeLayout(GraphNode clickedNode, Hashtable<Integer,GraphNode> nodes, 
@@ -49,20 +52,30 @@ public class SubtreeLayout {
 		Enumeration<GraphNode> backupList = nodes.elements();
 		while (backupList.hasMoreElements()) {
 			GraphNode node = backupList.nextElement();
+			
+			int nodeID = node.getID();
+			GraphNode nodeCheck = nodes.get(nodeID);
+			int nodeID2 = nodeCheck.getID();
+			System.out.println(nodeID + " = " + node.getLabel() + ", but " + nodeID2 + " = " + nodeCheck.getLabel());
 			Point originalLocation = node.getXY();
 			originalLocations.put(node, originalLocation);
 		}
 		
 		DirectedSparseGraph<Integer,Integer> graph = 
 				new DirectedSparseGraph<Integer,Integer>();
+		DelegateForest<Integer,Integer> forest = 
+				new DelegateForest<Integer,Integer>(graph);
+		graph.addVertex(clickedNode.getID());
 		
+		// First level (immediate neighbors of clickedNode)
 		Enumeration<GraphEdge> neighbors = clickedNode.getEdges();
 		while (neighbors.hasMoreElements()) {
+			DirectedSparseGraph<Integer,Integer> branchGraph = 
+					new DirectedSparseGraph<Integer,Integer>();
+			DelegateForest<Integer,Integer> branchForest = 
+					new DelegateForest<Integer,Integer>(branchGraph);
 			
-			// First level (immediate neighbors of clickedNode)
 			HashSet<GraphNode> done = new HashSet<GraphNode>();
-			HashSet<GraphEdge> scheduledEdges = new HashSet<GraphEdge>();
-			Hashtable<GraphEdge,Boolean> reversed = new Hashtable<GraphEdge,Boolean>();
 			GraphEdge edge = neighbors.nextElement();
 			GraphNode related = clickedNode.relatedNode(edge);
 			int edgeID = edge.getID();
@@ -70,38 +83,21 @@ public class SubtreeLayout {
 			int n2 = related.getID();
 			
 			// More levels
-			if (!growGraph(related, clickedNode, 0, done, scheduledEdges, reversed)) {
+			if (!growGraph(related, clickedNode, 0, done, branchGraph)) {	// recursion
 				alertColors.put(edge, "#ff00ff");	// and forget that branch that loops
 			} else {
-				scheduledEdges.add(edge);
-				reversed.put(edge, (edge.getNode2() == clickedNode));
-				Iterator<GraphEdge> validEdges = scheduledEdges.iterator();
-				while (validEdges.hasNext()) {
-					GraphEdge validEdge = validEdges.next();
-					alertColors.put(validEdge, "#00ffff");
-					GraphNode node1 = validEdge.getNode1();
-					GraphNode node2 = validEdge.getNode2();
-					n1 = node1.getID();
-					n2 = node2.getID();
-					edgeID = validEdge.getID();
-					EdgeType edgeType = EdgeType.DIRECTED; 
-					if (reversed.get(validEdge)) {
-						n2 = node1.getID();
-						n1 = node2.getID();
-					}
-					try {
-						graph.addEdge(edgeID, n1, n2, edgeType);
-					} catch (java.lang.IllegalArgumentException e) {
-						System.out.println("Error SL101: unexpectedly failed at " + node1.getLabel() + " -> " + node2.getLabel());
-						break;
-					}
+				if (branchGraph.getVertexCount() > 1) {
+					TreeUtils.addSubTree(forest, branchForest, n1, edgeID);
+				} else {
+					graph.addEdge(edgeID, n1, n2, edgeType);
+					alertColors.put(edge, "#00ffff");
 				}
 			}
 		}
 		
 		// Loops to show?
 		Collection<Integer> nodeIDs = graph.getVertices();
-		if (graph.getVertexCount() == 0) {
+		if (graph.getVertexCount() == 1) {
 			if (silent) return;
 			colorFeedback(loopMsg, clickedNode);
 			controler.getMainWindow().repaint();
@@ -132,7 +128,6 @@ public class SubtreeLayout {
 		double myTheta = polarSlope.getTheta();
 		
 		// Calculate polar locations
-		DelegateForest<Integer,Integer> forest = new DelegateForest<Integer,Integer>(graph);
 		layout = new RadialTreeLayout<Integer,Integer>(forest);
 //		layout = new BalloonLayout<Integer,Integer>(forest);
 //		layout = new TreeLayout<Integer,Integer>(forest, 50, 20);
@@ -188,8 +183,7 @@ public class SubtreeLayout {
 	}
 	
 	public boolean growGraph(GraphNode node, GraphNode previous, int level, 
-			HashSet<GraphNode> done, HashSet<GraphEdge> scheduledEdges,
-			Hashtable<GraphEdge,Boolean> reversed) {
+			HashSet<GraphNode> done, DirectedSparseGraph<Integer,Integer> graph) {
 		done.add(node);
 		Enumeration<GraphEdge> neighbors = node.getEdges();
 		while (neighbors.hasMoreElements()) {
@@ -203,12 +197,13 @@ public class SubtreeLayout {
 				return false;
 			}
 			done.add(related);
-			if (!growGraph(related, node, level + 1, done, scheduledEdges, reversed)) {	//  recursion
+			if (!growGraph(related, node, level + 1, done, graph)) {	//  recursion
 				alertColors.put(edge, "#ff00ff");
 				return false;
 			}
-			scheduledEdges.add(edge);
-			reversed.put(edge, (edge.getNode2() == node));
+			
+			graph.addEdge(edge.getID(), node.getID(), related.getID(), edgeType);
+			alertColors.put(edge, "#00ffff");
 		}
 		return true;
 	}

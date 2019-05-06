@@ -136,6 +136,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	// Tree accessories
 	DefaultTreeModel treeModel;
 	HashSet<GraphEdge> nonTreeEdges;
+	boolean treeBug = false;	// TODO fix
 
 	//	Toggles
 	int toggle4 = 0;   // => hide classicMenu 
@@ -421,6 +422,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			displayPopup(preferences);
 
 		} else if (command == "centcol") {
+			treeBug = true;
 			if (gui.menuItem51.isSelected()) {
 			centralityColoring = new CentralityColoring(nodes, edges);
 				centralityColoring.changeColors();
@@ -432,6 +434,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "layout") {
 			centralityColoring = new CentralityColoring(nodes, edges);
 				centralityColoring.changeColors(true, this);
+				treeBug = true;
 			graphPanel.repaint();
 			gui.menuItem51.setSelected(true);
 			
@@ -568,7 +571,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			graphSelected();
 
 		} else if (command == "subtree") {
-			new SubtreeLayout(selectedTopic, nodes, edges, this, translation);
+			new SubtreeLayout(selectedTopic, nodes, edges, this, treeBug, translation);
 			
 		} else if (command == "jump") {
 			GraphNode end = selectedAssoc.getNode2();
