@@ -33,6 +33,7 @@ public class SubtreeLayout {
 	Hashtable<GraphEdge,String> normalColors = new Hashtable<GraphEdge,String>();
 	Hashtable<GraphEdge,String> alertColors = new Hashtable<GraphEdge,String>();
 	static EdgeType edgeType = EdgeType.DIRECTED; 
+	boolean loop = false;
 	
 	public SubtreeLayout(GraphNode clickedNode, Hashtable<Integer,GraphNode> nodes, 
 			Hashtable<Integer,GraphEdge> edges, GraphPanelControler controler,
@@ -53,10 +54,6 @@ public class SubtreeLayout {
 		while (backupList.hasMoreElements()) {
 			GraphNode node = backupList.nextElement();
 			
-			int nodeID = node.getID();
-			GraphNode nodeCheck = nodes.get(nodeID);
-			int nodeID2 = nodeCheck.getID();
-			System.out.println(nodeID + " = " + node.getLabel() + ", but " + nodeID2 + " = " + nodeCheck.getLabel());
 			Point originalLocation = node.getXY();
 			originalLocations.put(node, originalLocation);
 		}
@@ -85,6 +82,7 @@ public class SubtreeLayout {
 			// More levels
 			if (!growGraph(related, clickedNode, 0, done, branchGraph)) {	// recursion
 				alertColors.put(edge, "#ff00ff");	// and forget that branch that loops
+				loop = true;
 			} else {
 				if (branchGraph.getVertexCount() > 1) {
 					TreeUtils.addSubTree(forest, branchForest, n1, edgeID);
@@ -147,7 +145,7 @@ public class SubtreeLayout {
 			double theirTheta = pp.getTheta();
 			// just a 30% sector, and rotated by my slope
 			double tweak = .16;	// not satisfying (still jerking clockwise?)
-			pp.setTheta(theirTheta * .3 - myTheta - tweak);
+			if (loop) pp.setTheta(theirTheta * .3 - myTheta - tweak);
 			
 			Point2D p = PolarPoint.polarToCartesian(pp);
 			double x = p.getX();
@@ -199,6 +197,7 @@ public class SubtreeLayout {
 			done.add(related);
 			if (!growGraph(related, node, level + 1, done, graph)) {	//  recursion
 				alertColors.put(edge, "#ff00ff");
+				loop = true;
 				return false;
 			}
 			

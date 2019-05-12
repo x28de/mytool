@@ -122,7 +122,7 @@ public class WXR2SQL {
 			if (catString == null) catString ="Uncategorized";
 			String titleString = titles.get(key);
 			
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 			Date date = null;
 			long epoch = 0L;
 			try {
@@ -282,7 +282,13 @@ public class WXR2SQL {
 				categories.put(itemNum, catString);
 				catSet.add(catString);
 			} else if (postDate && post) {
-				String dateString = new String(ch, start, length);
+				String rawDate = new String(ch, start, length);
+				String dateString = rawDate + ".000"; 
+				int disambig = 100;
+				while (dates.contains(dateString)) {
+					disambig++;
+					dateString = rawDate + "." + disambig;
+				}
 				dates.put(itemNum, dateString);
 				datesMap.put(dateString, itemNum);
 			} else if (content && post) {
