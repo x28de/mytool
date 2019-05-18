@@ -133,6 +133,7 @@ public class TopicMapImporter {		//	OLD map format !
 		Element root = inputXml.getDocumentElement();
 
 		NodeList topicsAndAssocs = root.getChildNodes();
+		if (topicsAndAssocs.getLength() > 600) controler.displayPopup("Legacy size limit");;
 		
 		// Read structure, save in intermediate arrays, and record old ID to new ID mapping
 		

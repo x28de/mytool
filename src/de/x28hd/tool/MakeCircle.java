@@ -369,6 +369,7 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 		int nodeID = node.getID();
 		GraphNode node1 = node.relatedNode(edge1);
 		GraphNode node2 = node.relatedNode(edge2);
+		if (node1 == node2) return false;
 		int edgeNum = newKey(edges.keySet());
 		GraphEdge replacement = new GraphEdge(edgeNum, node1, node2, Color.decode("#c0c0c0"), "");
 		edges.put(edgeNum, replacement);
