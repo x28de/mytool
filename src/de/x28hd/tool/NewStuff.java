@@ -418,7 +418,7 @@ public class NewStuff {
 		Charset CP850 = Charset.forName("CP850");
 		File file = new File(dataString);	//	Brute force testing for zip
 		if (new File(dataString).isDirectory()) {
-			new ImportDirector(19, new File(dataString), controler);
+			new ImportDirector(Importer.Filetree, new File(dataString), controler);
 			return;
 		}
 		ZipFile zfile = null;
@@ -434,20 +434,20 @@ public class NewStuff {
 				String filename = entry.getName();
 				filename = filename.replace('\\', '/');		
 				if (filename.equals("savefile.xml") || filename.startsWith("topicmap-t-")) {
-					new ImportDirector(18, stream, controler); 
+					new ImportDirector(Importer.OldFormat, stream, controler); 
 					done = true;
 					break;
 				} else if (filename.endsWith("content.cds.xml")) {
-					new ImportDirector(1, file, controler); 
+					new ImportDirector(Importer.iMapping, file, controler); 
 					done = true;
 					break;
 				} else if (filename.endsWith("zknFile.xml")) {
 //					new ImportDirector(13, stream, controler); 
-					new ImportDirector(13, file, controler); 
+					new ImportDirector(Importer.Zettelkasten, file, controler); 
 					done = true;
 					break;
 				} else if (filename.equals("word/document.xml")) {
-					new ImportDirector(5, stream, controler); 
+					new ImportDirector(Importer.Word, stream, controler); 
 					done = true;
 					break;
 				} else	{
@@ -517,33 +517,12 @@ public class NewStuff {
 				step3();
 				return;
 			}
-			String [] knownFormats = {
-					"en-export", 
-					"(not relevant)", 
-					"kgif", 
-					"cmap", 
-					"BrainData",
-					"w:document",
-					"(not relevant)",
-					"(not relevant)",
-					"(not relevant)",	// even if LW-MAP is recognized, namespace missing
-					"(not relevant)",
-					"(not relevant)",
-					"map",
-					"opml",
-					"(not relevant)",
-					"(not relevant)",
-					"GEDCOM",
-					"(not relevant)",
-					"(not relevant)",
-					"topicmap",
-					"(not relevant)",
-					"urlset",
-					"x28tree"
-					};
-			for (int k = 0; k < knownFormats.length; k++) {
-				if (root.getTagName() == knownFormats[k]) {
-					if (k != 0 && k != 5 && k != 6) {		// Evernote, Word, Endnote
+			Importer[] importers = Importer.getImporters();
+			for (int k = 0; k < importers.length; k++) {
+				if (root.getTagName() == importers[k].getKnownFormat()) {
+					if (k != Importer.Evernote 
+						&& k != Importer.Word 
+						&& k != Importer.Endnote) {
 						if (compositionMode) {
 							controler.getCWInstance().cancel();
 						}
@@ -560,37 +539,18 @@ public class NewStuff {
 		if (!hope) {
 			if (inputType == 1) {
 				//	Analyze extension
-				String [] knownExtension = {	//	TODO consolidate with importDirector
-						"enex", 
-						"iMap", 
-						"xml", 
-						"cxl", 
-						"xml",
-						"docx", 
-						"enw",
-						"ctv4",
-						"vue",
-						"ris",
-						"bib",
-						"mm",
-						"opml",
-						"zkn3",
-						"csv",		//	need different method
-						"xml",
-						"none",
-						"json",		//	need different method
-						"zip",
-						"none",
-						"xml",
-						"xml",
-						};
 				File file = new File(dataString);
 				String filename = file.getName();
 				String ext = filename.substring(filename.lastIndexOf(".") + 1);
 				ext = ext.toLowerCase();
-				for (int k = 0; k < knownExtension.length; k++) {
-					if (knownExtension[k].equals(ext)) {
-						if (k != 0 && k != 5 && k != 6 && k != 9 && k != 10) {		// Evernote, Word, Endnote, RIS, BibTeX
+				Importer[] importers = Importer.getImporters();
+				for (int k = 0; k < importers.length; k++) {
+					if (importers[k].getExt().equals(ext)) {
+						if (k != Importer.Evernote 
+							&& k != Importer.Word 
+							&& k != Importer.Endnote
+							&& k != Importer.RIS 
+							&& k != Importer.BibTeX) {
 							if (compositionMode) {
 								controler.getCWInstance().cancel();
 							}
