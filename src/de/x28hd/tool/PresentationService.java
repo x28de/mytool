@@ -65,6 +65,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	GraphPanel graphPanel;
 	TextEditorPanel edi = new TextEditorPanel(this);	
 	Gui gui;
+	LifeCycle lifeCycle;
 	
 	// User Interface
 	public JFrame mainWindow;
@@ -115,8 +116,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	String filename = "";
 	String confirmedFilename = "";
 	String lastHTMLFilename = "";
-	boolean maybeJustPeek = true;
-	boolean existingMap = false;
 	
 	// Undo accessories 
 	int lastChangeType;
@@ -140,7 +139,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 	//	Toggles
 	int toggle4 = 0;   // => hide classicMenu 
-	boolean isDirty = false;
 	boolean presoSizedMode = false;
 	boolean contextPasteAllowed = true;
 	boolean hyp = false;
@@ -291,12 +289,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 			if (confirmedFilename.isEmpty()) {
 				if (askForFilename("xml")) {
 					if (startStoring(confirmedFilename, false)) {
-						setDirty(false);
+						lifeCycle.setDirty(false);
 					}
 				}
 			} else {
 				if (startStoring(confirmedFilename, false)) {
-					setDirty(false);
+					lifeCycle.setDirty(false);
 				}
 			}
 			
@@ -305,7 +303,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "SaveAs") {
 			if (askForFilename("xml")) {
 				if (startStoring(confirmedFilename, false)) {
-					setDirty(false);
+					lifeCycle.setDirty(false);
 				}
 			}
 			
@@ -750,8 +748,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	    	} else {
 	    		animationTimer.stop();
 	    		animationPercent = 0;
-	    		performUpdate(existingMap); 
-	    		existingMap = false;
+	    		performUpdate(); 
 	        	graphPanel.setModel(nodes, edges);
 	     	}
 	    	updateBounds();
@@ -885,12 +882,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 		detailBox.add(edi,"South");
 		rightPanel.add(detailBox,"South");
 
-		boolean dirtyBefore = isDirty;
-		edi.setText("<html>Es ist untersagt, metallbeschichtete Luftballons mit Gasfuellung "
-				+ "in Tunnelbahnhoefen mit elektrischer Oberleitung unverpackt "
-				+ "<a href=\"http://x28hd.de\">mitzufuehren</a>.</html>");
-		isDirty = dirtyBefore;
-//		edi.getTextComponent().setCaretPosition(18);
+		edi.setText("x");	// dummy, necessary for EndOfLineStringProperty
+		lifeCycle.setDirty(false);
 		
 		splitPane.setRightComponent(rightPanel);
 		splitPane.repaint();
@@ -1034,7 +1027,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 	public void setDirty(boolean toggle) {
-		isDirty = toggle;
+		lifeCycle.setDirty(toggle);
 	}
 
 	private void ssssssssssseparator1() {
@@ -1096,6 +1089,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		edges = new Hashtable<Integer, GraphEdge>();
 		
 		gui = new Gui(this, graphPanel, edi, newStuff );
+		lifeCycle = new LifeCycle(this, baseDir);
 		
 		graphPanel.setModel(nodes, edges);
 		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
@@ -1163,7 +1157,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			return false;
 		}
 		if (!anonymized) {
-			isDirty = false;
+			lifeCycle.setDirty(false);
 			edi.setDirty(false);
 		}
 		return true;
@@ -1186,7 +1180,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	public boolean close() {
 		Object[] closeOptions =  {"Save", "Discard changes", "Cancel"};
 		int closeResponse = JOptionPane.YES_OPTION;
-		if (isDirty) {
+		if (lifeCycle.isDirty()) {
 			closeResponse = JOptionPane.showOptionDialog(null,
 					"Do you want to save your changes?\n",
 					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, 
@@ -1296,7 +1290,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			graphPanel.nodeSelected(topic);
 			graphPanel.repaint();
 //			edi.setDirty(false);
-			setDirty(true);
+			lifeCycle.setDirty(true);
 			return topic;
 		} else {
 			return null;
@@ -1314,7 +1308,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			topic1.addEdge(assoc);
 			topic2.addEdge(assoc);
 			
-			setDirty(true);
+			lifeCycle.setDirty(true);
 			return assoc;
 		} else {
 			return null;
@@ -1368,7 +1362,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		nodes.remove(topicKey);
 		recount();
 		updateBounds();
-		setDirty(true);
+		lifeCycle.setDirty(true);
 		commit(DELETE_NODE, topic, null, null);
 		return;
 	}
@@ -1401,7 +1395,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		nodes.put(topicID2,  topic2);
 		recount();
 		graphPanel.repaint();
-		setDirty(true);
+		lifeCycle.setDirty(true);
 		commit(DELETE_EDGE, null, assoc, null);
 		return;
 	}
@@ -1429,7 +1423,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 		graphPanel.nodeRectangle(false);
 		graphPanel.repaint();
-		setDirty(true);
+		lifeCycle.setDirty(true);
 		return;
 	}
 
@@ -1478,7 +1472,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			node.setXY(xy);
 		}
 		graphPanel.repaint();
-		setDirty(true);
+		lifeCycle.setDirty(true);
 	}
 
 	public Rectangle getBounds() {
@@ -1677,13 +1671,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 	
    // Major class exchanges
    
-   public void triggerUpdate(boolean existingMap) {
+   public void triggerUpdate() {
 	   translation = graphPanel.getTranslation();
-	   this.existingMap = existingMap;
 	   if (nodes.size() < 1) {
 		   panning = new Point(0, 0);
 		   upperGap = new Point(0, 0);
-		   performUpdate(existingMap);
+		   performUpdate();
 	   } else {
 		   Point bottomOfExisting = determineBottom(nodes, bounds);
 		   panning = new Point(bottomOfExisting.x - 40 + translation.x, 
@@ -1704,7 +1697,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			   }
 			   translation = graphPanel.getTranslation();
 			   graphPanel.translateGraph(-panning.x, -panning.y);
-			   performUpdate(existingMap);
+			   performUpdate();
 			   updateBounds();
 			   setDefaultCursor();
 			   graphPanel.repaint();
@@ -1712,16 +1705,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   }
    }
    
-   public void performUpdate(boolean existingMap) {
-	   this.existingMap = existingMap;
+   public void performUpdate() {
+	   boolean existingMap = newStuff.isExistingMap();
 	   hintTimer.stop();
 	   graphPanel.jumpingArrow(false);
-	   if (maybeJustPeek && existingMap && nodes.size() < 1) {
+	   if (!lifeCycle.isLoaded() && existingMap && nodes.size() < 1) {
 		   //  don't set dirty yet
 		   confirmedFilename = newStuff.getAdvisableFilename();
-		   maybeJustPeek = false;
+		   lifeCycle.setLoaded(true);
 	   } else {
-		   setDirty(true);
+		   lifeCycle.setDirty(true);
 	   }
 	   Hashtable<Integer, GraphNode> newNodes = newStuff.getNodes();
 	   Hashtable<Integer, GraphEdge> newEdges = newStuff.getEdges();
