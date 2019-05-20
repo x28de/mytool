@@ -65,6 +65,7 @@ public class NewStuff {
 	
 	//	Map loading
 	boolean readyMap = false;
+	boolean existingMap = false;
 	int topicnum = 0;
 	int assocnum = 0;
 	Element root;
@@ -297,9 +298,8 @@ public class NewStuff {
 		if (readyMap) {
 			newNodes = fetchToUpperLeft(newNodes);
 		}
-		boolean existingMap = false;
 		if (inputType == 1 && readyMap) existingMap = true;		
-		controler.triggerUpdate(existingMap);
+		controler.triggerUpdate();
 		dropLocation = null;
 		readyMap = false;
 	}
@@ -853,4 +853,7 @@ public class NewStuff {
 		return dropLocation;
 	}
 
+	public boolean isExistingMap() {
+		return existingMap;
+	}
 }

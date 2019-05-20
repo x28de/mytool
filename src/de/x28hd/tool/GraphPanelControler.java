@@ -16,7 +16,7 @@ interface GraphPanelControler {
 	TextEditorPanel edi = null;
 	void addToLabel(String text);
 	void setFilename(String filename, int type);
-	void triggerUpdate(boolean justOneMap);
+	void triggerUpdate();
 	NewStuff getNSInstance();
 	CompositionWindow getCWInstance();
 	void finishCompositionMode();
