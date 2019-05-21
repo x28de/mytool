@@ -77,7 +77,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	JPanel altButton = null;
 	boolean altDown = false;
 	JPanel footbar = null;
-	String mainWindowTitle = "Main Window";
 	
 	JSplitPane splitPane = null;
 	JPanel rightPanel = null;
@@ -113,9 +112,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	String dataString = "";	
 	int inputType = 0;
 	String baseDir;
-	String filename = "";
-	String confirmedFilename = "";
-	String lastHTMLFilename = "";
 	
 	// Undo accessories 
 	int lastChangeType;
@@ -157,6 +153,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	
 	public PresentationService(boolean ext) {
 		extended = ext;
+		lifeCycle = new LifeCycle();
 	}
 
 //
@@ -286,14 +283,14 @@ public final class PresentationService implements ActionListener, MouseListener,
 		// Save	
 
 		} else if (command == "Store") {
-			if (confirmedFilename.isEmpty()) {
-				if (askForFilename("xml")) {
-					if (startStoring(confirmedFilename, false)) {
+			if (lifeCycle.getConfirmedFilename().isEmpty()) {
+				if (lifeCycle.askForFilename("xml")) {
+					if (startStoring(lifeCycle.getConfirmedFilename(), false)) {
 						lifeCycle.setDirty(false);
 					}
 				}
 			} else {
-				if (startStoring(confirmedFilename, false)) {
+				if (startStoring(lifeCycle.getConfirmedFilename(), false)) {
 					lifeCycle.setDirty(false);
 				}
 			}
@@ -301,8 +298,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 		// Save as
 			
 		} else if (command == "SaveAs") {
-			if (askForFilename("xml")) {
-				if (startStoring(confirmedFilename, false)) {
+			if (lifeCycle.askForFilename("xml")) {
+				if (startStoring(lifeCycle.getConfirmedFilename(), false)) {
 					lifeCycle.setDirty(false);
 				}
 			}
@@ -680,8 +677,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 					+ "and selecting.</html>");
 			
 		} else if (command == "Print") {
+			String lastHTMLFilename = lifeCycle.getLastHTMLFilename();
 			if (lastHTMLFilename.isEmpty()) {
-				if (askForFilename("htm")) {
+				if (lifeCycle.askForFilename("htm")) {
+					lastHTMLFilename = lifeCycle.getLastHTMLFilename();
 					new MakeHTML(true, nodes, edges, lastHTMLFilename, this);
 				}
 			} else {
@@ -689,8 +688,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 			}
 			
 		} else if (command == "MakeHTML") {
+			String lastHTMLFilename = lifeCycle.getLastHTMLFilename();
 			if (lastHTMLFilename.isEmpty()) {
-				if (askForFilename("htm")) {
+				if (lifeCycle.askForFilename("htm")) {
+					lastHTMLFilename = lifeCycle.getLastHTMLFilename();
 					new MakeHTML(false, nodes, edges, lastHTMLFilename, this);
 				}
 			} else {
@@ -1046,7 +1047,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		edi.setSize(initialSize);
 		//	For compatibility, prompt a compositionWindow
 //		if (filename.isEmpty()) openComposition();
-		if (filename.isEmpty()) {
+		if (lifeCycle.getFilename().isEmpty()) {
 			hintTimer.start();
 
 		}
@@ -1054,8 +1055,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	
 	//	Input from start parameters	
 	public void setFilename(String arg, int type) {
-		filename = arg;
-		mainWindowTitle = Utilities.getShortname(filename);
+		lifeCycle.setFilename(arg);
 		if (mainWindow != null) mainWindow.repaint();
 	}
 	
@@ -1089,58 +1089,24 @@ public final class PresentationService implements ActionListener, MouseListener,
 		edges = new Hashtable<Integer, GraphEdge>();
 		
 		gui = new Gui(this, graphPanel, edi, newStuff );
-		lifeCycle = new LifeCycle(this, baseDir);
 		
 		graphPanel.setModel(nodes, edges);
 		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
 		about = (new AboutBuild(extended)).getAbout();
 
-		createMainWindow(mainWindowTitle);
+		createMainWindow(lifeCycle.getMainWindowTitle());
+		lifeCycle.add(this, baseDir);
+		
 		System.out.println("PS: Initialized");
 		System.out.println("\n\n**** This console window may be ignored ****\n");
 		
 //		newStuff.tmpInit();
+		String filename = lifeCycle.getFilename();
 		if (!filename.isEmpty()) newStuff.setInput(filename, 1);
 	}
 	
 //	Saving and finishing
 
-	public boolean askForFilename(String extension) {
-		FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
-		String newName; 
-		int offs = filename.lastIndexOf(".");
-		if (filename.isEmpty() || offs < 0) {
-			newName = baseDir + File.separator + "storefile." + extension;
-		} else if (!filename.substring(offs + 1).equals(extension)) {
-			newName = filename.substring(0, offs) + "." + extension;
-		} else {
-			newName = filename + "." + extension;  // don't suggest to overwrite
-		} 
-		if (System.getProperty("os.name").equals("Mac OS X")) {
-			
-			newName = newName.substring(newName.lastIndexOf(File.separator) + 1);
-		}
-		fd.setFile(newName);
-		fd.setDirectory(baseDir);
-		fd.setVisible(true);
-		if (fd.getFile() == null) {	//	File dialog aborted.");
-			return false; 
-		}
-		newName = fd.getDirectory() + fd.getFile();
-		if (extension == "xml") {
-			confirmedFilename = newName;
-			mainWindowTitle = Utilities.getShortname(confirmedFilename);
-			mainWindow.setTitle(mainWindowTitle);
-			mainWindow.repaint();
-		} else if (extension == "htm") {
-			lastHTMLFilename = newName;
-		} else {
-			System.out.println("Error PS121b");
-			return false;
-		}
-		return true;
-	}
-	
 	public boolean startStoring(String storeFilename, boolean anonymized) {
 		if (storeFilename.isEmpty()) return false;
 		try {
@@ -1190,16 +1156,16 @@ public final class PresentationService implements ActionListener, MouseListener,
 					closeResponse == JOptionPane.CLOSED_OPTION) {
 				return false;
 			} else if (closeResponse != JOptionPane.NO_OPTION) {
-				if (confirmedFilename.isEmpty()) {
-					if (askForFilename("xml")) {
-						if (!startStoring(confirmedFilename, false)) {
+				if (lifeCycle.getConfirmedFilename().isEmpty()) {
+					if (lifeCycle.askForFilename("xml")) {
+						if (!startStoring(lifeCycle.getConfirmedFilename(), false)) {
 							return false;
 						}
 					} else {
 						return false;
 					}
 				} else {
-					if (!startStoring(confirmedFilename, false)) {
+					if (!startStoring(lifeCycle.getConfirmedFilename(), false)) {
 						return false;
 					}
 				}
@@ -1711,20 +1677,15 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   graphPanel.jumpingArrow(false);
 	   if (!lifeCycle.isLoaded() && existingMap && nodes.size() < 1) {
 		   //  don't set dirty yet
-		   confirmedFilename = newStuff.getAdvisableFilename();
+		   lifeCycle.setConfirmedFilename(newStuff.getAdvisableFilename());
 		   lifeCycle.setLoaded(true);
 	   } else {
 		   lifeCycle.setDirty(true);
 	   }
 	   Hashtable<Integer, GraphNode> newNodes = newStuff.getNodes();
 	   Hashtable<Integer, GraphEdge> newEdges = newStuff.getEdges();
-	   if (filename.isEmpty()) {
-		   filename = newStuff.getAdvisableFilename();
-		   if (!filename.isEmpty()) {
-			   mainWindowTitle = Utilities.getShortname(filename);
-			   mainWindow.setTitle(mainWindowTitle);
-			   mainWindow.repaint();
-		   }
+	   if (lifeCycle.getFilename().isEmpty()) {
+		   lifeCycle.resetFilename(newStuff.getAdvisableFilename());
 	   }
 	   IntegrateNodes integrateNodes = new IntegrateNodes(nodes, edges, newNodes, newEdges);
 	   translation = graphPanel.getTranslation();
