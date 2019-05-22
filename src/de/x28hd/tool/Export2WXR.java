@@ -3,6 +3,7 @@ package de.x28hd.tool;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -57,9 +58,29 @@ public class Export2WXR implements ActionListener{
 	SimpleDateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	String dir = "";
 	
-	public Export2WXR(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges) {
+	public Export2WXR(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
+			GraphPanelControler controler) {
 		this.nodes = nodes;
 		this.edges = edges;
+		FileDialog fd = new FileDialog(controler.getMainWindow(), "Specify filename", FileDialog.SAVE);
+		fd.setFile("wxr.xml"); 
+		fd.setVisible(true);
+		if (fd.getFile() != null) {
+		String storeFilename = fd.getFile();
+		storeFilename = fd.getDirectory() + fd.getFile();
+		String dir = fd.getDirectory();
+
+		try {
+			File storeFile = createTopicmapFile(storeFilename, dir);
+			storeFilename = storeFile.getName();
+		} catch (IOException e2) {
+			System.out.println("Error EW128" + e2);
+		} catch (TransformerConfigurationException e2) {
+			System.out.println("Error EW129" + e2);
+		} catch (SAXException e2) {
+			System.out.println("Error EW130" + e2);
+		}
+		}
 		
 		// Ask for category colors
 		
@@ -266,7 +287,6 @@ public class Export2WXR implements ActionListener{
 		Long dateLong = f.lastModified();
 		dateString = df2.format(dateLong);
 	}
-	System.out.println(dateString);
 	characters(handler, dateString);
 	endElement(handler, "wp:post_date");
 	endElement(handler, "item");

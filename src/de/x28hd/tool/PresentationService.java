@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -196,27 +195,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 //			new TopicMapImporter(mainWindow, this);
 			
 		} else if (command == "open") {
-			FileDialog fd = new FileDialog(mainWindow);
-			fd.setMode(FileDialog.LOAD);
-			fd.setMultipleMode(true);
-			fd.setDirectory(baseDir);
-			fd.setVisible(true);
-			File f[] = fd.getFiles();
-			// Compare transferTransferable() case File(s)
-			dataString = "";
-			int fileCount = 0;
-			for (fileCount = 0; fileCount < f.length; fileCount++) {
-				if (fileCount < 1) {
-					dataString = f[fileCount].getAbsolutePath();
-					inputType = 1;
-				} else {
-					dataString = dataString + "\r\n" + f[fileCount].getAbsolutePath();
-					inputType = 4;
-				}
-			}
-			if (!dataString.isEmpty()) {
-				newStuff.setInput(dataString, inputType);
-			}
+			String filename = lifeCycle.open();
+			newStuff.setInput(filename, 1);
 
 		// Quit
 
@@ -283,39 +263,22 @@ public final class PresentationService implements ActionListener, MouseListener,
 		// Save	
 
 		} else if (command == "Store") {
-			if (lifeCycle.getConfirmedFilename().isEmpty()) {
-				if (lifeCycle.askForFilename("xml")) {
-					if (startStoring(lifeCycle.getConfirmedFilename(), false)) {
-						lifeCycle.setDirty(false);
-					}
-				}
-			} else {
-				if (startStoring(lifeCycle.getConfirmedFilename(), false)) {
-					lifeCycle.setDirty(false);
-				}
-			}
+			lifeCycle.save();
 			
 		// Save as
 			
 		} else if (command == "SaveAs") {
-			if (lifeCycle.askForFilename("xml")) {
-				if (startStoring(lifeCycle.getConfirmedFilename(), false)) {
-					lifeCycle.setDirty(false);
-				}
-			}
+			lifeCycle.saveAs();
 			
 		// Export to legacy or exotic formats
 			
 		} else if (command == "export") {
-				startExport();
+			String s = lifeCycle.askForLocation("legacy.zip");
+			new TopicMapExporter(nodes, edges).createTopicmapArchive(s);
 				
 		} else if (command == "Anonymize") { 
-			FileDialog fd = new FileDialog(mainWindow, "Specify filename for anonymized copy", FileDialog.SAVE);
-			fd.setFile("anonymized.xml");
-			fd.setDirectory(baseDir);
-			fd.setVisible(true);
-			String fspec = fd.getDirectory() + File.separator + fd.getFile();
-			if (startStoring(fspec, true)) displayPopup(fspec + " saved.\n" +
+			String s = lifeCycle.askForLocation("anonymized.xml");
+			if (startStoring(s, true)) displayPopup(s + " saved.\n" +
 			"All letters a-z replaced by x, all A-Z by X");
 				
 		//	Various toggles	
@@ -436,123 +399,52 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "sibling") {
 			launchSibling();
 			
+		//	Exports 
+			
 		} else if (command == "wxr") {
-			Export2WXR export2WXR = new Export2WXR(nodes, edges);
-			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
-			fd.setFile("wxr.xml"); 
-			fd.setVisible(true);
-			if (fd.getFile() != null) {
-			String storeFilename = fd.getFile();
-			storeFilename = fd.getDirectory() + fd.getFile();
-			String dir = fd.getDirectory();
-
-			try {
-				File storeFile = export2WXR.createTopicmapFile(storeFilename, dir);
-				storeFilename = storeFile.getName();
-			} catch (IOException e2) {
-				System.out.println("Error PS128" + e2);
-			} catch (TransformerConfigurationException e2) {
-				System.out.println("Error PS129" + e2);
-			} catch (SAXException e2) {
-				System.out.println("Error PS130" + e2);
-			}
-			}
+			new Export2WXR(nodes, edges, this);
+			
 		} else if (command == "imexp") {
 			if (!extended) new LimitationMessage(); 
 			else {
-			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
-			fd.setFile("im.iMap"); 
-			fd.setVisible(true);
-			if (fd.getFile() != null) {
-				String storeFilename = fd.getFile();
-				storeFilename = fd.getDirectory() + fd.getFile();
-
-				new ImappingExport(nodes, edges, storeFilename, this);
-			}
+				String s = lifeCycle.askForLocation("im.iMap");
+				if (!s.isEmpty()) new ImappingExport(nodes, edges, s, this);
 			}
 		} else if (command == "zkexp") {
-			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
-			fd.setFile("zk.zkn3"); 	//	zkx3 did not work
-			fd.setVisible(true);
-			if (fd.getFile() != null) {
-				String storeFilename = fd.getFile();
-				storeFilename = fd.getDirectory() + fd.getFile();
-
-				new ZknExport(nodes, edges, storeFilename, this);
-			}
+			String s = lifeCycle.askForLocation("zk.zkn3");	//	zkx3 did not work
+			if (!s.isEmpty())new ZknExport(nodes, edges, s, this);
+			
 		} else if (command == "dwzexp") {
 			if (!extended) new LimitationMessage();
 			else {
-			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
-			fd.setFile("dwz.kgif.xml"); 
-			fd.setVisible(true);
-			if (fd.getFile() != null) {
-				String storeFilename = fd.getFile();
-				storeFilename = fd.getDirectory() + fd.getFile();
-
-				new DwzExport(nodes, edges, storeFilename, this);
-			}
+				String s = lifeCycle.askForLocation("dwz.kgif.xml");
+				if (!s.isEmpty()) new DwzExport(nodes, edges, s, this);
 			}
 		} else if (command == "cmapexp") {
-			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
-			fd.setFile("my.cmap.cxl"); 
-			fd.setVisible(true);
-			if (fd.getFile() != null) {
-				String storeFilename = fd.getFile();
-				storeFilename = fd.getDirectory() + fd.getFile();
+				String s = lifeCycle.askForLocation("my.cmap.cxl");
+				if (!s.isEmpty()) new CmapExport(nodes, edges, s, this);
 
-				new CmapExport(nodes, edges, storeFilename, this);
-			}
 		} else if (command == "brainexp") {
-			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
-			fd.setFile("my.brain.xml"); 
-			fd.setVisible(true);
-			if (fd.getFile() != null) {
-				String storeFilename = fd.getFile();
-				storeFilename = fd.getDirectory() + fd.getFile();
+				String s = lifeCycle.askForLocation("my.brain.xml");
+				if (!s.isEmpty()) new BrainExport(nodes, edges, s, this);
 
-				new BrainExport(nodes, edges, storeFilename, this);
-			}
 		} else if (command == "vueexp") {
-			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
-			fd.setFile("my.vue"); 
-			fd.setVisible(true);
-			if (fd.getFile() != null) {
-				String storeFilename = fd.getFile();
-				storeFilename = fd.getDirectory() + fd.getFile();
+				String s = lifeCycle.askForLocation("my.vue");
+				if (!s.isEmpty()) new VueExport(nodes, edges, s, this);
 
-				new VueExport(nodes, edges, storeFilename, this);
-			}
 		} else if (command == "metamexp") {
-			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
-			fd.setFile("export.json"); 
-			fd.setVisible(true);
-			if (fd.getFile() != null) {
-				String storeFilename = fd.getFile();
-				storeFilename = fd.getDirectory() + fd.getFile();
+				String s = lifeCycle.askForLocation("export.json");
+				if (!s.isEmpty()) new MetamapsExport(nodes, edges, s, this);
 
-				new MetamapsExport(nodes, edges, storeFilename, this);
-			}
 		} else if (command == "csvexp") {
-			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
-			fd.setFile("csv.txt"); 
-			fd.setVisible(true);
-			if (fd.getFile() != null) {
-				String storeFilename = fd.getFile();
-				storeFilename = fd.getDirectory() + fd.getFile();
+				String s = lifeCycle.askForLocation("csv.txt");
+				if (!s.isEmpty()) new CsvExport(nodes, edges, s, this);
 
-				new CsvExport(nodes, edges, storeFilename, this);
-			}
 		} else if (command == "edgeexp") {
-			FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
-			fd.setFile("csv.txt"); 
-			fd.setVisible(true);
-			if (fd.getFile() != null) {
-				String storeFilename = fd.getFile();
-				storeFilename = fd.getDirectory() + fd.getFile();
+				String s = lifeCycle.askForLocation("csv.txt");
+				if (!s.isEmpty()) new CsvExport(nodes, edges, s, this, true);
 
-				new CsvExport(nodes, edges, storeFilename, this, true);
-			}
+		
 		} else if (command == "delCluster") {
 				deleteCluster(rectangle, selectedAssoc);
 				graphSelected();
@@ -1129,53 +1021,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 		return true;
 	}
 
-	public void startExport() {
-		FileDialog fd = new FileDialog(mainWindow, "Select Zip File to Update");
-		fd.setMode(FileDialog.LOAD);
-		fd.setMultipleMode(false);
-		fd.setDirectory(baseDir);
-		fd.setVisible(true);
-		try {
-			String zipFilename = fd.getDirectory() + File.separator + fd.getFile();
-			new TopicMapExporter(nodes, edges).createTopicmapArchive(zipFilename);
-		} catch (IOException e) {
-			System.out.println("Error PS127 " + e);
-		}
-	}
-
-	public boolean close() {
-		Object[] closeOptions =  {"Save", "Discard changes", "Cancel"};
-		int closeResponse = JOptionPane.YES_OPTION;
-		if (lifeCycle.isDirty()) {
-			closeResponse = JOptionPane.showOptionDialog(null,
-					"Do you want to save your changes?\n",
-					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, 
-					JOptionPane.WARNING_MESSAGE, null, 
-					closeOptions, closeOptions[0]);  
-			if (closeResponse == JOptionPane.CANCEL_OPTION ||
-					closeResponse == JOptionPane.CLOSED_OPTION) {
-				return false;
-			} else if (closeResponse != JOptionPane.NO_OPTION) {
-				if (lifeCycle.getConfirmedFilename().isEmpty()) {
-					if (lifeCycle.askForFilename("xml")) {
-						if (!startStoring(lifeCycle.getConfirmedFilename(), false)) {
-							return false;
-						}
-					} else {
-						return false;
-					}
-				} else {
-					if (!startStoring(lifeCycle.getConfirmedFilename(), false)) {
-						return false;
-					}
-				}
-			}
-		}
-
-		mainWindow.dispose();
-		System.out.println("PS: Closed");
-		System.exit(0);
-		return true;
+	public boolean close() {	// Mac needs this
+		return lifeCycle.close();
 	}
 
 
