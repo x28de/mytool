@@ -2,6 +2,7 @@ package de.x28hd.tool;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -30,11 +31,20 @@ public class TopicMapExporter {
 		this.edges = edges;
 	}
 	
-	public void createTopicmapArchive(String zipFilename) throws IOException {
-		FileOutputStream fout = new FileOutputStream(zipFilename);
+	public void createTopicmapArchive(String zipFilename) {
+		FileOutputStream fout = null;
+		try {
+			fout = new FileOutputStream(zipFilename);
+		} catch (FileNotFoundException e) {
+			System.out.println("Error TX127 " + e);
+		}
 		ZipOutputStream zout = new ZipOutputStream(fout);
 		exportViewMode(zout);
-		zout.close();
+		try {
+			zout.close();
+		} catch (IOException e) {
+			System.out.println("Error TX127a " + e);
+		}
 	}
 	
 	private void exportViewMode(ZipOutputStream out) {

@@ -49,4 +49,5 @@ interface GraphPanelControler {
 	JFrame getMainWindow();
 	void replaceForLayout(Hashtable<Integer,GraphNode> replacingNodes, 
 			   Hashtable<Integer,GraphEdge> replacingEdges); 
+	boolean startStoring(String storeFilename, boolean anonymized);
 	}

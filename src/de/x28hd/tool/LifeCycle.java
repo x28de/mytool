@@ -4,6 +4,7 @@ import java.awt.FileDialog;
 import java.io.File;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class LifeCycle {
 	
@@ -105,9 +106,84 @@ public class LifeCycle {
 		} else if (extension == "htm") {
 			lastHTMLFilename = newName;
 		} else {
-			System.out.println("Error PS121b");
+			System.out.println("Error LC121b");
 			return false;
 		}
+		return true;
+	}
+	
+	public String askForLocation(String suggestion) {
+		String storeFilename = "";
+		FileDialog fd = new FileDialog(mainWindow, "Specify filename", FileDialog.SAVE);
+		fd.setFile(suggestion); 
+		fd.setVisible(true);
+		if (fd.getFile() != null) {
+			storeFilename = fd.getFile();
+			storeFilename = fd.getDirectory() + fd.getFile();
+		}
+		return storeFilename;
+	}
+	
+	public void save() {
+		if (confirmedFilename.isEmpty()) {
+			if (askForFilename("xml")) {
+				if (controler.startStoring(confirmedFilename, false)) {
+					setDirty(false);
+				}
+			}
+		} else {
+			if (controler.startStoring(confirmedFilename, false)) {
+				setDirty(false);
+			}
+		}
+	}
+	public void saveAs() {
+		if (askForFilename("xml")) {
+			if (controler.startStoring(confirmedFilename, false)) {
+				setDirty(false);
+			}
+		}
+	}
+	
+	public String open() {
+		FileDialog fd = new FileDialog(mainWindow);
+		fd.setMode(FileDialog.LOAD);
+		fd.setDirectory(baseDir);
+		fd.setVisible(true);
+		return fd.getDirectory() + fd.getFile();
+	}
+	
+	public boolean close() {
+		Object[] closeOptions =  {"Save", "Discard changes", "Cancel"};
+		int closeResponse = JOptionPane.YES_OPTION;
+		if (isDirty()) {
+			closeResponse = JOptionPane.showOptionDialog(null,
+					"Do you want to save your changes?\n",
+					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, 
+					JOptionPane.WARNING_MESSAGE, null, 
+					closeOptions, closeOptions[0]);  
+			if (closeResponse == JOptionPane.CANCEL_OPTION ||
+					closeResponse == JOptionPane.CLOSED_OPTION) {
+				return false;
+			} else if (closeResponse != JOptionPane.NO_OPTION) {
+				if (getConfirmedFilename().isEmpty()) {
+					if (askForFilename("xml")) {
+						if (!controler.startStoring(getConfirmedFilename(), false)) {
+							return false;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					if (!controler.startStoring(getConfirmedFilename(), false)) {
+						return false;
+					}
+				}
+			}
+		}
+		mainWindow.dispose();
+		System.out.println("LC: Closed");
+		System.exit(0);
 		return true;
 	}
 }
