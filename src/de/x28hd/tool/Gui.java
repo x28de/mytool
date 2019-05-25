@@ -24,8 +24,8 @@ public class Gui {
 	
 	PresentationService controler;
 	GraphPanel graphPanel;
-	TextEditorPanel edi;
-	NewStuff newStuff;
+	TextEditorPanel edi;	// TODO remove
+	NewStuff newStuff;		// TODO remove
 
 	JMenuBar menuBar;
 	
@@ -288,7 +288,7 @@ public class Gui {
 		menu3.add(menuItem31);
 
 		JMenuItem menuItem37 = new JMenuItem("Launch the Import Wizard",  new ImageIcon(wizardImage));
-		menuItem37.setActionCommand("testimp");
+		menuItem37.setActionCommand("testimp");		// TODO rename
 		menuItem37.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, shortcutMask));
 		menuItem37.setToolTipText("Import data in one of 15 formats");
 		menuItem37.addActionListener(controler);
