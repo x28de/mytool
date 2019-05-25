@@ -174,25 +174,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 		if (command == "insert" || command == "new") {
 			openComposition();
 
-		} else if (command == "imapimp") {
-			new ImappingImport(mainWindow, this);
-			
-		} else if (command == "eneximp") {
-			new EnexImport(mainWindow, this);
-			
-		} else if (command == "dwzimp") {
-			new DwzImport(mainWindow, this);
-			
-		} else if (command == "cmapimp") {
-			new CmapImport(mainWindow, this);
-			
-		} else if (command == "brainimp") {
-			new BrainImport(mainWindow, this);
-			
 		} else if (command == "testimp") {
 			new ImportDirector(this);
-//			new WordImport(mainWindow, this);
-//			new TopicMapImporter(mainWindow, this);
 			
 		} else if (command == "open") {
 			String filename = lifeCycle.open();
@@ -216,8 +199,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			copy(rectangle, selectedAssoc);
 		} else if (command == "cut") {
 			cut(rectangle, selectedAssoc);
-		} else if (command == "delete") {
-			delete();
 		} else if (command == "select") {
 			displayPopup("<html><h3>How to Select</h3>" 
 					+ "Select a cluster of connected items by clicking any line;<br />" 
@@ -554,9 +535,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			} else if (command == "?") {
 				gui.displayHelp();
 
-			} else if (command == "tmppaste") {
-				DefaultEditorKit.PasteAction tmpPasteAction = new DefaultEditorKit.PasteAction();
-				tmpPasteAction.actionPerformed(e);
 			}
 			endTask();
 			
@@ -1696,18 +1674,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			GraphNode topic = assoc.getNode1();	
 			graphPanel.copyCluster(rectangle, topic);
 			deleteCluster(rectangle, assoc);
-		}
-		
-		public void delete() {
-			if (selectedTopic != dummyNode) {
-				deleteNode(selectedTopic);
-				selection.topic = null;
-				graphSelected();
-				graphPanel.repaint();
-			} else {
-				deleteEdge(selectedAssoc);
-				graphSelected();
-			}
 		}
 		
 		public void updateCcpGui() {
