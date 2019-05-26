@@ -28,6 +28,7 @@ public class GraphExtras {
 	boolean part1 = true;
 	int ticks = 0;
 
+	public GraphExtras(final GraphPanel graphPanel) {
 		
 		this.graphPanel = graphPanel;
 //		width = ((JComponent) graphPanel).getWidth() + 1;
