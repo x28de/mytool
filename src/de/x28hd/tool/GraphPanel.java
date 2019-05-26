@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -20,14 +19,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JMenuItem;
@@ -40,6 +37,7 @@ class GraphPanel extends JDesktopPane  {
 
 	private GraphPanelControler controler;
 	JComponent graphPanel;
+	GraphExtras graphExtras;
 	Hashtable<Integer, GraphNode> nodes;
 	Hashtable<Integer, GraphEdge> edges;
     JMenuItem menuItem = new JMenuItem("Paste new Input");	//	TODO cleanup
@@ -50,9 +48,6 @@ class GraphPanel extends JDesktopPane  {
 	boolean labelUpdate = false;
 	Font font = new Font("monospace", Font.PLAIN, 12);
 	NewStuff newStuff = null;
-	int ticks = 0;
-	boolean jumpingArrow = false;
-	boolean part1 = true;
 	Point lastPoint = new Point(0, 0);
 	
 	private boolean rectangleInProgress;
@@ -83,17 +78,8 @@ class GraphPanel extends JDesktopPane  {
 	private Point translation;
 	//
 	Rectangle bounds;
-	private int width, height;
-	private Image topImage;
-	private Image bottomImage;
-	private Image leftImage;
-	private Image rightImage;
-	final static int BORDER_IMAGE_WIDTH = 84;  
-	final static int BORDER_IMAGE_HEIGHT = 12;
 	boolean x28PresoSizedMode = false;
 	boolean indexCards = true;
-	boolean borderOrientation = false;
-	boolean showHints = false;
 	boolean antiAliasing = true;
 	boolean enableRectangle = false;
 	boolean enableClusterCopy = false;
@@ -134,19 +120,12 @@ class GraphPanel extends JDesktopPane  {
 	private static final long serialVersionUID = 1L;
 
 	GraphPanel(final GraphPanelControler controler) {
+		graphExtras = new GraphExtras(this);
 		this.controler = controler;
 		this.translation = new Point(0, 0);
 		newStuff = controler.getNSInstance();
 		setLayout(null);
 		selection = new Selection();
-		
-		width = this.getWidth() + 1;
-		height = this.getHeight() + 1;
-		bounds = new Rectangle(height/2, width/2, 0, 0);
-		topImage = getImage("up.gif");
-		bottomImage = getImage("down.gif");
-		leftImage = getImage("left.gif");
-		rightImage = getImage("right.gif");
 		
 		graphPanel = new JComponent() {
 
@@ -154,8 +133,7 @@ class GraphPanel extends JDesktopPane  {
 //			Main graphics activity
 
 			public void paint(Graphics g) { 
-//				if (jumpingArrow) paintJumpingArrow(g);
-				if (showHints) paintHints(g);
+				graphExtras.paintHints(g);	// borders and jumping arrows, if set
 				if (antiAliasing) {
 					((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 						RenderingHints.VALUE_ANTIALIAS_ON);
@@ -212,92 +190,6 @@ class GraphPanel extends JDesktopPane  {
 					g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 				}
 			}
-			private void paintHints(Graphics g) {
-				if (jumpingArrow) paintJumpingArrow(g);
-				if (!borderOrientation) return;
-				if (showTopImage()) {
-					g.drawImage(topImage, (width - BORDER_IMAGE_WIDTH) / 2, 0, this);
-				}
-				if (showBottomImage()) {
-					g.drawImage(bottomImage, (width - BORDER_IMAGE_WIDTH) / 2, height -
-						BORDER_IMAGE_HEIGHT, this);
-				}
-				if (showLeftImage()) {
-					g.drawImage(leftImage, 0, (height - BORDER_IMAGE_WIDTH) / 2, this);
-				}
-				if (showRightImage()) {
-					g.drawImage(rightImage, width - BORDER_IMAGE_HEIGHT, (height -
-						BORDER_IMAGE_WIDTH) / 2, this);
-				}
-			}
-			private void paintJumpingArrow(Graphics g) {
-				g.setFont(font); 
-			if (part1) {
-				float vel = 5;
-				float grav = .5f;
-				int y = 100;
-				for (int time = 0; time < ticks - 180; time++) {
-					if (y <= 0) grav = -grav;
-					vel = vel + grav;
-					if (y <= 0) vel = -vel;
-					y = y - (int) vel;
-					if (ticks > 200) break;
-				}
-				vel = 5;
-				grav = .5F;
-				for (int time = 0; time < ticks - 200; time++) {
-					if (y <= 0) grav = -grav;
-					vel = vel + grav;
-					if (y <= 0) vel = -vel;
-					y = y - (int) vel;
-					if (ticks > 220) break;
-				}
-//				System.out.println(ticks + " " + y);
-				int x = 85;
-				if (System.getProperty("os.name").equals("Mac OS X")) x = 241;
-				int[] xPoints = {x, x + 40, x + 28, x + 28, x - 28, x - 28, x - 40};
-				int[] yPoints = {y, y + 25, y + 25, y + 65, y + 65, y + 25, y + 25};
-//				g.setColor(Color.GRAY);
-				g.drawPolygon(xPoints, yPoints, 7);
-				g.setColor(Color.GRAY);
-				g.drawString("Insert", x - 17, y + 32);
-				g.drawString("some", x - 17, y + 45);
-				g.drawString("items ?", x - 17, y + 58);
-			} else {
-				float vel = 20;
-				float grav = 1.5f;
-				int x = width - 300;
-				int y = 170;
-				for (int time = 0; time < ticks - 80; time++) {
-					vel = vel + grav;
-					x = x + (int) vel;
-					y = y - (int) (.33 * vel);
-					if (ticks > 100) break;
-				}
-				vel = 20;
-				grav = 1.5F;
-				for (int time = 0; time < ticks - 100; time++) {
-					vel = vel + grav;
-					x = x + (int) vel;
-					y = y - (int) (.33 * vel);
-					if (ticks > 120) break;
-				}
-				int[] xPoints = {x, x - 30, x - 31, x - 120, x - 124, x - 33, x - 38};
-				int[] yPoints = {y, y + 26, y + 16, y + 45, y + 35, y + 6, y - 4};
-				g.setColor(Color.GRAY);
-				if (ticks < 210) { 
-					if (x <= width + 30) g.drawPolygon(xPoints, yPoints, 7);
-//					g.setColor(Color.BLACK);
-					g.setColor(Color.GRAY);
-					g.setFont(font);
-					g.drawString("Then", width - 380, 160);
-					if (ticks > 100) { 
-						g.drawString("let your eyes DART at " +
-						"the details corner !", width - 380, 210 + 20);
-					}
-				}
-			}
-			}
 		};
 
 //
@@ -324,8 +216,7 @@ class GraphPanel extends JDesktopPane  {
 				Dimension s = getSize();
 				graphPanel.setSize(s);
 				// update border images
-				width = s.width;
-				height = s.height;
+				graphExtras.setDimension(s);
 				repaint();
 			}
 		});
@@ -420,46 +311,15 @@ class GraphPanel extends JDesktopPane  {
 		}
 	}
 	
-	private boolean showTopImage() {
-		return !isEmpty() && bounds.y + translation.y < 0;
-	}
-
-	private boolean showBottomImage() {
-		return !isEmpty() && bounds.y + bounds.height + translation.y > height;
-	}
-
-	private boolean showLeftImage() {
-		return !isEmpty() && bounds.x + translation.x < 0;
-	}
-
-	private boolean showRightImage() {
-		return !isEmpty() && bounds.x + bounds.width + translation.x > width;
-	}
-	
-	private boolean isEmpty() {
+	public boolean isEmpty() {
 		return nodes.size() == 0;
 	}
 	
 	public void setBounds(Rectangle bounds) {
 		this.bounds = bounds;
+		graphExtras.setBounds(bounds);
 	}
 	
-	public Image getImage(String imagefile) {
-		URL imgURL = getClass().getResource(imagefile);
-		ImageIcon ii;
-		Image img = null;
-		if (imgURL == null) {
-			imgURL = getClass().getClassLoader().getResource(imagefile);
-		}
-		if (imgURL == null) {
-			controler.displayPopup("Image " + imagefile + " not loaded");
-		} else {
-			ii = new ImageIcon(imgURL);
-			img = ii.getImage();
-		}
-		return img;
-	}
-
 
 //
 //	Find methods and classes   
@@ -1047,9 +907,7 @@ class GraphPanel extends JDesktopPane  {
 		}
 
 		public void toggleBorders() {
-			borderOrientation = !borderOrientation;
-			showHints = borderOrientation || jumpingArrow;
-			repaint();
+			graphExtras.toggleBorders();
 		}
 
 		public void toggleRectangle() {
@@ -1072,28 +930,6 @@ class GraphPanel extends JDesktopPane  {
 		}
 
 		public void jumpingArrow(boolean clueless) {
-			if (!clueless) ticks = 401;
-			if (ticks > 400) {
-				ticks = 0;
-				part1 = !part1;
-				jumpingArrow = false;
-				showHints = borderOrientation || jumpingArrow;
-				repaint();
-				return;
-			}
-			ticks++;
-			int wait = 180;
-			if (!part1) wait = 80;
-			if (ticks < wait) {
-//				System.out.println("Waiting");
-				jumpingArrow = false;
-				showHints = borderOrientation || jumpingArrow;
-				return;
-			} else {
-				jumpingArrow = true;
-				showHints = borderOrientation || jumpingArrow;
-				repaint();
-			}
+			graphExtras.jumpingArrow(clueless);
 		}
-
 }
