@@ -55,14 +55,15 @@ public class Importer {
 	static final int FreeMind = 11;
 	static final int OPML = 12;
 	static final int Zettelkasten = 13;
-	static final int Metamaps = 14;
-	static final int Gedcom = 15;
-	static final int FedWiki = 16;
-	static final int Hypothesis = 17;
-	static final int OldFormat = 18;
-	static final int Filetree = 19;
-	static final int Sitemap = 20;
-	static final int x28tree = 21;
+	static final int Luhmann = 14;
+	static final int Metamaps = 15;
+	static final int Gedcom = 16;
+	static final int FedWiki = 17;
+	static final int Hypothesis = 18;
+	static final int OldFormat = 19;
+	static final int Filetree = 20;
+	static final int Sitemap = 21;
+	static final int x28tree = 22;
 	
 	static final Importer[] importers = {
 	new Importer(Importer.Evernote, "Evernote", "en-export", "enex", "enex (Evernote Export file)", 
@@ -95,6 +96,9 @@ public class Importer {
 			"<html>An outline file in the \"OPML\" format. Notes (e.g from Scrivener) are supported.</html>"),
 	new Importer(Importer.Zettelkasten, "Zettelkasten", "zettelkasten", "zkn3", "zkn3 (ZKN3 export file)", 
 			"<html>If you have a \"ZKN3\" file exported from the Luhmann-inspired notes application.</html>"),
+	new Importer(Importer.Luhmann, "Luhmann", "(not relevant)", "none", "none (invisible)", 
+			"<html>If you have Zettels downloaded from the " + 
+			"<a href=\"https://niklas-luhmann-archiv.de\">niklas-luhmann-archiv.de</a></html>"),
 	new Importer(Importer.Metamaps, "Metamaps", "(not relevant)", "csv", "csv (Metamaps export file)", 
 			"<html>If you have a CSV file exported from the Metamaps.cc application.</html>"),
 	new Importer(Importer.Gedcom, "Gedcom", "(not relevant)", "xml", "xml (Gedcom XML file)", 

@@ -214,8 +214,12 @@ public class ImportDirector implements ActionListener {
 		        frame.setVisible(false);
 		        frame.dispose();
 			} else if (i == Importer.FedWiki) {
-				new Fed(controler);
 				frame.dispose();
+				new Fed(controler);
+				return;
+			} else if (i == Importer.Luhmann) {
+				frame.dispose();
+				new LuhmannImport(controler);
 				return;
 			}
 //	    		System.out.println("Type: " + i);
