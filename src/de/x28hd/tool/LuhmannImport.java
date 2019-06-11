@@ -3,6 +3,7 @@ package de.x28hd.tool;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -70,6 +71,7 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	boolean headersLoaded = false;
 	boolean tree = false;
 	boolean links = true;
+	boolean hop = true;
 	String[] colorChanges = new String[7];
 	
 	// Accessories
@@ -84,6 +86,7 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	JButton nextButton;
 	JCheckBox treeBox = null;
 	JCheckBox linksBox = null;
+	JCheckBox hopBox = null;
 
 	public LuhmannImport(GraphPanelControler controler) {
 		this.controler = controler;
@@ -126,21 +129,21 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	    	 h = chooser.getSelectedFile();
 	    }
 	    
-	    // Ask if display the hierarchy or the cross references
+	    // Ask if display the hierarchy or the cross references, and if hyper hopping
 		dialog = new JDialog(controler.getMainWindow(), "Options");
 		dialog.setModal(true);
 		
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		dialog.setLocation(dim.width/2-dialog.getSize().width/2 - 298, 
 				dim.height/2-dialog.getSize().height/2 - 209);		
-		dialog.setMinimumSize(new Dimension(300, 170));
-		dialog.setLayout(new BorderLayout());
+		dialog.setMinimumSize(new Dimension(300, 370));
+		dialog.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
+		JPanel question1 = new JPanel();
+		question1.setLayout(new BorderLayout());
 		JLabel nextInfo = new JLabel("Do you want to visualize a network or a tree?");
 		nextInfo.setBorder(new EmptyBorder(10, 10, 10, 10));
-		JPanel infoContainer = new JPanel();
-		infoContainer.add(nextInfo);
-		dialog.add(infoContainer, "North");
+		question1.add(nextInfo, "North");
 		
 		treeBox = new JCheckBox ("The 'Nummern' tree", false);
 		treeBox.setActionCommand("tree");
@@ -153,19 +156,44 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		JPanel boxesContainer = new JPanel();
 		boxesContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
 		boxesContainer.setLayout(new GridLayout(2, 1));
-
 		boxesContainer.add(treeBox);
 		boxesContainer.add(linksBox);
-		dialog.add(boxesContainer, "Center");
+		question1.add(boxesContainer, "Center");
+		dialog.add(question1);
+		
+		JPanel question2 = new JPanel();
+		question2.setLayout(new BorderLayout());
+		JLabel nextInfo2 = new JLabel("<html>"
+				+ "Should the links drive the selector on the map<br /> "
+				+ "(= HyperHopping, which is not available in<br />"
+				+ "the browser demo), or should they open up<br />"
+				+ "browser pages on the archive site?<html>");
+		nextInfo2.setBorder(new EmptyBorder(10, 10, 10, 10));
+		question2.add(nextInfo2, "North");
+		
+		hopBox = new JCheckBox ("HyperHopping", true);
+		hopBox.setActionCommand("hop");
+		hopBox.addActionListener(this);
+		hopBox.setSelected(true);
+		JPanel boxesContainer2 = new JPanel();
+		boxesContainer2.setBorder(new EmptyBorder(10, 10, 10, 10));
+		boxesContainer2.setLayout(new GridLayout(1, 1));
+		boxesContainer2.add(hopBox);
+		
+		question2.add(boxesContainer2, "South");
+		dialog.add(question2);
 		
 		nextButton = new JButton("OK");
 		nextButton.addActionListener(this);
 		nextButton.setEnabled(true);
 		JPanel buttonContainer = new JPanel();
+		buttonContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
 		buttonContainer.add(nextButton);
-		dialog.add(buttonContainer, "South");
+		
+		dialog.add(buttonContainer);
 		dialog.setVisible(true);
-//	    System.out.println("Tree " + tree + ", links " + links);
+		
+//	    System.out.println("Tree " + tree + ", links " + links + ", hop " + hop);
 			
 		if (h != null) loadHeaders(h.getPath());	// makes slow; switch off for testing
 //		d = new File("c:\\Users\\Matthias\\Desktop\\luh");
@@ -202,6 +230,7 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		advice += "</html>";
 		nextInfo = new JLabel(advice);
 		nextInfo.setBorder(new EmptyBorder(10, 10, 10, 10));
+		JPanel infoContainer = new JPanel();
 		infoContainer = new JPanel();
 		infoContainer.add(nextInfo);
 		dialog.add(infoContainer, "North");
@@ -249,7 +278,11 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
     	controler.setTreeModel(null);
     	controler.setNonTreeEdges(null);
     	
-    	controler.toggleHyp(1, true);
+    	if (hop) {
+    		controler.toggleHashes(true);
+     	} else {
+       		controler.toggleHyp(1, true);
+    	}
 	}
 	
 	public void loadFile(File file) {
@@ -559,15 +592,22 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 					String type = ((Element) node).getAttribute("type");
 					if (type.contains("entf")) {
 						target = ((Element) node).getAttribute("target");
-//						target = target.replaceAll("_V$", "");
-						target = "https://niklas-luhmann-archiv.de/bestand/zettelkasten/zettel/" 
-								+ target.substring(1);
+						if (hop) {
+							target = target.replaceAll("_V$", "");
+						} else {
+							target = "https://niklas-luhmann-archiv.de/bestand/zettelkasten/zettel/" 
+							+ target.substring(1);
+						}
 					} else ref = false;
 				}
 				if (!target.isEmpty()) {
-					anchorString = "<a href=\"" + 
-//					"#" + target.substring(9) + "\">";
-					target + "\">";
+					if (hop) {
+						anchorString = "<a href=\"" + 
+								"#" + target.substring(9) + "\">";
+					} else {
+						anchorString = "<a href=\"" + 
+								target + "\">";
+					}
 				}
 			}
 			
@@ -666,13 +706,9 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 
 	public void actionPerformed(ActionEvent arg0) {
 		String command = arg0.getActionCommand();
-//		if (command == "tree") {
-//			tree = treeBox.isSelected();
-//		} else if (command == "links") {
-//			links = linksBox.isSelected();
-//		}
 			tree = treeBox.isSelected();
 			links = linksBox.isSelected();
+			hop = hopBox.isSelected();
 			if (command == "OK") {
 			dialog.dispose();
 		}

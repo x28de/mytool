@@ -61,6 +61,7 @@ public class Gui {
 	JCheckBoxMenuItem menuItem52 = null;
 	JCheckBoxMenuItem menuItem55 = null;
 	JCheckBoxMenuItem menuItem58 = null;
+	JCheckBoxMenuItem menuItem63 = null;
 	String [] tooltip22 = { 
 			"Click to disable editing in the detail pane but enable hyperlinks",
 			"Click to enable editing in the detail pane but disable hyperlinks"};
@@ -520,6 +521,12 @@ public class Gui {
 		menuItem52.setToolTipText("Acceleration, Lurid Colors, Borders, and Rubberband Selection");
 		menuItem52.addActionListener(controler);
 		menu5.add(menuItem52);
+
+		menuItem63 = new JCheckBoxMenuItem("HyperHopping enabled", false);
+		menuItem63.setActionCommand("hashes");
+		menuItem63.setToolTipText("Local hyperlinks (#...) used for Find in labels");
+		menuItem63.addActionListener(controler);
+		menu5.add(menuItem63);
 
 		menuItem43 = new JCheckBoxMenuItem("Menu Bar", true);
 		menuItem43.setActionCommand("classicMenu");

@@ -50,4 +50,6 @@ interface GraphPanelControler {
 	void replaceForLayout(Hashtable<Integer,GraphNode> replacingNodes, 
 			   Hashtable<Integer,GraphEdge> replacingEdges); 
 	boolean startStoring(String storeFilename, boolean anonymized);
+	void findHash(String hash);
+	void toggleHashes(boolean onOff);
 	}

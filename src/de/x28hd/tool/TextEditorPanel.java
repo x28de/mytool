@@ -69,6 +69,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	int myDot;
 	boolean isDirty = false;
 	boolean editableOrClickable = true; //  hyperlinks disabled
+	boolean hashesEnabled = false;
 	boolean tablet = false;
 	private static final long serialVersionUID = 1L;
 	int loopdetector = 0;
@@ -165,11 +166,20 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	public void hyperlinkUpdate(HyperlinkEvent arg0) {
 		HyperlinkEvent.EventType type = arg0.getEventType();
 		final URL url = arg0.getURL();
+		String localAddr = "";
+		String urlString = arg0.getDescription();
+		if (urlString.startsWith("#")) localAddr = urlString.substring(1);
 		if (type == HyperlinkEvent.EventType.ENTERED) {
 		} else if (type == HyperlinkEvent.EventType.ACTIVATED) {
 			if (Desktop.isDesktopSupported()) {
+				if (hashesEnabled) {
+					if (!localAddr.isEmpty() && url == null) {
+						controler.findHash(localAddr);
+						return;
+					}
+				}
 				try {
-					Desktop.getDesktop().browse(new URI(url.toString()));
+					if (url != null) Desktop.getDesktop().browse(new URI(url.toString()));
 				} catch (IOException e) {
 					controler.displayPopup("File problem \r\n<html><tt>" + url.toString() + "</tt></html>\r\n" + e.getMessage());
 				} catch (URISyntaxException e) {
@@ -550,4 +560,8 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		return textComponent;
 	}
 
+	public void toggleHashes(boolean onOff) {
+		hashesEnabled = onOff;
+	}
+	
 }

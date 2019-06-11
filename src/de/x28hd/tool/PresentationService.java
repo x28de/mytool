@@ -591,6 +591,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 			new DAG(nodes, edges, this);
 		} else if (command == "makecircle") {
 			new MakeCircle(nodes, edges, this);
+		} else if (command == "hashes") {
+			toggleHashes(gui.menuItem63.isSelected());
 		} else {
 			System.out.println("PS: Wrong action: " + command);
 		}
@@ -1723,6 +1725,37 @@ public final class PresentationService implements ActionListener, MouseListener,
 			}
 		}
 		
+		public void findHash(String hash) {
+			findString = hash;
+			Enumeration<Integer> nodesEnum = nodes.keys();
+			while (nodesEnum.hasMoreElements()) {
+				int nodeID = nodesEnum.nextElement();
+				GraphNode node = nodes.get(nodeID);
+				String label = node.getLabel();
+				// Allow for B+ additions
+				label = label.trim();
+				if (label.contains(" ")) {
+					int offset = label.indexOf(" ");
+					label = label.substring(0, offset);
+				} 
+				if (label.equals(findString)) {	
+					Point xy = node.getXY();
+					Point transl = graphPanel.getTranslation();
+					int dx = xy.x - mainWindow.getWidth()/2 + transl.x + 200;
+					int dy = xy.y - mainWindow.getHeight()/2 + transl.y;
+					panning = new Point(dx, dy);
+					graphPanel.nodeSelected(node);
+					animationTimer2.start();
+					break;
+				} else continue;
+			}
+		}
+		public void toggleHashes(boolean onOff) {
+			gui.menuItem63.setSelected(onOff);
+			edi.toggleHashes(onOff);
+			toggleHyp(1, true);
+		}
+
 		public void zoom(boolean on) {
 			dividerPos = splitPane.getDividerLocation();
 			if (on) {
