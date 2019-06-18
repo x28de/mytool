@@ -76,8 +76,8 @@ public class ImportDirector implements ActionListener {
 	//	Nothing given => Launch wizard
 	public ImportDirector(GraphPanelControler controler) {
 		this.controler = controler;
-//			launchWizard();
-			new LuhmannImport(controler);
+			launchWizard();
+//			new LuhmannImport(controler);
 		}
 	
 	//	XML given

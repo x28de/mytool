@@ -55,6 +55,7 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	Hashtable<Integer,GraphNode> nodes = new Hashtable<Integer,GraphNode>();
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
 	GraphPanelControler controler;
+	File[] dirList = null;
 	String dataString = null;
 	
 	// Input
@@ -77,12 +78,13 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	boolean hop = true;
 	boolean threads = false;
 	boolean print = false;
-	boolean seq = true;
 	String[] colorChanges = new String[7];
 	HashSet<GraphEdge> colorDone = new HashSet<GraphEdge>();
 	Hashtable<Integer,GraphNode> virtualNodes = new Hashtable<Integer,GraphNode>();
 	File d = null;
 	File t = null;
+	File h = null;
+	File b = null;
 	
 	// Accessories
 	int edgesNum =0;
@@ -105,10 +107,10 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	FileWriter list = null;
 	String newLine = System.getProperty("line.separator");
 	String printOut = "";
+	int count = 0;
 
 	public LuhmannImport(GraphPanelControler controler) {
 		this.controler = controler;
-		
 		JFrame mainWindow = controler.getMainWindow();
 		String baseDir = "";
 		try {
@@ -116,233 +118,12 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		} catch (Throwable e) {
 			System.out.println("Error LI103" + e );
 		}
-		File b = new File(baseDir);
+		b = new File(baseDir);
 		d = null;
-		File h = null;
+		h = null;
 		t = null;
 
-		JFileChooser chooser = new JFileChooser();
-		
-		// Ask for zettels folder
-		chooser.setCurrentDirectory(b);
-		chooser.setDialogTitle("Open a folder containing downloaded Zettels TEI files");
-		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-        		"Select a zettels folder, optional", "folder");
-        chooser.setFileFilter(filter);        
-        
-	    int returnVal = chooser.showOpenDialog(mainWindow);
-	    if (returnVal == JFileChooser.APPROVE_OPTION) {
-	    	d = chooser.getSelectedFile();
-	    } 
-//		d = new File("c:\\Users\\Matthias\\Desktop\\luh");
-	    
-		// Ask for header file
-		chooser = new JFileChooser();
-		chooser.setCurrentDirectory(b);
-		chooser.setDialogTitle("Open a file containing header lines");
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        filter = new FileNameExtensionFilter(
-        		"A headers file (.txt), optional", "txt");
-        chooser.setFileFilter(filter); 
-        
-	    returnVal = chooser.showOpenDialog(mainWindow);
-	    if (returnVal == JFileChooser.APPROVE_OPTION) {
-	    	 h = chooser.getSelectedFile();
-	    }
-//		h = new File("c:\\Users\\Matthias\\Desktop\\hdrs.txt");
-	    
-		// Ask for threads file
-		chooser = new JFileChooser();
-		chooser.setCurrentDirectory(b);
-		chooser.setDialogTitle("Open a file containing threads branchings");
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		String description = "A threads file (.opml)";
-        if (d != null) description += ", optional";
-        filter = new FileNameExtensionFilter(description, "opml");
-        chooser.setFileFilter(filter); 
-        
-	    returnVal = chooser.showOpenDialog(mainWindow);
-	    if (returnVal == JFileChooser.APPROVE_OPTION) {
-	    	 t = chooser.getSelectedFile();
-	    }
-//		t = new File("c:\\Users\\Matthias\\Desktop\\threads.opml");
-	    
-		
-	    // Ask about options
-		dialog = new JDialog(controler.getMainWindow(), "Change Options");
-		dialog.setModal(true);
-		
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		dialog.setMinimumSize(new Dimension(300, 470));
-		dialog.setLocation(dim.width/2-dialog.getSize().width/2 - 298, 
-				dim.height/2-dialog.getSize().height/2 - 209);		
-		dialog.setLayout(new FlowLayout(FlowLayout.LEFT));
-		
-		JPanel question1 = new JPanel();
-		question1.setLayout(new BorderLayout());
-		JLabel nextInfo = new JLabel("What do you want to visualize?");
-		nextInfo.setBorder(new EmptyBorder(10, 10, 10, 10));
-		question1.add(nextInfo, "North");
-		
-		treeBox = new JCheckBox ("The 'Nummer' tree", false);
-		treeBox.setActionCommand("tree");
-		treeBox.addActionListener(this);
-		treeBox.setSelected(false);
-		if (d == null) treeBox.setEnabled(false);
-		
-		linksBox = new JCheckBox ("The 'Verweisung' network", false);
-		linksBox.setActionCommand("links");
-		linksBox.addActionListener(this);
-		if (d == null) links = false;
-		linksBox.setSelected(links);
-		linksBox.setEnabled(links);
-		
-		threadsBox = new JCheckBox ("The 'Strang' threads by the editors", false);
-		threadsBox.setActionCommand("threads");
-		threadsBox.addActionListener(this);
-		if (d == null) {
-			if (t == null) {
-				controler.displayPopup("Specify one of:"
-						+ "\n- a zettels folder "
-						+ "\n- or a threads file."
-						+ "\nThey cannot be both omitted.");
-				return;
-			}
-			threads = true;
-			threadsBox.setEnabled(false);
-		}
-		threadsBox.setSelected(threads);
-		if (t == null) {
-			threadsBox.setEnabled(false);
-		}
-		
-		JPanel boxesContainer = new JPanel();
-		boxesContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
-		boxesContainer.setLayout(new GridLayout(3, 1));
-		boxesContainer.add(treeBox);
-		boxesContainer.add(linksBox);
-		boxesContainer.add(threadsBox);
-		question1.add(boxesContainer, "South");
-		dialog.add(question1);
-		
-		JPanel question2 = new JPanel();
-		question2.setLayout(new BorderLayout());
-		question2.setMinimumSize(new Dimension(300, 70));
-		JLabel nextInfo2 = new JLabel("More options");
-		nextInfo2.setBorder(new EmptyBorder(10, 10, 10, 10));
-		question2.add(nextInfo2, "North");
-		
-		printBox = new JCheckBox ("print a list", true);
-		printBox.setActionCommand("print");
-		printBox.addActionListener(this);
-		printBox.setSelected(true);
-		if (d == null) {
-			printBox.setSelected(false);
-			print = false;
-			printBox.setEnabled(false);
-		}
-		JPanel boxesContainer2 = new JPanel();
-		boxesContainer2.setBorder(new EmptyBorder(10, 10, 10, 10));
-		boxesContainer2.setLayout(new GridLayout(1, 1));
-		boxesContainer2.add(printBox);
-		
-		question2.add(boxesContainer2, "South");
-		dialog.add(question2);
-		
-		JPanel question3 = new JPanel();
-		question3.setLayout(new BorderLayout());
-		JLabel nextInfo3 = new JLabel("<html>"
-				+ "Should the links drive the selector on the map<br /> "
-				+ "(= HyperHopping, which is not available in<br />"
-				+ "the browser demo), or should they open up<br />"
-				+ "browser pages on the archive site?<html>");
-		nextInfo3.setBorder(new EmptyBorder(10, 10, 10, 10));
-		question3.add(nextInfo3, "North");
-		
-		hopBox = new JCheckBox ("HyperHopping", true);
-		hopBox.setActionCommand("hop");
-		hopBox.addActionListener(this);
-		hopBox.setSelected(true);
-		if (d == null) {
-			hopBox.setSelected(false);
-			hop = false;
-			hopBox.setEnabled(false);
-		}
-		JPanel boxesContainer3 = new JPanel();
-		boxesContainer3.setBorder(new EmptyBorder(10, 10, 10, 10));
-		boxesContainer3.setLayout(new GridLayout(1, 1));
-		boxesContainer3.add(hopBox);
-		
-		question3.add(boxesContainer3, "South");
-		dialog.add(question3);
-		
-		nextButton = new JButton("OK");
-		nextButton.addActionListener(this);
-		nextButton.setEnabled(true);
-		JPanel buttonContainer = new JPanel();
-		buttonContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
-		buttonContainer.setLayout(new GridLayout(1, 1));
-		buttonContainer.add(nextButton);
-		
-		dialog.add(buttonContainer);
-		dialog.setVisible(true);
-		
-	    System.out.println("Tree " + tree + ", links " + links + ", threads " + 
-	    		threads + ", hop " + hop + ", print " + print);
-			
-		if (h != null) loadHeaders(h.getPath());	// makes slow; switch off for testing
-		File[] dirList = null;
-		if (d != null) dirList = d.listFiles();
-
-		// Show loading progress and advice
-		
-		int count = 0;
-		dialog = new JDialog(controler.getMainWindow(), "Loading...");
-		dialog.setLocation(dim.width/2-dialog.getSize().width/2 - 298, 
-				dim.height/2-dialog.getSize().height/2 - 209);		
-		dialog.setMinimumSize(new Dimension(300, 270));
-		dialog.setLayout(new BorderLayout());
-		
-		String advice = "<html>Recommended next actions: <br /><br />";
-		if (tree & !links) advice += 
-				"- <b>Advanced > Make Tree</b> and then<br /> "
-				+ "<b>Centrality Heatmap</b>,<br /><br />"
-				+ "- or <b>Advanced > DAG layout</b>, <br />"
-				+ "then find the root in the upper left, <br />"
-				+ "rightclick it, <b>Advanced > Tree Layout</b>.";
-		if (!tree & links) advice += "<b>Advanced > Make Circle</b> and<br />" 
-				+ "then, if it looks cluttered,<br />"
-				+ "find the main circle and drag <br />"
-				+ "it away from the little islands. <br /><br />"
-				+ "Then take a few minutes to tidy up.";
-		if (tree & links) advice += "If you have many items, <br />"
-				+ "there is no good recommendation.<br />"
-				+ "Enjoy the impressive view but <br />"
-				+ "consider restricting to either links or tree.";
-		if (!tree & !links) advice += "Click the colored items and <br />"
-				+ "try the links in the text pane.<br />"
-				+ "For layout, consider choosing links or tree.";
-		if (threads) advice = "<html>Recommended next actions: <br /><br />"
-				+ "You may delete the root node and the<br />"
-				+ "colored cluster. Then scroll down<br />"
-				+ "the red and black threads, or click<br />"
-				+ "<b>Advanced > Zoom the map</b>";
-		advice += "</html>";
-		nextInfo = new JLabel(advice);
-		nextInfo.setBorder(new EmptyBorder(10, 10, 10, 10));
-		JPanel infoContainer = new JPanel();
-		infoContainer = new JPanel();
-		infoContainer.add(nextInfo);
-		dialog.add(infoContainer, "North");
-		
-		nextButton = new JButton("OK");
-		nextButton.addActionListener(this);
-		nextButton.setEnabled(true);
-		buttonContainer = new JPanel();
-		buttonContainer.add(nextButton);
-		dialog.add(buttonContainer, "South");
-		dialog.setVisible(true);
+		Gui(mainWindow);
 		
 		//	Load the stuff
 		
@@ -352,21 +133,23 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		}
 		
 		if (print) {
-		try {
-			list = new FileWriter(baseDir + File.separator + "x28list.txt");
-		} catch (IOException e2) {
-			System.out.println("Error LI111 " + e2);
-		}
+			try {
+				list = new FileWriter(baseDir + File.separator + "x28list.txt");
+			} catch (IOException e2) {
+				System.out.println("Error LI111 " + e2);
+			}
 		}
 		
 		if (dirList != null) {
-		for (File f : dirList) {
-			File file = f.getAbsoluteFile();
-			loadFile(file, false);		// calls recordLink which adds nodes and edges
+			for (File f : dirList) {
+				File file = f.getAbsoluteFile();
+				loadFile(file, false);		// calls recordLink which adds nodes and edges
+			}
 		}
-		}
+		
 		if (tree || threads) hierarchy();
 		
+		// Add zettels' contents
 		Iterator<String> allEnds = inputs.iterator();
 		while (allEnds.hasNext()) {
 			String current = allEnds.next();
@@ -378,27 +161,23 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		dialog.setTitle("Next actions:");
 		
 		if (print && threads) {
-			
-		// Check the sequence chain for missing zettels
-		System.out.println("Successor table size: " + successors.size());
-		
-		Enumeration<String> predecessors = successors.keys();
-		while (predecessors.hasMoreElements()) {
-			String pred = predecessors.nextElement();
-			while (successors.containsKey(pred)) {
-				String succ = successors.get(pred);
-				try {
-					list.write(pred + "\t" + pred + newLine);
-				} catch (IOException e) {
-					System.out.println("Error LI112 " + e);
+//			System.out.println("Successor table size: " + successors.size());
+			Enumeration<String> predecessors = successors.keys();
+			while (predecessors.hasMoreElements()) {
+				String pred = predecessors.nextElement();
+				while (successors.containsKey(pred)) {
+					String succ = successors.get(pred);
+					try {
+						list.write(pred + "\t" + pred + newLine);
+					} catch (IOException e) {
+						System.out.println("Error LI112 " + e);
+					}
+					pred = succ;
 				}
-				pred = succ;
+				if (printDone.contains(pred)) continue; 
+				printDone.add(pred);
 			}
-			if (printDone.contains(pred)) continue; 
-			printDone.add(pred);
 		}
-		}
-		
 		if (print && links) {
 			try {
 				list.write(printOut);
@@ -406,7 +185,7 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 				System.out.println("Error LI112a " + e);
 			}
 		}
-		System.out.println("Stage 2: " + nodes.size() + " nodes, " + edges.size() + " edges");
+//		System.out.println(nodes.size() + " nodes, " + edges.size() + " edges");
 		
 		// pass on 
     	try {
@@ -428,6 +207,8 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	}
 	
 	public void loadFile(File file, boolean opml) {
+		
+		// Do the xml (also for 1 exotic file: opml)
 		String filename = file.getName();
 		try {
 			stream = new FileInputStream(file);
@@ -458,9 +239,12 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		}
 		if (opml) return;
 		
+		// Normalize the zettel id. 
+		// Expects 6 chars prefix to safely download both 5a and 5A
 		filename = filename.substring(6);
 		filename = filename.replaceAll("_V$", "");
 		
+		// Prepares contents
 		NodeList divs = inputXml.getElementsByTagName("div");
 		for (int i = 0; i < divs.getLength(); i++) {
 			Node div = divs.item(i);	
@@ -468,26 +252,27 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 			if (attr.getLength() <= 0) continue;
 			String type = ((Element) div).getAttribute("type");
 			if (!type.contains("zettel-vorderseite")) continue;
+			
 			String content = allTags(div);
 			contents.put(filename, content);
 		}
 		
 		if (!threads || links) {	// ignores zettels without remote references
-		NodeList refs = inputXml.getElementsByTagName("ref");
-		if (refs.getLength() < 2) return;
-		for (int i = 1; i < refs.getLength(); i++) {
-			Node ref = refs.item(i);	
-			NamedNodeMap attr = ref.getAttributes();
-			if (attr.getLength() <= 0) return;
-			String type = ((Element) ref).getAttribute("type");
-			if (!type.contains("entf")) continue;
-			String target = ((Element) ref).getAttribute("target");
-			target = target.replaceAll("_V$", "");
-			recordLink(filename, target.substring(1));
-		}
+			NodeList refs = inputXml.getElementsByTagName("ref");
+			if (refs.getLength() < 2) return;
+			for (int i = 1; i < refs.getLength(); i++) {
+				Node ref = refs.item(i);	
+				NamedNodeMap attr = ref.getAttributes();
+				if (attr.getLength() <= 0) return;
+				String type = ((Element) ref).getAttribute("type");
+				if (!type.contains("entf")) continue;
+				String target = ((Element) ref).getAttribute("target");
+				target = target.replaceAll("_V$", "");
+				recordLink(filename, target.substring(1));
+			}
 		}
 		
-		if (seq) extractSuccessor(filename);
+		if (print) extractSuccessor(filename);
 	}
 	
 	// To get the sequence
@@ -502,9 +287,15 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 					String ptrTarget = ((Element) ptr).getAttribute("target");
 					ptrTarget = ptrTarget.replaceAll("_V$", "");
 					if (ptrTarget.length() < 8) continue;
-//					System.out.println(filename.substring(8) + "\t" + ptrTarget.substring(9) + "\n");
-					if (successors.containsKey(filename.substring(8))) System.out.println("Complain " + filename);
-					successors.put(filename.substring(8), ptrTarget.substring(9));
+					try {
+						filename = filename.substring(6); 
+					} catch (StringIndexOutOfBoundsException e) {
+						controler.displayPopup("Problem with " + filename + 
+								"\nMaybe filename format not recognized."
+								+ "\nMust be xxxxxxZK_n_NB_nn...n_V");
+						controler.close();
+					}
+					successors.put(filename, ptrTarget.substring(9));
 				}
 			}
 		}
@@ -612,13 +403,6 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 				if (boundary == null) break;
 				if (compare(nodeRef, boundary) >= 0) colorString = palette[c];
 			}
-//			if (compare(nodeRef, "ZK_1_NB_5") >= 0) colorString = palette[1]; 
-//			if (compare(nodeRef, "ZK_1_NB_6") >= 0) colorString = palette[2]; 
-//			if (compare(nodeRef, "ZK_1_NB_7") >= 0) colorString = palette[3]; 
-//			if (compare(nodeRef, "ZK_1_NB_7-2m") >= 0) colorString = palette[4];
-//			if (compare(nodeRef, "ZK_1_NB_7-2o") >= 0) colorString = palette[3];
-//			if (compare(nodeRef, "ZK_1_NB_7-7") >= 0) colorString = palette[5];
-//			if (compare(nodeRef, "ZK_1_NB_8") >= 0) colorString = palette[7]; 
 		}
 		
 		if (inputs2num.containsKey(nodeRef)) return;
@@ -827,8 +611,6 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	
 	public void hierarchy() {
 		
-		System.out.println("Stage 1: " + nodes.size() + " nodes, " + edges.size() + " edges");
-		
 		// copy "threads" by labels from an OPML file first
 		// (they play, for once,  the role of Verweisungen links). Use with an empty 
 		// zettels folder.
@@ -894,7 +676,6 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 			addNode(sourceNode, colorString, threads && !tree);
 			addNode(targetNode, colorString, threads && !tree);
 			if (!threads || tree) addEdge(sourceNode, targetNode, false);
-
 		}
 		
 		if (!threads) return;
@@ -934,7 +715,6 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 				GraphEdge neighborEdge = cleanupList.nextElement();
 				GraphNode otherEnd = threadStart.relatedNode(neighborEdge);
 				if (otherEnd.equals(rootNode)) {
-//				neighborEdge.setColor("#00ffff");
 				threadStart.removeEdge(neighborEdge);
 				threadsEdges.remove(neighborEdge);
 				}
@@ -1038,6 +818,222 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 			colorthread(downStreamNode, colorString, indent + "  "); 	// recursion
 		}
 	}
+	
+	public void Gui(JFrame mainWindow) {
+		JFileChooser chooser = new JFileChooser();
+		
+		// Ask for zettels folder
+		chooser.setCurrentDirectory(b);
+		chooser.setDialogTitle("Open a folder containing downloaded Zettels TEI files");
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+        		"Select a zettels folder, optional", "folder");
+        chooser.setFileFilter(filter);        
+	    int returnVal = chooser.showOpenDialog(mainWindow);
+	    if (returnVal == JFileChooser.APPROVE_OPTION) {
+	    	d = chooser.getSelectedFile();
+	    } 
+//		d = new File("c:\\Users\\Matthias\\Desktop\\luh");
+	    
+		// Ask for header file
+		chooser = new JFileChooser();
+		chooser.setCurrentDirectory(b);
+		chooser.setDialogTitle("Open a file containing header lines");
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        filter = new FileNameExtensionFilter(
+        		"A headers file (.txt), optional", "txt");
+        chooser.setFileFilter(filter); 
+	    returnVal = chooser.showOpenDialog(mainWindow);
+	    if (returnVal == JFileChooser.APPROVE_OPTION) {
+	    	 h = chooser.getSelectedFile();
+	    }
+//		h = new File("c:\\Users\\Matthias\\Desktop\\hdrs.txt");
+	    
+		// Ask for threads file
+		chooser = new JFileChooser();
+		chooser.setCurrentDirectory(b);
+		chooser.setDialogTitle("Open a file containing threads branchings");
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		String description = "A threads file (.opml)";
+        if (d != null) description += ", optional";
+        filter = new FileNameExtensionFilter(description, "opml");
+        chooser.setFileFilter(filter); 
+	    returnVal = chooser.showOpenDialog(mainWindow);
+	    if (returnVal == JFileChooser.APPROVE_OPTION) {
+	    	 t = chooser.getSelectedFile();
+	    }
+//		t = new File("c:\\Users\\Matthias\\Desktop\\threads.opml");
+	    
+	    // Ask about options
+		dialog = new JDialog(controler.getMainWindow(), "Change Options");
+		dialog.setModal(true);
+		
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		dialog.setMinimumSize(new Dimension(300, 470));
+		dialog.setLocation(dim.width/2-dialog.getSize().width/2 - 298, 
+				dim.height/2-dialog.getSize().height/2 - 209);		
+		dialog.setLayout(new FlowLayout(FlowLayout.LEFT));
+		
+		// Question 1: tree/ links or threads ?
+		JPanel question1 = new JPanel();
+		question1.setLayout(new BorderLayout());
+		JLabel nextInfo = new JLabel("What do you want to visualize?");
+		nextInfo.setBorder(new EmptyBorder(10, 10, 10, 10));
+		question1.add(nextInfo, "North");
+		treeBox = new JCheckBox ("The 'Nummer' tree", false);
+		treeBox.setActionCommand("tree");
+		treeBox.addActionListener(this);
+		treeBox.setSelected(false);
+		if (d == null) treeBox.setEnabled(false);
+		linksBox = new JCheckBox ("The 'Verweisung' network", false);
+		linksBox.setActionCommand("links");
+		linksBox.addActionListener(this);
+		if (d == null) links = false;
+		linksBox.setSelected(links);
+		linksBox.setEnabled(links);
+		threadsBox = new JCheckBox ("The 'Strang' threads by the editors", false);
+		threadsBox.setActionCommand("threads");
+		threadsBox.addActionListener(this);
+		if (d == null) {
+			if (t == null) {
+				controler.displayPopup("Specify one of:"
+						+ "\n- a zettels folder "
+						+ "\n- or a threads file."
+						+ "\nThey cannot be both omitted.");
+				return;
+			}
+			threads = true;
+			threadsBox.setEnabled(false);
+		}
+		threadsBox.setSelected(threads);
+		if (t == null) {
+			threadsBox.setEnabled(false);
+		}
+		JPanel boxesContainer = new JPanel();
+		boxesContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
+		boxesContainer.setLayout(new GridLayout(3, 1));
+		boxesContainer.add(treeBox);
+		boxesContainer.add(linksBox);
+		boxesContainer.add(threadsBox);
+		question1.add(boxesContainer, "South");
+		dialog.add(question1);
+		
+		// Question 2: Print ?
+		JPanel question2 = new JPanel();
+		question2.setLayout(new BorderLayout());
+		question2.setMinimumSize(new Dimension(300, 70));
+		JLabel nextInfo2 = new JLabel("More options");
+		nextInfo2.setBorder(new EmptyBorder(10, 10, 10, 10));
+		question2.add(nextInfo2, "North");
+		printBox = new JCheckBox ("print a list", true);
+		printBox.setActionCommand("print");
+		printBox.addActionListener(this);
+		printBox.setSelected(true);
+		if (d == null) {
+			printBox.setSelected(false);
+			print = false;
+			printBox.setEnabled(false);
+		}
+		JPanel boxesContainer2 = new JPanel();
+		boxesContainer2.setBorder(new EmptyBorder(10, 10, 10, 10));
+		boxesContainer2.setLayout(new GridLayout(1, 1));
+		boxesContainer2.add(printBox);
+		question2.add(boxesContainer2, "South");
+		dialog.add(question2);
+		
+		// Question 3: HyperHopping ?
+		JPanel question3 = new JPanel();
+		question3.setLayout(new BorderLayout());
+		JLabel nextInfo3 = new JLabel("<html>"
+				+ "Should the links drive the selector on the map<br /> "
+				+ "(= HyperHopping, which is not available in<br />"
+				+ "the browser demo), or should they open up<br />"
+				+ "browser pages on the archive site?<html>");
+		nextInfo3.setBorder(new EmptyBorder(10, 10, 10, 10));
+		question3.add(nextInfo3, "North");
+		hopBox = new JCheckBox ("HyperHopping", true);
+		hopBox.setActionCommand("hop");
+		hopBox.addActionListener(this);
+		hopBox.setSelected(true);
+		if (d == null) {
+			hopBox.setSelected(false);
+			hop = false;
+			hopBox.setEnabled(false);
+		}
+		JPanel boxesContainer3 = new JPanel();
+		boxesContainer3.setBorder(new EmptyBorder(10, 10, 10, 10));
+		boxesContainer3.setLayout(new GridLayout(1, 1));
+		boxesContainer3.add(hopBox);
+		question3.add(boxesContainer3, "South");
+		dialog.add(question3);
+		
+		// Confirmation button
+		nextButton = new JButton("OK");
+		nextButton.addActionListener(this);
+		nextButton.setEnabled(true);
+		JPanel buttonContainer = new JPanel();
+		buttonContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
+		buttonContainer.setLayout(new GridLayout(1, 1));
+		buttonContainer.add(nextButton);
+		dialog.add(buttonContainer);
+
+		dialog.setVisible(true);
+		
+//	    System.out.println("Tree " + tree + ", links " + links + ", threads " + 
+//	    		threads + ", hop " + hop + ", print " + print);
+			
+		if (h != null) loadHeaders(h.getPath());	// makes slow; switch off for testing
+		dirList = null;
+		if (d != null) dirList = d.listFiles();
+
+		// Show loading progress
+		count = 0;
+		dialog = new JDialog(controler.getMainWindow(), "Loading...");
+		dialog.setLocation(dim.width/2-dialog.getSize().width/2 - 298, 
+				dim.height/2-dialog.getSize().height/2 - 209);		
+		dialog.setMinimumSize(new Dimension(300, 270));
+		dialog.setLayout(new BorderLayout());
+		
+		// Show advice
+		String advice = "<html>Recommended next actions: <br /><br />";
+		if (tree & !links) advice += 
+				"- <b>Advanced > Make Tree</b> and then<br /> "
+				+ "<b>Centrality Heatmap</b>,<br /><br />"
+				+ "- or <b>Advanced > DAG layout</b>, <br />"
+				+ "then find the root in the upper left, <br />"
+				+ "rightclick it, <b>Advanced > Tree Layout</b>.";
+		if (!tree & links) advice += "<b>Advanced > Make Circle</b> and<br />" 
+				+ "then, if it looks cluttered,<br />"
+				+ "find the main circle and drag <br />"
+				+ "it away from the little islands. <br /><br />"
+				+ "Then take a few minutes to tidy up.";
+		if (tree & links) advice += "If you have many items, <br />"
+				+ "there is no good recommendation.<br />"
+				+ "Enjoy the impressive view but <br />"
+				+ "consider restricting to either links or tree.";
+		if (!tree & !links) advice += "Click the colored items and <br />"
+				+ "try the links in the text pane.<br />"
+				+ "For layout, consider choosing links or tree.";
+		if (threads) advice = "<html>Recommended next actions: <br /><br />"
+				+ "You may delete the root node and the<br />"
+				+ "colored cluster. Then scroll down<br />"
+				+ "the red and black threads, or click<br />"
+				+ "<b>Advanced > Zoom the map</b>";
+		advice += "</html>";
+		nextInfo = new JLabel(advice);
+		nextInfo.setBorder(new EmptyBorder(10, 10, 10, 10));
+		JPanel infoContainer = new JPanel();
+		infoContainer = new JPanel();
+		infoContainer.add(nextInfo);
+		dialog.add(infoContainer, "North");
+		nextButton = new JButton("OK");
+		nextButton.addActionListener(this);
+		nextButton.setEnabled(true);
+		buttonContainer = new JPanel();
+		buttonContainer.add(nextButton);
+		dialog.add(buttonContainer, "South");
+		dialog.setVisible(true);
+	}
 
 	public void actionPerformed(ActionEvent arg0) {
 		String command = arg0.getActionCommand();
@@ -1046,6 +1042,7 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 			threads = threadsBox.isSelected();
 			hop = hopBox.isSelected();
 			print = printBox.isSelected();
+			
 			// either threads (t required) or links/tree (d required)
 			if (command == "threads") {
 				if (threadsBox.isSelected()) {
