@@ -1726,6 +1726,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 		
 		public void findHash(String hash) {
+			boolean found = false;
 			findString = hash;
 			Enumeration<Integer> nodesEnum = nodes.keys();
 			while (nodesEnum.hasMoreElements()) {
@@ -1746,9 +1747,11 @@ public final class PresentationService implements ActionListener, MouseListener,
 					panning = new Point(dx, dy);
 					graphPanel.nodeSelected(node);
 					animationTimer2.start();
+					found = true;
 					break;
 				} else continue;
 			}
+			if (!found) displayPopup(hash + " not found on this map.");
 		}
 		public void toggleHashes(boolean onOff) {
 			gui.menuItem63.setSelected(onOff);
@@ -1774,5 +1777,14 @@ public final class PresentationService implements ActionListener, MouseListener,
 				splitPane.setRightComponent(rightPanel);
 				toggleClassicMenu();
 			}
+		}
+		
+		// For LuhmannImport():
+		
+		public Hashtable<Integer,GraphNode> getNodes() {
+			return nodes;
+		}
+		public Hashtable<Integer,GraphEdge> getEdges() {
+			return edges;
 		}
 }

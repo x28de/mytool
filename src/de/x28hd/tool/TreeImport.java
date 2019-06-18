@@ -126,6 +126,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	boolean extended = false;
 	boolean windows = false;
 	boolean showJTree = true;
+	boolean silent = false;
 	int monitor = 0;
 	int myProgress = 0;
 	int alternate = -1;
@@ -421,9 +422,15 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	}
 	
 	public TreeImport(Document inputXml, GraphPanelControler controler, int knownFormat) {
+		new TreeImport(inputXml, controler, knownFormat, false);
+	}
+
+	public TreeImport(Document inputXml, GraphPanelControler controler, int knownFormat, 
+			boolean silent) {
 
 		this.controler = controler;
 		this.knownFormat = knownFormat;
+		this.silent = silent;
 		extended = controler.getExtended();
 		if (knownFormat == Importer.FreeMind) {	
 			topNode = "map";
@@ -639,7 +646,12 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		frame.setLocation(dim.width/2 - 298, dim.height/2 - 209);		
         frame.setMinimumSize(new Dimension(596, 418));
 
-        frame.setVisible(true);
+        if (!silent) {
+        	frame.setVisible(true);
+        } else {
+        	layoutOpt = true;
+        	finish();
+        }
         controler.stopHint();
 	}
 //		

@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Comparator;
@@ -57,6 +58,8 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	String dataString = null;
 	
 	// Input
+	Hashtable<Integer,GraphNode> threadsNodes = new Hashtable<Integer,GraphNode>();
+	Hashtable<Integer,GraphEdge> threadsEdges = new Hashtable<Integer,GraphEdge>();
 	DocumentBuilderFactory dbf = null;
 	DocumentBuilder db = null;
 	Document inputXml = null;
@@ -72,7 +75,14 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	boolean tree = false;
 	boolean links = true;
 	boolean hop = true;
+	boolean threads = false;
+	boolean print = false;
+	boolean seq = true;
 	String[] colorChanges = new String[7];
+	HashSet<GraphEdge> colorDone = new HashSet<GraphEdge>();
+	Hashtable<Integer,GraphNode> virtualNodes = new Hashtable<Integer,GraphNode>();
+	File d = null;
+	File t = null;
 	
 	// Accessories
 	int edgesNum =0;
@@ -86,7 +96,15 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	JButton nextButton;
 	JCheckBox treeBox = null;
 	JCheckBox linksBox = null;
+	JCheckBox threadsBox = null;
 	JCheckBox hopBox = null;
+	JCheckBox printBox = null;
+	Hashtable<String,String> successors = new Hashtable<String,String>();
+	TreeSet<String> printDone = new TreeSet<String>();
+	GraphNode rootNode = null;
+	FileWriter list = null;
+	String newLine = System.getProperty("line.separator");
+	String printOut = "";
 
 	public LuhmannImport(GraphPanelControler controler) {
 		this.controler = controler;
@@ -99,22 +117,25 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 			System.out.println("Error LI103" + e );
 		}
 		File b = new File(baseDir);
-		File d = null;
+		d = null;
 		File h = null;
+		t = null;
 
 		JFileChooser chooser = new JFileChooser();
 		
 		// Ask for zettels folder
 		chooser.setCurrentDirectory(b);
-		chooser.setDialogTitle("Open a folder containing downloaded Zettels");
+		chooser.setDialogTitle("Open a folder containing downloaded Zettels TEI files");
 		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
-        		"(Select your \"zettels\" folder)", "folder");
+        		"Select a zettels folder, optional", "folder");
         chooser.setFileFilter(filter);        
+        
 	    int returnVal = chooser.showOpenDialog(mainWindow);
 	    if (returnVal == JFileChooser.APPROVE_OPTION) {
 	    	d = chooser.getSelectedFile();
-	    } else return;
+	    } 
+//		d = new File("c:\\Users\\Matthias\\Desktop\\luh");
 	    
 		// Ask for header file
 		chooser = new JFileChooser();
@@ -122,82 +143,157 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		chooser.setDialogTitle("Open a file containing header lines");
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         filter = new FileNameExtensionFilter(
-        		"A headers file (optional)", "txt");
-        chooser.setFileFilter(filter);        
+        		"A headers file (.txt), optional", "txt");
+        chooser.setFileFilter(filter); 
+        
 	    returnVal = chooser.showOpenDialog(mainWindow);
 	    if (returnVal == JFileChooser.APPROVE_OPTION) {
 	    	 h = chooser.getSelectedFile();
 	    }
+//		h = new File("c:\\Users\\Matthias\\Desktop\\hdrs.txt");
 	    
-	    // Ask if display the hierarchy or the cross references, and if hyper hopping
-		dialog = new JDialog(controler.getMainWindow(), "Options");
+		// Ask for threads file
+		chooser = new JFileChooser();
+		chooser.setCurrentDirectory(b);
+		chooser.setDialogTitle("Open a file containing threads branchings");
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		String description = "A threads file (.opml)";
+        if (d != null) description += ", optional";
+        filter = new FileNameExtensionFilter(description, "opml");
+        chooser.setFileFilter(filter); 
+        
+	    returnVal = chooser.showOpenDialog(mainWindow);
+	    if (returnVal == JFileChooser.APPROVE_OPTION) {
+	    	 t = chooser.getSelectedFile();
+	    }
+//		t = new File("c:\\Users\\Matthias\\Desktop\\threads.opml");
+	    
+		
+	    // Ask about options
+		dialog = new JDialog(controler.getMainWindow(), "Change Options");
 		dialog.setModal(true);
 		
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		dialog.setMinimumSize(new Dimension(300, 470));
 		dialog.setLocation(dim.width/2-dialog.getSize().width/2 - 298, 
 				dim.height/2-dialog.getSize().height/2 - 209);		
-		dialog.setMinimumSize(new Dimension(300, 370));
 		dialog.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
 		JPanel question1 = new JPanel();
 		question1.setLayout(new BorderLayout());
-		JLabel nextInfo = new JLabel("Do you want to visualize a network or a tree?");
+		JLabel nextInfo = new JLabel("What do you want to visualize?");
 		nextInfo.setBorder(new EmptyBorder(10, 10, 10, 10));
 		question1.add(nextInfo, "North");
 		
-		treeBox = new JCheckBox ("The 'Nummern' tree", false);
+		treeBox = new JCheckBox ("The 'Nummer' tree", false);
 		treeBox.setActionCommand("tree");
 		treeBox.addActionListener(this);
 		treeBox.setSelected(false);
-		linksBox = new JCheckBox ("The 'Verweisungen' links", false);
+		if (d == null) treeBox.setEnabled(false);
+		
+		linksBox = new JCheckBox ("The 'Verweisung' network", false);
 		linksBox.setActionCommand("links");
 		linksBox.addActionListener(this);
-		linksBox.setSelected(true);
+		if (d == null) links = false;
+		linksBox.setSelected(links);
+		linksBox.setEnabled(links);
+		
+		threadsBox = new JCheckBox ("The 'Strang' threads by the editors", false);
+		threadsBox.setActionCommand("threads");
+		threadsBox.addActionListener(this);
+		if (d == null) {
+			if (t == null) {
+				controler.displayPopup("Specify one of:"
+						+ "\n- a zettels folder "
+						+ "\n- or a threads file."
+						+ "\nThey cannot be both omitted.");
+				return;
+			}
+			threads = true;
+			threadsBox.setEnabled(false);
+		}
+		threadsBox.setSelected(threads);
+		if (t == null) {
+			threadsBox.setEnabled(false);
+		}
+		
 		JPanel boxesContainer = new JPanel();
 		boxesContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
-		boxesContainer.setLayout(new GridLayout(2, 1));
+		boxesContainer.setLayout(new GridLayout(3, 1));
 		boxesContainer.add(treeBox);
 		boxesContainer.add(linksBox);
-		question1.add(boxesContainer, "Center");
+		boxesContainer.add(threadsBox);
+		question1.add(boxesContainer, "South");
 		dialog.add(question1);
 		
 		JPanel question2 = new JPanel();
 		question2.setLayout(new BorderLayout());
-		JLabel nextInfo2 = new JLabel("<html>"
+		question2.setMinimumSize(new Dimension(300, 70));
+		JLabel nextInfo2 = new JLabel("More options");
+		nextInfo2.setBorder(new EmptyBorder(10, 10, 10, 10));
+		question2.add(nextInfo2, "North");
+		
+		printBox = new JCheckBox ("print a list", true);
+		printBox.setActionCommand("print");
+		printBox.addActionListener(this);
+		printBox.setSelected(true);
+		if (d == null) {
+			printBox.setSelected(false);
+			print = false;
+			printBox.setEnabled(false);
+		}
+		JPanel boxesContainer2 = new JPanel();
+		boxesContainer2.setBorder(new EmptyBorder(10, 10, 10, 10));
+		boxesContainer2.setLayout(new GridLayout(1, 1));
+		boxesContainer2.add(printBox);
+		
+		question2.add(boxesContainer2, "South");
+		dialog.add(question2);
+		
+		JPanel question3 = new JPanel();
+		question3.setLayout(new BorderLayout());
+		JLabel nextInfo3 = new JLabel("<html>"
 				+ "Should the links drive the selector on the map<br /> "
 				+ "(= HyperHopping, which is not available in<br />"
 				+ "the browser demo), or should they open up<br />"
 				+ "browser pages on the archive site?<html>");
-		nextInfo2.setBorder(new EmptyBorder(10, 10, 10, 10));
-		question2.add(nextInfo2, "North");
+		nextInfo3.setBorder(new EmptyBorder(10, 10, 10, 10));
+		question3.add(nextInfo3, "North");
 		
 		hopBox = new JCheckBox ("HyperHopping", true);
 		hopBox.setActionCommand("hop");
 		hopBox.addActionListener(this);
 		hopBox.setSelected(true);
-		JPanel boxesContainer2 = new JPanel();
-		boxesContainer2.setBorder(new EmptyBorder(10, 10, 10, 10));
-		boxesContainer2.setLayout(new GridLayout(1, 1));
-		boxesContainer2.add(hopBox);
+		if (d == null) {
+			hopBox.setSelected(false);
+			hop = false;
+			hopBox.setEnabled(false);
+		}
+		JPanel boxesContainer3 = new JPanel();
+		boxesContainer3.setBorder(new EmptyBorder(10, 10, 10, 10));
+		boxesContainer3.setLayout(new GridLayout(1, 1));
+		boxesContainer3.add(hopBox);
 		
-		question2.add(boxesContainer2, "South");
-		dialog.add(question2);
+		question3.add(boxesContainer3, "South");
+		dialog.add(question3);
 		
 		nextButton = new JButton("OK");
 		nextButton.addActionListener(this);
 		nextButton.setEnabled(true);
 		JPanel buttonContainer = new JPanel();
 		buttonContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
+		buttonContainer.setLayout(new GridLayout(1, 1));
 		buttonContainer.add(nextButton);
 		
 		dialog.add(buttonContainer);
 		dialog.setVisible(true);
 		
-//	    System.out.println("Tree " + tree + ", links " + links + ", hop " + hop);
+	    System.out.println("Tree " + tree + ", links " + links + ", threads " + 
+	    		threads + ", hop " + hop + ", print " + print);
 			
 		if (h != null) loadHeaders(h.getPath());	// makes slow; switch off for testing
-//		d = new File("c:\\Users\\Matthias\\Desktop\\luh");
-		File[] dirList = d.listFiles();
+		File[] dirList = null;
+		if (d != null) dirList = d.listFiles();
 
 		// Show loading progress and advice
 		
@@ -227,6 +323,11 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		if (!tree & !links) advice += "Click the colored items and <br />"
 				+ "try the links in the text pane.<br />"
 				+ "For layout, consider choosing links or tree.";
+		if (threads) advice = "<html>Recommended next actions: <br /><br />"
+				+ "You may delete the root node and the<br />"
+				+ "colored cluster. Then scroll down<br />"
+				+ "the red and black threads, or click<br />"
+				+ "<b>Advanced > Zoom the map</b>";
 		advice += "</html>";
 		nextInfo = new JLabel(advice);
 		nextInfo.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -245,24 +346,67 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		
 		//	Load the stuff
 		
-		if (dirList == null) return;
+		if (threads) {
+			loadFile(t, true);
+			new TreeImport(inputXml, controler, Importer.OPML, true);
+		}
+		
+		if (print) {
+		try {
+			list = new FileWriter(baseDir + File.separator + "x28list.txt");
+		} catch (IOException e2) {
+			System.out.println("Error LI111 " + e2);
+		}
+		}
+		
+		if (dirList != null) {
 		for (File f : dirList) {
 			File file = f.getAbsoluteFile();
-			loadFile(file);		// calls recordLink which adds nodes and edges
+			loadFile(file, false);		// calls recordLink which adds nodes and edges
 		}
+		}
+		if (tree || threads) hierarchy();
 		
 		Iterator<String> allEnds = inputs.iterator();
 		while (allEnds.hasNext()) {
 			String current = allEnds.next();
 			count++;
-			if (count % 10 == 0)
+			if (count % 9 == 0)
 				dialog.setTitle("Loaded " + count + " items ...");
 			addContent(current);
 		}
+		dialog.setTitle("Next actions:");
 		
-		if (tree) hierarchy();
+		if (print && threads) {
+			
+		// Check the sequence chain for missing zettels
+		System.out.println("Successor table size: " + successors.size());
 		
-		System.out.println(nodes.size() + " nodes, " + edges.size() + " edges");
+		Enumeration<String> predecessors = successors.keys();
+		while (predecessors.hasMoreElements()) {
+			String pred = predecessors.nextElement();
+			while (successors.containsKey(pred)) {
+				String succ = successors.get(pred);
+				try {
+					list.write(pred + "\t" + pred + newLine);
+				} catch (IOException e) {
+					System.out.println("Error LI112 " + e);
+				}
+				pred = succ;
+			}
+			if (printDone.contains(pred)) continue; 
+			printDone.add(pred);
+		}
+		}
+		
+		if (print && links) {
+			try {
+				list.write(printOut);
+			} catch (IOException e) {
+				System.out.println("Error LI112a " + e);
+			}
+		}
+		System.out.println("Stage 2: " + nodes.size() + " nodes, " + edges.size() + " edges");
 		
 		// pass on 
     	try {
@@ -275,8 +419,6 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
     		System.out.println("Error LI110 " + e1);
     	}
     	controler.getNSInstance().setInput(dataString, 2);
-    	controler.setTreeModel(null);
-    	controler.setNonTreeEdges(null);
     	
     	if (hop) {
     		controler.toggleHashes(true);
@@ -285,7 +427,7 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
     	}
 	}
 	
-	public void loadFile(File file) {
+	public void loadFile(File file, boolean opml) {
 		String filename = file.getName();
 		try {
 			stream = new FileInputStream(file);
@@ -314,6 +456,9 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		} catch (SAXException e) {
 			return;
 		}
+		if (opml) return;
+		
+		filename = filename.substring(6);
 		filename = filename.replaceAll("_V$", "");
 		
 		NodeList divs = inputXml.getElementsByTagName("div");
@@ -326,7 +471,9 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 			String content = allTags(div);
 			contents.put(filename, content);
 		}
-		NodeList refs = inputXml.getElementsByTagName("ref");	// TODO eliminate 
+		
+		if (!threads || links) {	// ignores zettels without remote references
+		NodeList refs = inputXml.getElementsByTagName("ref");
 		if (refs.getLength() < 2) return;
 		for (int i = 1; i < refs.getLength(); i++) {
 			Node ref = refs.item(i);	
@@ -338,10 +485,32 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 			target = target.replaceAll("_V$", "");
 			recordLink(filename, target.substring(1));
 		}
+		}
+		
+		if (seq) extractSuccessor(filename);
+	}
+	
+	// To get the sequence
+	public void extractSuccessor(String filename) {
+		NodeList ptrs = inputXml.getElementsByTagName("ptr");
+		for (int i = 0; i < ptrs.getLength(); i++) {
+			Node ptr = ptrs.item(i);
+			NamedNodeMap attr2 = ptr.getAttributes();
+			if (attr2.getLength() > 0) {
+				String type = ((Element) ptr).getAttribute("type");
+				if (type.contains("naechste-vorderseite-im-zettelkasten")) {
+					String ptrTarget = ((Element) ptr).getAttribute("target");
+					ptrTarget = ptrTarget.replaceAll("_V$", "");
+					if (ptrTarget.length() < 8) continue;
+//					System.out.println(filename.substring(8) + "\t" + ptrTarget.substring(9) + "\n");
+					if (successors.containsKey(filename.substring(8))) System.out.println("Complain " + filename);
+					successors.put(filename.substring(8), ptrTarget.substring(9));
+				}
+			}
+		}
 	}
 	
 	public void loadHeaders(String filename) {
-//		filename = "c:\\Users\\Matthias\\Desktop\\hdrs.txt";
 		int colorChangeNum = -1;
 		boolean change = true;
 		try {
@@ -390,39 +559,51 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 			inputs.add(target);
 			addNode(target, "");
 		}
-		if (links) addEdge(source, target, true);
+		if (links || threads) {
+			addEdge(source, target, true);
+			if (print && links) printOut += source + "\t" + target + newLine;
+		}
 	}
 
 	public Vector<String> parseNummer(String id) {
 		Vector<String> vector = new Vector<String>();
-		String rest = id;
-		String el = id.substring(0, 8); // "ZK_1_NB_"
+		String el = "";
+		try {
+			el = id.substring(0, 8); // "ZK_1_NB_"
+		} catch (StringIndexOutOfBoundsException e) {
+			controler.displayPopup("Problem with " + id + 
+					"\nMaybe filename format not recognized."
+					+ "\nMust be xxxxxxZK_n_NB_nn...n_V");
+			controler.close();
+		}
 		vector.add(el);
-		int len = el.length();
-		while (!rest.isEmpty()) {
-			rest = rest.substring(len);
-			String numString = "";
-			String nextChar = "";
-			for (int i = 0; i < rest.length(); i++) {
-				nextChar = rest.substring(i, i + 1);
-				if (nextChar.matches("[0-9]+")) {
-					numString += nextChar; 
+
+		String 	rest = id.substring(8);
+		String nextChar = "";
+		String numString = "";
+		for (int i = 0; i < rest.length(); i++) {
+			nextChar = rest.substring(i, i + 1);
+			if (nextChar.matches("[0-9]+")) {
+				numString += nextChar; 
+			} else {
+				if (!numString.isEmpty()) vector.add(numString);
+				if (nextChar.equals("-") || nextChar.equals("_")) {
+					numString = nextChar;
 				} else {
-					break;
+					numString = "";
+					vector.add(nextChar);
 				}
 			}
-			if (!numString.isEmpty()) {
-				el = numString;
-			} else {
-				el = nextChar;
-			}
-			if (!el.isEmpty()) vector.add(el);
-			len = el.length();
 		}
+		if (!numString.isEmpty()) vector.add(numString);
+//		System.out.println(id + " -> " + vector);
 		return vector;
 	}
 	
 	public void addNode(String nodeRef, String colorString) {
+		addNode(nodeRef, colorString, false);
+	}
+	public void addNode(String nodeRef, String colorString, boolean onlyVirtual) {
 
 		if (colorString.isEmpty()) {
 			colorString = palette[0];
@@ -460,7 +641,8 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		
 		GraphNode topic = new GraphNode (id, p, Color.decode(colorString), label, detail);	
 
-		nodes.put(id, topic);
+		virtualNodes.put(id, topic);
+		if (!onlyVirtual) nodes.put(id, topic);
 		inputs2num.put(nodeRef, id);
 	}
 
@@ -532,23 +714,41 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		for (int i = 0; i < min; i++) {
 			String element1 = vector1.get(i);
 			String element2 = vector2.get(i);
-			boolean numeric = true;
+			int prio1 = 4;
+			int prio2 = 4;
+			
+			// Order seems to be: _, A-Z, -number, a-z, number 
+			if (element1.startsWith("_")) prio1 = 0;
+			if (element2.startsWith("_")) prio2 = 0;
+			if (element1.matches("^[A-Z]+")) prio1 = 1;
+			if (element2.matches("^[A-Z]+")) prio2 = 1;
+			if (element1.startsWith("-")) prio1 = 2;
+			if (element2.startsWith("-")) prio2 = 2;
+			if (element1.matches("^[a-z]+")) prio1 = 3;
+			if (element2.matches("^[a-z]+")) prio2 = 3;
+			boolean numeric1 = true;
+			boolean numeric2 = true;
 			int num1 = 0;
 			int num2 = 0;
 			try {
 				num1 = Integer.parseInt(element1);
+			} catch (NumberFormatException e) {
+				numeric1 = false;
+			}
+			try {
 				num2 = Integer.parseInt(element2);
 			} catch (NumberFormatException e) {
-				numeric = false;
+				numeric2 = false;
 			}
-			if (!numeric) {
-				element1 = element1.replaceAll("_", " ");
-				element2 = element2.replaceAll("_", " ");
-				int compared = element1.compareTo(element2);
+			if (numeric1 && numeric2) {
+				int compared = Integer.compare(Math.abs(num1), Math.abs(num2));
 				if (compared == 0) continue;
 				return compared;
 			} else {
-				int compared = Integer.compare(num1, num2);
+				int compared = Integer.compare(prio1, prio2);
+				if (compared == 0) {
+					compared = element1.compareTo(element2);
+				}
 				if (compared == 0) continue;
 				return compared;
 			}
@@ -624,14 +824,50 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		}
 		return myString;
 	}
+	
 	public void hierarchy() {
-		top = new DefaultMutableTreeNode(new BranchInfo(0, "(Root)"));
+		
+		System.out.println("Stage 1: " + nodes.size() + " nodes, " + edges.size() + " edges");
+		
+		// copy "threads" by labels from an OPML file first
+		// (they play, for once,  the role of Verweisungen links). Use with an empty 
+		// zettels folder.
+		if (threads) {
+			threadsNodes = controler.getNodes();
+			threadsEdges = controler.getEdges();
+			Enumeration<GraphNode> opmlNodes = threadsNodes.elements();
+			while (opmlNodes.hasMoreElements()) {
+				GraphNode node = opmlNodes.nextElement();
+				String nodeRef = node.getLabel();
+				if (nodeRef.equals("ROOT")) nodeRef ="";
+				nodeRef = "ZK_1_NB_" + nodeRef;
+				addNode(nodeRef, "");
+			}
+			Enumeration<GraphEdge> opmlEdges = threadsEdges.elements();
+			while (opmlEdges.hasMoreElements()) {
+				GraphEdge edge = opmlEdges.nextElement();
+				GraphNode node1 = edge.getNode1();
+				GraphNode node2 = edge.getNode2();
+				String source = node1.getLabel();
+				String target = node2.getLabel();
+				if (source.equals("ROOT")) source = "";
+				// TODO deal here with exception 1a
+				source = "ZK_1_NB_" + source;
+				target = "ZK_1_NB_" + target;
+				recordLink(source, target);
+			}
+		}
+		
+		// Build the hierarchy
+		top = new DefaultMutableTreeNode(new BranchInfo(0, ""));
+		addNode("ZK_1_NB_", "#00ffff");
 		Iterator<String> allEnds = inputs.iterator();
 		while (allEnds.hasNext()) {
 			String current = allEnds.next();
 			Vector<String> currentVector = parseNummer(current);
 			findOrCreate(currentVector, true);
 		}
+
 		// Mark the used nodes
 		Iterator<String> allEnds2 = inputs.iterator();
 		while (allEnds2.hasNext()) {
@@ -643,20 +879,66 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 			info = new BranchInfo(1, label);
 			result.setUserObject(info);
 		}
-		// temporarily show the whole tree, with pale transit nodes 
+		
+		// optionally show the whole tree, with pale transit nodes 
 		Enumeration<DefaultMutableTreeNode> skeleton = top.breadthFirstEnumeration();
 		while (skeleton.hasMoreElements()) {
 			DefaultMutableTreeNode sourceItem = skeleton.nextElement();
+			if (sourceItem == top) continue;
 			DefaultMutableTreeNode targetItem = (DefaultMutableTreeNode) sourceItem.getParent();
-			if (targetItem == null || targetItem == top) continue; 	// top
 			String sourceNode = resolvePath(sourceItem);
 			String targetNode = resolvePath(targetItem);
 			BranchInfo info = (BranchInfo) sourceItem.getUserObject();
 			int key = info.getKey();
 			String colorString = key == 0 ? "#f0f0f0" : "#808080";
-			addNode(sourceNode, colorString);
-			addNode(targetNode, colorString);
-			addEdge(sourceNode, targetNode, false);
+			addNode(sourceNode, colorString, threads && !tree);
+			addNode(targetNode, colorString, threads && !tree);
+			if (!threads || tree) addEdge(sourceNode, targetNode, false);
+
+		}
+		
+		if (!threads) return;
+		drawTree(top, new Point(40, 40));
+		
+		//	Coloring the threads 
+		TreeMap<Integer,GraphNode> yMap = new TreeMap<Integer,GraphNode>();
+		SortedMap<Integer,GraphNode> yList = (SortedMap<Integer,GraphNode>) yMap;
+		int rootNum = inputs2num.get("ZK_1_NB_");
+		rootNode = nodes.get(rootNum);
+		
+		int excepID = inputs2num.get("ZK_1_NB_1a");		// cheating due to exception
+		GraphNode excepNode = nodes.get(excepID);
+		Point topXY = rootNode.getXY();
+		excepNode.setXY(new Point(topXY.x + 600, 160));
+		
+		Enumeration<GraphEdge> edgeList = rootNode.getEdges();
+		while (edgeList.hasMoreElements()) {
+			GraphEdge edge = edgeList.nextElement();
+			GraphNode threadStart = rootNode.relatedNode(edge);
+			Point xy = threadStart.getXY();
+			int y = xy.y;
+			yMap.put(y,  threadStart);
+		}
+		SortedSet<Integer> ySet = (SortedSet<Integer>) yList.keySet();
+		Iterator<Integer> iter = ySet.iterator();
+		boolean alternate = true;
+		while (iter.hasNext()) {
+			int y = iter.next();
+			GraphNode threadStart = yMap.get(y);
+			alternate = !alternate;
+			String colorString = alternate ? "#ff0000" : "#000000";
+			String indent = "";
+			colorthread(threadStart, colorString, indent);
+			Enumeration<GraphEdge> cleanupList = threadStart.getEdges();
+			while (cleanupList.hasMoreElements()) {
+				GraphEdge neighborEdge = cleanupList.nextElement();
+				GraphNode otherEnd = threadStart.relatedNode(neighborEdge);
+				if (otherEnd.equals(rootNode)) {
+//				neighborEdge.setColor("#00ffff");
+				threadStart.removeEdge(neighborEdge);
+				threadsEdges.remove(neighborEdge);
+				}
+			}
 		}
 	}
 	
@@ -665,8 +947,6 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		DefaultMutableTreeNode foundNode = null;
 		for (int level = 0; level < zettel.size(); level++) {
 			String element = zettel.get(level);
-//			BranchInfo info = (BranchInfo) previousLevel.getUserObject();
-//			System.out.println (level + ": " + info.toString());
 			Enumeration<DefaultMutableTreeNode> children = previousLevel.children();
 			boolean found = false;
 			while (children.hasMoreElements()) {
@@ -693,22 +973,105 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	}
 	
 	public String resolvePath(DefaultMutableTreeNode node) {
-		if (node == null) return "(null)";
 		Object[] path = node.getUserObjectPath();
 		String label = "";
-		for (int i = 1; i < path.length; i++) {
+		for (int i = 0; i < path.length; i++) {
 			BranchInfo info = (BranchInfo) path[i];
 			String element = info.toString();
 			label += element;
 		}
 		return label;
 	}
+	
+	public int drawTree(DefaultMutableTreeNode node, Point xy) {
+		String nodeRef = resolvePath(node);
+		if (!inputs2num.containsKey(nodeRef)) {
+			System.out.println("Error LI104 " + nodeRef);	// ZK 2 ?
+			return xy.y;
+		}
+		int nodeID = inputs2num.get(nodeRef);
+		GraphNode gnode = virtualNodes.get(nodeID);
+		if (!virtualNodes.containsKey(nodeID)) {
+			System.out.println(nodeRef + " not in virtualNodes");
+		} else {
+			gnode.setXY(xy);
+		}
+
+		Enumeration<DefaultMutableTreeNode> children = node.children();
+		TreeMap<String,DefaultMutableTreeNode> childrenMap = 
+				new TreeMap<String,DefaultMutableTreeNode>(this);
+		SortedMap<String,DefaultMutableTreeNode> childrenList =  
+				(SortedMap<String,DefaultMutableTreeNode>) childrenMap;
+
+		while (children.hasMoreElements()) { 
+			DefaultMutableTreeNode child = children.nextElement();
+			BranchInfo elInfo = (BranchInfo) child.getUserObject();
+			String elString = elInfo.toString();
+			String fullRef = nodeRef + elString; 	// comparator parses beyond 8
+			childrenMap.put(fullRef, child);
+		}
+		SortedSet<String> childrenSet = (SortedSet<String>) childrenList.keySet();
+		Iterator<String> childrenOrder = childrenSet.iterator();
+		int x = xy.x;
+		x += 300;
+		int y = xy.y;
+		int returnY = y;
+		while (childrenOrder.hasNext()) {
+			String fullString = childrenOrder.next();
+			DefaultMutableTreeNode child = childrenMap.get(fullString);
+			y = drawTree(child, new Point(x, y));	// recursion
+			returnY = y;
+			y += 40;
+		}
+		return returnY;
+	}
+	
+	public void colorthread(GraphNode node, String colorString, String indent) {
+		Enumeration<GraphEdge> edgeList = node.getEdges();
+		while (edgeList.hasMoreElements()) {
+			GraphEdge neighborEdge = edgeList.nextElement();
+			if (colorDone.contains(neighborEdge)) continue;
+			neighborEdge.setColor(colorString);
+			colorDone.add(neighborEdge);
+			GraphNode downStreamNode = node.relatedNode(neighborEdge);
+			if (downStreamNode.equals(rootNode)) continue;
+			colorthread(downStreamNode, colorString, indent + "  "); 	// recursion
+		}
+	}
 
 	public void actionPerformed(ActionEvent arg0) {
 		String command = arg0.getActionCommand();
 			tree = treeBox.isSelected();
 			links = linksBox.isSelected();
+			threads = threadsBox.isSelected();
 			hop = hopBox.isSelected();
+			print = printBox.isSelected();
+			// either threads (t required) or links/tree (d required)
+			if (command == "threads") {
+				if (threadsBox.isSelected()) {
+					linksBox.setSelected(false);
+					links = false;
+					treeBox.setSelected(false);
+					tree = false;
+				}
+				linksBox.setEnabled(!threads && !(d == null));
+				treeBox.setEnabled(!threads && !(d == null));
+			} else if (command == "links") {
+				if (linksBox.isSelected()) {
+					threadsBox.setSelected(false);
+					threads = false;
+				}
+				threadsBox.setEnabled(!links && !(t == null));
+			} else if (command == "tree") {
+				if (treeBox.isSelected()) {
+					threadsBox.setSelected(false);
+					threads = false;
+				}
+				threadsBox.setEnabled(!tree && !(t == null));
+				printBox.setSelected(!tree);
+				print = !tree;
+				printBox.setEnabled(!tree);
+			}
 			if (command == "OK") {
 			dialog.dispose();
 		}

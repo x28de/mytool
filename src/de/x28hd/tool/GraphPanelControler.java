@@ -52,4 +52,8 @@ interface GraphPanelControler {
 	boolean startStoring(String storeFilename, boolean anonymized);
 	void findHash(String hash);
 	void toggleHashes(boolean onOff);
+	
+	Hashtable<Integer,GraphNode> getNodes();
+	Hashtable<Integer,GraphEdge> getEdges();
+	boolean close();
 	}
