@@ -1194,6 +1194,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 	public void deleteCluster(boolean rectangle, GraphEdge assoc) {
+		deleteCluster(rectangle, assoc, false);
+	}
+	public void deleteCluster(boolean rectangle, GraphEdge assoc, boolean auto) {
 		Hashtable<Integer,GraphNode> cluster = new Hashtable<Integer,GraphNode>();
 		GraphNode node;
 		if (!rectangle) {
@@ -1203,12 +1206,14 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else {
 			cluster = graphPanel.createNodeRectangle();
 		}
+		if (!auto) {
 		int response = JOptionPane.showConfirmDialog(OK, 
 				"<html><body>Your command implies \"<b>Delete Cluster</b>\".<br />" +
 				"Are you absolutely sure you want to delete the entire <br />" + 
 				"cluster that contains approx. " + (cluster.size() + 2) + " items ? <br />" +
 				"(There is no Undo for multiples!)</body></html>");
 		if (response != JOptionPane.YES_OPTION) return;
+		}
 		Enumeration<GraphNode> e2 = cluster.elements();
 		while (e2.hasMoreElements()) {
 			node = (GraphNode) e2.nextElement();
