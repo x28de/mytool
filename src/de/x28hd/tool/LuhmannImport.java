@@ -56,14 +56,17 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	// We have 3 types of nodes:
 
 	// (1) Genuine nodes 'nodes' representing a zettel,
-	// (2) Auxiliary nodes 'threadsNodes' that are loaded from the threads file and 
-	//     deleted after copying their names and connections. (They are temporarily in 
-	//     'nodes' but never visible.)
-	// (3) Transit nodes that don't correspond to zettels but to parts of their 
+	// (2) Transit nodes that don't correspond to zettels but to parts of their 
 	//     nummer path. With the 'tree' view, they are added to the map ('nodes');
 	//     with the 'threads' view, their pointers are kept in a superset 
 	//     over (1) called 'todoIndentation' and are assigned a Point (.setxY())
 	//     that is used when placing their descendants, but never shown on the map.
+	// (3) Auxiliary nodes 'threadsNodes' that are loaded from the threads file and 
+	//     deleted after copying their names and connections. (They are temporarily in 
+	//     'nodes' but never visible.)
+
+	// There is also a hierarchical structure of DefaultMutableTreeNodes mirroring (1) 
+	// and (2) if the selected view is 'tree' or 'thread'.
 
 	// Content-wise, (1) has three sub-types:
 
@@ -105,7 +108,9 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	Hashtable<String,Integer> inputs2num = new  Hashtable<String,Integer>();
 
 	Hashtable<String,String> contents = new Hashtable<String,String>();
-	Hashtable<String,String> successors = new Hashtable<String,String>();
+	TreeMap<String,String> successors = new TreeMap<String,String>(this);
+	SortedMap<String,String> successorList = (SortedMap<String,String>) successors;
+	SortedSet<String> successorSet = (SortedSet<String>) successorList.keySet();
 	
 	TreeMap<String,String> headerMap = new TreeMap<String,String>(this);
 	SortedMap<String,String> headerList = (SortedMap<String,String>) headerMap;
@@ -211,28 +216,29 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		if (threads) showThreads();
 		
 		if (print && threads) {
-//			System.out.println("Successor table size: " + successors.size());
-			Enumeration<String> predecessors = successors.keys();
-			while (predecessors.hasMoreElements()) {
-				String pred = predecessors.nextElement();
+			Iterator<String> iter = successorSet.iterator();
+			String searchStart = "";
+			String pred = "ZK_1_NB_1_1";
+			while (iter.hasNext()) {
+				searchStart = iter.next();
+				if (compare(searchStart, pred) < 0) continue;
+				pred = searchStart;
 				while (successors.containsKey(pred)) {
 					String succ = successors.get(pred);
-					try {
-						list.write(pred + "\t" + pred + newLine);
-					} catch (IOException e) {
-						System.out.println("Error LI112 " + e);
-					}
+					printOut += revertFormat(pred) + newLine;
+//					printOut += pred + " \t" + succ + newLine;
 					pred = succ;
 				}
-				if (printDone.contains(pred)) continue; 
-				printDone.add(pred);
+				printOut += "missing: \t" + pred + newLine;
 			}
 		}
-		if (print && links) {
+		
+		if (print) {
 			try {
 				list.write(printOut);
-			} catch (IOException e) {
-				System.out.println("Error LI112a " + e);
+				list.close();
+			} catch (IOException e2) {
+				System.out.println("Error LI111 " + e2);
 			}
 		}
 		
@@ -813,23 +819,22 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 				if (type.contains("naechste-vorderseite-im-zettelkasten")) {
 					String ptrTarget = ((Element) ptr).getAttribute("target");
 					ptrTarget = ptrTarget.replaceAll("_V$", "");
-					if (ptrTarget.length() < 8) continue;
-					try {
-						filename = filename.substring(6); 
-					} catch (StringIndexOutOfBoundsException e) {
-						controler.displayPopup("Problem with " + filename + 
-								"\nMaybe filename format not recognized."
-								+ "\nMust be xxxxxxZK_n_NB_nn...n_V");
-						controler.close();
-					}
-					successors.put(filename, ptrTarget.substring(9));
+					successors.put(filename, ptrTarget.substring(1));
 				}
 			}
 		}
 	}
 	
+	public String revertFormat(String normalized) {
+		String reverted = "";
+		reverted = normalized.replace("ZK_1_NB_", "");
+		reverted = reverted.replaceAll("\\-", ",");
+		reverted = reverted.replaceAll("\\_[0-9]+$", "");
+		return reverted;
+	}
+	
 //
-//	For the Comparator() specified in the TreeMap childrenMap and headerMap
+//	For the Comparator() specified in the TreeMap childrenMap, headerMap and successors
 	
 	public int compare(String nummer1, String nummer2) {
 		Vector<String> vector1 = parseNummer(nummer1);
