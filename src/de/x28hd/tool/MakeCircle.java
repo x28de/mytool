@@ -1,8 +1,10 @@
 package de.x28hd.tool;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
@@ -20,6 +22,8 @@ import java.util.TreeMap;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
@@ -121,8 +125,9 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 		
 		// First iteration (shorten distances by swapping nodes)
 		nextReady = new JDialog(controler.getMainWindow(), "Optimizing the core circle...");
+		nextReady.setLayout(new BorderLayout());
 		nextReady.setLocation(800, 30);
-		nextReady.setMinimumSize(new Dimension(300, 170));
+		nextReady.setMinimumSize(new Dimension(300, 200));
 		nextReady.setVisible(true);
 		
 		initializeGraph();
@@ -183,15 +188,24 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 		controler.replaceForLayout(nodes,  edges);
 		
 		// Prompt for Step 2
-		JButton nextButton = new JButton("<html>Click here when done with "
-				+ "<br />rearranging the core circle "
-				+ "<br />to arrange the tangents."
+		JLabel info = new JLabel("<html>Click <b>Next</b> when done with "
+				+ "rearranging the core circle. "
+				+ "<br /><br />Click <b>Redraw</b> after moving an icon into a gap."
 				+ "<br /><br />Note: After the Auto-Layout, "
-				+ "<br>the map may appear empty." 
-				+ "<br />Then use Advanced > Zoom</html>");
-		nextReady.add(nextButton);
+				+ "the map may appear empty. " 
+				+ "Then use Advanced > Zoom</html>");
+		info.setBorder(new EmptyBorder(10, 45, 10, 45));
+		nextReady.add(info, "North");
+		JButton fixButton = new JButton("Redraw");
+		fixButton.addActionListener(this);
+		nextReady.add(fixButton, "West");
+		JButton nextButton = new JButton("Next");
 		nextButton.addActionListener(this);
+		nextReady.add(nextButton, "East");
+		nextButton.requestFocusInWindow();
 		nextReady.setTitle("Ready?");
+		
+//		controler.circleImprovement(this);
 	}
 
 	public void step2() {
@@ -662,8 +676,13 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent arg0) {
+		String command = arg0.getActionCommand();
+		if (command != "Redraw") {
 		nextReady.dispose();
 		step2();
+		} else {
+			reorder();
+		}
 	}
 	
 	
@@ -686,5 +705,83 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 			GraphNode node = realNodes.get(nodeID);
 			System.out.println("  " + i + " " + node.getLabel() + " of " + chain.size());
 		}
+	}
+	
+	public void reorder() {
+		GraphNode selected = controler.getSelectedNode();
+		Point xy = selected.getXY();
+		
+		// Put positions into sortable map
+		Enumeration<Integer> idList = positions.keys();
+		TreeMap<Integer,Integer> idMap = new TreeMap<Integer,Integer>();
+		while (idList.hasMoreElements()) {
+			int id = idList.nextElement();
+			int pos = positions.get(id);
+			idMap.put(pos, id);
+		}
+		
+		SortedMap<Integer,Integer> positionList = (SortedMap<Integer,Integer>) idMap;
+		SortedSet<Integer> positionSet = (SortedSet<Integer>) positionList.keySet();
+		Iterator<Integer> positionsIter = positionSet.iterator();
+		
+		// Inspect gaps between neighbors whether the selected node was moved here
+		int selID = selected.getID();
+		if (!positions.containsKey(selID)) return;
+		int selPos = positions.get(selID);
+		int newPos = -1;
+		int posPrevious = positions.size() - 1;
+		positionsIter = positionSet.iterator();
+		while (positionsIter.hasNext()) {
+			int pos = positionsIter.next();
+			if (pos == selPos || posPrevious == selPos) continue;
+			int id = idMap.get(pos);
+			int previousID = idMap.get(posPrevious);
+			GraphNode neighbor1 = nodes.get(previousID);
+			GraphNode neighbor2 = nodes.get(id);
+			Point p1 = neighbor1.getXY();
+			Point p2 = neighbor2.getXY();
+			int x = p1.x <= p2.x ? p1.x : p2.x;
+			int y = p1.y <= p2.y ? p1.y : p2.y;
+			Rectangle rect = new Rectangle(x - 5, y - 5, 
+					Math.abs(p2.x - p1.x) + 10, Math.abs(p2.y - p1.y) + 10);
+			if (!rect.contains(xy)) {
+				posPrevious = pos;
+				continue;
+			} else {
+				if (selPos < posPrevious) newPos = posPrevious;
+				if (selPos > pos) newPos = pos;
+				break;
+			}
+		}
+
+		// Set new position values
+		positionsIter = positionSet.iterator();
+		while (positionsIter.hasNext()) {
+			int pos = positionsIter.next();
+			int id = idMap.get(pos);
+			if (selPos < newPos) {	// selected node moved forward
+				if (pos <= selPos || pos > newPos) continue;
+				positions.put(id, pos - 1);
+			} else {				// selected node move backward
+				if (pos >= selPos || pos < newPos) continue;
+				positions.put(id, pos + 1);
+			}
+		}
+		positions.put(selID, newPos);
+		
+		circleLayout();
+		
+		// Apply the new coordinates
+		Collection<Integer> nodeIDs = graph.getVertices();
+		Iterator<Integer> nodeIt = nodeIDs.iterator();
+		while (nodeIt.hasNext()) {
+			int id = nodeIt.next();
+			GraphNode cloneNode = nodes.get(id);
+			xy = cloneNode.getXY();
+			GraphNode node = realNodes.get(id);
+			node.setXY(xy);
+		}
+		
+		controler.getMainWindow().repaint();
 	}
 }

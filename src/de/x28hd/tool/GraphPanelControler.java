@@ -56,4 +56,5 @@ interface GraphPanelControler {
 	Hashtable<Integer,GraphNode> getNodes();
 	Hashtable<Integer,GraphEdge> getEdges();
 	boolean close();
+	public GraphNode getSelectedNode();
 	}

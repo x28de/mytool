@@ -1792,4 +1792,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 		public Hashtable<Integer,GraphEdge> getEdges() {
 			return edges;
 		}
+		
+		// For circle refinement
+		public GraphNode getSelectedNode() {
+			return selectedTopic;
+		}
 }
