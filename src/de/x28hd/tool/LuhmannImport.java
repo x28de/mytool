@@ -1102,13 +1102,13 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		// Show advice
 		String advice = "<html>Recommended next actions: <br /><br />";
 		if (tree & !links) advice += 
-				"- <b>Advanced > Make Tree</b> and then<br /> "
-				+ "<b>Centrality Heatmap</b>,<br /><br />"
-				+ "- or <b>Advanced > DAG layout</b>, <br />"
+				"- <b>Advanced > Layout > Make Tree</b><br /> "
+				+ "and then <b>Centrality Heatmap</b>,<br /><br />"
+				+ "- or <b>Advanced > Layout > DAG layout</b>, <br />"
 				+ "then find the root in the upper left, <br />"
-				+ "rightclick it, <b>Advanced > Tree Layout</b>.";
-		if (!tree & links) advice += "<b>Advanced > Make Circle</b> and<br />" 
-				+ "then, if it still looks cluttered,<br />"
+				+ "rightclick it, <b>Advanced > Layout > Tree Layout</b>.";
+		if (!tree & links) advice += "<b>Advanced > Layout > Make Circle</b><br />" 
+				+ "and then, if it still looks cluttered,<br />"
 				+ "find the main circle and drag <br />"
 				+ "it away from the little islands. <br /><br />"
 				+ "Then take a few minutes to tidy up.";

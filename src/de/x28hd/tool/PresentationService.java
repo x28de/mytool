@@ -203,9 +203,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 			displayPopup("<html><h3>How to Select</h3>" 
 					+ "Select a cluster of connected items by clicking any line;<br />" 
 					+ "select a single item by clicking its icon.<br /><br />"
-					+ "Rectangular rubberband selection must be enabled first: <br>"
-					+ "in the Advanced menu, activate \"Rubberband selection enabled\"; <br>"
-					+ "Then ALT + Drag the mouse on the canvas for spanning the rectangle;<br>"
+					+ "For rectangular rubberband selection, ALT + Drag <br>"
+					+ "the mouse on the canvas for spanning the rectangle;<br>"
 					+ "click inside the rectangle to dismiss it.</html>");
 				
 		//	Find
@@ -1233,7 +1232,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 	public void flipCluster(GraphEdge assoc, boolean horizontal) {
 		GraphNode topic1 = assoc.getNode1();	
-		Hashtable<Integer,GraphNode> cluster = graphPanel.createNodeCluster(topic1);
+		Hashtable<Integer,GraphNode> cluster = rectangle ? graphPanel.createNodeRectangle() : 
+				graphPanel.createNodeCluster(topic1);
 		GraphNode node;
 		int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
@@ -1687,6 +1687,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 			gui.menuItem93.setEnabled(rectangle);
 			gui.menuItem94.setEnabled(rectangle);
 			gui.menuItem95.setEnabled(rectangle);
+			gui.menuItem38.setEnabled(rectangle);
+			gui.menuItem39.setEnabled(rectangle);
 		}
 		
 		public void find(boolean again) {

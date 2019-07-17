@@ -76,9 +76,9 @@
               Source='packager.dll'
           ></File>
 			 <File
-              Id='msvcp120'
-              Name='msvcp120.dll'
-              Source='msvcp120.dll'
+              Id='msvcp140'
+              Name='msvcp140.dll'
+              Source='msvcp140.dll'
           ></File>
 			 <File
               Id='msvcr100'
@@ -86,9 +86,9 @@
               Source='msvcr100.dll'
           ></File>
 			 <File
-              Id='msvcr120'
-              Name='msvcr120.dll'
-              Source='msvcr120.dll'
+              Id='vcruntime140'
+              Name='vcruntime140.dll'
+              Source='vcruntime140.dll'
           ></File>
         </Component>
         <Directory
@@ -373,11 +373,11 @@
 						  Name='jsoundds.dll'
 						  Source='runtime\bin\jsoundds.dll'
 						></File>
-						<File
+<!--					<File
 						  Id='FileId135'
 						  Name='kcms.dll'
 						  Source='runtime\bin\kcms.dll'
-						></File>
+						></File -->
 						<File
 						  Id='FileId136'
 						  Name='lcms.dll'
@@ -395,8 +395,8 @@
 						></File>
 						<File
 						  Id='FileId139'
-						  Name='msvcp120.dll'
-						  Source='runtime\bin\msvcp120.dll'
+						  Name='msvcp140.dll'
+						  Source='runtime\bin\msvcp140.dll'
 						></File>
 						<File
 						  Id='FileId140'
@@ -405,8 +405,8 @@
 						></File>
 						<File
 						  Id='FileId141'
-						  Name='msvcr120.dll'
-						  Source='runtime\bin\msvcr120.dll'
+						  Name='vcruntime140.dll'
+						  Source='runtime\bin\vcruntime140.dll'
 						></File>
 						<File
 						  Id='FileId142'
@@ -1101,21 +1101,21 @@
 							  Name='javaws.policy'
 							  Source='runtime\lib\security\javaws.policy'
 							></File>
-							<File
+<!-- 						<File
 							  Id='FileId238'
 							  Name='local_policy.jar'
 							  Source='runtime\lib\security\local_policy.jar'
-							></File>
+							></File -->
 							<File
 							  Id='FileId239'
 							  Name='trusted.libraries'
 							  Source='runtime\lib\security\trusted.libraries'
 							></File>
-							<File
+<!-- 						<File
 							  Id='FileId240'
 							  Name='US_export_policy.jar'
 							  Source='runtime\lib\security\US_export_policy.jar'
-							></File>
+							></File -->
 						</Component>
 					</Directory>
 				</Directory>

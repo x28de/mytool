@@ -163,7 +163,7 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 		advancedBox.addActionListener(this);
 		advancedToolbar.add(advancedBox);
 		closeReadingBox = new JCheckBox("Split by double line-break");
-		closeReadingBox.setToolTipText("Create paragraphs manually; See also: Advanced > Parsing dropped HTML");
+		closeReadingBox.setToolTipText("Create paragraphs manually; See also: Advanced > Dropping > Parsing dropped HTML");
 		veryCloseReadingBox = new JCheckBox("Split by period");
 		veryCloseReadingBox.setToolTipText("Handle single sentences");
 		outerToolbar.add(advancedToolbar, "North");

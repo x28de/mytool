@@ -81,7 +81,7 @@ class GraphPanel extends JDesktopPane  {
 	boolean x28PresoSizedMode = false;
 	boolean indexCards = true;
 	boolean antiAliasing = true;
-	boolean enableRectangle = false;
+	boolean enableRectangle = true;
 	boolean enableClusterCopy = false;
     
 //

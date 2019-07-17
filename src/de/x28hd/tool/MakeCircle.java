@@ -189,11 +189,12 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 		
 		// Prompt for Step 2
 		JLabel info = new JLabel("<html>Click <b>Next</b> when done with "
-				+ "rearranging the core circle. "
-				+ "<br /><br />Click <b>Redraw</b> after moving an icon into a gap."
-				+ "<br /><br />Note: After the Auto-Layout, "
-				+ "the map may appear empty. " 
-				+ "Then use Advanced > Zoom</html>");
+				+ "<br />rearranging the core circle. "
+				+ "<br /><br />Click <b>Redraw</b> after moving an icon into "
+				+ "<br />a gap."
+				+ "<br /><br />Note: After the Auto-Layout, the map"
+				+ "<br />may appear empty. Then use" 
+				+ "<br />Advanced > Zoom</html>");
 		info.setBorder(new EmptyBorder(10, 45, 10, 45));
 		nextReady.add(info, "North");
 		JButton fixButton = new JButton("Redraw");
@@ -202,8 +203,9 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 		JButton nextButton = new JButton("Next");
 		nextButton.addActionListener(this);
 		nextReady.add(nextButton, "East");
-		nextButton.requestFocusInWindow();
 		nextReady.setTitle("Ready?");
+		nextButton.requestFocusInWindow();
+		nextReady.pack();
 		
 //		controler.circleImprovement(this);
 	}
@@ -447,7 +449,7 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 		layout = new CircleLayout<Integer,Integer>(graph);
 		layout.setVertexOrder((Comparator<Integer>) this); // see compare()
 		layout.initialize();
-		layout.setSize(new Dimension(400 + (200 * ((int) Math.sqrt(size))), 
+		layout.setSize(new Dimension(400 + (220 * ((int) Math.sqrt(size))), 
 				300 + (150 * ((int) Math.sqrt(size)))));
 
 		Collection<Integer> nodeIDs = graph.getVertices();

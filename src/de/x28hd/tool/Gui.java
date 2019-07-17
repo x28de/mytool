@@ -51,6 +51,8 @@ public class Gui {
 	JMenuItem menuItem94 = null;
 	JMenuItem menuItem95 = null;
 	JMenuItem menuItem98 = null;
+	JMenuItem menuItem38 = null;
+	JMenuItem menuItem39 = null;
 	JRadioButtonMenuItem menuItem41 = null;
 	JCheckBoxMenuItem menuItem42 = null;
 	JCheckBoxMenuItem menuItem43 = null;
@@ -416,6 +418,15 @@ public class Gui {
 		
 		menu5.add(sub3);
 
+		menuItem58 = new JCheckBoxMenuItem("Zoom the map...", false);
+		menuItem58.setActionCommand("zoom");
+		menuItem58.setSelected(false);
+		menuItem58.setToolTipText("Zoomable view (less-than-ideal solution)");
+		menuItem58.addActionListener(controler);
+		menu5.add(menuItem58);
+
+		menu5.addSeparator();
+
 		ButtonGroup buttonGroup = new ButtonGroup();
 
 		menuItem41 = new JRadioButtonMenuItem("Hyperlinks on", false);
@@ -434,77 +445,105 @@ public class Gui {
 
 		menu5.addSeparator();
 
-		menuItem51 = new JCheckBoxMenuItem("Centrality Heatmap", false);
-		menuItem51.setActionCommand("centcol");
-		menuItem51.setToolTipText("Warmer colors represent higher betweenness centrality");
-		menuItem51.addActionListener(controler);
-		menu5.add(menuItem51);
+		menuItem63 = new JCheckBoxMenuItem("HyperHopping enabled", false);
+		menuItem63.setActionCommand("hashes");
+		menuItem63.setToolTipText("Local hyperlinks (#...) used for Find in labels");
+		menuItem63.addActionListener(controler);
+		menu5.add(menuItem63);
 
+		menu5.addSeparator();
+
+		JMenu sub2 = new JMenu("Layouts");
+		
 		JMenuItem menuItem53 = new JMenuItem("Make Tree");
 		menuItem53.setActionCommand("layout");
 		menuItem53.setToolTipText("Generates a tree layout and structure for exporting");
 		menuItem53.addActionListener(controler);
-		menu5.add(menuItem53);
+		sub2.add(menuItem53);
 
 		JMenuItem menuItem60 = new JMenuItem("Make Circle");
 		menuItem60.setActionCommand("makecircle");
 		menuItem60.setToolTipText("Separates trees and chains from core circle");
 		menuItem60.addActionListener(controler);
-		menu5.add(menuItem60);
+		sub2.add(menuItem60);
 
 		JMenuItem menuItem59 = new JMenuItem("DAG Layout");
 		menuItem59.setActionCommand("dag");
 		menuItem59.setToolTipText("Directed Acyclic Graph, depth last");
 		menuItem59.addActionListener(controler);
-		menu5.add(menuItem59);
+		sub2.add(menuItem59);
 
-		menuItem55 = new JCheckBoxMenuItem("Tablet Pen Mode", false);
-		menuItem55.setActionCommand("tablet");
-		menuItem55.setToolTipText("Doubleclick improvement, Alt-Key for Pen and Touch");
-		menuItem55.addActionListener(controler);
-		menu5.add(menuItem55);
+		menuItem51 = new JCheckBoxMenuItem("Centrality Heatmap", false);
+		menuItem51.setActionCommand("centcol");
+		menuItem51.setToolTipText("Warmer colors represent higher betweenness centrality");
+		menuItem51.addActionListener(controler);
+		sub2.add(menuItem51);
 
-		menu5.addSeparator();
+		menuItem38 = new JMenuItem("Flip rectangle horizontal");
+		menuItem38.setActionCommand("flipHori");
+		menuItem38.setEnabled(false);
+		menuItem38.setToolTipText("Flip the selected clipping horizontally");
+		menuItem38.addActionListener(controler);
+		sub2.add(menuItem38);
 
-		JMenuItem menuItem54 = new JMenuItem("Preferences");
-		menuItem54.setActionCommand("prefs");
-		menuItem54.setToolTipText("<html><body><em>(Not yet interesting)</em></body></html>");
-		menuItem54.addActionListener(controler);
-		menu5.add(menuItem54);
+		menuItem39 = new JMenuItem("Flip rectangle vertical");
+		menuItem39.setActionCommand("flipVerti");
+		menuItem39.setEnabled(false);
+		menuItem39.setToolTipText("Flip the selected clipping vertically");
+		menuItem39.addActionListener(controler);
+		sub2.add(menuItem39);
+
+		menu5.add(sub2);
+		
+		JMenu sub4 = new JMenu("Dropping");
+
+		menuItem27 = new JCheckBoxMenuItem("Cluster Drag&Drop enabled", false);
+		menuItem27.setActionCommand("ToggleClusterCopy");
+		menuItem27.setToolTipText("Enables to copy entire clusters -- may be confusing");
+		menuItem27.addActionListener(controler);
+		sub4.add(menuItem27);
+
+		menuItem24 = new JCheckBoxMenuItem("Appending dropped stuff", true);
+		menuItem24.setToolTipText("Exact drop position is ignored and new stuff is just appended");
+		menuItem24.addActionListener(controler);
+		sub4.add(menuItem24);
+
+		menuItem25 = new JCheckBoxMenuItem("Parsing dropped HTML", false);
+		menuItem25.setToolTipText("Try to find headings or lists");
+		menuItem25.setActionCommand("toggleParse");
+		menuItem25.addActionListener(controler);
+		sub4.add(menuItem25);
+
+		menu5.add(sub4);
+
+		JMenu sub5 = new JMenu("Appearance");
 
 		menuItem46 = new JCheckBoxMenuItem("Items as Index Cards", false);
 		menuItem46.setActionCommand("ToggleCards");
 		menuItem46.setSelected(true);
 		menuItem46.setToolTipText("Rectangles or circles");
 		menuItem46.addActionListener(controler);
-		menu5.add(menuItem46);
+		sub5.add(menuItem46);
 
 		menuItem47 = new JCheckBoxMenuItem("Icon Shape Automatic", false);
 		menuItem47.setActionCommand("AutoCircles");
 		menuItem47.setSelected(true);
 		menuItem47.setToolTipText("Show items as circles if more lines than items exist");
 		menuItem47.addActionListener(controler);
-		menu5.add(menuItem47);
+		sub5.add(menuItem47);
 		
-		menuItem58 = new JCheckBoxMenuItem("Zoom the map...", false);
-		menuItem58.setActionCommand("zoom");
-		menuItem58.setSelected(false);
-		menuItem58.setToolTipText("Zoomable view (less-than-ideal solution)");
-		menuItem58.addActionListener(controler);
-		menu5.add(menuItem58);
-
 		JCheckBoxMenuItem menuItem44 = new JCheckBoxMenuItem("Big Icons", false);
 		menuItem44.setActionCommand("TogglePreso");
 //		menuItem44.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, shortcutMask));
 		menuItem44.setToolTipText("Presentation Mode");
 		menuItem44.addActionListener(controler);
-		menu5.add(menuItem44);
+		sub5.add(menuItem44);
 
 		menuItem42 = new JCheckBoxMenuItem("Borders", false);
 		menuItem42.setActionCommand("ToggleBorders");
 		menuItem42.setToolTipText("Display arrows pointing to lost areas");
 		menuItem42.addActionListener(controler);
-		menu5.add(menuItem42);
+		sub5.add(menuItem42);
 
 		menuItem45 = new JCheckBoxMenuItem("Accelerate", false);
 		if (System.getProperty("os.name").equals("Linux")) {
@@ -514,78 +553,67 @@ public class Gui {
 		menuItem45.setActionCommand("ToggleHeavy");
 		menuItem45.setToolTipText("Fast but coarse graphics");
 		menuItem45.addActionListener(controler);
-		menu5.add(menuItem45);
-
-		menuItem52 = new JCheckBoxMenuItem("Power User Mode", false);
-		menuItem52.setActionCommand("power");
-		menuItem52.setToolTipText("Acceleration, Lurid Colors, Borders, and Rubberband Selection");
-		menuItem52.addActionListener(controler);
-		menu5.add(menuItem52);
-
-		menuItem63 = new JCheckBoxMenuItem("HyperHopping enabled", false);
-		menuItem63.setActionCommand("hashes");
-		menuItem63.setToolTipText("Local hyperlinks (#...) used for Find in labels");
-		menuItem63.addActionListener(controler);
-		menu5.add(menuItem63);
+		sub5.add(menuItem45);
 
 		menuItem43 = new JCheckBoxMenuItem("Menu Bar", true);
 		menuItem43.setActionCommand("classicMenu");
 		menuItem43.setToolTipText("Hide menu bar (restore via rightclick on canvas)");
 		menuItem43.addActionListener(controler);
-		menu5.add(menuItem43);
+		sub5.add(menuItem43);
+		
+		menu5.add(sub5);
 
-		menu5.addSeparator();
+		JMenu sub6 = new JMenu("Miscellaneous");
 
-		menuItem26 = new JCheckBoxMenuItem("Rubberband selection enabled", false);
-		menuItem26.setActionCommand("ToggleRectangle");
-		menuItem26.setToolTipText("Enables to Alt-Drag for selection -- may be confusing");
-		menuItem26.addActionListener(controler);
-		menu5.add(menuItem26);
+		menuItem55 = new JCheckBoxMenuItem("Tablet Pen Mode", false);
+		menuItem55.setActionCommand("tablet");
+		menuItem55.setToolTipText("Doubleclick improvement, Alt-Key for Pen and Touch");
+		menuItem55.addActionListener(controler);
+		sub6.add(menuItem55);
 
-		menuItem27 = new JCheckBoxMenuItem("Cluster Drag&Drop enabled", false);
-		menuItem27.setActionCommand("ToggleClusterCopy");
-		menuItem27.setToolTipText("Enables to copy entire clusters -- may be confusing");
-		menuItem27.addActionListener(controler);
-		menu5.add(menuItem27);
-
-		menuItem24 = new JCheckBoxMenuItem("Appending dropped stuff", true);
-		menuItem24.setToolTipText("Exact drop position is ignored and new stuff is just appended");
-		menuItem24.addActionListener(controler);
-		menu5.add(menuItem24);
-
-		menuItem25 = new JCheckBoxMenuItem("Parsing dropped HTML", false);
-		menuItem25.setToolTipText("Try to find headings or lists");
-		menuItem25.setActionCommand("toggleParse");
-		menuItem25.addActionListener(controler);
-		menu5.add(menuItem25);
-
-		menu5.addSeparator();
+		JMenuItem menuItem54 = new JMenuItem("Preferences");
+		menuItem54.setActionCommand("prefs");
+		menuItem54.setToolTipText("<html><body><em>(Not yet interesting)</em></body></html>");
+		menuItem54.addActionListener(controler);
+		sub6.add(menuItem54);
 
 		JMenuItem menuItem80 = new JMenuItem("Copy to anonymized map...");
 		menuItem80.setActionCommand("Anonymize");
 		menuItem80.setToolTipText("Saves a copy with all a-z replaced by x");
 		menuItem80.addActionListener(controler);
-		menu5.add(menuItem80);
+		sub6.add(menuItem80);
 
 		JMenuItem menuItem16 = new JMenuItem("Legacy Save...");
 		menuItem16.setActionCommand("export");
 		menuItem16.setToolTipText("Export to legacy zip file format");
 		menuItem16.addActionListener(controler);
-		menu5.add(menuItem16);
+		sub6.add(menuItem16);
 
-		menu5.addSeparator();
+		menuItem52 = new JCheckBoxMenuItem("Power User Mode", false);
+		menuItem52.setActionCommand("power");
+		menuItem52.setToolTipText("Acceleration, Lurid Colors, Borders, and Rubberband Selection");
+		menuItem52.addActionListener(controler);
+		sub6.add(menuItem52);
+
+		menuItem26 = new JCheckBoxMenuItem("Rubberband selection enabled", true);
+		menuItem26.setActionCommand("ToggleRectangle");
+		menuItem26.setToolTipText("Enables to Alt-Drag for selection -- may be confusing");
+		menuItem26.addActionListener(controler);
+		sub6.add(menuItem26);
 
 		JMenuItem menuItem56 = new JMenuItem("Another Map Window");
 		menuItem56.setActionCommand("sibling");
 		menuItem56.setToolTipText("One more map (to ALT + Drag item clusters)");
 		menuItem56.addActionListener(controler);
-		menu5.add(menuItem56);
+		sub6.add(menuItem56);
 
 		JMenuItem menuItem57 = new JMenuItem("WXR to SQL");
 		menuItem57.setActionCommand("wxr");
 		menuItem57.setToolTipText("experimental");
 		menuItem57.addActionListener(controler);
-		menu5.add(menuItem57);
+		sub6.add(menuItem57);
+		
+		menu5.add(sub6);
 
 		menuBar.add(menu5);
 	}
@@ -742,6 +770,7 @@ public class Gui {
 		menu.add(delAssoc);
 		
 		JMenu sub2 = new JMenu("Advanced");
+		if (controler.rectangle) sub2.setEnabled(false);
 		
 		JMenuItem delCluster = new JMenuItem();
 		delCluster.addActionListener(controler);
