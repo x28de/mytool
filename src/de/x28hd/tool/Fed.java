@@ -13,7 +13,12 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -36,6 +41,8 @@ public class Fed {
 	int edgeCount = 0;
 	Color nodeColor = Color.decode("#ccdddd");
 	Color edgeColor = Color.decode("#c0c0c0");
+	HashSet<String> edgesDone = new HashSet<String>(); 
+	GraphNode node = null;
 
 	public Fed(GraphPanelControler controler) {
 		JFrame mainWindow = controler.getMainWindow();
@@ -80,19 +87,36 @@ public class Fed {
 			JSONObject paraObj = null;
 			JSONArray paraArray = null;
 			String story = "";
+			JSONObject siteObj = null;
 			
 			try {
+				//	Sitemap
+				if (pages[i].getName().equals("sitemap.json")) {
+					array = new JSONArray(pageString);
+			    	int arrayLen = array.length();
+			    	for (int j = 0; j < arrayLen; j++) {
+			    		siteObj = array.getJSONObject(j);
+				    	String synopsis = (String) siteObj.getString("synopsis");
+				    	String slug = (String) siteObj.getString("slug");
+				    	node = addNode(j,slug);
+				    	node.setDetail(synopsis);
+				    	nodes.put(j,  node);
+				    	System.out.println(slug);
+			    	}
+			    	continue;
+				} else {
+					
 				//	Page JSON
 				pageObj = new JSONObject(pageString);
 		    	title = (String) pageObj.get("title");
-		    	GraphNode node = null;
-		    	if (!lookup.containsKey(title)) {
-		    		node = addNode(nodeCount, title); 
+		    	node = null;
+		    	if (!lookup.containsKey(title.toLowerCase())) {
+		    		node = addNode(nodeCount, title.toLowerCase()); 
 		    		nodes.put(nodeCount, node);
-		    		lookup.put(title, nodeCount);
+		    		lookup.put(title.toLowerCase(), nodeCount);
 		    		nodeCount++;
 		    	} else {
-		    		int nodeID = lookup.get(title);
+		    		int nodeID = lookup.get(title.toLowerCase());
 		    		node = nodes.get(nodeID);
 		    	}
 		    	
@@ -100,6 +124,12 @@ public class Fed {
 		    	array = (JSONArray) pageObj.get("story");
 		    	int arrayLen = array.length();
 		    	storyObj = new JSONObject(array.get(0));
+    			String detail = "";
+	    		detail += "<body style=\"font-family: Verdana; "
+	    				+ "padding: 20px; line-height: 1.3;"
+	    				+ "max-width: 490px;\">\n"
+	    				+ "<h1>&#9640; "
+	    				+ node.getLabel() + "</h1>";
 		    	for (int j = 0; j < arrayLen; j++) {
 		    		paraObj = array.getJSONObject(j);
 		    		
@@ -110,31 +140,75 @@ public class Fed {
 		    			String text = (String) paraObj.get("text");
 		    			
 		    			// Get hyperlinks
-		    			if (!text.contains("[[")) continue;
+		    			if (text.contains("<h3>")) {
+		    				text += "</h3>";
+		    			} else {
+		    				text += "<p>";
+		    			}
+		    			String rest0 = text;
+		    			text = "";
+		    			while (rest0.contains("[http")) {
+//		    			if (rest0.contains("[http")) {
+		    				int linkStart = rest0.indexOf("[http");
+		    				text += rest0.substring(0, linkStart);
+		    				rest0 = rest0.substring(linkStart + 1);
+//		    				String regex = "(http\\S++) (\\w++)\\].*?";
+		    				String regex = "(http\\S++) (\\w++)\\](.*?)";
+		    				Pattern p = Pattern.compile(regex);
+		    				Matcher m = p.matcher(rest0);
+		    				if (!m.matches()) {
+		    					System.out.println(regex + " " + m.toMatchResult() +  "\n no match: " + rest0);
+		    					continue;
+		    				}
+			    			String link = "<a style=\"text-decoration: none;\" href=\"" + m.group(1) + "\">" + m.group(2) + "</a>";
+			    			System.out.println("link = " + link);
+//		    				rest0 = rest0.replaceFirst(regex, "$3");
+		    				rest0 = m.group(3);
+		    				text += link;
+		    			}
+		    			text += rest0;
 		    			String rest = text;
 		    			while (rest.contains("[[")) {
-		    				rest = rest.substring(rest.indexOf("[[") + 2);
+		    				int linkStart = rest.indexOf("[[");
+		    				detail += rest.substring(0, linkStart);
+		    				rest = rest.substring(linkStart + 2);
 		    				if (!rest.contains("]]")) continue;
+		    				int linkEnd = rest.indexOf("]]");
 		    				String link = rest.substring(0, rest.indexOf("]]"));
+		    				rest = rest.substring(linkEnd + 2);
+		    				detail += "<a style=\"text-decoration: none;\" href=\"#" + link.toLowerCase() + "\">" + link + "</a>";
 		    				
 		    				int linkedID = -1;
-		    		    	if (!lookup.containsKey(link)) {
-		    		    		GraphNode node2 = addNode(nodeCount, link); 
+		    		    	if (!lookup.containsKey(link.toLowerCase())) {
+		    		    		GraphNode node2 = addNode(nodeCount, link.toLowerCase()); 
 		    		    		nodes.put(nodeCount, node2);
 		    		    		linkedID = nodeCount;
-		    		    		lookup.put(link, linkedID);
+		    		    		lookup.put(link.toLowerCase(), linkedID);
 		    		    		nodeCount++;
 		    		    	} else {
-		    		    		linkedID = lookup.get(link);
+		    		    		linkedID = lookup.get(link.toLowerCase());
 		    		    	}
 		    		    	GraphNode n2 = nodes.get(linkedID);
+		    		    	String n2label = n2.getLabel();
+		    		    	String nodelabel = node.getLabel();
+		    				String unique = nodelabel.compareToIgnoreCase(n2label) > 0 ? 
+		    						(nodelabel + " -- " + n2label) : (n2label + " -- " + nodelabel);
+		    				if (edgesDone.contains(unique)) {
+		    					System.out.println("Duplicate link " + unique + " skipped");
+		    					continue;
+		    				}
+		    				edgesDone.add(unique);
 		    		    	GraphEdge edge = new GraphEdge(edgeCount, node, n2, nodeColor, "");
 		    		    	edges.put(edgeCount, edge);
 		    		    	edgeCount++;
 		    				System.out.println(node.getLabel() + "  -> " + link);
 		    			}
+		    			detail += rest;
 		    		}
+		    		detail = detail.replace("<p><h3>", "<h3>");
+	    			node.setDetail(detail);
 		    	}
+				}
 			} catch (JSONException e) {
 				System.out.println("Error FE102 " + e);
 				continue;
@@ -142,6 +216,12 @@ public class Fed {
 	    }
 	    
 	    // Pass on
+	    
+	    Enumeration<GraphNode> nodeList = nodes.elements();
+	    while (nodeList.hasMoreElements()) {
+	    	node = nodeList.nextElement();
+	    	if (node.getDetail().isEmpty()) node.setColor("#eeeeee");
+	    }
 	    
 	    String dataString = "";
     	try {
@@ -156,6 +236,9 @@ public class Fed {
     	controler.getNSInstance().setInput(dataString, 2);
     	controler.setTreeModel(null);
     	controler.setNonTreeEdges(null);
+    	
+		controler.toggleHashes(true);
+		controler.fixDivider();
 	}
 	
 	public GraphNode addNode(int id, String label) {

@@ -57,4 +57,5 @@ interface GraphPanelControler {
 	Hashtable<Integer,GraphEdge> getEdges();
 	boolean close();
 	public GraphNode getSelectedNode();
+	public void fixDivider();
 	}

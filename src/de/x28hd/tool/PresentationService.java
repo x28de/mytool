@@ -695,7 +695,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setDividerLocation(960 - 232);
-		splitPane.setDividerLocation(960 - 232);
 		splitPane.setResizeWeight(.8);
 		splitPane.setDividerSize(8);
 
@@ -1010,7 +1009,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	public void deselect(GraphNode node) {
 		if (!node.equals(dummyNode)) {
 			node.setLabel(labelField.getText());
-			node.setDetail(edi.getText());
+			if (!hyp) node.setDetail(edi.getText());
 			edi.setText("");
 			labelField.setText("");
 		}
@@ -1032,7 +1031,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		edi.setText((selectedTopic).getDetail());
 		edi.setDirty(false);
 		commit(NONE, null, null, null);	// empty, to avoid false hopes
-//		edi.getTextComponent().setCaretPosition(0);
+		if (hyp) edi.getTextComponent().setCaretPosition(0);
 		edi.getTextComponent().requestFocus();
 		String labelText = selectedTopic.getLabel();
 		labelField.setText(labelText);
@@ -1735,6 +1734,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		public void findHash(String hash) {
 			boolean found = false;
 			findString = hash;
+			System.out.println(">" + hash + "<");
 			Enumeration<Integer> nodesEnum = nodes.keys();
 			while (nodesEnum.hasMoreElements()) {
 				int nodeID = nodesEnum.nextElement();
@@ -1742,11 +1742,11 @@ public final class PresentationService implements ActionListener, MouseListener,
 				String label = node.getLabel();
 				// Allow for B+ additions
 				label = label.trim();
-				if (label.contains(" ")) {
+				if (!hyp && label.contains(" ")) {
 					int offset = label.indexOf(" ");
 					label = label.substring(0, offset);
 				} 
-				if (label.equals(findString)) {	
+				if (label.equalsIgnoreCase(findString)) {	
 					Point xy = node.getXY();
 					Point transl = graphPanel.getTranslation();
 					int dx = xy.x - mainWindow.getWidth()/2 + transl.x + 200;
@@ -1766,6 +1766,11 @@ public final class PresentationService implements ActionListener, MouseListener,
 			toggleHyp(1, true);
 		}
 
+		public void fixDivider() {
+			splitPane.setDividerLocation(mainWindow.getWidth() - 464);
+			splitPane.setResizeWeight(1);
+		}
+		
 		public void zoom(boolean on) {
 			dividerPos = splitPane.getDividerLocation();
 			if (on) {

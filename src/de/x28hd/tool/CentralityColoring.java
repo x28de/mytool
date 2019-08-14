@@ -137,8 +137,8 @@ public class CentralityColoring implements TreeSelectionListener {
 			GraphNode node1 = nodes.get(n1);
 			GraphNode node2 = nodes.get(n2);
 			
-			node1.addEdge(edge);
-			node2.addEdge(edge);
+//			node1.addEdge(edge);
+//			node2.addEdge(edge);
 			EdgeType edgeType = EdgeType.UNDIRECTED; 	//	For trees
 //			EdgeType edgeType = EdgeType.DIRECTED; 		//	For Networks
 			g.addEdge(edgeID, n1, n2, edgeType);
