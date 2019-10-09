@@ -62,6 +62,7 @@ public class Export2WXR implements ActionListener{
 			GraphPanelControler controler) {
 		this.nodes = nodes;
 		this.edges = edges;
+		askForColor();
 		FileDialog fd = new FileDialog(controler.getMainWindow(), "Specify filename", FileDialog.SAVE);
 		fd.setFile("wxr.xml"); 
 		fd.setVisible(true);
@@ -81,9 +82,10 @@ public class Export2WXR implements ActionListener{
 			System.out.println("Error EW130" + e2);
 		}
 		}
-		
-		// Ask for category colors
-		
+	}
+	
+	// Ask for category colors
+	public void askForColor() {
 		Enumeration<GraphNode> nodesEnum = nodes.elements();
 		while (nodesEnum.hasMoreElements()) {
 			Color color = nodesEnum.nextElement().getColor();

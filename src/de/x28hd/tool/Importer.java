@@ -81,7 +81,7 @@ public class Importer {
 			"<html>A Microsoft Word Document (we take the plain text from each paragraph)</html>"),
 	new Importer(Importer.Endnote, "Endnote", "(not relevant)", "enw", "enw (Endnote Tagged Import Format)", 
 			"<html>If you have an \"Endnote Tagged Import Format\" file exported (we just split it up)</html>"),
-	new Importer(Importer.Citavi, "Citavi *)", "(not relevant)", "ctv4", "ctv4 (Citavi 4 Project File)", 
+	new Importer(Importer.Citavi, "Citavi *)", "(not relevant)", "ctv6", "ctv6 (Citavi 6 Project File)", 
 			"<html>A Citavi project file (we extract the core knowledge network) <br>"
 			+ "*) = Extended version only</html>"),
 	new Importer(Importer.VUE, "VUE", "LW-MAP", "vue", "vue (VUE map file)", 
