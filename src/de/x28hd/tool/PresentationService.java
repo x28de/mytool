@@ -592,6 +592,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 			new MakeCircle(nodes, edges, this);
 		} else if (command == "hashes") {
 			toggleHashes(gui.menuItem63.isSelected());
+		} else if (command == "tst") {
+			new TaggedImport(this);
 		} else {
 			System.out.println("PS: Wrong action: " + command);
 		}
@@ -1734,7 +1736,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		public void findHash(String hash) {
 			boolean found = false;
 			findString = hash;
-			System.out.println(">" + hash + "<");
 			Enumeration<Integer> nodesEnum = nodes.keys();
 			while (nodesEnum.hasMoreElements()) {
 				int nodeID = nodesEnum.nextElement();
@@ -1803,5 +1804,24 @@ public final class PresentationService implements ActionListener, MouseListener,
 		// For circle refinement
 		public GraphNode getSelectedNode() {
 			return selectedTopic;
+		}
+
+		public void linkTo(String label) {
+			toggleHashes(true);
+			GraphNode activeNode = selectedTopic;
+			activeNode.setDetail(edi.getText());
+			
+			Point activeXY = selectedTopic.getXY();
+			Point newXY = new Point(activeXY.x - 30, activeXY.y + 30);
+			GraphNode newNode = createNode(newXY);
+			labelField.setText(label);
+			
+			String labelActive = activeNode.getLabel();
+			String detailNew = "<br/>See also <a href=\"#" + labelActive + "\">" + labelActive + "</a>";
+			newNode.setDetail(detailNew);
+			nodeSelected(newNode);	// see deselect() peculiarities
+			
+			createEdge(activeNode, newNode);
+			mainWindow.repaint();
 		}
 }

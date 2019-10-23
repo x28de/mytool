@@ -58,4 +58,5 @@ interface GraphPanelControler {
 	boolean close();
 	public GraphNode getSelectedNode();
 	public void fixDivider();
+	void linkTo(String textToAdd);
 	}

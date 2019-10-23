@@ -157,6 +157,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getActionCommand().equals("copyAsList")) copyAsList();
+		if (arg0.getActionCommand().equals("linkTo")) linkTo();
 
 //		System.out.println("Action " + arg0.getActionCommand() + " performed");
 	}
@@ -375,6 +376,12 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		copyListItem.setText("Copy As List");
 		menu.add(copyListItem);
 		
+		JMenuItem linktoItem = new JMenuItem();
+		linktoItem.setActionCommand("linkTo");
+		linktoItem.addActionListener(this);
+		linktoItem.setText("Create connected Item");
+		menu.add(linktoItem);
+		
 		menu.show(this, x, y);
 	}
 
@@ -564,4 +571,15 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		hashesEnabled = onOff;
 	}
 	
+	public void linkTo() {
+		String clickText = textToAdd;
+		String before = textComponent.getText();
+		String after = before.replace(clickText, "<a href=\"#" + clickText + "\"><u>" + clickText + "</u></a>");
+		if (after.contentEquals(before)) {
+			controler.displayPopup("Hyperlink to '" + clickText + "' was not created;\n"
+					+ "special characters don't work yet; sorry.");
+		}	// no idea how to tame JEditorPane's strange HTML storing
+		textComponent.setText(after);
+		controler.linkTo(clickText);
+	}
 }

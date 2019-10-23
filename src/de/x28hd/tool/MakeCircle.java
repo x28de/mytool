@@ -58,9 +58,13 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 	}
 	HashSet<Chain> chains = new HashSet<Chain>();
 	DefaultMutableTreeNode top = new DefaultMutableTreeNode(new BranchInfo(0, "ROOT"));
-	String [] colors = 
+	String [] colorsLurid = 	// TODO integrate with GUI and CentralityColoring
 		{"#b200b2", "#0000ff", "#00ff00", "#ffff00", 	// purple, blue, green, yellow
 		"#ffc800", "#ff0000", "#c0c0c0", "#808080"};	// orange, red, pale, dark
+	String [] colors = 
+		{"#d2bbd2", "#bbbbff", "#bbffbb", "#ffff99", 
+		"#ffe8aa", "#ffbbbb", "#eeeeee", "#ccdddd"};
+	
 	int size;
 	Point center;
 	JDialog nextReady;
@@ -645,13 +649,21 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 	}
 
 	public void visualizeLocalMess(int nodeID) {
-		// Start with the red nodes to disentangle
+		// This is to help manually do the 'force directed' rearrangements of Fruchterman Reingold or so 
+		// Start with the lurid nodes to disentangle, then red through purple
+		int nodePos = positions.get(nodeID);
+		if (nodePos >= (int) ((size +1)/2.)) nodePos -= size;
+		
 		Collection<Integer> edgeIDs = graph.getIncidentEdges(nodeID);
 		Iterator<Integer> edgeIt = edgeIDs.iterator();
 		int nearCount = 0;
 		int count = 0;
+		int clockWise = 0;
+		int counterClock = 0;
 		while (edgeIt.hasNext()) {
 			int id = edgeIt.next();
+			
+			//	by edge lengths, count near and far neighbors
 			Pair<Integer> pair = graph.getEndpoints(id);
 			if (pair == null) return;
 			int id1 = pair.getFirst();
@@ -664,10 +676,24 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 			}
 			if (relDist < size * .05) nearCount++;
 			count++;
+			
+			//	by edge directions, find nodes whose neighbors are all on one side
+			int oppoID = graph.getOpposite(nodeID, id);
+			int oppoPos = positions.get(oppoID);
+			if (oppoPos >= (int) (nodePos + (size +1)/2.)) oppoPos -= size;
+			
+			int relSense = nodePos - oppoPos;
+			if (Math.abs(nodePos - oppoPos) > (int) ((size +1)/4.)) continue;
+			if (relSense <= 0) {
+				clockWise++;
+			} else {
+				counterClock++;
+			}
 		}
 		int colorWarmth = (int) (nearCount * 5.) / count;
 		GraphNode node = nodes.get(nodeID);
 		node.setColor(colors[colorWarmth]);
+		if (clockWise * counterClock == 0) node.setColor(colorsLurid[colorWarmth]); 
 		nodes.put(nodeID, node);
 	}
 

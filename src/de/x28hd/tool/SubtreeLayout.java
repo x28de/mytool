@@ -38,7 +38,7 @@ public class SubtreeLayout {
 	public SubtreeLayout(GraphNode clickedNode, Hashtable<Integer,GraphNode> nodes, 
 			Hashtable<Integer,GraphEdge> edges, GraphPanelControler controler,
 			boolean warn, Point translation) {
-		if (warn) controler.displayPopup("MakeTree broke this. Save & restart.");
+//		if (warn) controler.displayPopup("MakeTree broke this. Save & restart.");
 		new SubtreeLayout(clickedNode, nodes, edges, controler, translation, false);
 	}
 	public SubtreeLayout(GraphNode clickedNode, Hashtable<Integer,GraphNode> nodes, 
