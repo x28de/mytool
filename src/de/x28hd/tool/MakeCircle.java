@@ -3,6 +3,7 @@ package de.x28hd.tool;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -23,6 +24,7 @@ import java.util.TreeMap;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -68,14 +70,21 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 	int size;
 	Point center;
 	JDialog nextReady;
+	boolean elim = false;
 	
 	public MakeCircle(Hashtable<Integer,GraphNode> realNodes, Hashtable<Integer,GraphEdge> realEdges, 
 			GraphPanelControler controler) {
+		new MakeCircle(realNodes, realEdges, controler, true);
+	}
+	public MakeCircle(Hashtable<Integer,GraphNode> realNodes, Hashtable<Integer,GraphEdge> realEdges, 
+			GraphPanelControler controler, boolean elim) {
+
 		nodes = new Hashtable<Integer,GraphNode>();
 		edges = new Hashtable<Integer,GraphEdge>();
 		this.realNodes = realNodes;
 		this.realEdges = realEdges;
 		this.controler = controler;
+		this.elim = elim;
 		
 //		
 //		Create a copy of the map
@@ -201,9 +210,17 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 				+ "<br />Advanced > Zoom</html>");
 		info.setBorder(new EmptyBorder(10, 45, 10, 45));
 		nextReady.add(info, "North");
+		JPanel southWest = new JPanel();
+		southWest.setLayout(new FlowLayout());
 		JButton fixButton = new JButton("Redraw");
 		fixButton.addActionListener(this);
-		nextReady.add(fixButton, "West");
+		southWest.add(fixButton);
+		JButton altButton = new JButton("Try something else");
+		altButton.setActionCommand("alt");
+		altButton.setToolTipText("Icons with 2 lines are inserted into the core");
+		altButton.addActionListener(this);
+		southWest.add(altButton);
+		nextReady.add(southWest, "West");
 		JButton nextButton = new JButton("Next");
 		nextButton.addActionListener(this);
 		nextReady.add(nextButton, "East");
@@ -351,6 +368,7 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 	
 	public int eliminate() {
 		int elimCount = 0;
+		if (!elim) return 0;
 		Enumeration<GraphNode> nodelist = nodes.elements();
 		while (nodelist.hasMoreElements()) {
 			GraphNode node = nodelist.nextElement();
@@ -705,7 +723,11 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 
 	public void actionPerformed(ActionEvent arg0) {
 		String command = arg0.getActionCommand();
-		if (command != "Redraw") {
+		if (command == "alt") {
+			nextReady.dispose();
+			new MakeCircle(realNodes, realEdges, controler, false);
+			return;
+		} else if (command != "Redraw") {
 		nextReady.dispose();
 		step2();
 		} else {
