@@ -222,6 +222,10 @@ public class ImportDirector implements ActionListener {
 				frame.dispose();
 				new LuhmannImport(controler);
 				return;
+			} else if (i == Importer.Roget) {
+				frame.dispose();
+				new TaggedImport(controler);
+				return;
 			}
 //	    		System.out.println("Type: " + i);
 	    		knownFormat = i;
@@ -255,6 +259,8 @@ public class ImportDirector implements ActionListener {
 				new MetamapsImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == Importer.Hypothesis) {
 				new AnnoImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == Importer.Tagged) {
+				new TaggedImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == Importer.OldFormat) {
 				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else {
