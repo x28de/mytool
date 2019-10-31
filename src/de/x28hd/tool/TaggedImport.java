@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -136,8 +137,18 @@ public class TaggedImport implements TreeSelectionListener, ActionListener {
 		dialog.setVisible(true);
 		
 		// takes time
-		contentString = catNames + filterHTML2(contentString);
+		contentString = filterHTML2(contentString) + catNames;
 		dialog.dispose();
+		// Save a copy
+		FileWriter list;
+		try {
+			list = new FileWriter(System.getProperty("user.home") + 
+					File.separator + "Desktop" + File.separator + "x28list.txt");
+			list.write(contentString);
+			list.close();
+		} catch (IOException e) {
+			System.out.println("Error TGI12 " + e);			
+		}
 
 		mainPart(contentString);
 	}
@@ -619,7 +630,7 @@ public class TaggedImport implements TreeSelectionListener, ActionListener {
 	}
 	
 	public void askForSelections() {
-		frame = new JFrame("Options");
+		frame = new JFrame("Selection");
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(dim.width/2-frame.getSize().width/2 - 298, 
 				dim.height/2-frame.getSize().height/2 - 209);	
@@ -651,9 +662,11 @@ public class TaggedImport implements TreeSelectionListener, ActionListener {
 		
 		JPanel bottom = new JPanel();
 		bottom.setLayout(new FlowLayout());
+		String[] posNames = {"Nouns", "Verbs", "Adjectives", "Adverbs", "Phrases"};
 		posBoxes = new JCheckBox[5];
 		for (int i = 0; i < 5; i++) {
 			posBoxes[i] = new JCheckBox(partsOfSpeech[i]);
+			posBoxes[i].setToolTipText(posNames[i]);
 			bottom.add(posBoxes[i]);
 		}
 		JButton nextButton = new JButton("Next >");
