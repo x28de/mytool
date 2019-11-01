@@ -554,6 +554,7 @@ public class NewStuff {
 							if (compositionMode) {
 								controler.getCWInstance().cancel();
 							}
+							if (k == Importer.Tagged) continue;	// txt not via autodiscovery
 						}
 //						System.out.println("NS:" + ext + ", " + k + ", " + file);
 						new ImportDirector(k, file, controler);

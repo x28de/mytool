@@ -137,7 +137,7 @@ public class TaggedImport implements TreeSelectionListener, ActionListener {
 		dialog.setVisible(true);
 		
 		// takes time
-		contentString = filterHTML2(contentString) + catNames;
+		contentString = filterHTML2(contentString) + "\n" + catNames;
 		dialog.dispose();
 		// Save a copy
 		FileWriter list;
