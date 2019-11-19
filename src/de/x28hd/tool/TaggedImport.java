@@ -197,8 +197,13 @@ public class TaggedImport implements TreeSelectionListener, ActionListener {
 			String cat = fields[1];
 
 			// Some initialization along the way
-			if (item.startsWith(cat)) {
+			if (item.startsWith(cat) && !cat.equals(item)) {
 				catsLong.put(cat, item);	// Long category titles appended to inputs
+				continue;
+			}
+			if (cat.startsWith(item) && !cat.equals(item)) {
+				GraphNode node = addNode(item, cat, "#ff0000");	// Long category detail texts 
+				label2node.put(item, node);
 				continue;
 			}
 			
@@ -292,7 +297,12 @@ public class TaggedImport implements TreeSelectionListener, ActionListener {
 			}
 			
 			if (fuse || (itemCount <= 1 && subset.size() > 1) || subset.size() == 1) {
-				GraphNode node = addNode(label, detail, colorString);
+				GraphNode node;
+				if (label2node.containsKey(label)) {
+					node = label2node.get(label); 
+				} else {
+					node = addNode(label, detail, colorString);
+				}
 				if (single) singles.add(node);
 				subset2node.put(subset, node);
 				label2node.put(label, node);

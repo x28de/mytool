@@ -99,6 +99,8 @@ public class ImportDirector implements ActionListener {
 				|| this.knownFormat == Importer.Sitemap 
 				|| this.knownFormat == Importer.x28tree) {	
 			new TreeImport(doc, controler, this.knownFormat);
+		} else if (this.knownFormat == Importer.Tinder) {
+			new TinderImport(doc, controler);
 		}
 	}
 
@@ -352,6 +354,8 @@ public class ImportDirector implements ActionListener {
 			new TreeImport(inputXml, controler, Importer.OPML);
 		} else if (knownFormat == Importer.Gedcom) {
 			new GedcomImport(inputXml, controler);
+		} else if (this.knownFormat == Importer.Tinder) {
+			new TinderImport(inputXml, controler);
 		} else if (knownFormat == Importer.OldFormat) {
 			new TopicMapImporter(inputXml, controler);
 		} else if (knownFormat == Importer.Sitemap) {

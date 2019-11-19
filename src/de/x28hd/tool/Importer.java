@@ -62,10 +62,11 @@ public class Importer {
 	static final int Hypothesis = 18;
 	static final int Tagged = 19;
 	static final int Roget = 20;
-	static final int OldFormat = 21;
-	static final int Filetree = 22;
-	static final int Sitemap = 23;
-	static final int x28tree = 24;
+	static final int Tinder = 21;
+	static final int OldFormat = 22;
+	static final int Filetree = 23;
+	static final int Sitemap = 24;
+	static final int x28tree = 25;
 	
 	static final Importer[] importers = {
 	new Importer(Importer.Evernote, "Evernote", "en-export", "enex", "enex (Evernote Export file)", 
@@ -107,13 +108,15 @@ public class Importer {
 			"<html>A genealogical Gedcom XML 6.0 file</html>"),
 	new Importer(Importer.FedWiki, "FedWiki", "(not relevant)", "none", "none (invisible)", 
 			"<html>Page names and structure from a local Smallest Federated Wiki</html>"),
-	new Importer(Importer.Hypothesis, "Hypothes.is", "GEDCOM", "json", "json (Hypothes.is export file)", 
+	new Importer(Importer.Hypothesis, "Hypothes.is", "(not relevant)", "json", "json (Hypothes.is export file)", 
 			"<html>If you have a JSON file exported from Hypothes.is, see "
 			+ "<a href=\"https://jonudell.info/h/\">jonudell.info/h/</a>.</html>"),
 	new Importer(Importer.Tagged, "Tagged list", "(not relavant)", "txt", "txt (item TAB tag)",
 			"If you have a list of items with tags, separated by TAB"),
 	new Importer(Importer.Roget, "Roget's tags", "(not relavant)", "htm", "htm (10681-h-body-pos.htm)",
 			"If you have files downloeaded from Roget's Thesaurus from Gutenberg.org"),
+	new Importer(Importer.Tinder, "TinderBox", "tinderbox", "tbx", "tbx (TinderBox file)",
+			"A TinderBox file (we import without adornment, just raw text and links)"),
 	new Importer(Importer.OldFormat, "(Old Format)", "topicmap", "zip", "zip (Zipped XML Document)", 
 			"Old versions of this tool and its precursor DeepaMehta"),
 	new Importer(Importer.Filetree, "(Filetree)", "(not relevant)", "none", "none (invisible)", 

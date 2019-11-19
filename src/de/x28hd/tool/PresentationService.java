@@ -592,8 +592,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			new MakeCircle(nodes, edges, this);
 		} else if (command == "hashes") {
 			toggleHashes(gui.menuItem63.isSelected());
-		} else if (command == "tst") {
-			new TaggedImport(this);
+//		} else if (command == "tst") {
 		} else {
 			System.out.println("PS: Wrong action: " + command);
 		}
