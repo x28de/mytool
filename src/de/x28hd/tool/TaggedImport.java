@@ -16,10 +16,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -45,7 +47,7 @@ import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
 
-public class TaggedImport implements TreeSelectionListener, ActionListener {
+public class TaggedImport implements TreeSelectionListener, ActionListener, Comparator<HashSet<String>> {
 	
 	// Standard mytool fields
 	Hashtable<Integer,GraphNode> nodes = new Hashtable<Integer,GraphNode>();
@@ -61,6 +63,7 @@ public class TaggedImport implements TreeSelectionListener, ActionListener {
 	HashSet<String> subset = null;
 	HashSet<HashSet<String>> subsets = new HashSet<HashSet<String>>();
 	Hashtable<String,HashSet<String>> item2subset = new Hashtable<String,HashSet<String>>(); 
+	TreeSet<HashSet<String>> subsetsBySize = new TreeSet<HashSet<String>>(this);
 	
 	HashSet<String> itemGroup = null;
 	Hashtable<HashSet<String>,HashSet<String>> subset2itemGroup = 
@@ -227,6 +230,7 @@ public class TaggedImport implements TreeSelectionListener, ActionListener {
 			
 			if (!subsets.contains(subset)) {
 				subsets.add(subset);
+				subsetsBySize.add(subset);	// TODO see if subsets can be eliminated
 				// and assemble the group of items sharing a given category subset
 				itemGroup = new HashSet<String>();
 				itemGroup.add(item);
@@ -314,7 +318,8 @@ public class TaggedImport implements TreeSelectionListener, ActionListener {
 		Iterator<HashSet<String>> iter2 = subsets.iterator();
 		while (iter2.hasNext()) {
 			subset = iter2.next();
-			Iterator<HashSet<String>> iter2a = subsets.iterator();
+			HashSet<String> relRepresented = new HashSet<String>();
+			Iterator<HashSet<String>> iter2a = subsetsBySize.iterator();
 			
 			if (fuse) {
 				while (iter2a.hasNext()) {
@@ -322,6 +327,15 @@ public class TaggedImport implements TreeSelectionListener, ActionListener {
 					if (testSubset.equals(subset)) continue;
 					if (subset.size() <= testSubset.size()) continue;
 					if (subset.containsAll(testSubset)) {
+						Iterator<String> iter3 = testSubset.iterator();
+						boolean done = true;
+						while (iter3.hasNext()) {
+							String member = iter3.next();
+							if (relRepresented.contains(member)) continue;
+							relRepresented.add(member);
+							done = false;
+						}
+						if (done && testSubset.size() == 1) continue;
 						GraphNode node1 = null;
 						GraphNode node2 = null;
 						node1 = subset2node.get(subset);
@@ -822,6 +836,12 @@ public class TaggedImport implements TreeSelectionListener, ActionListener {
 			System.out.println("Error TGI120 " + keyOfSel);
 			frame.dispose();
 		}
+	}
+
+	public int compare(HashSet<String> arg0, HashSet<String> arg1) {
+		int sizeComp = - Integer.compare(arg0.size(), arg1.size());
+		if (sizeComp == 0) sizeComp = arg0.toString().compareTo(arg1.toString());
+		return sizeComp;
 	}
 	
 }
