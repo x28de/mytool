@@ -79,7 +79,8 @@ public class NewStuff {
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	
 	//	HTML exploitation
-	boolean parseMode; 
+	boolean parseMode = false; 
+	boolean dropEncoding = true;
 	String htmlOut = "";
 	boolean listItem = false;
 	boolean firstColumn = true;
@@ -385,9 +386,12 @@ public class NewStuff {
     				try {
     					InputStream in = (InputStream) stream;
     					if (windows) {
-//        					contentString = convertStreamToString(in, Charset.defaultCharset());
+    						if (dropEncoding) {
+    							contentString = convertStreamToString(in, Charset.forName("UTF-8"));
+    						} else {
         					contentString = convertStreamToString(in, Charset.forName("Cp1252"));
-    					} else {
+    						}
+						} else {
         					contentString = convertStreamToString(in);
     					}
     					in.close();
@@ -839,6 +843,10 @@ public class NewStuff {
 	
 	public void setParseMode(boolean toggle) {
 		this.parseMode = toggle;
+	}
+	
+	public void setDropEncoding(boolean toggle) {
+		this.dropEncoding = toggle;
 	}
 	
 	public void scoopCompositionWindow(CompositionWindow compositionWindow) {

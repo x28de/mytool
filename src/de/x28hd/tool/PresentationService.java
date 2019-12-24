@@ -343,6 +343,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 				displayPopup("Your Java Runtime " + javav + " is too old, 1.8 needed.");
 				gui.menuItem25.setSelected(false);
 			}
+		} else if (command == "toggleEncoding") {
+			newStuff.setDropEncoding(gui.menuItem28.isSelected());
 			
 		} else if (command == "zoom") {
 			zoom(true);

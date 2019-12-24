@@ -45,6 +45,7 @@ public class Gui {
 	JCheckBoxMenuItem menuItem25 = null;
 	JCheckBoxMenuItem menuItem26 = null;
 	JCheckBoxMenuItem menuItem27 = null;
+	JCheckBoxMenuItem menuItem28 = null;
 	JMenuItem menuItem91 = null;
 	JMenuItem menuItem92 = null;
 	JMenuItem menuItem93 = null;
@@ -513,6 +514,13 @@ public class Gui {
 		menuItem25.setActionCommand("toggleParse");
 		menuItem25.addActionListener(controler);
 		sub4.add(menuItem25);
+
+		menuItem28 = new JCheckBoxMenuItem("Dropped files are UTF-8", true);
+		menuItem28.setToolTipText("Disable for old Windows files");
+		menuItem28.setActionCommand("toggleEncoding");
+		if (!System.getProperty("os.name").startsWith("Windows")) menuItem28.setEnabled(false);
+		menuItem28.addActionListener(controler);
+		sub4.add(menuItem28);
 
 		menu5.add(sub4);
 
