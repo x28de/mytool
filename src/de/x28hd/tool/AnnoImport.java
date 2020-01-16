@@ -67,7 +67,8 @@ public class AnnoImport {
 			for (int i = 0; i < array.length(); i++) {
 				itemObj = array.getJSONObject(i);
 				user = (String) itemObj.get("user");
-				String quote = (String) itemObj.get("quote");
+				String quote = "";
+				if (itemObj.has("quote")) quote = (String) itemObj.get("quote");
 				String id = (String) itemObj.get("id");
 				JSONArray refs = (JSONArray) itemObj.get("refs");
 				String refList = "";

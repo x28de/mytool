@@ -290,7 +290,9 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 		boolean abbr = false;
 		for (int i = 0; i < sentences.length; i++) {
 			if (sentences[i].length() < 5 && !sentences[i].equals(" ")) { 	
-				dataString2 = dataString2.substring(0, dataString2.length() - 1) + ". " + sentences[i];
+				int len = dataString2.length();
+				if (len < 1) len = 1;
+				dataString2 = dataString2.substring(0, len - 1) + ". " + sentences[i];
 				abbr = true; // probably an abbreviation
 				continue;
 			} else {
