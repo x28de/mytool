@@ -63,6 +63,7 @@ public class ImportRoam {
     				if (!rest.contains("]]")) continue;
     				int linkEnd = rest.indexOf("]]");
     				String link = rest.substring(0, rest.indexOf("]]"));
+    				if (link.contains("[[")) continue;
     				rest = rest.substring(linkEnd + 2);
     				detail += "<a href=\"#" + link.toLowerCase() + "\">" + link + "</a>";
     				edgesNum++;
@@ -82,7 +83,14 @@ public class ImportRoam {
 	    		int fromID = fromBuffer.get(id);
 	    		GraphNode node1 = nodes.get(fromID);
 	    		String toID = toBuffer.get(id);
-	    		int nodeID = lookup.get(toID);
+	    		int nodeID = -1;
+	    		if (!lookup.containsKey(toID)) {
+	    			if (toID.length() > 30) toID = toID.substring(0, 30);
+	    			System.out.println("Problem with " + toID + " linked from " + node1.getLabel());
+	    			continue;
+	    		} else {
+	    			nodeID = lookup.get(toID);
+	    		}
 	    		GraphNode node2 = nodes.get(nodeID);
 	    		// Detect duplicates
 		    	String n2label = node2.getLabel();
@@ -138,7 +146,7 @@ public class ImportRoam {
 					for (int k = 0; k < childrenLen; k++) {
 						JSONObject childObj = children.getJSONObject(k);
 						String content = childObj.getString("string");
-						String outNew = k + ": " + content;
+						String outNew = content;
 						if (level != 0) {	// save space on top level
 							outNew = "<li>" + outNew + "</li>";
 						} else {
