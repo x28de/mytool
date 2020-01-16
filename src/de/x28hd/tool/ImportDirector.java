@@ -101,6 +101,8 @@ public class ImportDirector implements ActionListener {
 			new TreeImport(doc, controler, this.knownFormat);
 		} else if (this.knownFormat == Importer.Tinder) {
 			new TinderImport(doc, controler);
+		} else if (this.knownFormat == Importer.GraphXML) {
+			new ImportGraphXML(doc, controler);
 		}
 	}
 
@@ -263,6 +265,8 @@ public class ImportDirector implements ActionListener {
 				new AnnoImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == Importer.Tagged) {
 				new TaggedImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == Importer.Roam) {
+				new ImportRoam(fd.getSelectedFile(), controler);
 			} else if (knownFormat == Importer.OldFormat) {
 				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else {
@@ -356,6 +360,8 @@ public class ImportDirector implements ActionListener {
 			new GedcomImport(inputXml, controler);
 		} else if (this.knownFormat == Importer.Tinder) {
 			new TinderImport(inputXml, controler);
+		} else if (this.knownFormat == Importer.GraphXML) {
+			new ImportGraphXML(inputXml, controler);
 		} else if (knownFormat == Importer.OldFormat) {
 			new TopicMapImporter(inputXml, controler);
 		} else if (knownFormat == Importer.Sitemap) {

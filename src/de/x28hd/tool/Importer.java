@@ -63,10 +63,12 @@ public class Importer {
 	static final int Tagged = 19;
 	static final int Roget = 20;
 	static final int Tinder = 21;
-	static final int OldFormat = 22;
-	static final int Filetree = 23;
-	static final int Sitemap = 24;
-	static final int x28tree = 25;
+	static final int GraphXML = 22;
+	static final int Roam = 23;
+	static final int OldFormat = 24;
+	static final int Filetree = 25;
+	static final int Sitemap = 26;
+	static final int x28tree = 27;
 	
 	static final Importer[] importers = {
 	new Importer(Importer.Evernote, "Evernote", "en-export", "enex", "enex (Evernote Export file)", 
@@ -114,9 +116,13 @@ public class Importer {
 	new Importer(Importer.Tagged, "Tagged list", "(not relavant)", "txt", "txt (item TAB tag)",
 			"If you have a list of items with tags, separated by TAB"),
 	new Importer(Importer.Roget, "Roget's tags", "(not relavant)", "htm", "htm (10681-h-body-pos.htm)",
-			"If you have files downloeaded from Roget's Thesaurus from Gutenberg.org"),
+			"If you have files downloaded from Roget's Thesaurus from Gutenberg.org"),
 	new Importer(Importer.Tinder, "TinderBox", "tinderbox", "tbx", "tbx (TinderBox file)",
 			"A TinderBox file (we import without adornment, just raw text and links)"),
+	new Importer(Importer.GraphXML, "GraphXML", "GraphXML", "xml", "xml (GraphXML file)",
+			"If you have a map encoded in the XML-Based Graph Description Format"),
+	new Importer(Importer.Roam, "Roam", "roam", "json", "json (Roam export file)",
+			"If you have a JSON file exported from Roamresearch"),
 	new Importer(Importer.OldFormat, "(Old Format)", "topicmap", "zip", "zip (Zipped XML Document)", 
 			"Old versions of this tool and its precursor DeepaMehta"),
 	new Importer(Importer.Filetree, "(Filetree)", "(not relevant)", "none", "none (invisible)", 
