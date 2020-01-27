@@ -9,7 +9,10 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import javax.swing.JOptionPane;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.json.JSONArray;
@@ -24,12 +27,25 @@ public class ImportRoam {
 	Hashtable<Integer,String> toBuffer = new Hashtable<Integer,String>();
 	Hashtable<String,Integer> lookup = new Hashtable<String,Integer>();
 	HashSet<String> edgesDone = new HashSet<String>(); 
+	HashSet<GraphNode> dontPrune = new HashSet<GraphNode>();
 	String dataString = "";
 	int j = 0;
 	int maxVert = 10;
 	int edgesNum = 0;
+	boolean simplify = false;
+	int liCount = 0;
+	boolean sizeWarn = false;
 	
 	public ImportRoam(File file, GraphPanelControler controler) {
+		Object[] simplifyOptions =  {"Simplify", "Don't simplify", "Cancel"};
+		int	simplifyResponse = JOptionPane.showOptionDialog(null,
+			"Do you want to simplify the map\n"
+			+ "(omit any lines to single leaves and Log Days) ?",
+			"Option", JOptionPane.YES_NO_CANCEL_OPTION, 
+			JOptionPane.QUESTION_MESSAGE, null, 
+			simplifyOptions, simplifyOptions[0]);  
+		if (simplifyResponse == JOptionPane.YES_OPTION) simplify = true;
+				
 		FileInputStream fileInputStream = null;
 		try {
 //			fileInputStream = new FileInputStream("C:\\users\\matthias\\desktop\\x28de.json");
@@ -50,12 +66,33 @@ public class ImportRoam {
 	    	for (int j = 0; j < arrayLen; j++) {
 	    		pageObj = array.getJSONObject(j);
 				title = (String) pageObj.getString("title");
+				liCount = 0;
 				
 				String out = descendants(pageObj, 0);
 				
-				//	Find links
+				//	Find # and [[ links
+				String detail = "";
+    			String rest0 = out;
+    			out = "";
+    			while (rest0.contains(" #")) {
+    				int linkStart = rest0.indexOf(" #");
+    				out += rest0.substring(0, linkStart);
+    				rest0 = rest0.substring(linkStart + 1);
+    				String regex = "(#\\w++)(.*?)";
+    				Pattern p = Pattern.compile(regex);
+    				Matcher m = p.matcher(rest0);
+    				if (!m.matches()) continue;
+	    			String link = m.group(1).substring(1);
+    				out += "<a href=\"#" + link.toLowerCase() + "\">" + link + "</a>";
+    				edgesNum++;
+    				fromBuffer.put(edgesNum, j);
+    				toBuffer.put(edgesNum, link.toLowerCase());
+    				rest0 = m.group(2);
+    				out += link;
+    			}
+    			out += rest0;
     			String rest = out;
-    			String detail = "";
+    			detail = "";
     			while (rest.contains("[[")) {
     				int linkStart = rest.indexOf("[[");
     				detail += rest.substring(0, linkStart);
@@ -71,7 +108,12 @@ public class ImportRoam {
     				toBuffer.put(edgesNum, link.toLowerCase());
     			}
     			detail += rest;
-				addNode(j, title, detail);
+				GraphNode node = addNode(j, title, detail);
+				if (liCount > 500) {
+					node.setColor("#000000");
+					liCount = 0;
+					sizeWarn = true;
+				}
 	    		lookup.put(title.toLowerCase(), j);
 	    	}
 				
@@ -102,7 +144,46 @@ public class ImportRoam {
 					continue;
 				}
 				edgesDone.add(unique);
+				title = node1.getLabel();
+    			if (title.endsWith("2019") || title.endsWith("2020")) continue;
 	    		addEdge(node1, node2);
+	    	}
+	    	
+	    	//
+	    	//	Prune single leaves
+	    	if (simplify) {
+	    	Enumeration<GraphNode> allNodes = nodes.elements();
+	    	while (allNodes.hasMoreElements()) {
+	    		GraphNode node = allNodes.nextElement();
+	    		if (dontPrune.contains(node)) continue;
+	    		GraphEdge lastEdge = null;
+	    		int count = 0;
+	    		Enumeration<GraphEdge> neighbors = node.getEdges();
+	    		while (neighbors.hasMoreElements()) {
+	    			GraphEdge edge = neighbors.nextElement();
+	    			lastEdge = edge;
+	    			count++;
+	    		}
+	    		if (count != 1) {
+	    			if (node.getLabel().endsWith("2019") || node.getLabel().endsWith("2020")) node.setColor("#ff0000");
+	    			continue;
+	    		}
+	    		GraphNode otherEnd = node.relatedNode(lastEdge);
+	    		otherEnd.removeEdge(lastEdge);
+	    		int edgeID = lastEdge.getID();
+	    		edges.remove(edgeID);
+	    		
+	    		String label = node.getLabel();
+	    		String detail = otherEnd.getDetail();
+	    		detail += "<br/>Pruned: <a href=\"#" + label + "\">" + label + "</a>";
+	    		otherEnd.setDetail(detail);
+	    		dontPrune.add(otherEnd);
+	    		
+	    		label = otherEnd.getLabel();
+	    		detail = node.getDetail();
+	    		detail += "<br/>Pruned at : <a href=\"#" + label + "\">" + label + "</a>";
+	    		node.setDetail(detail);
+	    	}
 	    	}
 	    	
 		} catch (JSONException e) {
@@ -127,9 +208,12 @@ public class ImportRoam {
 		
 		controler.toggleHashes(true);
 		controler.fixDivider();
-		controler.displayPopup("Import completed.\n"
-				+ "Use Advanced > Layouts to arrange your links.\n"
-				+ "If you miss something, please contact us.");
+		String msg = "Import completed.\n"
+				+ "Use Advanced > Layouts to arrange your links.\n";
+		if (sizeWarn) msg += "\nIf you hit the black nodes the map seems to freeze;\n"
+				+ "Be patient because these pages are huge.\n"
+				+ "Move them with a selection rectangle.";
+		controler.displayPopup(msg);
 	}
 	
 	public String descendants(JSONObject pageObj, int level) {
@@ -149,6 +233,7 @@ public class ImportRoam {
 						String outNew = content;
 						if (level != 0) {	// save space on top level
 							outNew = "<li>" + outNew + "</li>";
+							liCount++;		// for size warning (coloring the node black)
 						} else {
 							outNew += "<br/>";
 						}
@@ -176,9 +261,11 @@ public class ImportRoam {
 		return topic;
 	}
 	public void addEdge(GraphNode node1, GraphNode node2) {
-		if (node1 == null || node2 == null) return;
+		if (node1 == null || node2 == null || node1.equals(node2)) return;
 		edgesNum++;
 		GraphEdge edge = new GraphEdge(edgesNum, node1, node2, Color.decode("#d8d8d8"), "");
 		edges.put(edgesNum, edge);
+		node1.addEdge(edge);
+		node2.addEdge(edge);
 	}
 }

@@ -242,7 +242,8 @@ public class ImportDirector implements ActionListener {
 	        frame.dispose();
 	    }
 	    if (action.getActionCommand().equals("ApproveSelection")) {
-    		continueButton.setEnabled(true);
+            frame.setVisible(false);
+            frame.dispose();
  			if (knownFormat == Importer.iMapping) {
 				new ImappingImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == Importer.Word) {
@@ -272,8 +273,6 @@ public class ImportDirector implements ActionListener {
 			} else {
 				step3(fd.getSelectedFile());
 			}
-	        frame.setVisible(false);
-	        frame.dispose();
 	    }
 	    
 	    if (action.getActionCommand().equals("Next >")) {

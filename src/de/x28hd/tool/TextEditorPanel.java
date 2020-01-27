@@ -116,6 +116,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 			if (breakIsTrailing) {
 				textComponent.setCaretPosition(pos);
 			} else {
+				if (pos <= 0) pos = 1; 
 				textComponent.setCaretPosition(pos - 1);
 			}
 			repaint();
