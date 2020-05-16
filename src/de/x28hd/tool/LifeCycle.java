@@ -100,6 +100,7 @@ public class LifeCycle {
 		}
 		newName = fd.getDirectory() + fd.getFile();
 		if (extension == "xml") {
+			if (!newName.endsWith(".xml")) newName += ".xml";  // TODO more elegant with JFileChooser ?
 			confirmedFilename = newName;
 			resetFilename(newName);
 			mainWindow.repaint();

@@ -18,6 +18,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -208,6 +210,12 @@ class GraphPanel extends JDesktopPane  {
 				if (isSpecial(e)) {
 				}
 				thisPanelDragged(e);
+			}
+		});
+		addMouseWheelListener(new MouseWheelListener() {
+			public void mouseWheelMoved(MouseWheelEvent arg0) {
+				translateGraph(0, -arg0.getUnitsToScroll() * 20);
+				repaint();
 			}
 		});
 

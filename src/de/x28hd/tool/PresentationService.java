@@ -668,6 +668,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 //			}
 		};
 		
+		mainWindow.setLocation(0,  30);
 		mainWindow.setSize(960, 580);
 		mainWindow.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -966,6 +967,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		graphPanel.setModel(nodes, edges);
 		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
 		about = (new AboutBuild(extended)).getAbout();
+		graphPanel.addKeyListener(this);
 
 		createMainWindow(lifeCycle.getMainWindowTitle());
 		lifeCycle.add(this, baseDir);
@@ -1610,6 +1612,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 	public void keyTyped(KeyEvent arg0) {
+		if (arg0.getKeyChar() == KeyEvent.VK_DELETE) {
+				if (rectangle) deleteCluster(true, selectedAssoc, false);
+		}
 	}
 
 	public void commit(int type, GraphNode node, GraphEdge edge, Point move) {
