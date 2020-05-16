@@ -47,6 +47,7 @@ import javax.swing.tree.TreeSelectionModel;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
+import edu.uci.ics.jung.graph.util.Pair;  
 
 public class TaggedImport implements TreeSelectionListener, ActionListener, Comparator<HashSet<String>> {
 	
@@ -76,6 +77,12 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 	String[] records;
 	String contentString = "";
 	boolean fuse = false;
+	boolean hide = false;
+	boolean suppress = false;
+	
+	Hashtable<String,HashSet<String>> catUnits = new Hashtable<String,HashSet<String>>();
+	Hashtable<Pair<String>,String> linkDetails = new Hashtable<Pair<String>,String>();
+	Hashtable<Pair<String>,Integer> linkStrengths = new Hashtable<Pair<String>,Integer>();
 	
 	// For preparation parts
 	Hashtable<Integer,String> superCatNames = new Hashtable<Integer,String>();
@@ -112,6 +119,8 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 	JDialog dialog;
     JCheckBox[] posBoxes;
 	JCheckBox fuseBox;
+	JCheckBox hideBox;
+	JCheckBox suppressBox;
 	
 	// Category combination and item group, used to create node/s
 	public class CombiUnit {	
@@ -175,6 +184,7 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 			}
 		}
 		public void createNodes() {
+			if (hide && type != CombiUnit.CAT) return;
 			if (type != CombiUnit.BUNCH) {
 				GraphNode node = createNode(label, detail);
 				subset2node.put(mySubset, node);
@@ -291,16 +301,28 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 			String cat = fields[1];
 
 			// Some initialization along the way
+			
 			if (item.startsWith(cat) && !cat.equals(item)) {
 				catsLong.put(cat, item);	// Long category titles appended to inputs
 				continue;
 			}
-			if (cat.startsWith(item) && !cat.equals(item)) {
-				GraphNode node = addNode(item, cat, "#ff0000");	// Long category detail texts 
-				label2node.put(item, node);
-				continue;
-			}
 			
+			// Guarantee category nodes even if no items belong exclusively to them,
+			// and, along the way, prepare for hide option 
+			HashSet<String> allItemsOfCat;
+			if (!catUnits.containsKey(cat)) {
+				allItemsOfCat = new HashSet<String>();
+				catUnits.put(cat, allItemsOfCat);
+				subset = new HashSet<String>();
+				subset.add(cat);
+				CombiUnit combiUnit = new CombiUnit(subset);
+				combiUnits.put(subset, combiUnit);
+				subsetsBySize.add(subset);
+			} else {
+				allItemsOfCat = catUnits.get(cat);
+			}
+			allItemsOfCat.add(item);
+
 			
 			// Main work starts here
 			
@@ -356,6 +378,19 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 				combiUnit.createNodes();
 		}
 		
+		// Weed out if suppress option was specified
+		if (suppress) {		// note that the hide option has separate suppress processing
+			Enumeration<HashSet<String>> iter0 = combiUnits.keys();
+			while (iter0.hasMoreElements()) {
+				subset = iter0.nextElement();
+				if (combiUnits.get(subset).getItemGroup().size() < 2) {
+//				if (subset.size() > 3) {	// to play with
+					combiUnits.remove(subset);
+					subsetsBySize.remove(subset);
+				}
+			}
+		}
+		
 		//
 		// Create the edges
 		
@@ -365,7 +400,7 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 			HashSet<String> relRepresented = new HashSet<String>();
 			Iterator<HashSet<String>> iter2a = subsetsBySize.iterator();
 
-			if (!fuse) {
+			if (!fuse && !hide) {
 				
 				// connect item nodes to their category
 				
@@ -419,6 +454,8 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 				}
 			}
 		}
+		
+		if (hide) hiding();	
 		
 		// Add hyperlinks in the detail pane
 		
@@ -476,9 +513,70 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 	}
 	
 	public void addEdge(GraphNode node1, GraphNode node2) {
+		addEdge(node1, node2, "");
+	}
+	public void addEdge(GraphNode node1, GraphNode node2, String detail) {
 		edgesNum++;
-		GraphEdge edge = new GraphEdge(edgesNum, node1, node2, Color.decode("#d8d8d8"), "");
+		GraphEdge edge = new GraphEdge(edgesNum, node1, node2, Color.decode("#d8d8d8"), detail);
 		edges.put(edgesNum,  edge);
+	}
+
+	public void hiding() {
+		// I tried to integrate this into the subset/ itemGroup logic but that was less transparent
+		controler.displayPopup("<html><b>Note:</b> For once, lines have now info in the detail pane.\n"
+				+ "This rarely used functionality may be withdrawn some day.");
+		Enumeration<String> cats = catUnits.keys();	// loop through categories
+		while (cats.hasMoreElements()) {
+			String currentCat = cats.nextElement();
+			GraphNode node1 = null;
+			String label = currentCat;
+			if (catsLong.containsKey(currentCat)) label = catsLong.get(currentCat);
+			if (label2node.containsKey(label)) {
+				node1 = label2node.get(label); 
+			} else {
+				System.out.println("Error TGI105 " + label);
+				continue;
+			}
+			Enumeration<String> cats2 = catUnits.keys();
+			HashSet<String> set1 = catUnits.get(currentCat);
+			while (cats2.hasMoreElements()) {			// loop through later categories
+				String cat2 = cats2.nextElement();
+				if (cat2.compareTo(currentCat) <= 0) continue;
+				Pair<String> catCombi = new Pair<String>(currentCat, cat2);
+				HashSet<String> set2 = catUnits.get(cat2);
+				Iterator<String> items1 = set1.iterator();	// loop through items
+				while (items1.hasNext()) {
+					String testItem = items1.next();
+					if (set2.contains(testItem)) {
+						String details = "";
+						int linkStrength = 0;
+						if (linkDetails.containsKey(catCombi)) {
+							details = linkDetails.get(catCombi);
+							linkStrength = linkStrengths.get(catCombi);
+						}
+						details += testItem + "<br/>";
+						linkStrength++;
+						linkDetails.put(catCombi, details);
+						linkStrengths.put(catCombi, linkStrength);
+					}
+				}
+				GraphNode node2 = null;
+				String label2 = cat2;
+				if (catsLong.containsKey(cat2)) label2 = catsLong.get(cat2);
+				if (label2node.containsKey(label2)) {
+					node2 = label2node.get(label2); 
+				} else {
+					System.out.println("Error TGI106 " + label2);
+					continue;
+				}
+				if (linkDetails.containsKey(catCombi)) {
+					int strength = linkStrengths.get(catCombi);
+					if (suppress && strength < 2) continue;
+					String detail = linkDetails.get(catCombi);
+					addEdge(node1, node2, detail);
+				}
+			}
+		}
 	}
 
 	//
@@ -808,6 +906,20 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 			fuseInfo.add(fuseBox, BorderLayout.WEST);
 			optionLines.add(fuseInfo);
 
+			JPanel hideInfo = new JPanel();
+			hideInfo.setLayout(new BorderLayout());
+			hideBox = new JCheckBox("<html><b>hide</b> the shared items into the line details;");
+			hideBox.setActionCommand("hide");
+			hideBox.addActionListener(this);
+			hideInfo.add(hideBox, BorderLayout.WEST);
+			optionLines.add(hideInfo);
+
+			JPanel suppressInfo = new JPanel();
+			suppressInfo.setLayout(new BorderLayout());
+			suppressBox = new JCheckBox("<html><b>suppress</b> combinations shared by less than 2 items.");
+			suppressInfo.add(suppressBox, BorderLayout.WEST);
+			optionLines.add(suppressInfo);
+
 			JPanel bottom = new JPanel();
 			bottom.setLayout(new BorderLayout());
 			JButton nextButton = new JButton("Next >");
@@ -863,8 +975,18 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 	    	
 	    } else if (arg0.getActionCommand().equals("fuse")) {
 	    	fuse = fuseBox.isSelected();
+	    	hideBox.setSelected(hideBox.isSelected() && !fuse);
+	    	hideBox.setEnabled(!fuse);
+	    	dialog.repaint();
+	    } else if (arg0.getActionCommand().equals("hide")) {
+	    	hide = hideBox.isSelected();
+	    	fuseBox.setSelected(fuseBox.isSelected() && !hide);
+	    	fuseBox.setEnabled(!hide);
+	    	dialog.repaint();
 	    } else if (arg0.getActionCommand().equals("simplify")) {
+	    	suppress = suppressBox.isSelected();
 	    	dialog.dispose();
+	    	System.out.println("Fuse " + fuse + ", hide " + hide + ", suppress " + suppress);
 	    	mainPart2();
 	    }
 	}
