@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -59,7 +60,6 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 	int edgesNum = 0;
 	
 	// For main part
-	
 	HashSet<String> subset = null;
 	HashSet<HashSet<String>> subsets = new HashSet<HashSet<String>>();
 	Hashtable<String,HashSet<String>> item2subset = new Hashtable<String,HashSet<String>>(); 
@@ -113,6 +113,99 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
     JCheckBox[] posBoxes;
 	JCheckBox fuseBox;
 	
+	// Category combination and item group, used to create node/s
+	public class CombiUnit {	
+		int type = COMBI;
+		static final int CAT = 0;	// items belonging to a single category only
+		static final int COMBI = 1;	// several items belonging to a certain combination of categories, fused
+		static final int BUNCH = 2;	// several items belonging to a certain combination of categories, not fused
+		static final int UNIQUE = 3;	// single item belonging to a (representing a) unique combination of categories
+		String [] colorStrings = {"#ff0000", "#ffdddd", "#ddccdd", "#ccdddd"};
+		HashSet<String> mySubset;
+		HashSet<String> itemGroup = new HashSet<String>();
+		String label = "";
+		String links = "";
+		String detail = "";
+		public CombiUnit(HashSet<String> subset) {
+			mySubset = subset;
+		}
+		public void processItems() {
+			Iterator<String> cats = mySubset.iterator();
+			int catCount = 0;
+			// category subsets
+			while (cats.hasNext()) {
+				catCount++;
+				String cat = cats.next();
+				label += cat + " ";
+				if (!catsLong.containsKey(cat)) catsLong.put(cat, cat);	// fallback
+				String catLong = catsLong.get(cat);
+				if (fuse) {
+					links += "<b>" + catLong + "</b><br/>";
+				} else {
+					links += "<a href=\"#" + catLong + "\">" + catLong + "</a><br/>";
+				}
+			}
+			label = label.trim();
+			if (catCount <= 1) {	// pure category
+				type = CombiUnit.CAT;
+				if (catsLong.containsKey(label)) label = catsLong.get(label);
+			}
+			// item groups
+			Iterator<String> groupItems = itemGroup.iterator();
+			int itemCount = 0;
+			while (groupItems.hasNext()) {
+				itemCount++;
+				detail += groupItems.next() + "<br/>";
+			}
+			if (catCount > 1) {
+				if (itemCount <= 1) {	// category combination with just 1 item
+					label = detail;
+					detail = links;
+					label = label.replace("<br/>", "");
+					type = CombiUnit.UNIQUE;
+				} else {				// arbitrary category combination
+					if (fuse) {
+						detail = links + "<br/>" + detail;
+						type = CombiUnit.COMBI;
+					} else {
+						detail += links;
+						type = CombiUnit.BUNCH;
+					}
+				}
+			}
+		}
+		public void createNodes() {
+			if (type != CombiUnit.BUNCH) {
+				GraphNode node = createNode(label, detail);
+				subset2node.put(mySubset, node);
+			} else {
+				Iterator<String> groupItems = itemGroup.iterator();
+				while (groupItems.hasNext()) {
+					String label = groupItems.next();
+					String detail = label;
+					createNode(label, detail);
+				}
+			}
+		}
+		public GraphNode createNode(String label, String detail) {
+			GraphNode node = null;
+			if (label2node.containsKey(label)) {
+				node = label2node.get(label); 
+			} else {
+				node = addNode(label, detail, colorStrings[type]);
+			}
+			if (type == CombiUnit.UNIQUE) singles.add(node);
+			label2node.put(label, node);
+			return node;
+		}
+		public HashSet<String> getItemGroup() {
+			return itemGroup;
+		}
+	}
+		
+	Hashtable<HashSet<String>,CombiUnit> combiUnits = new Hashtable<HashSet<String>,CombiUnit>();
+
+	
 	//	Special constructor for optional preparation from Roget files (import type 'Roget')
 	
 	public TaggedImport(GraphPanelControler controler) {
@@ -156,6 +249,7 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 		mainPart(contentString);
 	}
 
+	//
 	//	General constructor for import type 'Tagged'
 	
 	public TaggedImport(File file, GraphPanelControler controler) {
@@ -190,10 +284,7 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 		for (int i = 0; i < records.length; i++) {
 			String line = records[i].trim();
 			
-			if (!line.contains("\t")) {
-//				System.out.println(i + " >" + line + "< skipped");
-				continue;
-			}
+			if (!line.contains("\t")) continue;
 			String[] fields = line.split("\\t");
 			String item = fields[0];
 			// TODO report doubles
@@ -210,9 +301,14 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 				continue;
 			}
 			
+			
+			// Main work starts here
+			
 			if (item2subset.containsKey(item)) {
 				subset = item2subset.get(item);
-				if (!subset.contains(cat)) subset.add(cat); 
+				if (!subset.contains(cat)) {
+					subset.add(cat); 
+				}
 			} else {
 				subset = new HashSet<String>();
 				subset.add(cat);
@@ -227,101 +323,79 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 		while (items.hasMoreElements()) {
 			String item = items.nextElement();
 			subset = item2subset.get(item);
-			
-			if (!subsets.contains(subset)) {
-				subsets.add(subset);
-				subsetsBySize.add(subset);	// TODO see if subsets can be eliminated
-				// and assemble the group of items sharing a given category subset
-				itemGroup = new HashSet<String>();
-				itemGroup.add(item);
-				subset2itemGroup.put(subset, itemGroup);
+			CombiUnit combiUnit;
+			if (!combiUnits.containsKey(subset)) {
+				combiUnit = new CombiUnit(subset);
+				combiUnits.put(subset, combiUnit);
+				subsetsBySize.add(subset);
 			} else {
-				itemGroup = subset2itemGroup.get(subset);
-				if (!itemGroup.contains(item)) itemGroup.add(item);
+				combiUnit = combiUnits.get(subset);
+			}
+			
+			// and assemble the group of items sharing a given category subset
+			itemGroup = combiUnit.getItemGroup();
+			if (!itemGroup.contains(item)) {
+				itemGroup.add(item);
 			}
 		}
 		
-		askForFuse();
+		askForSimplify();
 	}
 	
 	public void mainPart2() {
 		
-		// Create a node for each subset, enumerating its item group
+		//
+		// Create nodes via the CombiUnit for each subset enumerating its item group
 		
-		Iterator<HashSet<String>> iter1 = subsets.iterator();
-		while (iter1.hasNext()) {
-			subset = iter1.next();
-			String label = "";
-			String links = "";
-			String colorString = "#ffdddd";
-			Iterator<String> cats = subset.iterator();
-			int catCount = 0;
-			boolean single = false;
+			Enumeration<HashSet<String>> iter1 = combiUnits.keys();
+			while (iter1.hasMoreElements()) {
+				subset = iter1.nextElement();
+				CombiUnit combiUnit = combiUnits.get(subset);
+				combiUnit.processItems();
 			
-			// category subsets
-			while (cats.hasNext()) {
-				catCount++;
-				String cat = cats.next();
-				label += cat + " ";
-				if (!catsLong.containsKey(cat)) catsLong.put(cat, cat);	// fallback
-				String catLong = catsLong.get(cat);
-				if (fuse) {
-					links += "<b>" + catLong + "</b><br/>";
-				} else {
-					links += "<a href=\"#" + catLong + "\">" + catLong + "</a><br/>";
-				}
-			}
-			label = label.trim();
-			if (catCount <= 1) {	// pure category
-				if (catsLong.containsKey(label)) label = catsLong.get(label);
-			}
-			
-			// item groups
-			itemGroup = subset2itemGroup.get(subset);
-			String detail = "";
-			Iterator<String> groupItems = itemGroup.iterator();
-			int itemCount = 0;
-			while (groupItems.hasNext()) {
-				itemCount++;
-				detail += groupItems.next() + "<br/>";
-			}
-			if (itemCount <= 1 && catCount > 1) {	// category combination with just 1 item
-				label = detail;
-				detail = links;
-				label = label.replace("<br/>", "");
-				colorString = "#ccdddd";
-				single = true;
-			} else {
-				if (catCount > 1) {
-					if (!fuse) detail += links;
-					if (fuse) detail = links + "<br/>" + detail;
-				} else {
-					colorString = "#ff0000";
-				}
-			}
-			
-			if (fuse || (itemCount <= 1 && subset.size() > 1) || subset.size() == 1) {
-				GraphNode node;
-				if (label2node.containsKey(label)) {
-					node = label2node.get(label); 
-				} else {
-					node = addNode(label, detail, colorString);
-				}
-				if (single) singles.add(node);
-				subset2node.put(subset, node);
-				label2node.put(label, node);
-			}
+				combiUnit.createNodes();
 		}
 		
-		// Find subset relationships and create an edge for each one
+		//
+		// Create the edges
 		
-		Iterator<HashSet<String>> iter2 = subsets.iterator();
-		while (iter2.hasNext()) {
-			subset = iter2.next();
+		Enumeration<HashSet<String>> iter2 = combiUnits.keys();
+		while (iter2.hasMoreElements()) {
+			subset = iter2.nextElement();
 			HashSet<String> relRepresented = new HashSet<String>();
 			Iterator<HashSet<String>> iter2a = subsetsBySize.iterator();
-			
-			if (fuse) {
+
+			if (!fuse) {
+				
+				// connect item nodes to their category
+				
+				if (subset.size() == 1) continue;	// no categories at this end
+				CombiUnit combiUnit = combiUnits.get(subset);
+				HashSet<String> itemGroup = combiUnit.getItemGroup();
+				
+				Iterator<String> groupItems = itemGroup.iterator();
+				while (groupItems.hasNext()) {
+					String item = groupItems.next();
+					GraphNode node1 = label2node.get(item);
+					Iterator<String> iter3 = subset.iterator();
+					while (iter3.hasNext()) {
+						GraphNode node2;
+						String cat = iter3.next();
+						cat = catsLong.get(cat);
+						if (label2node.containsKey(cat)) {
+						node2 = label2node.get(cat);
+						} else {
+							System.out.println("Error TGI107 " + cat + "\t" + subset);
+							continue;
+						}
+						addEdge(node1, node2);
+					}
+				}
+				
+			} else if (fuse) {
+				
+				// Find subset relationships and create an edge for each one
+				
 				while (iter2a.hasNext()) {
 					HashSet<String> testSubset = iter2a.next();
 					if (testSubset.equals(subset)) continue;
@@ -340,34 +414,6 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 						GraphNode node2 = null;
 						node1 = subset2node.get(subset);
 						node2 = subset2node.get(testSubset);
-						addEdge(node1, node2);
-					}
-				}
-				
-			} else {
-				if (subset.size() == 1) continue;
-				HashSet<String> itemGroup = subset2itemGroup.get(subset);
-				Iterator<String> groupItems = itemGroup.iterator();
-				while (groupItems.hasNext()) {
-					String item = groupItems.next();
-					GraphNode node1 = null;
-					if (label2node.containsKey(item)) {
-						node1 = label2node.get(item);
-					} else {
-						node1 = addNode(item, item, "#ccdddd");
-						label2node.put(item, node1);
-					}
-					Iterator<String> iter3 = subset.iterator();
-					while (iter3.hasNext()) {
-						String cat = iter3.next();
-						GraphNode node2 = null;
-						cat = catsLong.get(cat);
-						if (label2node.containsKey(cat)) {
-							node2 = label2node.get(cat);
-						} else {
-							node2 = addNode(cat, cat, "#ff0000");
-							label2node.put(cat, node2);
-						}
 						addEdge(node1, node2);
 					}
 				}
@@ -412,6 +458,9 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
     	controler.setTreeModel(null);
     	controler.setNonTreeEdges(null);
 	}
+	
+//
+//	Other major methods
 	
 	public GraphNode addNode(String label, String detail, String colorString) {
 			j++;
@@ -707,27 +756,29 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 		frame.setVisible(true);
 	}
 	
-	public void askForFuse() {
+	public void askForSimplify() {
 		
-			// Ask for fuse option
+			// Ask for simplify option
 			dialog = new JDialog(controler.getMainWindow(), "Option");
 			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-			dialog.setMinimumSize(new Dimension(338, 226));
+			dialog.setMinimumSize(new Dimension(338, 246));
 			dialog.setLocation(dim.width/2-dialog.getSize().width/2 - 169, 
 					dim.height/2-dialog.getSize().height/2 - 113);		
 			dialog.setLayout(new BorderLayout());
 			
 			// Stats for decision
-			Iterator<HashSet<String>> iter0 = subsets.iterator();
+			Enumeration<HashSet<String>> iter0 = combiUnits.keys();
+			
 			int catCount = 0;
 			int itemCount = 0;
 			int catSum = 0;
 			int itemSum = 0;
 			int subsetCount = 0;
-			while (iter0.hasNext()) {
-				subset = iter0.next();
+			while (iter0.hasMoreElements()) {
+				subset = iter0.nextElement();
 				catCount = subset.size();
-				itemCount = subset2itemGroup.get(subset).size();
+				CombiUnit combiUnit = combiUnits.get(subset);
+				itemCount = combiUnit.getItemGroup().size();
 				if (catCount > 1) {
 					subsetCount++;
 					catSum += catCount;
@@ -740,24 +791,32 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 			String question = "<html>We have " + subsetCount + " combinations of the " + catsLong.size() + " categories,<br/>"
 					+ "containing an average of " + avgCats + " categories and<br/>"
 					+ avgItems + " items of the " + itemSum + " items that belong to multiple<br/>"
-					+ "categories.<br/><br/>" 
-					+ "You may <b>fuse</b> all items of a given combination into a <br/>"
-					+ "single icon.<br/><br/>";
+					+ "categories.<br/><br/>"
+					+ "To simplify the map, you may<br/><br/>";
 	
 			JLabel info = new JLabel(question);
 			info.setBorder(new EmptyBorder(10, 20, 10, 20));
 			dialog.add(info, BorderLayout.NORTH);
+			JPanel optionLines = new JPanel();
+			optionLines.setLayout(new BoxLayout(optionLines, BoxLayout.Y_AXIS));
 			
+			JPanel fuseInfo = new JPanel();
+			fuseInfo.setLayout(new BorderLayout());
+			fuseBox = new JCheckBox("<html><b>fuse</b> all items of a given combination into a single icon;");
+			fuseBox.setActionCommand("fuse");
+			fuseBox.addActionListener(this);
+			fuseInfo.add(fuseBox, BorderLayout.WEST);
+			optionLines.add(fuseInfo);
+
 			JPanel bottom = new JPanel();
 			bottom.setLayout(new BorderLayout());
-			fuseBox = new JCheckBox("Fuse");
-			bottom.add(fuseBox, BorderLayout.WEST);
 			JButton nextButton = new JButton("Next >");
-			nextButton.setActionCommand("fuse");
+			nextButton.setActionCommand("simplify");
 			nextButton.addActionListener(this);
 			bottom.add(nextButton, BorderLayout.EAST);
-			dialog.add(bottom, BorderLayout.SOUTH);
-			dialog.add(bottom, BorderLayout.SOUTH);
+			optionLines.add(bottom);
+			
+			dialog.add(optionLines, BorderLayout.SOUTH);
 			dialog.setVisible(true);
 		}
 
@@ -804,6 +863,7 @@ public class TaggedImport implements TreeSelectionListener, ActionListener, Comp
 	    	
 	    } else if (arg0.getActionCommand().equals("fuse")) {
 	    	fuse = fuseBox.isSelected();
+	    } else if (arg0.getActionCommand().equals("simplify")) {
 	    	dialog.dispose();
 	    	mainPart2();
 	    }
