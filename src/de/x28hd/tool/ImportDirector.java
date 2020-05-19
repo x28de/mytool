@@ -228,7 +228,7 @@ public class ImportDirector implements ActionListener {
 				return;
 			} else if (i == Importer.Roget) {
 				frame.dispose();
-				new TaggedImport(controler);
+				new RogetImport(controler);
 				return;
 			}
 //	    		System.out.println("Type: " + i);
