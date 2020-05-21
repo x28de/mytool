@@ -447,10 +447,6 @@ public class TaggedImport implements ActionListener, Comparator<HashSet<String>>
 			while (cats2.hasMoreElements()) {			// loop through later categories
 				String cat2 = cats2.nextElement();
 				if (cat2.compareTo(currentCat) <= 0) continue;
-				if (cat2.startsWith(currentCat.substring(0, 2))) {
-					System.out.println("Skipping " + cat2 + " " + currentCat);
-					continue;
-				}
 				Pair<String> catCombi = new Pair<String>(currentCat, cat2);
 				HashSet<String> set2 = catUnits.get(cat2);
 				Iterator<String> items1 = set1.iterator();	// loop through items
