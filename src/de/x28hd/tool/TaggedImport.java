@@ -58,8 +58,10 @@ public class TaggedImport implements ActionListener, Comparator<HashSet<String>>
 	Hashtable<String,String> catsLong = new Hashtable<String,String>();
 	String[] records;
 	String contentString = "";
+	String suspendList = "";
 	boolean fuse = false;
 	boolean hide = false;
+	boolean suspend = false;
 	boolean suppress = false;
 	
 	Hashtable<String,HashSet<String>> catUnits = new Hashtable<String,HashSet<String>>();
@@ -70,6 +72,7 @@ public class TaggedImport implements ActionListener, Comparator<HashSet<String>>
 	JCheckBox fuseBox;
 	JCheckBox hideBox;
 	JCheckBox suppressBox;
+	JCheckBox suspendBox;
 	
 	// Category combination and item group, used to create node/s
 	public class CombiUnit {	
@@ -270,29 +273,37 @@ public class TaggedImport implements ActionListener, Comparator<HashSet<String>>
 	
 	public void mainPart2() {
 		
-		//
-		// Create nodes via the CombiUnit for each subset enumerating its item group
-		
-			Enumeration<HashSet<String>> iter1 = combiUnits.keys();
-			while (iter1.hasMoreElements()) {
-				subset = iter1.nextElement();
-				CombiUnit combiUnit = combiUnits.get(subset);
-				combiUnit.processItems();
-			
-				combiUnit.createNodes();
-		}
-		
-		// Weed out if suppress option was specified
-		if (suppress) {		// note that the hide option has separate suppress processing
+		// Weed out if suppress or suspend option was specified
+		if (suppress || suspend) {		// note that the hide option has separate suppress processing
 			Enumeration<HashSet<String>> iter0 = combiUnits.keys();
 			while (iter0.hasMoreElements()) {
 				subset = iter0.nextElement();
-				if (combiUnits.get(subset).getItemGroup().size() < 2 && combiUnits.get(subset).getItemGroup().size() > 0) {
-//				if (subset.size() > 3) {	// to play with
+				HashSet<String> itemGroup = combiUnits.get(subset).getItemGroup();
+				if ((suppress && itemGroup.size() == 1)
+						|| (suspend && subset.size() > 3)) {
+					String items = combiUnits.get(subset).getItemGroup().toString();
+					Iterator<String> suppIter = subset.iterator();
+					while (suppIter.hasNext()) {
+						String cat = suppIter.next();
+						String line = catsLong.get(cat) + "\t" + items + "\n";
+						suspendList += line;
+					}
 					combiUnits.remove(subset);
 					subsetsBySize.remove(subset);
 				}
 			}
+		}
+		
+		//
+		// Create nodes via the CombiUnit for each subset enumerating its item group
+		
+		Enumeration<HashSet<String>> iter1 = combiUnits.keys();
+		while (iter1.hasMoreElements()) {
+			subset = iter1.nextElement();
+			CombiUnit combiUnit = combiUnits.get(subset);
+			combiUnit.processItems();
+
+			combiUnit.createNodes();
 		}
 		
 		//
@@ -399,6 +410,16 @@ public class TaggedImport implements ActionListener, Comparator<HashSet<String>>
     	controler.setTreeModel(null);
     	controler.setNonTreeEdges(null);
     	
+    	if (suspendList.isEmpty()) return;
+		FileWriter list;
+		try {
+			list = new FileWriter(System.getProperty("user.home") + 
+					File.separator + "Desktop" + File.separator + "x28list.txt");
+			list.write(suspendList);
+			list.close();
+		} catch (IOException e) {
+			System.out.println("Error RG102 " + e);			
+		}
 	}
 	
 //
@@ -546,6 +567,12 @@ public class TaggedImport implements ActionListener, Comparator<HashSet<String>>
 			hideInfo.add(hideBox, BorderLayout.WEST);
 			optionLines.add(hideInfo);
 
+			JPanel suspendInfo = new JPanel();
+			suspendInfo.setLayout(new BorderLayout());
+			suspendBox = new JCheckBox("<html><b>suspend</b> the largest combinations (> 3, into a file);");
+			suspendInfo.add(suspendBox, BorderLayout.WEST);
+			optionLines.add(suspendInfo);
+
 			JPanel suppressInfo = new JPanel();
 			suppressInfo.setLayout(new BorderLayout());
 			suppressBox = new JCheckBox("<html><b>suppress</b> combinations shared by less than 2 items.");
@@ -578,9 +605,10 @@ public class TaggedImport implements ActionListener, Comparator<HashSet<String>>
 	    	fuseBox.setEnabled(!hide);
 	    	dialog.repaint();
 	    } else if (arg0.getActionCommand().equals("simplify")) {
+	    	suspend = suspendBox.isSelected();
 	    	suppress = suppressBox.isSelected();
 	    	dialog.dispose();
-	    	System.out.println("Fuse " + fuse + ", hide " + hide + ", suppress " + suppress);
+	    	System.out.println("Fuse " + fuse + ", hide " + hide + ", suspend " + suspend + ", suppress " + suppress);
 	    	mainPart2();
 	    }
 	}
