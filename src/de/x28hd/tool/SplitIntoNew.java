@@ -125,7 +125,7 @@ public class SplitIntoNew {
 		}
 		boolean manyEarlyCommas = false;
 		int earlyCommasCount = 0;
-		for (int i = 0; i < numRec; i++) {
+		for (int i = 1; i < numRec; i++) {
 			int commaPos = commas[i];
 			if (commaPos > -1 && commaPos < 30) {
 				earlyCommasCount++;

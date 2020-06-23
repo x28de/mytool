@@ -531,9 +531,9 @@ public class RogetImport implements TreeSelectionListener, ActionListener, Hyper
 				+ "You will need some downloaded files:<br />"
 				+ "<li>For the English samples:<br />"
 				+ "<a href=\"http://www.gutenberg.org/files/10681/10681-h-body.htm\">http://www.gutenberg.org/files/10681/10681-h-body.htm</a> and"
-				+ "<br /><a href=\"http://www.gutenberg.org/files/10681/10681-h-index.htm\">http://www.gutenberg.org/files/10681/10681-h-index.htm</a>)"
+				+ "<br /><a href=\"http://www.gutenberg.org/files/10681/10681-h-index.htm\">http://www.gutenberg.org/files/10681/10681-h-index.htm</a>"
 				+ "<br /><br /><li>For the German samples:<br />"
-				+ "<a href=\"http://www.x28.privat.t-online.de/dornseiff-demo/\">http://www.x28.privat.t-online.de/dornseiff-demo/from-leipzig.txt</a>)"
+				+ "<a href=\"http://www.x28.privat.t-online.de/dornseiff-demo/\">http://www.x28.privat.t-online.de/dornseiff-demo/from-leipzig.txt</a>"
 				+ "</html>");
 		innerFrame.add(info, BorderLayout.NORTH);
 		
