@@ -43,7 +43,6 @@ public class Gui {
 	JCheckBoxMenuItem menuItem23 = null;
 	JCheckBoxMenuItem menuItem24 = null;
 	JCheckBoxMenuItem menuItem25 = null;
-	JCheckBoxMenuItem menuItem26 = null;
 	JCheckBoxMenuItem menuItem27 = null;
 	JCheckBoxMenuItem menuItem28 = null;
 	JMenuItem menuItem91 = null;
@@ -599,15 +598,9 @@ public class Gui {
 
 		menuItem52 = new JCheckBoxMenuItem("Power User Mode", false);
 		menuItem52.setActionCommand("power");
-		menuItem52.setToolTipText("Acceleration, Lurid Colors, Borders, and Rubberband Selection");
+		menuItem52.setToolTipText("Acceleration, Lurid Colors and Borders");
 		menuItem52.addActionListener(controler);
 		sub6.add(menuItem52);
-
-		menuItem26 = new JCheckBoxMenuItem("Rubberband selection enabled", true);
-		menuItem26.setActionCommand("ToggleRectangle");
-		menuItem26.setToolTipText("Enables to Alt-Drag for selection -- may be confusing");
-		menuItem26.addActionListener(controler);
-		sub6.add(menuItem26);
 
 		JMenuItem menuItem56 = new JMenuItem("Another Map Window");
 		menuItem56.setActionCommand("sibling");

@@ -31,7 +31,6 @@ public class BrainExport {
 	public BrainExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
 			String storeFilename, GraphPanelControler controler) {
 		
-		controler.setWaitCursor();
 		
 		// Initialize output 
 		FileOutputStream fout = null;
@@ -168,7 +167,6 @@ public class BrainExport {
 					+ "before importing it into your serious data.\n"
 					+ "After importing, you may need to click \n"
 					+ "File > Utilities > Analyze Main Thoughts.\n");
-			controler.setDefaultCursor();
 			fout.close();
 		} catch (IOException e) {
 			System.out.println("error BE110 " + e);

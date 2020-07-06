@@ -217,7 +217,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		// Paste
 
 		} else if (command == "paste") {
-			beginLongTask();
 			pasteHere = false;
 
 			Transferable t = newStuff.readClipboard();
@@ -229,7 +228,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		// Paste here
 
 		} else if (command == "pasteHere") {
-			beginLongTask();
 
 			pasteHere = true;
 			pasteLocation = clickedSpot;
@@ -283,9 +281,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command =="ToggleBorders") {
 			graphPanel.toggleBorders();
 			
-		} else if (command =="ToggleRectangle") {
-			graphPanel.toggleRectangle();
-			
 		} else if (command =="ToggleClusterCopy") {
 			graphPanel.toggleClusterCopy();
 			
@@ -313,10 +308,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 					graphPanel.toggleAntiAliasing();
 					gui.menuItem45.setSelected(true);
 				}
-				if (!gui.menuItem26.isSelected()) {
-					graphPanel.toggleRectangle();
-					gui.menuItem26.setSelected(true);
-				}
 			} else {
 				if (gui.menuItem42.isSelected()) {
 					graphPanel.toggleBorders();
@@ -329,10 +320,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 				if (gui.menuItem45.isSelected()) {
 					graphPanel.toggleAntiAliasing();
 					gui.menuItem45.setSelected(false);
-				}
-				if (gui.menuItem26.isSelected()) {
-					graphPanel.toggleRectangle();
-					gui.menuItem26.setSelected(false);
 				}
 			}
 		} else if (command == "toggleParse") {
@@ -537,7 +524,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 				gui.displayHelp();
 
 			}
-			endTask();
 			
 		} else if (command == "HowToPrint") {
 			displayPopup("<html><h3>How to Print or Snapshot</h3>" 
@@ -628,7 +614,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	     	}
 	    	updateBounds();
 	    	translation = graphPanel.getTranslation();
-	    	setDefaultCursor();
+	    	setMouseCursor(Cursor.DEFAULT_CURSOR);
 	    	graphPanel.repaint();
 	    } 
 	});
@@ -650,7 +636,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	     	}
 	    	updateBounds();
 	    	translation = graphPanel.getTranslation();
-	    	setDefaultCursor();
+	    	setMouseCursor(Cursor.DEFAULT_CURSOR);
 	    	graphPanel.repaint();
 	    } 
 	});
@@ -1340,40 +1326,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 //
 //	Accessories for cursors and carets
     
-	public void beginTranslation() {
-		setHandCursor();
-	}
-
-	public void beginCreatingEdge() {
-		setCrosshairCursor();
-	}
-
-	public void setWaitCursor() {
-		mainWindow.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		graphPanel.repaint();
-	}
-
-	void setHandCursor() {
-		setMouseCursor(Cursor.HAND_CURSOR);
-	}
-
-	public void setCrosshairCursor() {
-		setMouseCursor(Cursor.CROSSHAIR_CURSOR);
-	}
-	
-	public void setDefaultCursor() {
-		setMouseCursor(Cursor.DEFAULT_CURSOR);
-	}
-
-	void setMouseCursor(int cursorType) {
+	public void setMouseCursor(int cursorType) {
 		mainWindow.setCursor(new Cursor(cursorType));
-	}
-	
-	public void beginLongTask() {
-		setWaitCursor();
-	}
-	public void endTask() {
-		setDefaultCursor();
 	}
 	
 	public void toggleAltColor(boolean down) {
@@ -1435,7 +1389,6 @@ public final class PresentationService implements ActionListener, MouseListener,
     	newStuff.setCompositionMode(false);
     	gui.menuItem21.setEnabled(true);
     	contextPasteAllowed = true;
-    	endTask();
     	setSystemUI(true);
     }
    
@@ -1501,7 +1454,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			   graphPanel.translateGraph(-panning.x, -panning.y);
 			   performUpdate();
 			   updateBounds();
-			   setDefaultCursor();
+			   setMouseCursor(Cursor.DEFAULT_CURSOR);
 			   graphPanel.repaint();
 		   }
 	   }
@@ -1533,7 +1486,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   graphPanel.setModel(nodes, edges);
 		recount();
 	   updateBounds();
-	   setDefaultCursor();
+	   setMouseCursor(Cursor.DEFAULT_CURSOR);
 	   graphPanel.repaint();
 	   pasteHere = false;
 	   dropHere = false;
@@ -1553,7 +1506,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   edges = replacingEdges;
 	   graphPanel.setModel(nodes, edges);
 	   updateBounds();
-	   setDefaultCursor();
+	   setMouseCursor(Cursor.DEFAULT_CURSOR);
 	   hintTimer.stop();	// Any action => no more hint
 	   graphPanel.jumpingArrow(false);
 	   graphPanel.repaint();
@@ -1566,7 +1519,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   edges = replacingEdges;
 	   graphPanel.setModel(nodes, edges);
 	   updateBounds();
-	   setDefaultCursor();
+	   setMouseCursor(Cursor.DEFAULT_CURSOR);
 	   hintTimer.stop();	// Any action => no more hint
 	   graphPanel.jumpingArrow(false);
 	   graphPanel.repaint();

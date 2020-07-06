@@ -21,13 +21,8 @@ interface GraphPanelControler {
 	CompositionWindow getCWInstance();
 	void finishCompositionMode();
 	void manip(int x);
-	void beginTranslation();
-	void beginCreatingEdge();
-	void beginLongTask();
-	void endTask();
 	GraphEdge createEdge(GraphNode topic1, GraphNode topic2);
-	void setDefaultCursor();
-	public void setWaitCursor();
+	void setMouseCursor(int type);
 	void setDirty(boolean toggle);
 	void updateBounds();
 	String getNewNodeColor();

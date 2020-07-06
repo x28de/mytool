@@ -53,7 +53,6 @@ public class ZknExport {
 	public ZknExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
 			String zipFilename, GraphPanelControler controler) {
 		
-		controler.setWaitCursor();
 		this.nodes = nodes;
 		this.edges = edges;
 		
@@ -205,7 +204,6 @@ public class ZknExport {
 		try {
 			zout.write(mainOut);
 			if (!success) controler.displayPopup("Export failed");
-			controler.setDefaultCursor();
 			zout.close();
 		} catch (IOException e) {
 			System.out.println("Error ZE110 " + e);

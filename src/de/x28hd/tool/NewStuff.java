@@ -142,12 +142,10 @@ public class NewStuff {
 		if (!success) {
 			System.out.println("Error NS120.");
 		}
-		controler.setDefaultCursor();
         return success;
 	}
 
 	public Transferable readClipboard() {
-		controler.setWaitCursor();
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		dropLocation = null;
 		return clipboard.getContents(null); 
@@ -167,7 +165,6 @@ public class NewStuff {
 	
 	@SuppressWarnings("unchecked")
 	public boolean transferTransferable(Transferable content) {
-		controler.setWaitCursor();
 			
 		//  File(s) ?
 

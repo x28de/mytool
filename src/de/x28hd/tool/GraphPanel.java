@@ -1,6 +1,7 @@
 package de.x28hd.tool;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -83,7 +84,6 @@ class GraphPanel extends JDesktopPane  {
 	boolean x28PresoSizedMode = false;
 	boolean indexCards = true;
 	boolean antiAliasing = true;
-	boolean enableRectangle = true;
 	boolean enableClusterCopy = false;
     
 //
@@ -113,7 +113,6 @@ class GraphPanel extends JDesktopPane  {
 		}
 
 		public boolean importData(TransferHandler.TransferSupport support) {
-			controler.beginLongTask();
 			return newStuff.importData(support, "GP");
 		}
 	}
@@ -548,7 +547,7 @@ class GraphPanel extends JDesktopPane  {
 		private void thisPanelDragged(MouseEvent e) {
 			
 			//	Intercept ALT-Drag on Graph -- TODO simplify & check if must be here
-			if (enableRectangle && selection.mode == Selection.SELECTED_TOPICMAP && (isSpecial(e) || simulatedAltDown)) {
+			if (selection.mode == Selection.SELECTED_TOPICMAP && (isSpecial(e) || simulatedAltDown)) {
 				translateInProgress = false;
 				if (!rectangleInProgress) {
 					int x = e.getX();
@@ -586,7 +585,7 @@ class GraphPanel extends JDesktopPane  {
 			if (moveInProgress || clusterInProgress || translateInProgress) {
 				//	moveInProgess was set in thisPanelClicked ! 
 				if (!dragInProgress) {
-					controler.beginTranslation();
+					controler.setMouseCursor(Cursor.HAND_CURSOR);
 					dragInProgress = true;
 				}
 				int x = e.getX();
@@ -627,7 +626,7 @@ class GraphPanel extends JDesktopPane  {
 			} else if (edgeInProgress) {
 				
 				if (!dragInProgress) {
-					controler.beginCreatingEdge();
+					controler.setMouseCursor(Cursor.CROSSHAIR_CURSOR);
 					dragInProgress = true;
 				}
 				
@@ -656,7 +655,7 @@ class GraphPanel extends JDesktopPane  {
 					controler.commit(2, null, null, new Point(dx, dy));
 				}
 				if (dragInProgress) {
-					controler.endTask();
+					controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
 					controler.setDirty(true);
 					dragInProgress = false;
 				}
@@ -664,14 +663,14 @@ class GraphPanel extends JDesktopPane  {
 				clusterInProgress = false;
 				controler.commit(3, null, null, null);	// empty, to avoid false hopes
 				if (dragInProgress) {
-					controler.endTask();
+					controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
 					controler.setDirty(true);
 					dragInProgress = false;
 				}
 			} else if (translateInProgress) {
 				translateInProgress = false;
 				if (dragInProgress) {
-					controler.endTask();
+					controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
 					dragInProgress = false;
 				} else if (rectangleInProgress) {
 					int x = e.getX() - translation.x;
@@ -686,7 +685,7 @@ class GraphPanel extends JDesktopPane  {
 				edgeInProgress = false;
 				toggleAlt(false);
 				//
-				controler.endTask();
+				controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
 				dragInProgress = false;
 				//
 				if (targetNode != null && targetNode != selection.topic) {
@@ -916,10 +915,6 @@ class GraphPanel extends JDesktopPane  {
 
 		public void toggleBorders() {
 			graphExtras.toggleBorders();
-		}
-
-		public void toggleRectangle() {
-			enableRectangle = !enableRectangle;
 		}
 
 		public void toggleClusterCopy() {

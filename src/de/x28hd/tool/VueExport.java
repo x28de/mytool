@@ -38,8 +38,6 @@ public class VueExport {
 	public VueExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
 			String storeFilename, GraphPanelControler controler) {
 		
-		controler.setWaitCursor();
-		
 		// Initialize output 
 		FileOutputStream fout = null;
 		try {
@@ -172,7 +170,6 @@ public class VueExport {
 			fout.write(cdsOut);
 			
 			if (!success) controler.displayPopup("Export failed");
-			controler.setDefaultCursor();
 			fout.close();
 		} catch (IOException e) {
 			System.out.println("error VE110 " + e);

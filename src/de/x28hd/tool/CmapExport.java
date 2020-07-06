@@ -33,8 +33,6 @@ public class CmapExport {
 	public CmapExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
 			String storeFilename, GraphPanelControler controler) {
 		
-		controler.setWaitCursor();
-		
 		// Initialize output 
 		FileOutputStream fout = null;
 		try {
@@ -176,7 +174,6 @@ public class CmapExport {
 			fout.write(cdsOut);
 			
 			if (!success) controler.displayPopup("Export failed");
-			controler.setDefaultCursor();
 			fout.close();
 		} catch (IOException e) {
 			System.out.println("error CE110 " + e);
