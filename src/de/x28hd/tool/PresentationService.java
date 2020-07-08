@@ -143,11 +143,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 	// Placeholders
 	GraphNode dummyNode = new GraphNode(-1, null, null, null, null);
-	GraphNode selectedTopic = dummyNode;		// TODO integrate into Selection()
+	GraphNode selectedTopic = dummyNode;
 	GraphEdge dummyEdge = new GraphEdge(-1, dummyNode, dummyNode, null, null);
 	GraphEdge selectedAssoc = dummyEdge;
 	
-	Selection selection = null;
 	boolean extended = false;
 	
 	public PresentationService(boolean ext) {
@@ -479,8 +478,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 			if (command == "delTopic") {
 				deleteNode(selectedTopic);
-//				selection.mode = SELECTED_NONE;
-				selection.topic = null;
 				graphSelected();
 			}
 			graphPanel.repaint();
@@ -503,8 +500,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 			if (command == "delAssoc") {
 				deleteEdge(selectedAssoc);
-//				selection.mode = SELECTED_NONE;
-//				selection.assoc = null;
 				graphSelected();
 			}
 
@@ -951,7 +946,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		gui = new Gui(this, graphPanel, edi, newStuff );
 		
 		graphPanel.setModel(nodes, edges);
-		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
 		about = (new AboutBuild(extended)).getAbout();
 		graphPanel.addKeyListener(this);
 
@@ -1315,6 +1309,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		String oldText = labelField.getText();
 		String newText = oldText + " " + textToAdd;
 		labelField.setText(newText);
+		// TODO check if still needed
 		GraphNode justUpdated = selectedTopic;
 		graphSelected();
 		graphPanel.labelUpdateToggle(true);

@@ -258,7 +258,7 @@ class GraphPanel extends JDesktopPane  {
 			g.fillOval(p.x - iconWidth/2, p.y - iconHeight/2, iconWidth, iconHeight);
 		}
 
-		if (node == selection.topic && selection.mode == Selection.SELECTED_TOPIC) {
+		if (node == selection.topic) {
 			g.setColor(Color.red);
 			g.drawRect(p.x - iconWidth/2 - 2, p.y - iconWidth/2 - 2, iconWidth + 3, iconHeight + 3);
 			g.drawRect(p.x - iconWidth/2 - 3, p.y - iconWidth/2 - 3, iconWidth + 5, iconHeight + 5);
@@ -289,7 +289,7 @@ class GraphPanel extends JDesktopPane  {
 			g.fillOval(from.x -2 + (to.x - from.x)/2, 
 					from.y - 2 + (to.y - from.y)/2, 5, 5);
 		}
-		if (edge == selection.assoc && selection.mode == Selection.SELECTED_ASSOCIATION) {
+		if (edge == selection.assoc) {
 			g.setColor(Color.red);
 			g.drawLine(from.x - 2, from.y - 2, to.x - 2, to.y - 2);
 			g.drawLine(from.x + 3, from.y - 2, to.x + 3, to.y - 2);
@@ -547,7 +547,7 @@ class GraphPanel extends JDesktopPane  {
 		private void thisPanelDragged(MouseEvent e) {
 			
 			//	Intercept ALT-Drag on Graph -- TODO simplify & check if must be here
-			if (selection.mode == Selection.SELECTED_TOPICMAP && (isSpecial(e) || simulatedAltDown)) {
+			if (isSpecial(e) || simulatedAltDown) {
 				translateInProgress = false;
 				if (!rectangleInProgress) {
 					int x = e.getX();
@@ -569,8 +569,7 @@ class GraphPanel extends JDesktopPane  {
 						repaint();
 					}
 				}
-			} else if (rectangleInProgress && //	drag node/ edge outside rectangle ?
-					selection.mode != Selection.SELECTED_TOPICMAP) {
+			} else if (rectangleInProgress) {  //	drag node/ edge outside rectangle ?
 				int x = e.getX() - translation.x;
 				int y = e.getY() - translation.y;
 				if (!rectangle.contains(new Point(x, y))) {	
@@ -747,14 +746,8 @@ class GraphPanel extends JDesktopPane  {
 //
 //		Selection processing
 
-		//	TODO eliminate this tmp thing
-		public Selection getSelectionInstance() {
-			return selection;
-		}
-		
 		public void nodeSelected(GraphNode node) {
 			if (node != selection.topic && !labelUpdate) {
-				selection.mode = Selection.SELECTED_TOPIC;
 				controler.nodeSelected(node);
 				repaint();
 				selection.topic = node;
@@ -764,7 +757,6 @@ class GraphPanel extends JDesktopPane  {
 
 		private void edgeSelected(GraphEdge edge) {
 			if (edge != selection.assoc) {
-				selection.mode = Selection.SELECTED_ASSOCIATION;
 				controler.edgeSelected(edge);
 				repaint();
 				selection.assoc = edge;
@@ -773,9 +765,8 @@ class GraphPanel extends JDesktopPane  {
 		}
 		
 		private void graphSelected() {
-			if (selection.mode != Selection.SELECTED_TOPICMAP) {
+			if (selection.topic != null || selection.assoc != null) {
 				repaint();
-				selection.mode = Selection.SELECTED_TOPICMAP;
 				selection.topic = null;
 				selection.assoc = null;
 				controler.graphSelected();
