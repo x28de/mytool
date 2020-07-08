@@ -52,6 +52,7 @@ class GraphPanel extends JDesktopPane  {
 	Font font = new Font("monospace", Font.PLAIN, 12);
 	NewStuff newStuff = null;
 	Point lastPoint = new Point(0, 0);
+	UndoRedo undoRedo;
 	
 	private boolean rectangleInProgress;
 	private boolean rectangleGrowing;
@@ -125,6 +126,7 @@ class GraphPanel extends JDesktopPane  {
 		this.controler = controler;
 		this.translation = new Point(0, 0);
 		newStuff = controler.getNSInstance();
+		undoRedo = controler.getURInstance();
 		setLayout(null);
 		selection = new Selection();
 		
@@ -651,7 +653,7 @@ class GraphPanel extends JDesktopPane  {
 				int dx = e.getX() - lastPoint.x;
 				int dy = e.getY() - lastPoint.y;
 				if (dx != 0 && dy != 0) {	// Moved?
-					controler.commit(2, null, null, new Point(dx, dy));
+					undoRedo.commit(2, null, null, new Point(dx, dy));
 				}
 				if (dragInProgress) {
 					controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
@@ -660,7 +662,7 @@ class GraphPanel extends JDesktopPane  {
 				}
 			} else if (clusterInProgress) {
 				clusterInProgress = false;
-				controler.commit(3, null, null, null);	// empty, to avoid false hopes
+				undoRedo.commit(3, null, null, null);	// empty, to avoid false hopes
 				if (dragInProgress) {
 					controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
 					controler.setDirty(true);

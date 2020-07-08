@@ -35,7 +35,8 @@ interface GraphPanelControler {
 	HashSet<GraphEdge> getNonTreeEdges();
 	void replaceByTree(Hashtable<Integer, GraphNode> nodes,
 			Hashtable<Integer, GraphEdge> edges);
-	void commit(int type, GraphNode node, GraphEdge edge, Point move);
+	Gui getGuiInstance();
+	UndoRedo getURInstance();
 	void toggleRectanglePresent(boolean on);
 	void stopHint();
 	void zoom(boolean on);

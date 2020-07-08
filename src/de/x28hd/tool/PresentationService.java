@@ -65,6 +65,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	TextEditorPanel edi = new TextEditorPanel(this);	
 	Gui gui;
 	LifeCycle lifeCycle;
+	UndoRedo undoRedo;
 	
 	// User Interface
 	public JFrame mainWindow;
@@ -111,17 +112,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	String dataString = "";	
 	int inputType = 0;
 	String baseDir;
-	
-	// Undo accessories 
-	int lastChangeType;
-	static final int DELETE_NODE = 0;
-	static final int DELETE_EDGE = 1;
-	static final int MOVE = 2;
-	static final int NONE = 3;
-	String[] lastChange = {"Delete single item", "Delete single line", "Single move", ""};
-	GraphNode lastNode;
-	GraphEdge lastEdge;
-	Point lastMove = new Point(0, 0);
 	
 	// Finding accessories
 	String findString = "";
@@ -188,9 +178,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 		//	Undo / Redo
 			
 		} else if (command == "undo") {
-			undo();
+			undoRedo.undo();
 		} else if (command == "redo") {
-			redo();
+			undoRedo.redo();
 			
 		//	Copy / Cut / Delete / Select
 			
@@ -939,11 +929,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 		newStuff = new NewStuff(this);
 		
-		graphPanel = new GraphPanel(this);
 		nodes = new Hashtable<Integer, GraphNode>();
 		edges = new Hashtable<Integer, GraphEdge>();
 		
 		gui = new Gui(this, graphPanel, edi, newStuff );
+		undoRedo = new UndoRedo(nodes, edges, this);
+		graphPanel = new GraphPanel(this);
 		
 		graphPanel.setModel(nodes, edges);
 		about = (new AboutBuild(extended)).getAbout();
@@ -1015,7 +1006,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		selectedTopic = node;
 		edi.setText((selectedTopic).getDetail());
 		edi.setDirty(false);
-		commit(NONE, null, null, null);	// empty, to avoid false hopes
+		undoRedo.commit(undoRedo.NONE, null, null, null);	// empty, to avoid false hopes
 		if (hyp) edi.getTextComponent().setCaretPosition(0);
 		edi.getTextComponent().requestFocus();
 		String labelText = selectedTopic.getLabel();
@@ -1139,7 +1130,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		recount();
 		updateBounds();
 		lifeCycle.setDirty(true);
-		commit(DELETE_NODE, topic, null, null);
+		undoRedo.commit(UndoRedo.DELETE_NODE, topic, null, null);
 		return;
 	}
 
@@ -1172,7 +1163,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		recount();
 		graphPanel.repaint();
 		lifeCycle.setDirty(true);
-		commit(DELETE_EDGE, null, assoc, null);
+		undoRedo.commit(UndoRedo.DELETE_EDGE, null, assoc, null);
 		return;
 	}
 
@@ -1372,6 +1363,14 @@ public final class PresentationService implements ActionListener, MouseListener,
     	return newStuff;
     }
     
+    public Gui getGuiInstance() {
+    	return gui;
+    }
+    
+    public UndoRedo getURInstance() {
+    	return undoRedo;
+    }
+    
     public JFrame getMainWindow() {
     	return mainWindow;
     }
@@ -1565,67 +1564,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 	}
 
-	public void commit(int type, GraphNode node, GraphEdge edge, Point move) {
-		gui.menuItem91.setText("Undo: " + lastChange[type]);
-		lastChangeType = type;
-		gui.menuItem91.setEnabled(true);
-		if (type == DELETE_NODE) {
-			lastNode = node;
-		} else if (type == DELETE_EDGE) {
-			lastEdge = edge;;
-		} else if (type == MOVE) {
-			lastMove = move;
-		} else if (type == NONE) {
-			gui.menuItem91.setEnabled(false);
-		}
-		gui.menuItem92.setText("Redo ");
-		gui.menuItem92.setEnabled(false);
-	}
-	
-		public void undo() {
-			int type = lastChangeType;
-			gui.menuItem92.setText("Redo: " + lastChange[type]);
-			if (type == DELETE_NODE) {
-				GraphNode node = lastNode;
-				int id = node.getID();
-				nodes.put(id,  node);
-			} else if (type == DELETE_EDGE) {
-				GraphEdge edge = lastEdge;
-				int id = edge.getID();
-				edges.put(id, edge);
-			} else if (type == MOVE) {
-				Point xy = selectedTopic.getXY();
-				xy = new Point(xy.x - lastMove.x, xy.y - lastMove.y);
-				selectedTopic.setXY(xy);
-				graphPanel.repaint();
-			}
-			gui.menuItem91.setText("Undo ");
-			gui.menuItem91.setEnabled(false);
-			gui.menuItem92.setText("Redo: " + lastChange[type]);
-			gui.menuItem92.setEnabled(true);
-		}
-
-		public void redo() {
-			int type = lastChangeType;
-			if (type == DELETE_NODE) {
-				GraphNode node = lastNode;
-				int id = node.getID();
-				nodes.remove(id);
-			} else if (type == DELETE_EDGE) {
-				GraphEdge edge = lastEdge;
-				int id = edge.getID();
-				edges.remove(id);
-			} else if (type == MOVE) {
-				Point xy = selectedTopic.getXY();
-				xy = new Point(xy.x + lastMove.x, xy.y + lastMove.y);
-				selectedTopic.setXY(xy);
-				graphPanel.repaint();
-			}
-			gui.menuItem92.setText("Redo ");
-			gui.menuItem92.setEnabled(false);
-			gui.menuItem91.setText("Undo: " + lastChange[type]);
-			gui.menuItem91.setEnabled(true);
-		}
 		
 		public void copy(boolean rectangle, GraphEdge assoc) {
 			GraphNode topic = assoc.getNode1();	
@@ -1755,7 +1693,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			return edges;
 		}
 		
-		// For circle refinement
+		// For circle refinement, and UndoRedo
 		public GraphNode getSelectedNode() {
 			return selectedTopic;
 		}
