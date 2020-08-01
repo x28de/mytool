@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -561,14 +562,14 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		}
 		
 		// how the whole tree, with pale transit nodes 
-		Enumeration<DefaultMutableTreeNode> skeleton = top.breadthFirstEnumeration();
+		Enumeration<TreeNode> skeleton = top.breadthFirstEnumeration();
 		while (skeleton.hasMoreElements()) {
-			DefaultMutableTreeNode sourceItem = skeleton.nextElement();
+			TreeNode sourceItem = skeleton.nextElement();
 			if (sourceItem == top) continue;
 			DefaultMutableTreeNode targetItem = (DefaultMutableTreeNode) sourceItem.getParent();
-			String sourceNode = resolvePath(sourceItem);
+			String sourceNode = resolvePath((DefaultMutableTreeNode) sourceItem);
 			String targetNode = resolvePath(targetItem);
-			BranchInfo info = (BranchInfo) sourceItem.getUserObject();
+			BranchInfo info = (BranchInfo) ((DefaultMutableTreeNode) sourceItem).getUserObject();
 			int key = info.getKey();
 			String colorString = key == 0 ? "#f0f0f0" : "#808080";
 			addNode(sourceNode, colorString, threads);
@@ -582,18 +583,18 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		DefaultMutableTreeNode foundNode = null;
 		for (int level = 0; level < zettel.size(); level++) {
 			String element = zettel.get(level);
-			Enumeration<DefaultMutableTreeNode> children = previousLevel.children();
+			Enumeration<TreeNode> children = previousLevel.children();
 			boolean found = false;
 			while (children.hasMoreElements()) {
-				DefaultMutableTreeNode child = children.nextElement();
-				BranchInfo elInfo = (BranchInfo) child.getUserObject();
+				TreeNode child = children.nextElement();
+				BranchInfo elInfo = (BranchInfo) ((DefaultMutableTreeNode) child).getUserObject();
 				String elString = elInfo.toString();
 				if (!elString.equals(element)) {
 					continue;
 				} else {
-					previousLevel = child;
+					previousLevel = (DefaultMutableTreeNode) child;
 					found = true;
-					foundNode = child;
+					foundNode = (DefaultMutableTreeNode) child;
 					break;
 				}
 			}
@@ -723,18 +724,18 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 			nodePointer.setXY(xy);
 		}
 
-		Enumeration<DefaultMutableTreeNode> children = node.children();
+		Enumeration<TreeNode> children = node.children();
 		TreeMap<String,DefaultMutableTreeNode> childrenMap = 
 				new TreeMap<String,DefaultMutableTreeNode>(this);
 		SortedMap<String,DefaultMutableTreeNode> childrenList =  
 				(SortedMap<String,DefaultMutableTreeNode>) childrenMap;
 
 		while (children.hasMoreElements()) { 
-			DefaultMutableTreeNode child = children.nextElement();
-			BranchInfo elInfo = (BranchInfo) child.getUserObject();
+			TreeNode child = children.nextElement();
+			BranchInfo elInfo = (BranchInfo) ((DefaultMutableTreeNode) child).getUserObject();
 			String elString = elInfo.toString();
 			String fullRef = nodeRef + elString; 	// comparator parses beyond 8
-			childrenMap.put(fullRef, child);
+			childrenMap.put(fullRef, (DefaultMutableTreeNode) child);
 		}
 		SortedSet<String> childrenSet = (SortedSet<String>) childrenList.keySet();
 		Iterator<String> childrenOrder = childrenSet.iterator();

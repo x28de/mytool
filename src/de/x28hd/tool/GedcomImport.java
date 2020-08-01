@@ -34,6 +34,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.w3c.dom.Document;
@@ -437,10 +438,10 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 					GraphNode gnode = nodes.get(nodeNum);
 					connectFamiliesDown(gnode, false);
 				} else { 
-					Enumeration<DefaultMutableTreeNode> ancestorTree = topNode.breadthFirstEnumeration();
+					Enumeration<TreeNode> ancestorTree = topNode.breadthFirstEnumeration();
 					while (ancestorTree.hasMoreElements()) {
-						DefaultMutableTreeNode nestNode = ancestorTree.nextElement();
-						String myID = nestNode.getUserObject().toString();
+						TreeNode nestNode = ancestorTree.nextElement();
+						String myID = ((DefaultMutableTreeNode) nestNode).getUserObject().toString();
 						int nodeNum = inputID2num.get(myID);
 						GraphNode gnode = nodes.get(nodeNum);
 						connectFamiliesDown(gnode, false);
@@ -780,7 +781,7 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 		
 		// Recursively open the nested subtrees
 		
-		Enumeration<DefaultMutableTreeNode> treeChildren = nestNode.children();
+		Enumeration<TreeNode> treeChildren = nestNode.children();
 		
 		//	Prepare for reordering the current level of children
 		Hashtable<String,DefaultMutableTreeNode> childrenMap = 
@@ -791,10 +792,10 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 
 		//	Unordered list
 		while (treeChildren.hasMoreElements()) {
-			DefaultMutableTreeNode child = treeChildren.nextElement();
-			String itemID = child.getUserObject().toString();
-			childrenMap.put(itemID, child);
-			int weight = child.getLeafCount();
+			TreeNode child = treeChildren.nextElement();
+			String itemID = ((DefaultMutableTreeNode) child).getUserObject().toString();
+			childrenMap.put(itemID, (DefaultMutableTreeNode) child);
+			int weight = ((DefaultMutableTreeNode) child).getLeafCount();
 			double dweight = weight;
 			if (orderMap.containsKey(dweight)) {
 				dweight = dweight + disambig;

@@ -27,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
@@ -738,12 +739,12 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 	
 	//	Diagnostics, on the console
 	public void showTree(DefaultMutableTreeNode treeNode, String indent) {
-		Enumeration<DefaultMutableTreeNode> treeEnum = treeNode.children();
+		Enumeration<TreeNode> treeEnum = treeNode.children();
 		while (treeEnum.hasMoreElements()) {
-			DefaultMutableTreeNode child = treeEnum.nextElement();
-			BranchInfo branchInfo = (BranchInfo) child.getUserObject();
+			TreeNode child = treeEnum.nextElement();
+			BranchInfo branchInfo = (BranchInfo) ((DefaultMutableTreeNode) child).getUserObject();
 //			System.out.println(indent + treeNode.getIndex(child) + " " + branchInfo);
-			showTree(child, indent + "  ");
+			showTree((DefaultMutableTreeNode) child, indent + "  ");
 		}
 	}
 	public void listChain(Chain chain) {

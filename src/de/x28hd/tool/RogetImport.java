@@ -475,7 +475,7 @@ public class RogetImport implements TreeSelectionListener, ActionListener, Hyper
 	}
 	
 	public void sentiFilter(String mood, boolean reverse) {
-		Enumeration<DefaultMutableTreeNode> checkList = top.breadthFirstEnumeration();
+		Enumeration<TreeNode> checkList = top.breadthFirstEnumeration();
 		while (checkList.hasMoreElements()) {
 			DefaultMutableTreeNode tNode = (DefaultMutableTreeNode) checkList.nextElement();
 			
@@ -784,7 +784,7 @@ public class RogetImport implements TreeSelectionListener, ActionListener, Hyper
 					tree.removeSelectionPath(treePath);
 				}
 			}
-			Enumeration<DefaultMutableTreeNode> children = selectedNode.children();
+			Enumeration<TreeNode> children = selectedNode.children();
 			while (children.hasMoreElements()) {
 				DefaultMutableTreeNode child = (DefaultMutableTreeNode) children.nextElement();
 				toggleSelection(child, fluct, true);		// recursion

@@ -43,6 +43,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import javax.xml.parsers.DocumentBuilder;
@@ -614,16 +615,16 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 //		Pass on nodes and edges 
 		
 		if (transit) {
-			Enumeration<DefaultMutableTreeNode> treeEnum = top.breadthFirstEnumeration();
+			Enumeration<TreeNode> treeEnum = top.breadthFirstEnumeration();
 			while (treeEnum.hasMoreElements()) {
-				DefaultMutableTreeNode node = treeEnum.nextElement();
-				BranchInfo branchInfo = (BranchInfo) node.getUserObject();
+				TreeNode node = treeEnum.nextElement();
+				BranchInfo branchInfo = (BranchInfo) ((DefaultMutableTreeNode) node).getUserObject();
 				String refString = branchInfo.getKey();
 				int refNum = de.x28hd.tool.BranchInfo.NOZETTEL;
 				if (uri2num.containsKey(refString)) refNum = uri2num.get(refString);
 				de.x28hd.tool.BranchInfo newInfo = 
 						new de.x28hd.tool.BranchInfo(refNum, branchInfo.toString());
-				node.setUserObject(newInfo);
+				((DefaultMutableTreeNode) node).setUserObject(newInfo);
 			}
 		    controler.setTreeModel(model);
 			controler.setNonTreeEdges(nonTreeEdges);

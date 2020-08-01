@@ -11,6 +11,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 public class DAG {
 	Hashtable<Integer,GraphNode> nodes;
@@ -172,7 +173,7 @@ public class DAG {
 		
 		// Recursively open the nested subtrees
 		
-		Enumeration<DefaultMutableTreeNode> treeChildren = nestNode.children();
+		Enumeration<TreeNode> treeChildren = nestNode.children();
 		
 		//	Prepare for reordering the current level of children
 		Hashtable<Integer,DefaultMutableTreeNode> childrenMap = 
@@ -183,11 +184,11 @@ public class DAG {
 
 		//	Unordered list
 		while (treeChildren.hasMoreElements()) {
-			DefaultMutableTreeNode child = treeChildren.nextElement();
-			BranchInfo branchInfo2 = (BranchInfo) child.getUserObject();
+			TreeNode child = treeChildren.nextElement();
+			BranchInfo branchInfo2 = (BranchInfo) ((DefaultMutableTreeNode) child).getUserObject();
 			int itemID = branchInfo2.getKey();
-			childrenMap.put(itemID, child);
-			int weight = child.getLeafCount();
+			childrenMap.put(itemID, (DefaultMutableTreeNode) child);
+			int weight = ((DefaultMutableTreeNode) child).getLeafCount();
 			double dweight = weight;
 			if (orderMap.containsKey(dweight)) {
 				dweight = dweight + disambig;
