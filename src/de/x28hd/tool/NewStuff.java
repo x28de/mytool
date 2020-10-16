@@ -451,6 +451,11 @@ public class NewStuff {
 					new ImportDirector(Importer.Word, stream, controler); 
 					done = true;
 					break;
+				} else if (zfile.getName().endsWith(".h5p") && filename.endsWith("content/content.json")) {
+					new ImportDirector(Importer.H5p, file, controler); 
+					System.out.println("H5P detected " + zfile.getName());
+					done = true;
+					break;
 				} else	{
 //					if (entryCount == 0) {
 //						filelist = filename + "\r\n";	// to avoid leading newline

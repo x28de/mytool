@@ -65,10 +65,11 @@ public class Importer {
 	static final int Tinder = 21;
 	static final int GraphXML = 22;
 	static final int Roam = 23;
-	static final int OldFormat = 24;
-	static final int Filetree = 25;
-	static final int Sitemap = 26;
-	static final int x28tree = 27;
+	static final int H5p = 24;
+	static final int OldFormat = 25;
+	static final int Filetree = 26;
+	static final int Sitemap = 27;
+	static final int x28tree = 28;
 	
 	static final Importer[] importers = {
 	new Importer(Importer.Evernote, "Evernote", "en-export", "enex", "enex (Evernote Export file)", 
@@ -123,6 +124,8 @@ public class Importer {
 			"If you have a map encoded in the XML-Based Graph Description Format"),
 	new Importer(Importer.Roam, "Roam", "roam", "json", "json (Roam export file)",
 			"If you have a JSON file exported from Roamresearch"),
+	new Importer(Importer.H5p, "H5p", "H5P", "h5p", "h5p (H5P reuse file)",
+			"If you have an H5P file containing Image Hotspots texts"),
 	new Importer(Importer.OldFormat, "(Old Format)", "topicmap", "zip", "zip (Zipped XML Document)", 
 			"Old versions of this tool and its precursor DeepaMehta"),
 	new Importer(Importer.Filetree, "(Filetree)", "(not relevant)", "none", "none (invisible)", 

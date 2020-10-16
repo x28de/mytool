@@ -128,6 +128,8 @@ public class ImportDirector implements ActionListener {
 			new MetamapsImport(file, controler);
 		} else if (this.knownFormat == Importer.Filetree) { 
 			new TreeImport(file, controler, Importer.Filetree);
+		} else if (this.knownFormat == Importer.H5p) { 
+			new H5pTextImport(file, controler);
 		} else {
 			controler.displayPopup("Format autodiscovery failed.\nPlease try the Input Wizard." +
 					"\nOr contact support@x28hd.de");
