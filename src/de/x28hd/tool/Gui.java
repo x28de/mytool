@@ -359,9 +359,9 @@ public class Gui {
 		menuItem75.addActionListener(controler);
 		menu7.add(menuItem75);
 
-		JMenuItem menuItem85 = new JMenuItem("to H5P content folder (Beta)");
+		JMenuItem menuItem85 = new JMenuItem("to H5P content folder");
 		menuItem85.setActionCommand("h5pexp");
-		menuItem85.setToolTipText("(Interactive HTML 5 content, type ImageHotspots)");
+		menuItem85.setToolTipText("(Interactive HTML 5 content, type like ImageHotspots)");
 		menuItem85.addActionListener(controler);
 		menu7.add(menuItem85);
 

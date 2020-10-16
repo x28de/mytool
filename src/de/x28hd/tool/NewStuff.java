@@ -453,7 +453,6 @@ public class NewStuff {
 					break;
 				} else if (zfile.getName().endsWith(".h5p") && filename.endsWith("content/content.json")) {
 					new ImportDirector(Importer.H5p, file, controler); 
-					System.out.println("H5P detected " + zfile.getName());
 					done = true;
 					break;
 				} else	{

@@ -125,7 +125,7 @@ public class Importer {
 	new Importer(Importer.Roam, "Roam", "roam", "json", "json (Roam export file)",
 			"If you have a JSON file exported from Roamresearch"),
 	new Importer(Importer.H5p, "H5p", "H5P", "h5p", "h5p (H5P reuse file)",
-			"If you have an H5P file containing Image Hotspots texts"),
+			"If you have an H5P file containing Image Hotspots, Accordion, or Timeline"),
 	new Importer(Importer.OldFormat, "(Old Format)", "topicmap", "zip", "zip (Zipped XML Document)", 
 			"Old versions of this tool and its precursor DeepaMehta"),
 	new Importer(Importer.Filetree, "(Filetree)", "(not relevant)", "none", "none (invisible)", 

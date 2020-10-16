@@ -67,7 +67,6 @@ public class H5pTextImport {
 			} else if (all.has("timeline")) {
 				timelineString = all.getString("timeline");
 				timelineObj = new JSONObject(timelineString);
-				System.out.println(timelineString);
 				String datesString = timelineObj.getString("date");
 				array = new JSONArray(datesString);
 				type = TIMELINE;
