@@ -4,8 +4,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -210,4 +212,16 @@ public class GraphExtras {
 		this.height = s.height;
 	}
 	
+	public BufferedImage snapShot() {
+		graphPanel.graphSelected();
+		graphPanel.normalize();
+		int imgWidth = Math.min(bounds.width + 200, width);
+		int imgHeight = Math.min(bounds.height + 200, height);
+		BufferedImage bufferedImage = new BufferedImage(imgWidth, 
+				imgHeight, BufferedImage.TYPE_BYTE_INDEXED);
+		Graphics2D g = bufferedImage.createGraphics();
+		graphPanel.print(g);
+		return bufferedImage;
+	}
+
 }

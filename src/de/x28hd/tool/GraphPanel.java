@@ -772,7 +772,7 @@ class GraphPanel extends JDesktopPane  {
 			}
 		}
 		
-		private void graphSelected() {
+		public void graphSelected() {
 			if (selection.mode != Selection.SELECTED_TOPICMAP) {
 				repaint();
 				selection.mode = Selection.SELECTED_TOPICMAP;
@@ -935,4 +935,20 @@ class GraphPanel extends JDesktopPane  {
 		public void jumpingArrow(boolean clueless) {
 			graphExtras.jumpingArrow(clueless);
 		}
+		
+		public GraphExtras getExtras() {
+			return graphExtras;
+		}
+
+		public void normalize() {
+			Enumeration<GraphNode> todoList = nodes.elements();
+			while (todoList.hasMoreElements()) {
+				GraphNode node = todoList.nextElement();
+				Point p = node.getXY();
+				p.translate(40 - bounds.x, 40 - bounds.y);
+				node.setXY(p);
+			}
+			translation = new Point(0, 0);
+		}
+		
 }

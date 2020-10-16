@@ -413,6 +413,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 				String s = lifeCycle.askForLocation("csv.txt");
 				if (!s.isEmpty()) new CsvExport(nodes, edges, s, this, true);
 
+		} else if (command == "h5pexp") {
+				new H5pExport(nodes, edges, this);
 		
 		} else if (command == "delCluster") {
 				deleteCluster(rectangle, selectedAssoc);
@@ -1377,6 +1379,14 @@ public final class PresentationService implements ActionListener, MouseListener,
     	return newStuff;
     }
     
+    public GraphExtras getGraphExtras() {
+     	return graphPanel.getExtras();
+    }
+    
+    public Point getTranslation() {
+    	return graphPanel.getTranslation();
+    }
+
     public JFrame getMainWindow() {
     	return mainWindow;
     }
