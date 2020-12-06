@@ -274,6 +274,8 @@ public class ImportDirector implements ActionListener {
 				new TopicMapImporter(fd.getSelectedFile(), controler);
 			} else if (knownFormat == Importer.H5p) {
 				new H5pTextImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == Importer.EdgeList) {
+				new EdgeList(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
 			}
