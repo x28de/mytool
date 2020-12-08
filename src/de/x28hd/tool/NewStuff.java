@@ -560,6 +560,7 @@ public class NewStuff {
 								controler.getCWInstance().cancel();
 							}
 							if (k == Importer.Tagged) continue;	// txt not via autodiscovery
+							if (k == Importer.EdgeList) continue;	// txt not via autodiscovery
 							if (k == Importer.Roget) continue;	// htm not via autodiscovery
 						}
 //						System.out.println("NS:" + ext + ", " + k + ", " + file);
