@@ -108,7 +108,7 @@ public class Importer {
 			"<a href=\"https://niklas-luhmann-archiv.de\">niklas-luhmann-archiv.de</a></html>"),
 	new Importer(Importer.Metamaps, "Metamaps", "(not relevant)", "csv", "csv (Metamaps export file)", 
 			"<html>If you have a CSV file exported from the Metamaps.cc application.</html>"),
-	new Importer(Importer.Gedcom, "Gedcom", "(not relevant)", "xml", "xml (Gedcom XML file)", 
+	new Importer(Importer.Gedcom, "Gedcom", "GEDCOM", "xml", "xml (Gedcom XML file)", 
 			"<html>A genealogical Gedcom XML 6.0 file</html>"),
 	new Importer(Importer.FedWiki, "FedWiki", "(not relevant)", "none", "none (invisible)", 
 			"<html>Page names and structure from a local Smallest Federated Wiki</html>"),

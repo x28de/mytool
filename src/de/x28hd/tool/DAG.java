@@ -53,7 +53,7 @@ public class DAG {
 			int topID = nodesSequence.get(i);
 			if (done.contains(topID)) continue;
 			done.add(topID);
-			discoveredVia.put(topID, 0);
+			discoveredVia.put(topID, -1);
 
 			connectFamiliesAll(topID, "");
 			
