@@ -478,6 +478,12 @@ public class Gui {
 		menuItem59.setToolTipText("Directed Acyclic Graph, depth last");
 		menuItem59.addActionListener(controler);
 		sub2.add(menuItem59);
+		
+		JMenuItem menuItem48 = new JMenuItem("Check Overlap Need");
+		menuItem48.setActionCommand("planar");
+		menuItem48.setToolTipText("If the graph is planar, lines need not overlap");
+		menuItem48.addActionListener(controler);
+		sub2.add(menuItem48);
 
 		menuItem51 = new JCheckBoxMenuItem("Centrality Heatmap", false);
 		menuItem51.setActionCommand("centcol");
