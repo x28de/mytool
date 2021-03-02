@@ -285,7 +285,13 @@ public class TaggedImport implements ActionListener, Comparator<HashSet<String>>
 					Iterator<String> suppIter = subset.iterator();
 					while (suppIter.hasNext()) {
 						String cat = suppIter.next();
-						String line = catsLong.get(cat) + "\t" + items + "\n";
+						String left = "";
+						if (!catsLong.containsKey(cat)) {
+							left = cat;
+						} else {
+							left = catsLong.get(cat);
+						}
+						String line = left + "\t" + items + "\n";
 						suspendList += line;
 					}
 					combiUnits.remove(subset);
