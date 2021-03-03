@@ -359,6 +359,8 @@ public class CheckOverlaps implements Comparator<Integer>, ActionListener {
 			path[0] = 0;
 			pathCount = 1;            
 			hamSolve(0);
+			if (!cancel) controler.displayPopup("There is no Hamiltonian cycle.\n"
+					+ "No simple solution, sorry.");
 		}
 		catch (Exception e) {
 			return true;
