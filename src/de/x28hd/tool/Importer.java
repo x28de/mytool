@@ -67,10 +67,11 @@ public class Importer {
 	static final int Roam = 23;
 	static final int H5p = 24;
 	static final int EdgeList = 25;
-	static final int OldFormat = 26;
-	static final int Filetree = 27;
-	static final int Sitemap = 28;
-	static final int x28tree = 29;
+	static final int DemoJSON = 26;
+	static final int OldFormat = 27;
+	static final int Filetree = 28;
+	static final int Sitemap = 29;
+	static final int x28tree = 30;
 	
 	static final Importer[] importers = {
 	new Importer(Importer.Evernote, "Evernote", "en-export", "enex", "enex (Evernote Export file)", 
@@ -129,6 +130,8 @@ public class Importer {
 			"If you have an H5P file containing Image Hotspots, Accordion, or Timeline"),
 	new Importer(Importer.EdgeList, "EdgeList", "(not relavant)", "txt", "txt (tab separated)",
 			"If you have a TXT file listing the edges in the format: Source Label TAB Target Label"),
+	new Importer(Importer.DemoJSON, "DemoJSON", "(not relavant)", "json", "json (Demo export)",
+			"If you have a JSON file exported from the web-based Condensr demo"),
 	new Importer(Importer.OldFormat, "(Old Format)", "topicmap", "zip", "zip (Zipped XML Document)", 
 			"Old versions of this tool and its precursor DeepaMehta"),
 	new Importer(Importer.Filetree, "(Filetree)", "(not relevant)", "none", "none (invisible)", 

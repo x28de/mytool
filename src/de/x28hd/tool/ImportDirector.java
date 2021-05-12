@@ -276,6 +276,8 @@ public class ImportDirector implements ActionListener {
 				new H5pTextImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == Importer.EdgeList) {
 				new EdgeList(fd.getSelectedFile(), controler);
+			} else if (knownFormat == Importer.DemoJSON) {
+				new DemoJsonImport(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
 			}

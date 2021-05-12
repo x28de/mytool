@@ -254,6 +254,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 			String s = lifeCycle.askForLocation("legacy.zip");
 			new TopicMapExporter(nodes, edges).createTopicmapArchive(s);
 				
+		} else if (command == "expJson") {
+			String s = lifeCycle.askForLocation("experimental.json");
+			new DemoJsonExporter(nodes, edges, s);
+				
 		} else if (command == "Anonymize") { 
 			String s = lifeCycle.askForLocation("anonymized.xml");
 			if (startStoring(s, true)) displayPopup(s + " saved.\n" +

@@ -608,6 +608,12 @@ public class Gui {
 		menuItem16.addActionListener(controler);
 		sub6.add(menuItem16);
 
+		JMenuItem menuItem68 = new JMenuItem("Experimental Save...");
+		menuItem68.setActionCommand("expJson");
+		menuItem68.setToolTipText("Export to experimental JSON format");
+		menuItem68.addActionListener(controler);
+		sub6.add(menuItem68);
+
 		menuItem52 = new JCheckBoxMenuItem("Power User Mode", false);
 		menuItem52.setActionCommand("power");
 		menuItem52.setToolTipText("Acceleration, Lurid Colors and Borders");
