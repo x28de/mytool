@@ -181,7 +181,11 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 					}
 				}
 				try {
-					if (url != null) Desktop.getDesktop().browse(new URI(url.toString()));
+					if (url != null) {
+						Desktop.getDesktop().browse(new URI(url.toString()));
+					} else {
+						Desktop.getDesktop().browse(new URI(urlString));
+					}
 				} catch (IOException e) {
 					controler.displayPopup("File problem \r\n<html><tt>" + url.toString() + "</tt></html>\r\n" + e.getMessage());
 				} catch (URISyntaxException e) {

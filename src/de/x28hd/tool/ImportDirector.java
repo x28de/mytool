@@ -130,6 +130,8 @@ public class ImportDirector implements ActionListener {
 			new TreeImport(file, controler, Importer.Filetree);
 		} else if (this.knownFormat == Importer.H5p) { 
 			new H5pTextImport(file, controler);
+		} else if (this.knownFormat == Importer.Zotero) { 
+			new ZoteroImport(file, controler);
 		} else {
 			controler.displayPopup("Format autodiscovery failed.\nPlease try the Input Wizard." +
 					"\nOr contact support@x28hd.de");
@@ -278,6 +280,8 @@ public class ImportDirector implements ActionListener {
 				new EdgeList(fd.getSelectedFile(), controler);
 			} else if (knownFormat == Importer.DemoJSON) {
 				new DemoJsonImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == Importer.Zotero) {
+				new ZoteroImport(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
 			}
