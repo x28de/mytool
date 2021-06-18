@@ -282,6 +282,8 @@ public class ImportDirector implements ActionListener {
 				new DemoJsonImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == Importer.Zotero) {
 				new ZoteroImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == Importer.Grsshopper) {
+				new GrsshopperImport(fd.getSelectedFile(), controler);
 			} else {
 				step3(fd.getSelectedFile());
 			}

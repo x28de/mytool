@@ -68,11 +68,12 @@ public class Importer {
 	static final int H5p = 24;
 	static final int EdgeList = 25;
 	static final int DemoJSON = 26;
-	static final int Zotero = 27;
-	static final int OldFormat = 28;
-	static final int Filetree = 29;
-	static final int Sitemap = 30;
-	static final int x28tree = 31;
+	static final int Grsshopper = 27;
+	static final int Zotero = 28;
+	static final int OldFormat = 29;
+	static final int Filetree = 30;
+	static final int Sitemap = 31;
+	static final int x28tree = 32;
 	
 	static final Importer[] importers = {
 	new Importer(Importer.Evernote, "Evernote", "en-export", "enex", "enex (Evernote Export file)", 
@@ -133,6 +134,8 @@ public class Importer {
 			"If you have a TXT file listing the edges in the format: Source Label TAB Target Label"),
 	new Importer(Importer.DemoJSON, "DemoJSON", "(not relavant)", "json", "json (Demo export)",
 			"If you have a JSON file exported from the web-based Condensr demo"),
+	new Importer(Importer.Grsshopper, "Grsshopper", "(not relavant)", "json", "json (from gRSShopper)",
+			"If you have a JSON file from gRSShopper"),
 	new Importer(Importer.Zotero, "Zotero", "(not relavant)", "html", "html (Zotero Report)",
 			"If you have a Zotero Report file, after extracting notes with the ZotFile plugin"),
 	new Importer(Importer.OldFormat, "(Old Format)", "topicmap", "zip", "zip (Zipped XML Document)", 
