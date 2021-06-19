@@ -37,23 +37,25 @@ public class GrsshopperImport {
 		try {
 			JSONObject all = new JSONObject(inputString);
 			
-			String tablesString = all.getString("data");
+			String tablesString = all.getString("nodes");
 			JSONArray links = new JSONArray(tablesString);
 			
 			for (int i = 0; i < links.length(); i++) {
 				String itemstring = links.getString(i);
 				JSONObject topic = new JSONObject(itemstring);
 
-				String label = topic.getString("title");
-				String linkString = topic.getString("link");
+				String label = topic.getString("label");
+				String linkString = topic.getString("url");
 				String detail = "<a href=\"" + linkString + "\">" + label + "</a><p>";
 				if (label.length() > 30) label = label.substring(0, 30);
-				detail += topic.getString("description");
+				if (topic.has("description")) detail += topic.getString("description");
 
-				String jsonID = topic.getString("@id");
+				String jsonID = topic.getString("id");
 //				jsonID = jsonID.substring(jsonID.indexOf("/") + 1);
-				int y = 40 + (j % maxVert) * 50 + (j/maxVert)*5;
-				int x = 40 + (j/maxVert) * 200;
+//				int y = 40 + (j % maxVert) * 50 + (j/maxVert)*5;
+//				int x = 40 + (j/maxVert) * 200;
+				int y = topic.getInt("y") * 50;
+				int x = topic.getInt("x") * 20;
 				j++;
 				Point xy = new Point(x, y);
 				Color color = Color.decode("#ccdddd");
@@ -62,7 +64,7 @@ public class GrsshopperImport {
 				nodes.put(i, node);
 			}
 			
-			String assocsString = all.getString("graph");
+			String assocsString = all.getString("edges");
 			JSONArray assocs = new JSONArray(assocsString);
 			
 			for (int i = 0; i < assocs.length(); i++) {
