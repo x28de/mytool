@@ -588,6 +588,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 			toggleHashes(gui.menuItem63.isSelected());
 		} else if (command == "planar") {
 			new CheckOverlaps(this, nodes, edges);
+		} else if (command == "random") {
+			RandomMap randomMap = new RandomMap(this);
+			if (randomMap.triggerColoring()) {
+				centralityColoring = new CentralityColoring(nodes, edges);
+				centralityColoring.changeColors();
+			}
 //		} else if (command == "tst") {
 		} else {
 			System.out.println("PS: Wrong action: " + command);

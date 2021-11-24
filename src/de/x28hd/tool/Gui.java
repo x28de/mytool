@@ -584,6 +584,12 @@ public class Gui {
 
 		JMenu sub6 = new JMenu("Miscellaneous");
 
+		JMenuItem menuItem64 = new JMenuItem("Puzzle Game");
+		menuItem64.setActionCommand("random");
+		menuItem64.setToolTipText("A random map for relaxing or for testing");
+		menuItem64.addActionListener(controler);
+		sub6.add(menuItem64);
+
 		menuItem55 = new JCheckBoxMenuItem("Tablet Pen Mode", false);
 		menuItem55.setActionCommand("tablet");
 		menuItem55.setToolTipText("Doubleclick improvement, Alt-Key for Pen and Touch");
