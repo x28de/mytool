@@ -132,6 +132,8 @@ public class ImportDirector implements ActionListener {
 			new H5pTextImport(file, controler);
 		} else if (this.knownFormat == Importer.Zotero) { 
 			new ZoteroImport(file, controler);
+		} else if (this.knownFormat == Importer.PPTX) { 
+			new PowerPointImport(file, controler);
 		} else {
 			controler.displayPopup("Format autodiscovery failed.\nPlease try the Input Wizard." +
 					"\nOr contact support@x28hd.de");
@@ -282,6 +284,8 @@ public class ImportDirector implements ActionListener {
 				new DemoJsonImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == Importer.Zotero) {
 				new ZoteroImport(fd.getSelectedFile(), controler);
+			} else if (knownFormat == Importer.PPTX) {
+				new PowerPointImport(fd.getSelectedFile(), controler);
 			} else if (knownFormat == Importer.Grsshopper) {
 				new GrsshopperImport(fd.getSelectedFile(), controler);
 			} else {

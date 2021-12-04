@@ -451,6 +451,10 @@ public class NewStuff {
 					new ImportDirector(Importer.Word, stream, controler); 
 					done = true;
 					break;
+				} else if (filename.startsWith("ppt/slides/slide") && filename.endsWith(".xml")) {
+					new ImportDirector(Importer.PPTX, file, controler); 
+					done = true;
+					break;
 				} else if (zfile.getName().endsWith(".h5p") && filename.endsWith("content/content.json")) {
 					new ImportDirector(Importer.H5p, file, controler); 
 					done = true;

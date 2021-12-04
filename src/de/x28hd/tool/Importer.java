@@ -70,10 +70,11 @@ public class Importer {
 	static final int DemoJSON = 26;
 	static final int Grsshopper = 27;
 	static final int Zotero = 28;
-	static final int OldFormat = 29;
-	static final int Filetree = 30;
-	static final int Sitemap = 31;
-	static final int x28tree = 32;
+	static final int PPTX = 29;
+	static final int OldFormat = 30;
+	static final int Filetree = 31;
+	static final int Sitemap = 32;
+	static final int x28tree = 33;
 	
 	static final Importer[] importers = {
 	new Importer(Importer.Evernote, "Evernote", "en-export", "enex", "enex (Evernote Export file)", 
@@ -138,6 +139,8 @@ public class Importer {
 			"If you have a JSON file from gRSShopper"),
 	new Importer(Importer.Zotero, "Zotero", "(not relavant)", "html", "html (Zotero Report)",
 			"If you have a Zotero Report file, after extracting notes with the ZotFile plugin"),
+	new Importer(Importer.PPTX, "PowerPoint", "(not relavant)", "pptx", "pptx (PowerPoint presentation)",
+			"A PowerPoint presentation (drop several presentations to get an overview)"),
 	new Importer(Importer.OldFormat, "(Old Format)", "topicmap", "zip", "zip (Zipped XML Document)", 
 			"Old versions of this tool and its precursor DeepaMehta"),
 	new Importer(Importer.Filetree, "(Filetree)", "(not relevant)", "none", "none (invisible)", 
