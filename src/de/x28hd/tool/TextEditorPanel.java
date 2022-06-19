@@ -31,7 +31,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -43,19 +42,23 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.EditorKit;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.StyledDocument;
 import javax.swing.text.StyledEditorKit;
 import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.SwingUtilities;
 
 public class TextEditorPanel extends JPanel implements ActionListener, DocumentListener, HyperlinkListener {
 
 	GraphPanelControler controler;
-	private JTextComponent textComponent;
-	DefaultStyledDocument doc = null;
+	private JEditorPane textComponent; // rename to editorPane later;
+	EditorKit eki;;
+	HTMLDocument htmlDoc;
+	StyledDocument doc = null;
+    
 	private JScrollPane scrollPane;
 	JPanel toolbar;
 	StyledEditorKit.BoldAction boldAction = new StyledEditorKit.BoldAction();
@@ -72,56 +75,14 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	boolean hashesEnabled = false;
 	boolean tablet = false;
 	private static final long serialVersionUID = 1L;
-	int loopdetector = 0;
 
 	int offset = -1;
 	String EndOfLineStringProperty = "NOCH NIX";
-	String peekEndOfLineStringProperty;
-	boolean breakIsTrailing;
 	
 	boolean bundleInProgress = false;
 	boolean dragFake = false;
 	String myTransferable = "";
 	String htmlOut = "";
-	
-//
-//	Accessory for saving line breaks permanently in the HTML (find them in
-//	insertUdate). The challenge is that, somewhere, additional \r or \n
-//	get in, followed by 4 white spaces. 
-//	TODO find a better way, perhaps by analyzing the doc tree structure 
-	
-    Runnable insertBreak = new Runnable() {
-        public void run() {
-			String text = textComponent.getText();
-			int pos = textComponent.getCaretPosition();
-//			int savedPos = pos;
-			String headText = "";
-			String tailText = "";
-			int headOffset = text.indexOf("<body>");
-			int tailOffset = text.indexOf("</body>");
-			if (headOffset > -1) {
-				headOffset = headOffset + 7;
-				headText = text.substring(0, headOffset);
-			} else {
-				headOffset = 0;
-			}
-			String middleText = text.substring(headOffset, tailOffset);
-			String fixedText = middleText.replace(EndOfLineStringProperty + "    ", "");
-			fixedText = fixedText.replace(EndOfLineStringProperty, "<br />");
-			fixedText = headText + fixedText + tailText;
-//			System.out.println(headOffset + " " + tailOffset + " " + 
-//					"middle: \r\n" + middleText + "\r\nfixed: \r\n" + fixedText);
-			setText(fixedText);
-//			System.out.println("breakIsTrailing ? " + breakIsTrailing);
-			if (breakIsTrailing) {
-				textComponent.setCaretPosition(pos);
-			} else {
-				if (pos <= 0) pos = 1; 
-				textComponent.setCaretPosition(pos - 1);
-			}
-			repaint();
-		}
-    };       
 	
 //
 //  Accessories
@@ -210,7 +171,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		
 		this.controler = controler;
 		setLayout(new BorderLayout());
-		textComponent = new JTextPane();
+		textComponent = new JEditorPane();
 		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -224,10 +185,13 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 			System.out.println("Error TE107 " + e);
 		}  
 
-		((JEditorPane) textComponent).setContentType("text/html");
-		((JEditorPane) textComponent).addHyperlinkListener(this);
-		((JEditorPane) textComponent).addCaretListener(myCaretAdapter);
-		doc = (DefaultStyledDocument) textComponent.getDocument();
+		textComponent.getEditorKit().createDefaultDocument();
+		textComponent.setContentType("text/html");
+		textComponent.setText("<body><p style=\"margin-top: 0\">t</p></body>");
+		htmlDoc = (HTMLDocument) textComponent.getDocument();
+		textComponent.addHyperlinkListener(this);
+		textComponent.addCaretListener(myCaretAdapter);
+		doc = (StyledDocument) textComponent.getDocument();
 		doc.addDocumentListener(this);
 
 		textComponent.setEditable(true);		// ### false is required for hyperlinks to work
@@ -396,42 +360,6 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	}
 
 	public void insertUpdate(DocumentEvent e) {
-		if (loopdetector > 100) {
-//			System.out.println("Very strange behavior caused by this text");
-			return;		//	TODO understand
-		}
-		loopdetector++;
-		offset = e.getOffset();
-		int length = e.getDocument().getLength();
-//		System.out.println("insert, offset = " + offset + ", length = " + length);
-		String insText1 = null;
-		String insText2 = null;
-		try {
-			insText1 = doc.getText(offset, 1);
-//			System.out.println("insText1 = >" + insText1 + "<");
-		} catch (BadLocationException e1) {
-			System.out.println("Error TE102a " + e);
-		}
-		try {
-			insText2 = doc.getText(offset, 2);
-//			System.out.println("insText2 = >" + insText2 + "<");
-		} catch (BadLocationException e1) {
-			System.out.println("Error TE102b " + e);
-		}
-		if (offset > 0 && offset < length) {
-			if (insText2.startsWith("\n")) {
-				breakIsTrailing = false;
-//				System.out.println("Success!");
-				if (insText2.equals("\n\n")) {
-//					System.out.println("at the end");
-					breakIsTrailing = true;
-				}
-				SwingUtilities.invokeLater(insertBreak);
-			} else  {
-//				System.out.println("Failure, string = -->" + insText1 + "<--");
-			}
-		}
-		
 		setDirty(true);
 	}
 
@@ -541,23 +469,44 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 //	Main Methods
 	
 	public void setText(String text) {
-		textComponent.setCaretPosition(selDot);
-		textComponent.setText(text);
 		EndOfLineStringProperty = doc.getProperty(DefaultEditorKit.EndOfLineStringProperty).toString();
+		textComponent.setCaretPosition(selDot);
+		text = unwrap(text);
+		if (!text.startsWith("    <p") && !text.startsWith("<p")) {
+			text = "<p style=\"margin-top: 0\">" + text + "</p>"; 
+		}
+		textComponent.setText(text);
 	}
 	
 	public String getText() {
-		loopdetector = 0;
 		return textComponent.getText();
 	}
 	
+//
+//	Miscellaneous Accessories
+	
 	public void setSize(int size) {
 		if (System.getProperty("os.name").equals("Mac OS X")) size = size + 2;
-		((JEditorPane) textComponent).putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
-		((JEditorPane) textComponent).setFont(new Font("Serif", Font.PLAIN, size + 2));
+		textComponent.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
+		textComponent.setFont(new Font("Serif", Font.PLAIN, size + 2));
 		repaint();
 	}
 	
+	public String unwrap(String text) {
+		// TODO create a regex
+		if (text.startsWith("\t<html>")) text = text.substring(7);	// NewStuff simple files
+		if (text.startsWith("<html>" + EndOfLineStringProperty)) text = text.substring(7);
+		if (text.startsWith("<html>")) text = text.substring(6);	// TreeImport
+		if (text.endsWith("</html>" + EndOfLineStringProperty)) text = text.substring(0, text.length() - 8);
+		if (text.startsWith("  <head>" + EndOfLineStringProperty)) text = text.substring(9);
+		if (text.startsWith("    " + EndOfLineStringProperty)) text = text.substring(5);
+		if (text.startsWith("  </head>" + EndOfLineStringProperty)) text = text.substring(10);
+		if (text.startsWith(EndOfLineStringProperty + "  </head>" + EndOfLineStringProperty)) text = text.substring(11);
+		if (text.startsWith("  <body>" + EndOfLineStringProperty)) text = text.substring(9);
+		if (text.endsWith("  </body>" + EndOfLineStringProperty)) text = text.substring(0, text.length() - 10);
+		return text;
+	}
+
 	public void toggleHyp() {
 		editableOrClickable = !editableOrClickable;
 		textComponent.setEditable(editableOrClickable);
@@ -569,7 +518,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	
 	
 	public JTextComponent getTextComponent() {
-		return textComponent;
+		return (JTextComponent) textComponent;
 	}
 
 	public void toggleHashes(boolean onOff) {

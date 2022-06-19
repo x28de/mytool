@@ -874,16 +874,16 @@ public class Gui {
 		}
 	}
 
-	public static final String initText1 = "<body><font color=\"gray\">"
+	public static final String initText1 = "<p style=\"margin-top: 0\"><font color=\"gray\">"
 			+ "<em>To get started, insert some items. Then: </em><br />&nbsp;<br />"
 			+ "<em>Click an icon for its details, ALT+drag an icon to connect it."
-			+ "</font></body>";
+			+ "</font></p>";
 
-	public static final String initText2 = "<body><font color=\"gray\">"
+	public static final String initText2 = "<p style=\"margin-top: 0\"><font color=\"gray\">"
 			+ "<em>Click an icon for its details, ALT+drag an icon to connect it."
 			+ "<br />&nbsp;<br />Do you have any questions? Contact "
 			+ "<a href=\"mailto:support@x28hd.de\">support@x28hd.de</a></em>"
-			+ "</font></body>";
+			+ "</font></p>";
 
 	public String getSample(boolean help) {
 		if (help) return HELP_EN;
