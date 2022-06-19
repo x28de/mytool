@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -50,7 +49,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.FontUIResource;
-import javax.swing.text.DefaultEditorKit;
 import javax.swing.tree.DefaultTreeModel;
 import javax.xml.transform.TransformerConfigurationException;
 
@@ -71,7 +69,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	public Container cp;	// Content Pane
 	JPanel labelBox = null;
 	JTextField labelField = null;
-//	JTextComponent textDisplay = null;
 	private JButton OK;	
 	JPanel altButton = null;
 	boolean altDown = false;
@@ -485,7 +482,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 			if (command == "delTopic") {
 				deleteNode(selectedTopic);
-//				selection.mode = SELECTED_NONE;
 				selection.topic = null;
 				graphSelected();
 			}
@@ -509,8 +505,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 			if (command == "delAssoc") {
 				deleteEdge(selectedAssoc);
-//				selection.mode = SELECTED_NONE;
-//				selection.assoc = null;
 				graphSelected();
 			}
 
@@ -658,17 +652,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 	public void createMainWindow(String title) {
 		mainWindow = new JFrame(title) {
 			private static final long serialVersionUID = 1L;
-
-//			public void paint(Graphics g) {
-//				try {
-//					super.paint(g);
-//				} catch (Throwable t) {
-//					System.out.println("Error PS103 " + t);
-//				}
-//			}
 		};
 		
-		mainWindow.setLocation(0,  30);
+		mainWindow.setLocation(0, 30);
 		mainWindow.setSize(960, 580);
 		mainWindow.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -757,18 +743,13 @@ public final class PresentationService implements ActionListener, MouseListener,
 		detailBox.add(edi,"South");
 		rightPanel.add(detailBox,"South");
 
-		edi.setText("x");	// dummy, necessary for EndOfLineStringProperty
 		lifeCycle.setDirty(false);
 		
 		splitPane.setRightComponent(rightPanel);
 		splitPane.repaint();
-
-//		graphSelected();
 		
 		return splitPane;
 }
-
-//	public JMenuBar createMenuBar() moved to Gui()
 
 //
 //	Context Menu
@@ -871,7 +852,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	public void toggleClassicMenu() {
 		showMenuBar = !showMenuBar;
 		if (showMenuBar) {
-//			myMenuBar = createMenuBar();
 			gui.menuItem43.setSelected(true);
 			mainWindow.setJMenuBar(myMenuBar);
 			mainWindow.validate();
@@ -919,11 +899,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 		graphPanel.setSize(initialSize);
 		mainWindow.setVisible(true);
 		edi.setSize(initialSize);
-		//	For compatibility, prompt a compositionWindow
-//		if (filename.isEmpty()) openComposition();
 		if (lifeCycle.getFilename().isEmpty()) {
 			hintTimer.start();
-
 		}
 	}
 	
@@ -938,9 +915,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			System.setProperty("apple.laf.useScreenMenuBar", "true");	// otherwise very alien for Mac users
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "My Tool");
 			new AppleHandler(this);			// for QuitHandler
-//			com.apple.eawt.Application app = com.apple.eawt.Application.getApplication();
-//			java.awt.Image dockImage = (new ImageIcon(getClass().getResource("logo.png"))).getImage();
-//			app.setDockIconImage(dockImage);
 			initialSize = 12;
 			zoomedSize = initialSize;
 		} else {
@@ -975,7 +949,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		System.out.println("PS: Initialized");
 		System.out.println("\n\n**** This console window may be ignored ****\n");
 		
-//		newStuff.tmpInit();
 		String filename = lifeCycle.getFilename();
 		if (!filename.isEmpty()) newStuff.setInput(filename, 1);
 	}
@@ -1052,7 +1025,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		selectedAssoc = edge;
 		edi.setText(selectedAssoc.getDetail());
 		edi.getTextComponent().setCaretPosition(0);
-//		edi.getTextComponent().requestFocus();
 		edi.repaint();
 		updateCcpGui();
 	}
@@ -1085,7 +1057,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			updateBounds();
 			graphPanel.nodeSelected(topic);
 			graphPanel.repaint();
-//			edi.setDirty(false);
 			lifeCycle.setDirty(true);
 			return topic;
 		} else {
@@ -1204,18 +1175,18 @@ public final class PresentationService implements ActionListener, MouseListener,
 		GraphNode node;
 		if (!rectangle) {
 			GraphNode topic1 = assoc.getNode1();	
-			GraphNode topic2 = assoc.getNode2();
 			cluster = graphPanel.createNodeCluster(topic1);
 		} else {
 			cluster = graphPanel.createNodeRectangle();
 		}
 		if (!auto) {
-		int response = JOptionPane.showConfirmDialog(OK, 
-				"<html><body>Your command implies \"<b>Delete Cluster</b>\".<br />" +
+			String what = rectangle ? "rectangle" : "cluster";
+			int response = JOptionPane.showConfirmDialog(OK, 
+				"<html><body>Your command means deleting multiple items.<br />" +
 				"Are you absolutely sure you want to delete the entire <br />" + 
-				"cluster that contains approx. " + (cluster.size() + 2) + " items ? <br />" +
+				what + " that contains approx. " + (cluster.size() + 2) + " items ? <br />" +
 				"(There is no Undo for multiples!)</body></html>");
-		if (response != JOptionPane.YES_OPTION) return;
+			if (response != JOptionPane.YES_OPTION) return;
 		}
 		Enumeration<GraphNode> e2 = cluster.elements();
 		while (e2.hasMoreElements()) {
@@ -1351,13 +1322,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 			altButton.setBackground(Color.LIGHT_GRAY);
 		}
 		altDown = down;
-//		altDown = !altDown;
 	}
 	
-//    public void caretUpdate(CaretEvent arg0) {
-//		System.out.println("PS dot " + arg0.getDot());
-//	}
-	
+
 //
 //	Misc and temp
     
@@ -1370,22 +1337,18 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 	// (placeholder)
-		public void manip(int x) {
-//			this.x = x;
-//			GraphNode testnode = new GraphNode(4, new Point(x, 170), Color.gray, "Testnode", "Tesdetails");
-//			nodes.put(4,testnode);
-//			System.out.println(edi.getText());
-//			graphPanel.repaint();
-		}
+	public void manip(int x) {
+		System.out.println(edi.getText());
+	}
 
-		public void launchSibling() {
-			new MyTool();
-			String[] dummyArg = {""};
-			MyTool.main(dummyArg);
-		}
+	public void launchSibling() {
+		new MyTool();
+		String[] dummyArg = {""};
+		MyTool.main(dummyArg);
+	}
 	
 //
-//	Communication with other clases
+//	Communication with other classes
     
     public NewStuff getNSInstance() {
     	return newStuff;
@@ -1609,126 +1572,97 @@ public final class PresentationService implements ActionListener, MouseListener,
 		gui.menuItem92.setEnabled(false);
 	}
 	
-		public void undo() {
-			int type = lastChangeType;
-			gui.menuItem92.setText("Redo: " + lastChange[type]);
-			if (type == DELETE_NODE) {
-				GraphNode node = lastNode;
-				int id = node.getID();
-				nodes.put(id,  node);
-			} else if (type == DELETE_EDGE) {
-				GraphEdge edge = lastEdge;
-				int id = edge.getID();
-				edges.put(id, edge);
-			} else if (type == MOVE) {
-				Point xy = selectedTopic.getXY();
-				xy = new Point(xy.x - lastMove.x, xy.y - lastMove.y);
-				selectedTopic.setXY(xy);
-				graphPanel.repaint();
-			}
-			gui.menuItem91.setText("Undo ");
-			gui.menuItem91.setEnabled(false);
-			gui.menuItem92.setText("Redo: " + lastChange[type]);
-			gui.menuItem92.setEnabled(true);
+	public void undo() {
+		int type = lastChangeType;
+		gui.menuItem92.setText("Redo: " + lastChange[type]);
+		if (type == DELETE_NODE) {
+			GraphNode node = lastNode;
+			int id = node.getID();
+			nodes.put(id,  node);
+		} else if (type == DELETE_EDGE) {
+			GraphEdge edge = lastEdge;
+			int id = edge.getID();
+			edges.put(id, edge);
+		} else if (type == MOVE) {
+			Point xy = selectedTopic.getXY();
+			xy = new Point(xy.x - lastMove.x, xy.y - lastMove.y);
+			selectedTopic.setXY(xy);
+			graphPanel.repaint();
 		}
+		gui.menuItem91.setText("Undo ");
+		gui.menuItem91.setEnabled(false);
+		gui.menuItem92.setText("Redo: " + lastChange[type]);
+		gui.menuItem92.setEnabled(true);
+	}
 
-		public void redo() {
-			int type = lastChangeType;
-			if (type == DELETE_NODE) {
-				GraphNode node = lastNode;
-				int id = node.getID();
-				nodes.remove(id);
-			} else if (type == DELETE_EDGE) {
-				GraphEdge edge = lastEdge;
-				int id = edge.getID();
-				edges.remove(id);
-			} else if (type == MOVE) {
-				Point xy = selectedTopic.getXY();
-				xy = new Point(xy.x + lastMove.x, xy.y + lastMove.y);
-				selectedTopic.setXY(xy);
-				graphPanel.repaint();
-			}
-			gui.menuItem92.setText("Redo ");
-			gui.menuItem92.setEnabled(false);
-			gui.menuItem91.setText("Undo: " + lastChange[type]);
-			gui.menuItem91.setEnabled(true);
+	public void redo() {
+		int type = lastChangeType;
+		if (type == DELETE_NODE) {
+			GraphNode node = lastNode;
+			int id = node.getID();
+			nodes.remove(id);
+		} else if (type == DELETE_EDGE) {
+			GraphEdge edge = lastEdge;
+			int id = edge.getID();
+			edges.remove(id);
+		} else if (type == MOVE) {
+			Point xy = selectedTopic.getXY();
+			xy = new Point(xy.x + lastMove.x, xy.y + lastMove.y);
+			selectedTopic.setXY(xy);
+			graphPanel.repaint();
 		}
-		
-		public void copy(boolean rectangle, GraphEdge assoc) {
-			GraphNode topic = assoc.getNode1();	
-			graphPanel.copyCluster(rectangle, topic);
-		}
-		
-		public void cut(boolean rectangle, GraphEdge assoc) {
-			GraphNode topic = assoc.getNode1();	
-			graphPanel.copyCluster(rectangle, topic);
-			deleteCluster(rectangle, assoc);
-		}
-		
-		public void updateCcpGui() {
-			gui.menuItem93.setEnabled(rectangle);
-			gui.menuItem94.setEnabled(rectangle);
-			gui.menuItem95.setEnabled(rectangle);
-			gui.menuItem38.setEnabled(rectangle);
-			gui.menuItem39.setEnabled(rectangle);
-		}
-		
-		public void find(boolean again) {
-			String userRequest;
-			int hitNumber = 0; 
-			if (!again) {
-				findString = "";
-				shownResults = new HashSet<Integer>();
-			}
-			while (hitNumber >= 0) {	//	Exit by user pressing cancel
-				hitNumber++;
-				if (findString.isEmpty()) {
-					userRequest = (String) JOptionPane.showInputDialog("Find (in labels):", findString);
-				} else {
-					userRequest = (String) JOptionPane.showInputDialog("Find (in labels) again:", findString);
-				}
-				if (userRequest == null) {
-					break;
-				}
-				findString = userRequest;
-				gui.menuItem98.setEnabled(true);
-				Enumeration<Integer> nodesEnum = nodes.keys();
-				while (nodesEnum.hasMoreElements()) {
-					int nodeID = nodesEnum.nextElement();
-					GraphNode node = nodes.get(nodeID);
-					String label = node.getLabel().toLowerCase();
-					if (label.contains(findString.toLowerCase())) {
-						if (shownResults.contains(nodeID)) continue;
-						shownResults.add(nodeID);
-						Point xy = node.getXY();
-						Point transl = graphPanel.getTranslation();
-						int dx = xy.x - mainWindow.getWidth()/2 + transl.x + 200;
-						int dy = xy.y - mainWindow.getHeight()/2 + transl.y;
-						panning = new Point(dx, dy);
-						graphPanel.nodeSelected(node);
-						animationTimer2.start();
-						break;
-					} else continue;
+		gui.menuItem92.setText("Redo ");
+		gui.menuItem92.setEnabled(false);
+		gui.menuItem91.setText("Undo: " + lastChange[type]);
+		gui.menuItem91.setEnabled(true);
+	}
 
-				}
-			}
+	public void copy(boolean rectangle, GraphEdge assoc) {
+		GraphNode topic = assoc.getNode1();	
+		graphPanel.copyCluster(rectangle, topic);
+	}
+
+	public void cut(boolean rectangle, GraphEdge assoc) {
+		GraphNode topic = assoc.getNode1();	
+		graphPanel.copyCluster(rectangle, topic);
+		deleteCluster(rectangle, assoc);
+	}
+
+	public void updateCcpGui() {
+		gui.menuItem93.setEnabled(rectangle);
+		gui.menuItem94.setEnabled(rectangle);
+		gui.menuItem95.setEnabled(rectangle);
+		gui.menuItem38.setEnabled(rectangle);
+		gui.menuItem39.setEnabled(rectangle);
+	}
+
+	public void find(boolean again) {
+		String userRequest;
+		int hitNumber = 0; 
+		if (!again) {
+			findString = "";
+			shownResults = new HashSet<Integer>();
 		}
-		
-		public void findHash(String hash) {
-			boolean found = false;
-			findString = hash;
+		while (hitNumber >= 0) {	//	Exit by user pressing cancel
+			hitNumber++;
+			if (findString.isEmpty()) {
+				userRequest = (String) JOptionPane.showInputDialog("Find (in labels):", findString);
+			} else {
+				userRequest = (String) JOptionPane.showInputDialog("Find (in labels) again:", findString);
+			}
+			if (userRequest == null) {
+				break;
+			}
+			findString = userRequest;
+			gui.menuItem98.setEnabled(true);
 			Enumeration<Integer> nodesEnum = nodes.keys();
 			while (nodesEnum.hasMoreElements()) {
 				int nodeID = nodesEnum.nextElement();
 				GraphNode node = nodes.get(nodeID);
-				String label = node.getLabel();
-				// Allow for B+ additions
-				label = label.trim();
-				if (!hyp && label.contains(" ")) {
-					int offset = label.indexOf(" ");
-					label = label.substring(0, offset);
-				} 
-				if (label.equalsIgnoreCase(findString)) {	
+				String label = node.getLabel().toLowerCase();
+				if (label.contains(findString.toLowerCase())) {
+					if (shownResults.contains(nodeID)) continue;
+					shownResults.add(nodeID);
 					Point xy = node.getXY();
 					Point transl = graphPanel.getTranslation();
 					int dx = xy.x - mainWindow.getWidth()/2 + transl.x + 200;
@@ -1736,73 +1670,101 @@ public final class PresentationService implements ActionListener, MouseListener,
 					panning = new Point(dx, dy);
 					graphPanel.nodeSelected(node);
 					animationTimer2.start();
-					found = true;
 					break;
 				} else continue;
 			}
-			if (!found) displayPopup(hash + " not found on this map.");
 		}
-		public void toggleHashes(boolean onOff) {
-			gui.menuItem63.setSelected(onOff);
-			edi.toggleHashes(onOff);
-			toggleHyp(1, true);
-		}
+	}
 
-		public void fixDivider() {
-			splitPane.setDividerLocation(mainWindow.getWidth() - 464);
-			splitPane.setResizeWeight(1);
-		}
-		
-		public void zoom(boolean on) {
-			dividerPos = splitPane.getDividerLocation();
-			if (on) {
-				Point transl = graphPanel.getTranslation();
-				graphPanelZoom = new GraphPanelZoom(transl, this);
-				splitPane.setDividerLocation(dividerPos);
-				splitPane.setRightComponent(graphPanelZoom.createSlider());
-				graphPanelZoom.setModel(nodes, edges);
-				splitPane.setLeftComponent(graphPanelZoom);
-				toggleClassicMenu();
+	public void findHash(String hash) {
+		boolean found = false;
+		findString = hash;
+		Enumeration<Integer> nodesEnum = nodes.keys();
+		while (nodesEnum.hasMoreElements()) {
+			int nodeID = nodesEnum.nextElement();
+			GraphNode node = nodes.get(nodeID);
+			String label = node.getLabel();
+			// Allow for B+ additions
+			label = label.trim();
+			if (!hyp && label.contains(" ")) {
+				int offset = label.indexOf(" ");
+				label = label.substring(0, offset);
 			} 
-			if (!on) {
-				gui.menuItem58.setSelected(false);
-				splitPane.setDividerLocation(dividerPos);
-				splitPane.setLeftComponent(graphPanel);
-				splitPane.setRightComponent(rightPanel);
-				toggleClassicMenu();
-			}
+			if (label.equalsIgnoreCase(findString)) {	
+				Point xy = node.getXY();
+				Point transl = graphPanel.getTranslation();
+				int dx = xy.x - mainWindow.getWidth()/2 + transl.x + 200;
+				int dy = xy.y - mainWindow.getHeight()/2 + transl.y;
+				panning = new Point(dx, dy);
+				graphPanel.nodeSelected(node);
+				animationTimer2.start();
+				found = true;
+				break;
+			} else continue;
 		}
-		
-		// For LuhmannImport():
-		
-		public Hashtable<Integer,GraphNode> getNodes() {
-			return nodes;
-		}
-		public Hashtable<Integer,GraphEdge> getEdges() {
-			return edges;
-		}
-		
-		// For circle refinement
-		public GraphNode getSelectedNode() {
-			return selectedTopic;
-		}
+		if (!found) displayPopup(hash + " not found on this map.");
+	}
+	public void toggleHashes(boolean onOff) {
+		gui.menuItem63.setSelected(onOff);
+		edi.toggleHashes(onOff);
+		toggleHyp(1, true);
+	}
 
-		public void linkTo(String label) {
-			toggleHashes(true);
-			GraphNode activeNode = selectedTopic;
-			activeNode.setDetail(edi.getText());
-			
-			Point activeXY = selectedTopic.getXY();
-			Point newXY = new Point(activeXY.x - 30, activeXY.y + 30);
-			GraphNode newNode = createNode(newXY);
-			labelField.setText(label);
-			
-			String labelActive = activeNode.getLabel();
-			String detailNew = "<br/>See also <a href=\"#" + labelActive + "\">" + labelActive + "</a>";
-			newNode.setDetail(detailNew);
-			nodeSelected(newNode);	// see deselect() peculiarities
-			
-			createEdge(activeNode, newNode);
-			mainWindow.repaint();
+	public void fixDivider() {
+		splitPane.setDividerLocation(mainWindow.getWidth() - 464);
+		splitPane.setResizeWeight(1);
+	}
+
+	public void zoom(boolean on) {
+		dividerPos = splitPane.getDividerLocation();
+		if (on) {
+			Point transl = graphPanel.getTranslation();
+			graphPanelZoom = new GraphPanelZoom(transl, this);
+			splitPane.setDividerLocation(dividerPos);
+			splitPane.setRightComponent(graphPanelZoom.createSlider());
+			graphPanelZoom.setModel(nodes, edges);
+			splitPane.setLeftComponent(graphPanelZoom);
+			toggleClassicMenu();
+		} 
+		if (!on) {
+			gui.menuItem58.setSelected(false);
+			splitPane.setDividerLocation(dividerPos);
+			splitPane.setLeftComponent(graphPanel);
+			splitPane.setRightComponent(rightPanel);
+			toggleClassicMenu();
 		}
+	}
+
+	// For LuhmannImport():
+
+	public Hashtable<Integer,GraphNode> getNodes() {
+		return nodes;
+	}
+	public Hashtable<Integer,GraphEdge> getEdges() {
+		return edges;
+	}
+
+	// For circle refinement
+	public GraphNode getSelectedNode() {
+		return selectedTopic;
+	}
+
+	public void linkTo(String label) {
+		toggleHashes(true);
+		GraphNode activeNode = selectedTopic;
+		activeNode.setDetail(edi.getText());
+
+		Point activeXY = selectedTopic.getXY();
+		Point newXY = new Point(activeXY.x - 30, activeXY.y + 30);
+		GraphNode newNode = createNode(newXY);
+		labelField.setText(label);
+
+		String labelActive = activeNode.getLabel();
+		String detailNew = "<br/>See also <a href=\"#" + labelActive + "\">" + labelActive + "</a>";
+		newNode.setDetail(detailNew);
+		nodeSelected(newNode);	// see deselect() peculiarities
+
+		createEdge(activeNode, newNode);
+		mainWindow.repaint();
+	}
 }

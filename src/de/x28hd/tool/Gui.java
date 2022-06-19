@@ -36,8 +36,6 @@ public class Gui {
 	private Image wizardImage;
 
 	int shortcutMask;
-//	JMenuBar myMenuBar = null;
-//	boolean showMenuBar = true;
 	JMenuItem menuItem21 = null;
 	JRadioButtonMenuItem menuItem22 = null;
 	JCheckBoxMenuItem menuItem23 = null;
@@ -83,7 +81,6 @@ public class Gui {
 		{"#d2bbd2", "#bbbbff", "#bbffbb", "#ffff99", 
 		"#ffe8aa", "#ffbbbb", "#eeeeee", "#ccdddd",
 		"#fbefe8", "#fcf0d0", "#fdf1b8", "#e59f63", "#65473c"}};	
-//		"#ffe8aa", "#ffbbbb", "#e0e0e0", "#a0a0a0"}};
 	String [][] edgePalette = 
 		{{"#b200b2", "#0000ff", "#00ff00", "#ffff00", 
 		"#ffc800", "#ff0000", "#d8d8d8", "#a0a0a0"},
@@ -95,7 +92,6 @@ public class Gui {
 		{"#b277b2", "#7777ff", "#77ff77", "#ffff77", 
 		"#ffc877", "#ff7777", "#d8d8d8", "#b0b0b0",
 		"#fbefe8", "#fcf0d0", "#fdf1b8", "#e59f63", "#65473c"}};	
-//		"#fbcad0", "#fde1a8", "#d1651d", "#977649", "#65473c"}};	
 	
 	
 	public Gui(PresentationService ps, GraphPanel gp, TextEditorPanel te, NewStuff ns) {
@@ -122,7 +118,6 @@ public class Gui {
 		editMenu();
 		insertMenu();
 		exportMenu();
-//		viewMenu();
 		advancedMenu();
 		helpMenu();
 		
@@ -167,7 +162,6 @@ public class Gui {
 
 		menu1.addSeparator();
 
-//		JMenuItem menuItem17 = new JMenuItem("Quit", KeyEvent.VK_Q);
 		JMenuItem menuItem17 = new JMenuItem("Quit");
 		menuItem17.setActionCommand("quit");
 		if (!System.getProperty("os.name").equals("Mac OS X"))
@@ -553,7 +547,6 @@ public class Gui {
 		
 		JCheckBoxMenuItem menuItem44 = new JCheckBoxMenuItem("Big Icons", false);
 		menuItem44.setActionCommand("TogglePreso");
-//		menuItem44.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, shortcutMask));
 		menuItem44.setToolTipText("Presentation Mode");
 		menuItem44.addActionListener(controler);
 		sub5.add(menuItem44);

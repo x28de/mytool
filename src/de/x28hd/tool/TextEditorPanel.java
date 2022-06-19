@@ -54,7 +54,7 @@ import javax.swing.text.html.HTMLEditorKit;
 public class TextEditorPanel extends JPanel implements ActionListener, DocumentListener, HyperlinkListener {
 
 	GraphPanelControler controler;
-	private JEditorPane textComponent; // rename to editorPane later;
+	private JEditorPane editorPane; 
 	EditorKit eki;;
 	HTMLDocument htmlDoc;
 	StyledDocument doc = null;
@@ -92,7 +92,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	//  For drag/ copy
 		public Transferable createTransferable(JComponent c) {
 			if (!dragFake) {
-				String blubb = textComponent.getText();
+				String blubb = editorPane.getText();
 				blubb = filterHTML(blubb);
 				myTransferable = blubb;
 			} else myTransferable = textToAdd + "\nDisclosure:\t"
@@ -106,8 +106,8 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		protected void exportDone(JComponent c, Transferable data, int action) {
 			bundleInProgress = false;
 			if (dragFake) {
-				textComponent.removeMouseMotionListener(myMouseMotionAdapter);
-				textComponent.addCaretListener(myCaretAdapter);
+				editorPane.removeMouseMotionListener(myMouseMotionAdapter);
+				editorPane.addCaretListener(myCaretAdapter);
 				selDot = 0;
 				dragFake = false;
 			}
@@ -120,8 +120,6 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getActionCommand().equals("copyAsList")) copyAsList();
 		if (arg0.getActionCommand().equals("linkTo")) linkTo();
-
-//		System.out.println("Action " + arg0.getActionCommand() + " performed");
 	}
 
 	// hyperlinks (only if editable = false)
@@ -171,7 +169,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		
 		this.controler = controler;
 		setLayout(new BorderLayout());
-		textComponent = new JEditorPane();
+		editorPane = new JEditorPane();
 		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -185,18 +183,18 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 			System.out.println("Error TE107 " + e);
 		}  
 
-		textComponent.getEditorKit().createDefaultDocument();
-		textComponent.setContentType("text/html");
-		textComponent.setText("<body><p style=\"margin-top: 0\">t</p></body>");
-		htmlDoc = (HTMLDocument) textComponent.getDocument();
-		textComponent.addHyperlinkListener(this);
-		textComponent.addCaretListener(myCaretAdapter);
-		doc = (StyledDocument) textComponent.getDocument();
+		editorPane.getEditorKit().createDefaultDocument();
+		editorPane.setContentType("text/html");
+		editorPane.setText("<body><p style=\"margin-top: 0\">t</p></body>");
+		htmlDoc = (HTMLDocument) editorPane.getDocument();
+		editorPane.addHyperlinkListener(this);
+		editorPane.addCaretListener(myCaretAdapter);
+		doc = (StyledDocument) editorPane.getDocument();
 		doc.addDocumentListener(this);
 
-		textComponent.setEditable(true);		// ### false is required for hyperlinks to work
+		editorPane.setEditable(true);		// ### false is required for hyperlinks to work
 		
-		scrollPane = new JScrollPane(textComponent);
+		scrollPane = new JScrollPane(editorPane);
 		add(scrollPane);
 
 //
@@ -244,7 +242,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 //
 //		Accessory for Mouse: for Context Menu 
 		
-		textComponent.addMouseListener(new MouseAdapter() {
+		editorPane.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
 					int x = e.getX();
@@ -262,7 +260,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		});
 
 		myCaretAdapter = new MyCaretAdapter();
-		textComponent.addCaretListener(myCaretAdapter);
+		editorPane.addCaretListener(myCaretAdapter);
 	}
 	
 	class MyCaretAdapter implements CaretListener {
@@ -281,8 +279,8 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		public void mouseDragged(MouseEvent e) {
 			if (!dragFake) return;
 			MyTransferHandler t = new MyTransferHandler();
-			textComponent.setTransferHandler(t);
-			t.exportAsDrag(textComponent, e, TransferHandler.COPY);
+			editorPane.setTransferHandler(t);
+			t.exportAsDrag(editorPane, e, TransferHandler.COPY);
 		}
 		public void mouseMoved(MouseEvent arg0) {
 		}
@@ -295,15 +293,15 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 			selMark = selDot;
 		}
 		try {
-			textToAdd = textComponent.getText(selMark, selectedLen);
+			textToAdd = editorPane.getText(selMark, selectedLen);
 		} catch (BadLocationException e1) {
 			System.out.println("Error TE103 " + e1);
 			textToAdd = "";
 		}
 		if (!textToAdd.isEmpty() && dragFake) {
 			//	enable drag
-			textComponent.removeCaretListener(myCaretAdapter);
-			textComponent.addMouseMotionListener(myMouseMotionAdapter);
+			editorPane.removeCaretListener(myCaretAdapter);
+			editorPane.addMouseMotionListener(myMouseMotionAdapter);
 		}
 	}
 
@@ -384,6 +382,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 //	
 //	Accessory for double-click
 //	(On the Surface Pro tablet, double-clicking selects only from beginning to dot? 
+//  2022-06-19 not tested any more (my device has broken); feedback welcome
     public void doubleclickReselect() {
     	
     	boolean proceed = true;
@@ -405,7 +404,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
     		}  else {
     			myDot++;
     		}
-    		textComponent.setSelectionEnd(myDot);
+    		editorPane.setSelectionEnd(myDot);
     	}
     }
 
@@ -442,12 +441,13 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		try {
 			parser.parse(reader, cb, true);
 		} catch (IOException e2) {
-			System.out.println("Error NS128 " + e2);
+			System.out.println("Error TE128 " + e2);
 		}
+		
 		try {
 			reader.close();
 		} catch (IOException e3) {
-			System.out.println("Error NS129 " + e3.toString());
+			System.out.println("Error TE129 " + e3.toString());
 		}
 		return htmlOut;
 	}
@@ -470,16 +470,16 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	
 	public void setText(String text) {
 		EndOfLineStringProperty = doc.getProperty(DefaultEditorKit.EndOfLineStringProperty).toString();
-		textComponent.setCaretPosition(selDot);
+		editorPane.setCaretPosition(selDot);
 		text = unwrap(text);
 		if (!text.startsWith("    <p") && !text.startsWith("<p")) {
 			text = "<p style=\"margin-top: 0\">" + text + "</p>"; 
 		}
-		textComponent.setText(text);
+		editorPane.setText(text);
 	}
 	
 	public String getText() {
-		return textComponent.getText();
+		return editorPane.getText();
 	}
 	
 //
@@ -487,8 +487,8 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	
 	public void setSize(int size) {
 		if (System.getProperty("os.name").equals("Mac OS X")) size = size + 2;
-		textComponent.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
-		textComponent.setFont(new Font("Serif", Font.PLAIN, size + 2));
+		editorPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
+		editorPane.setFont(new Font("Serif", Font.PLAIN, size + 2));
 		repaint();
 	}
 	
@@ -509,7 +509,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 
 	public void toggleHyp() {
 		editableOrClickable = !editableOrClickable;
-		textComponent.setEditable(editableOrClickable);
+		editorPane.setEditable(editableOrClickable);
 	}
 	
 	public void toggleTablet(boolean onOff) {
@@ -518,7 +518,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	
 	
 	public JTextComponent getTextComponent() {
-		return (JTextComponent) textComponent;
+		return (JTextComponent) editorPane;
 	}
 
 	public void toggleHashes(boolean onOff) {
@@ -527,13 +527,13 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	
 	public void linkTo() {
 		String clickText = textToAdd;
-		String before = textComponent.getText();
+		String before = editorPane.getText();
 		String after = before.replace(clickText, "<a href=\"#" + clickText + "\"><u>" + clickText + "</u></a>");
 		if (after.contentEquals(before)) {
 			controler.displayPopup("Hyperlink to '" + clickText + "' was not created;\n"
 					+ "special characters don't work yet; sorry.");
 		}	// no idea how to tame JEditorPane's strange HTML storing
-		textComponent.setText(after);
+		editorPane.setText(after);
 		controler.linkTo(clickText);
 	}
 }
