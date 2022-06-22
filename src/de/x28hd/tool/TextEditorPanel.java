@@ -151,6 +151,8 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 					controler.displayPopup("Syntax error \r\n<html><tt>" + url.toString() + "</tt></html>\r\n " + e);
 				}
 			}	
+			// Switch back from CTRL+Click mode
+			if (editableOrClickable) editorPane.setEditable(true);	
 		}
 	}
 
@@ -249,6 +251,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 					int y = e.getY();
 					showContextMenu(x, y);
 				}
+				if (e.isControlDown()) editorPane.setEditable(false);
 			}
 			//	TODO: make conditional
 			public void mouseReleased(MouseEvent e) {
@@ -434,6 +437,12 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 					htmlOut = htmlOut + "\n";
 				}
 			}
+			public void handleStartTag(HTML.Tag t, MutableAttributeSet a, int pos) {
+				if (t == HTML.Tag.P ) htmlOut = htmlOut + "\n";
+			}
+			public void handleEndTag(HTML.Tag t, int pos) {
+				if (t == HTML.Tag.P ) htmlOut = htmlOut + "\n";
+			}
 		};
 		parser = htmlKit.getParser();
 		Reader reader; 
@@ -536,4 +545,5 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		editorPane.setText(after);
 		controler.linkTo(clickText);
 	}
+	
 }
