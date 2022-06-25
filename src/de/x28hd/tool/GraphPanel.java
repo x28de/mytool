@@ -652,7 +652,7 @@ class GraphPanel extends JDesktopPane  {
 				int dx = e.getX() - lastPoint.x;
 				int dy = e.getY() - lastPoint.y;
 				if (dx != 0 && dy != 0) {	// Moved?
-					controler.commit(2, null, null, new Point(dx, dy));
+					controler.commit(2, selection.topic, null, new Point(dx, dy));
 				}
 				if (dragInProgress) {
 					controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
@@ -661,7 +661,6 @@ class GraphPanel extends JDesktopPane  {
 				}
 			} else if (clusterInProgress) {
 				clusterInProgress = false;
-				controler.commit(3, null, null, null);	// empty, to avoid false hopes
 				if (dragInProgress) {
 					controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
 					controler.setDirty(true);

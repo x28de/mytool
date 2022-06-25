@@ -16,6 +16,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
+import javax.swing.undo.UndoManager;
 
 public class Gui {
 	
@@ -26,6 +27,7 @@ public class Gui {
 	GraphPanel graphPanel;
 	TextEditorPanel edi;	// TODO remove
 	NewStuff newStuff;		// TODO remove
+	UndoManager undoManager;
 
 	JMenuBar menuBar;
 	
@@ -94,11 +96,13 @@ public class Gui {
 		"#fbefe8", "#fcf0d0", "#fdf1b8", "#e59f63", "#65473c"}};	
 	
 	
-	public Gui(PresentationService ps, GraphPanel gp, TextEditorPanel te, NewStuff ns) {
+	public Gui(PresentationService ps, GraphPanel gp, TextEditorPanel te, NewStuff ns,
+			UndoManager um) {
 		controler = ps;
 		graphPanel = gp;
 		edi = te;
 		newStuff = ns;
+		undoManager = um;
 	}
 
 	public JMenuBar createMenuBar() {
