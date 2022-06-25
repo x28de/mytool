@@ -40,6 +40,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.EditorKit;
@@ -50,14 +52,17 @@ import javax.swing.text.StyledEditorKit;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.undo.UndoManager;
+import javax.swing.undo.UndoableEdit;
 
-public class TextEditorPanel extends JPanel implements ActionListener, DocumentListener, HyperlinkListener {
+public class TextEditorPanel extends JPanel implements ActionListener, DocumentListener, UndoableEditListener, HyperlinkListener {
 
 	GraphPanelControler controler;
 	private JEditorPane editorPane; 
 	EditorKit eki;;
 	HTMLDocument htmlDoc;
 	StyledDocument doc = null;
+	UndoManager undoManager = new UndoManager();
     
 	private JScrollPane scrollPane;
 	JPanel toolbar;
@@ -120,6 +125,8 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getActionCommand().equals("copyAsList")) copyAsList();
 		if (arg0.getActionCommand().equals("linkTo")) linkTo();
+		if (arg0.getActionCommand().equals("undo")) undoManager.undo();
+		if (arg0.getActionCommand().equals("redo")) undoManager.redo();
 	}
 
 	// hyperlinks (only if editable = false)
@@ -340,6 +347,22 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		
 		menu.addSeparator();
 		
+		JMenuItem undoItem = new JMenuItem();
+		undoItem.setActionCommand("undo");
+		undoItem.addActionListener(this);
+		undoItem.setEnabled(undoManager.canUndo());
+		undoItem.setText(undoManager.getUndoPresentationName());
+		menu.add(undoItem);
+		
+		JMenuItem redoItem = new JMenuItem();
+		redoItem.setActionCommand("redo");
+		redoItem.addActionListener(this);
+		redoItem.setEnabled(undoManager.canRedo());
+		redoItem.setText(undoManager.getRedoPresentationName());
+		menu.add(redoItem);
+		
+		menu.addSeparator();
+		
 		JMenuItem copyListItem = new JMenuItem();
 		copyListItem.setActionCommand("copyAsList");
 		copyListItem.addActionListener(this);
@@ -546,4 +569,17 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		controler.linkTo(clickText);
 	}
 	
+	public void tracking(boolean onOff) {
+		if (onOff) {
+			undoManager.discardAllEdits();
+			doc.addUndoableEditListener(this);
+		} else {
+			doc.removeUndoableEditListener(this);
+		}
+	}
+
+	public void undoableEditHappened(UndoableEditEvent arg0) {
+		UndoableEdit undoableEdit = arg0.getEdit();
+		undoManager.addEdit(undoableEdit);
+	}
 }

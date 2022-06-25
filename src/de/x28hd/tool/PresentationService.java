@@ -988,6 +988,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		if (!node.equals(dummyNode)) {
 			node.setLabel(labelField.getText());
 			if (!hyp) node.setDetail(edi.getText());
+			edi.tracking(false);
 			edi.setText("");
 			labelField.setText("");
 		}
@@ -1007,6 +1008,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		selectedAssoc = dummyEdge;
 		selectedTopic = node;
 		edi.setText((selectedTopic).getDetail());
+		edi.tracking(true);
 		edi.setDirty(false);
 		commit(NONE, null, null, null);	// empty, to avoid false hopes
 		if (hyp) edi.getTextComponent().setCaretPosition(0);
