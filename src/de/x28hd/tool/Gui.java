@@ -862,6 +862,13 @@ public class Gui {
 		}
 		return img;
 	}
+	
+	public void updateUndoGui() {
+		menuItem91.setText(undoManager.getUndoPresentationName());
+		menuItem91.setEnabled(undoManager.canUndo());
+		menuItem92.setText(undoManager.getRedoPresentationName());
+		menuItem92.setEnabled(undoManager.canRedo());
+	}
 
 	public String getInitText(boolean empty) {
 		if (empty) {

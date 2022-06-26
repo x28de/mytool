@@ -50,10 +50,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
-import javax.swing.undo.UndoableEdit;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
@@ -114,15 +111,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	String baseDir;
 	
 	// Undo accessories 
-	int lastChangeType;
-	static final int DELETE_NODE = 0;
-	static final int DELETE_EDGE = 1;
-	static final int MOVE = 2;
-	static final int NONE = 3;
-	String[] lastChange = {"Delete single item", "Delete single line", "Single move", ""};
-	GraphNode lastNode;
-	GraphEdge lastEdge;
-	Point lastMove = new Point(0, 0);
 	UndoManager undoManager;
 	
 	// Finding accessories
@@ -151,81 +139,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	
 	Selection selection = null;
 	boolean extended = false;
-	
-	public class MyUndoableEdit implements UndoableEdit {
-		int lastChangeType;
-		GraphNode lastNode;
-		GraphEdge lastEdge;
-		Point lastMove;
-		String [] presentationNames = {"Delete single item", "Delete single line", "Single move", ""};
-
-		public MyUndoableEdit(int type, GraphNode node, GraphEdge edge, Point move) {
-			lastChangeType = type;
-			lastNode = node;
-			lastEdge = edge;
-			lastMove = move;
-		}
-		public boolean addEdit(UndoableEdit arg0) {
-			return false;
-		}
-		public boolean canRedo() {
-			return true;
-		}
-		public boolean canUndo() {
-			return true;
-		}
-		public void die() {
-		}
-		public String getPresentationName() {
-			return presentationNames[lastChangeType];
-		}
-		public String getRedoPresentationName() {
-			return "Redo " + getPresentationName();
-		}
-		public String getUndoPresentationName() {
-			return "Undo " + getPresentationName();
-		}
-		public boolean isSignificant() {
-			return true;	// was crucial
-		}
-		public void redo() throws CannotRedoException {
-			if (lastChangeType == DELETE_NODE) {
-				GraphNode node = lastNode;
-				int id = node.getID();
-				nodes.remove(id);
-			} else if (lastChangeType == DELETE_EDGE) {
-				GraphEdge edge = lastEdge;
-				int id = edge.getID();
-				edges.remove(id);
-			} else if (lastChangeType == MOVE) {
-				Point xy = lastNode.getXY();
-				xy = new Point(xy.x + lastMove.x, xy.y + lastMove.y);
-				lastNode.setXY(xy);
-				graphPanel.repaint();
-			}
-			updateUndoGui();
-		}
-		public boolean replaceEdit(UndoableEdit anEdit) {
-			return false;
-		}
-		public void undo() throws CannotUndoException {
-			if (lastChangeType == DELETE_NODE) {
-				GraphNode node = lastNode;
-				int id = node.getID();
-				nodes.put(id,  node);
-			} else if (lastChangeType == DELETE_EDGE) {
-				GraphEdge edge = lastEdge;
-				int id = edge.getID();
-				edges.put(id, edge);
-			} else if (lastChangeType == MOVE) {
-				Point xy = lastNode.getXY();
-				xy = new Point(xy.x - lastMove.x, xy.y - lastMove.y);
-				lastNode.setXY(xy);
-				graphPanel.repaint();
-			}
-			updateUndoGui();
-		}
-	}
 
 	
 	public PresentationService(boolean ext) {
@@ -1213,7 +1126,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		recount();
 		updateBounds();
 		lifeCycle.setDirty(true);
-		commit(DELETE_NODE, topic, null, null);
+		commit(0, topic, null, null);
 		return;
 	}
 
@@ -1246,7 +1159,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		recount();
 		graphPanel.repaint();
 		lifeCycle.setDirty(true);
-		commit(DELETE_EDGE, null, assoc, null);
+		commit(1, null, assoc, null);
 		return;
 	}
 
@@ -1639,9 +1552,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 	public void commit(int type, GraphNode node, GraphEdge edge, Point move) {
-		MyUndoableEdit myUndoableEdit = new MyUndoableEdit(type, node, edge, move);
+		MyUndoableEdit myUndoableEdit = new MyUndoableEdit(type, node, edge, move, 
+				nodes, edges, graphPanel, gui);
 		undoManager.addEdit(myUndoableEdit);
-		updateUndoGui();
+		gui.updateUndoGui();
 	}
 	
 
@@ -1654,13 +1568,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		GraphNode topic = assoc.getNode1();	
 		graphPanel.copyCluster(rectangle, topic);
 		deleteCluster(rectangle, assoc);
-	}
-
-	public void updateUndoGui() {
-		gui.menuItem91.setText(undoManager.getUndoPresentationName());
-		gui.menuItem91.setEnabled(undoManager.canUndo());
-		gui.menuItem92.setText(undoManager.getRedoPresentationName());
-		gui.menuItem92.setEnabled(undoManager.canRedo());
 	}
 
 	public void updateCcpGui() {
