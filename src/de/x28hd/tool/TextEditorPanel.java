@@ -36,8 +36,6 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.event.UndoableEditEvent;
@@ -55,7 +53,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 
-public class TextEditorPanel extends JPanel implements ActionListener, DocumentListener, UndoableEditListener, HyperlinkListener {
+public class TextEditorPanel extends JPanel implements ActionListener, UndoableEditListener, HyperlinkListener {
 
 	GraphPanelControler controler;
 	private JEditorPane editorPane; 
@@ -199,7 +197,6 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		editorPane.addHyperlinkListener(this);
 		editorPane.addCaretListener(myCaretAdapter);
 		doc = (StyledDocument) editorPane.getDocument();
-		doc.addDocumentListener(this);
 
 		editorPane.setEditable(true);		// ### false is required for hyperlinks to work
 		
@@ -376,19 +373,6 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 		menu.add(linktoItem);
 		
 		menu.show(this, x, y);
-	}
-
-	// document changes 
-	public void changedUpdate(DocumentEvent e) {
-		setDirty(true);
-	}
-
-	public void insertUpdate(DocumentEvent e) {
-		setDirty(true);
-	}
-
-	public void removeUpdate(DocumentEvent e) {	
-		setDirty(true);
 	}
 
 	public void setDirty(boolean toggle) {
@@ -581,5 +565,6 @@ public class TextEditorPanel extends JPanel implements ActionListener, DocumentL
 	public void undoableEditHappened(UndoableEditEvent arg0) {
 		UndoableEdit undoableEdit = arg0.getEdit();
 		undoManager.addEdit(undoableEdit);
+		setDirty(true);
 	}
 }
