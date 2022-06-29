@@ -55,7 +55,7 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 
 	String dataString = "";
 
-	private GraphPanelControler controler;
+	PresentationExtras controlerExtras;
 	NewStuff newStuff = null;
 	JFrame compositionWindow;
 	private JTextPane textDisplay;
@@ -80,9 +80,9 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 	JCheckBox veryCloseReadingBox = null;
 	String p = "§§";
 	
-	public CompositionWindow(final GraphPanelControler controler, int zoomedSize) {
-		this.controler = controler;
-		newStuff = controler.getNSInstance();
+	public CompositionWindow(PresentationExtras controlerExtras, int zoomedSize) {
+		this.controlerExtras = controlerExtras;
+		newStuff = controlerExtras.getControler().getNSInstance();
 		shortcutMask = ActionEvent.CTRL_MASK;
 		if (System.getProperty("os.name").equals("Mac OS X")) shortcutMask = ActionEvent.META_MASK;
 
@@ -99,7 +99,7 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 		compositionWindow.setLayout(new BorderLayout());
 
 		// TODO textarea control space for drop file
-		controler.setSystemUI(false);
+		controlerExtras.getControler().setSystemUI(false);
 
 //
 //		Text pane
@@ -213,7 +213,7 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 	}
 
 	public void cancel() {
-		controler.finishCompositionMode();
+		controlerExtras.finishCompositionMode();
 		close();
 	}
 	
@@ -251,7 +251,7 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 				dataString = closeRead(dataString);
 			}
 
-			controler.finishCompositionMode();
+			controlerExtras.finishCompositionMode();
 			newStuff.scoopCompositionWindow(this);
 			close();
 

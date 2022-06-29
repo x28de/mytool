@@ -53,6 +53,7 @@ public class NewStuff {
 	
 	//	About caller (PresentationService()) and CompositionWindow()
 	private GraphPanelControler controler;
+	PresentationExtras controlerExtras;
 	boolean compositionMode = false;
 	boolean firstComposition = true;
 	boolean windows = false;
@@ -276,7 +277,7 @@ public class NewStuff {
 		if (inputType > 2) {
 	    	if (inputType == 3) dataString = filterHTML(dataString);
 			if (compositionMode) {
-		    	controler.getCWInstance().insertSnippet(dataString);
+		    	controlerExtras.getCWInstance().insertSnippet(dataString);
 		    	return;
 			} 
 			SplitIntoNew splitIntoNew = new SplitIntoNew(controler);
@@ -517,7 +518,7 @@ public class NewStuff {
 			
 			//	Try if known XML format
 			if (root.getTagName() == "x28map") {
-				if (compositionMode) controler.getCWInstance().cancel();
+				if (compositionMode) controlerExtras.getCWInstance().cancel();
 				TopicMapLoader loader = new TopicMapLoader(doc, controler, false);
 				bounds = loader.getBounds();
 				readyMap = true;
@@ -533,7 +534,7 @@ public class NewStuff {
 						&& k != Importer.Word 
 						&& k != Importer.Endnote) {
 						if (compositionMode) {
-							controler.getCWInstance().cancel();
+							controlerExtras.getCWInstance().cancel();
 						}
 					}
 					new ImportDirector(k, doc, controler);
@@ -561,7 +562,7 @@ public class NewStuff {
 							&& k != Importer.RIS 
 							&& k != Importer.BibTeX) {
 							if (compositionMode) {
-								controler.getCWInstance().cancel();
+								controlerExtras.getCWInstance().cancel();
 							}
 							if (k == Importer.Tagged) continue;	// txt not via autodiscovery
 							if (k == Importer.EdgeList) continue;	// txt not via autodiscovery
@@ -871,5 +872,9 @@ public class NewStuff {
 
 	public boolean isExistingMap() {
 		return existingMap;
+	}
+	
+	public void setControlerExtras(PresentationExtras c) {
+		controlerExtras = c;
 	}
 }

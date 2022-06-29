@@ -18,8 +18,6 @@ interface GraphPanelControler {
 	void setFilename(String filename, int type);
 	void triggerUpdate();
 	NewStuff getNSInstance();
-	CompositionWindow getCWInstance();
-	void finishCompositionMode();
 	void manip(int x);
 	GraphEdge createEdge(GraphNode topic1, GraphNode topic2);
 	void setMouseCursor(int type);

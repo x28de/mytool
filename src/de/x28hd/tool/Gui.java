@@ -24,6 +24,7 @@ public class Gui {
 //	Contains buttons and (yet) only closely related toggles
 	
 	PresentationService controler;
+	PresentationExtras controlerExtras;
 	GraphPanel graphPanel;
 	TextEditorPanel edi;	// TODO remove
 	NewStuff newStuff;		// TODO remove
@@ -137,7 +138,7 @@ public class Gui {
 		menuItem10.setActionCommand("new");
 		menuItem10.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, shortcutMask));
 		menuItem10.setToolTipText("Start a new map via the Composition Window");
-		menuItem10.addActionListener(controler);
+		menuItem10.addActionListener(controlerExtras);
 		menu1.add(menuItem10);
 
 		JMenuItem menuItem11 = new JMenuItem("Open...",  new ImageIcon(openImage));
@@ -285,7 +286,7 @@ public class Gui {
 		menuItem31.setActionCommand("insert");
 		menuItem31.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, shortcutMask));
 		menuItem31.setToolTipText("Paste, Drop, or Type into a Composition Window");
-		menuItem31.addActionListener(controler);
+		menuItem31.addActionListener(controlerExtras);
 		menu3.add(menuItem31);
 
 		JMenuItem menuItem37 = new JMenuItem("Launch the Import Wizard",  new ImageIcon(wizardImage));
@@ -710,7 +711,7 @@ public class Gui {
 		item21.setActionCommand("paste");
 		item21.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, shortcutMask));
 		item21.addActionListener(controler);
-		if (!controler.contextPasteAllowed) item21.setEnabled(false);
+		if (!controlerExtras.contextPasteAllowed) item21.setEnabled(false);
 		menu.add(item21);
 
 		JMenu sub1 = new JMenu("Advanced");
@@ -718,7 +719,7 @@ public class Gui {
 		JMenuItem item71 = new JMenuItem("Paste here");
 		item71.setActionCommand("pasteHere");
 		item71.addActionListener(controler);
-		if (!controler.contextPasteAllowed) item71.setEnabled(false);
+		if (!controlerExtras.contextPasteAllowed) item71.setEnabled(false);
 		sub1.add(item71);
 		
 		menu.add(sub1);
@@ -870,6 +871,10 @@ public class Gui {
 		menuItem92.setEnabled(undoManager.canRedo());
 	}
 
+	public void setControlerExtras(PresentationExtras c) {
+		controlerExtras = c;
+	}
+	
 	public String getInitText(boolean empty) {
 		if (empty) {
 			return initText1;

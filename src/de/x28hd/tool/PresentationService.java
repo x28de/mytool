@@ -64,6 +64,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	TextEditorPanel edi = new TextEditorPanel(this);	
 	Gui gui;
 	LifeCycle lifeCycle;
+	PresentationExtras controlerExtras;
 	
 	// User Interface
 	public JFrame mainWindow;
@@ -125,7 +126,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	//	Toggles
 	int toggle4 = 0;   // => hide classicMenu 
 	boolean presoSizedMode = false;
-	boolean contextPasteAllowed = true;
 	boolean hyp = false;
 	int paletteID = 1;
 	boolean rectangle = false;
@@ -143,6 +143,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	
 	public PresentationService(boolean ext) {
 		extended = ext;
+		controlerExtras = new PresentationExtras(this);
 		lifeCycle = new LifeCycle();
 	}
 
@@ -162,10 +163,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 		// Open or Insert
 
-		if (command == "insert" || command == "new") {
-			openComposition();
-
-		} else if (command == "testimp") {
+		if (command == "testimp") {
 			new ImportDirector(this);
 			
 		} else if (command == "open") {
@@ -867,14 +865,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 	}
 	
-	public void openComposition() {
-		compositionWindow = new CompositionWindow(this, zoomedSize);
-		gui.menuItem21.setEnabled(false);	// Main Menu Paste
-		contextPasteAllowed = false;	// Context Menu Paste
-		newStuff.setCompositionMode(true);
-	
-	}
-
 	public void setDirty(boolean toggle) {
 		lifeCycle.setDirty(toggle);
 	}
@@ -925,6 +915,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 
 		newStuff = new NewStuff(this);
+		controlerExtras.setNewStuff(newStuff);
 		
 		graphPanel = new GraphPanel(this);
 		nodes = new Hashtable<Integer, GraphNode>();
@@ -932,6 +923,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		
 		undoManager = new UndoManager();
 		gui = new Gui(this, graphPanel, edi, newStuff, undoManager );
+		controlerExtras.setGui(gui);
 		
 		graphPanel.setModel(nodes, edges);
 		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
@@ -1329,7 +1321,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		System.out.println("graphPanel? " + graphPanel.hasFocus());
 		System.out.println("labelField? " + labelField.hasFocus());
 		System.out.println("edi? " + edi.hasFocus());
-		System.out.println("compositionWindow? " + getCWInstance().compositionWindow.hasFocus());
+		System.out.println("compositionWindow? " + controlerExtras.getCWInstance().compositionWindow.hasFocus());
 	}
 
 	// (placeholder)
@@ -1362,17 +1354,6 @@ public final class PresentationService implements ActionListener, MouseListener,
     	return mainWindow;
     }
     
-    public CompositionWindow getCWInstance() {
-    	return compositionWindow;
-    }
-    
-   public void finishCompositionMode() {
-    	newStuff.setCompositionMode(false);
-    	gui.menuItem21.setEnabled(true);
-    	contextPasteAllowed = true;
-    	setSystemUI(true);
-    }
-   
    public String getNewNodeColor() {
 	   return gui.nodePalette[paletteID][7];
    }
@@ -1708,5 +1689,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 		createEdge(activeNode, newNode);
 		mainWindow.repaint();
+	}
+	
+	public PresentationExtras getControlerExtras() {
+		return controlerExtras;
 	}
 }
