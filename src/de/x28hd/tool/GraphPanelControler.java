@@ -25,7 +25,6 @@ interface GraphPanelControler {
 	void updateBounds();
 	String getNewNodeColor();
 	Rectangle getBounds();
-	void setSystemUI(boolean toggle);
 	void toggleAltColor(boolean down);
 	void setTreeModel(DefaultTreeModel model);
 	DefaultTreeModel getTreeModel();
@@ -50,6 +49,7 @@ interface GraphPanelControler {
 	Hashtable<Integer,GraphEdge> getEdges();
 	boolean close();
 	public GraphNode getSelectedNode();
+	public GraphEdge getSelectedEdge();
 	public void fixDivider();
 	void linkTo(String textToAdd);
 	public GraphExtras getGraphExtras();

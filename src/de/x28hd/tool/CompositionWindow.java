@@ -99,7 +99,7 @@ public class CompositionWindow implements ActionListener, DocumentListener {
 		compositionWindow.setLayout(new BorderLayout());
 
 		// TODO textarea control space for drop file
-		controlerExtras.getControler().setSystemUI(false);
+		controlerExtras.setSystemUI(false);
 
 //
 //		Text pane

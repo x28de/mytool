@@ -836,7 +836,7 @@ public class Gui {
 	
 	public JMenuItem styleSwitcher(int styleNumber, String styleName, String color, boolean reverse) {
 		JMenuItem styleItem = new JMenuItem();
-		styleItem.addActionListener(controler);
+		styleItem.addActionListener(controlerExtras);
 		styleItem.setActionCommand(styleName);
 		styleItem.setOpaque(true);
 		styleItem.setBackground(Color.decode(color));

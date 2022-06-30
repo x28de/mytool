@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -42,20 +41,15 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.Timer;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
-import javax.swing.plaf.FontUIResource;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.undo.UndoManager;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
 
-public final class PresentationService implements ActionListener, MouseListener, KeyListener, GraphPanelControler, Runnable, PopupMenuListener {
+public final class PresentationService implements ActionListener, MouseListener, KeyListener, GraphPanelControler, Runnable {
 
 	//	Main fields
 	Hashtable<Integer, GraphNode> nodes;
@@ -156,10 +150,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 		graphPanel.jumpingArrow(false);
 		
 		String command = e.getActionCommand();
-		JMenuItem item = (JMenuItem) e.getSource();
-		JPopupMenu menu = (JPopupMenu) item.getParent();
-		String menuID = menu.getLabel();	// the menuID is stored in the menu's label
-		if (menuID == null) menuID = "Menu Bar";
+//		JMenuItem item = (JMenuItem) e.getSource();
+//		JPopupMenu menu = (JPopupMenu) item.getParent();
+//		String menuID = menu.getLabel();	// the menuID is stored in the menu's label
+//		if (menuID == null) menuID = "Menu Bar";
 
 		// Open or Insert
 
@@ -453,59 +447,21 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "loadhelp") {
 			newStuff.setInput(gui.getSample(true), 2);
 			dragFake = true;
-			
+						
 		//	Context menu command
 
-		// Node menu
-		} else if (menuID.equals("node")) {
-
-			String colorString = "";
-			
-			if (command == "purple") colorString = gui.nodePalette[paletteID][0];
-			if (command == "blue") colorString =  gui.nodePalette[paletteID][1];
-			if (command == "green") colorString =  gui.nodePalette[paletteID][2];
-			if (command == "yellow") colorString =  gui.nodePalette[paletteID][3];
-			if (command == "orange") colorString =  gui.nodePalette[paletteID][4];
-			if (command == "red") colorString =  gui.nodePalette[paletteID][5];
-			if (command == "lightGray") colorString =  gui.nodePalette[paletteID][6];
-			if (command == "gray") colorString =  gui.nodePalette[paletteID][7];
-			
-			if (!colorString.isEmpty()) selectedTopic.setColor(colorString);
-
-			if (command == "delTopic") {
+		} else if (command == "delTopic") {
 				deleteNode(selectedTopic);
 				selection.topic = null;
 				graphSelected();
-			}
 			graphPanel.repaint();
 
-		// Edge menu		
-		} else if (menuID.equals("edge")) {
-
-			String colorString = "";
-
-			if (command == "purple") colorString = gui.edgePalette[paletteID][0];
-			if (command == "blue") colorString =  gui.edgePalette[paletteID][1];
-			if (command == "green") colorString =  gui.edgePalette[paletteID][2];
-			if (command == "yellow") colorString =  gui.edgePalette[paletteID][3];
-			if (command == "orange") colorString =  gui.edgePalette[paletteID][4];
-			if (command == "red") colorString =  gui.edgePalette[paletteID][5];
-			if (command == "lightGray") colorString =  gui.edgePalette[paletteID][6];
-			if (command == "gray") colorString =  gui.edgePalette[paletteID][7];
-			
-			if (!colorString.isEmpty()) selectedAssoc.setColor(colorString);
-
-			if (command == "delAssoc") {
+		} else if (command == "delAssoc") {
 				deleteEdge(selectedAssoc);
 				graphSelected();
-			}
-
 			graphPanel.repaint();
 
-		//	Graph menu
-		} else if (menuID.equals("graph")) {
-
-			if (command == "NewNode") {
+		} else if (command == "NewNode") {
 		    	translation = graphPanel.getTranslation();
 		    	clickedSpot.translate(- translation.x, - translation.y);
 				GraphNode node = createNode(clickedSpot);
@@ -514,8 +470,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 			} else if (command == "?") {
 				gui.displayHelp();
-
-			}
 			
 		} else if (command == "HowToPrint") {
 			displayPopup("<html><h3>How to Print or Snapshot</h3>" 
@@ -559,10 +513,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 			zoomedSize = initialSize;
 			edi.setSize(zoomedSize);
 			graphPanel.setSize(zoomedSize);
-		} else if (command.startsWith("faceColor")) {
-			int faceNum = Integer.parseInt(command.substring(9));
-			String colorString =  gui.nodePalette[1][7 + faceNum];			
-			selectedTopic.setColor(colorString);
+//		} else if (command.startsWith("faceColor")) {
+//			int faceNum = Integer.parseInt(command.substring(9));
+//			String colorString =  gui.nodePalette[1][7 + faceNum];			
+//			selectedTopic.setColor(colorString);
 
 		} else if (command == "wxr") {
 			new WXR2SQL(mainWindow);
@@ -673,7 +627,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 	public JSplitPane createMainGUI() {
-		setSystemUI(true);
+		controlerExtras.setSystemUI(true);
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setDividerLocation(960 - 232);
@@ -744,64 +698,15 @@ public final class PresentationService implements ActionListener, MouseListener,
 }
 
 //
-//	Context Menu
+//	Popups
 
 	public void displayContextMenu(String menuID, int x, int y) {
-		JPopupMenu menu = new JPopupMenu(menuID);
+		JPopupMenu menu = controlerExtras.createContextMenu(menuID);
 		clickedSpot = new Point(x, y);
-		menu.addPopupMenuListener(this);
-		setSystemUI(false); //	avoid confusing colors when hovering, and indenting  of items in System LaF 
-
-		if (menuID.equals("graph")) {
-			gui.createGraphMenu(menu);
-		} else if (menuID.equals("node")) {
-			gui.createNodeMenu(menu, paletteID);
-		} else if (menuID.equals("edge")) {
-			gui.createEdgeMenu(menu, paletteID);
-		}
+		controlerExtras.setSystemUI(false); //	avoid confusing colors when hovering, and indenting  of items in System LaF 
 		menu.show(cp, x, y);
 	}
 
-	public void popupMenuCanceled(PopupMenuEvent arg0) {
-		setSystemUI(true);
-	}
-	public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
-		setSystemUI(true);
-	}
-	public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
-	}
-
-	public void setSystemUI(boolean toggle) {
-		if (toggle) {
-			try {	//	switch back LaF after context menus  TODO also when leaving the menu without choice
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			} catch (UnsupportedLookAndFeelException e2) {
-				System.out.println("Error PS104 " + e2);
-			} catch (ClassNotFoundException e2) {
-				System.out.println("Error PS105" + e2);
-			} catch (InstantiationException e2) {
-				System.out.println("Error PS106 " + e2);
-			} catch (IllegalAccessException e2) {
-				System.out.println("Error PS107 " + e2);
-			}  
-		} else {
-			try {
-				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-			} catch (UnsupportedLookAndFeelException e) {
-				System.out.println("Error PS144 " + e);
-			} catch (ClassNotFoundException e) {
-				System.out.println("Error PS145" + e);
-			} catch (InstantiationException e) {
-				System.out.println("Error PS146 " + e);
-			} catch (IllegalAccessException e) {
-				System.out.println("Error PS147 " + e);
-			}  
-			FontUIResource fontResource = new FontUIResource(Font.DIALOG, Font.PLAIN, initialSize);
-			UIManager.put("MenuItem.font", fontResource);
-			UIManager.put("Menu.font", fontResource);
-		}
-	}
-	
 	public void displayPopup(String msg) {
 		JOptionPane.showMessageDialog(mainWindow, msg);
 	}
@@ -1670,6 +1575,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 	// For circle refinement
 	public GraphNode getSelectedNode() {
 		return selectedTopic;
+	}
+	public GraphEdge getSelectedEdge() {
+		return selectedAssoc;
 	}
 
 	public void linkTo(String label) {
