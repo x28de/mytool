@@ -78,7 +78,7 @@ public class RandomMap implements ActionListener {
     		System.out.println("Error RM110 " + e1);
     	}
     	controler.getNSInstance().setInput(dataString, 2);
-    	controler.toggleHashes(true);
+    	controler.getControlerExtras().toggleHashes(true);
 	}
 	
 	public void createSlider() {

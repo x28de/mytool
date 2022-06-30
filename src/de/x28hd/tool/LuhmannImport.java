@@ -244,9 +244,9 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 		}
 		
     	if (hop) {
-    		controler.toggleHashes(true);
+    	   	controler.getControlerExtras().toggleHashes(true);
      	} else {
-       		controler.toggleHyp(1, true);
+       		controler.getControlerExtras().toggleHyp(1, true);
     	}
     	
 
@@ -267,9 +267,9 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
     	controler.getNSInstance().setInput(dataString, 2);
     	
     	if (hop) {
-    		controler.toggleHashes(true);
+    	   	controler.getControlerExtras().toggleHashes(true);
      	} else {
-       		controler.toggleHyp(1, true);
+       		controler.getControlerExtras().toggleHyp(1, true);
     	}
 	}
 	

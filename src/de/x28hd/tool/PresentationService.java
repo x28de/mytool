@@ -34,7 +34,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -120,7 +119,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	//	Toggles
 	int toggle4 = 0;   // => hide classicMenu 
 	boolean presoSizedMode = false;
-	boolean hyp = false;
 	int paletteID = 1;
 	boolean rectangle = false;
 	boolean dragFake = false;
@@ -150,10 +148,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		graphPanel.jumpingArrow(false);
 		
 		String command = e.getActionCommand();
-//		JMenuItem item = (JMenuItem) e.getSource();
-//		JPopupMenu menu = (JPopupMenu) item.getParent();
-//		String menuID = menu.getLabel();	// the menuID is stored in the menu's label
-//		if (menuID == null) menuID = "Menu Bar";
 
 		// Open or Insert
 
@@ -189,13 +183,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 					+ "For rectangular rubberband selection, ALT + Drag <br>"
 					+ "the mouse on the canvas for spanning the rectangle;<br>"
 					+ "click inside the rectangle to dismiss it.</html>");
-				
-		//	Find
-			
-		} else if (command == "find") {
-			find(false);
-		} else if (command == "findagain") {
-			find(true);
 			
 		// Paste
 
@@ -247,11 +234,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			"All letters a-z replaced by x, all A-Z by X");
 				
 		//	Various toggles	
-			
-		} else if (command == "ToggleHyp") {
-			toggleHyp(1, false);
-		} else if (command == "ToggleDetEdit") {
-			toggleHyp(0, false);
 			
 		} else if (command == "TogglePreso") {
 			graphPanel.togglePreso();
@@ -418,26 +400,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "subtree") {
 			new SubtreeLayout(selectedTopic, nodes, edges, this, treeBug, translation);
 			
-		} else if (command == "jump") {
-			GraphNode end = selectedAssoc.getNode2();
-			Point xy = end.getXY();
-			Point transl = graphPanel.getTranslation();
-			Rectangle viewPort = mainWindow.getBounds();
-			viewPort.translate(-transl.x, -transl.y);
-			if (viewPort.contains(xy)) {
-				GraphNode end2 = selectedAssoc.getNode1();
-				Point xy2 = end2.getXY();
-				if (!viewPort.contains(xy2)) {
-					xy = xy2;
-					end = end2;
-				}
-			}
-			int dx = xy.x - mainWindow.getWidth()/2 + transl.x + 200;
-			int dy = xy.y - mainWindow.getHeight()/2 + transl.y;
-			panning = new Point(dx, dy);
-			graphPanel.nodeSelected(end);
-			animationTimer2.start();
-			
 		} else if (command == "extmsg") {
 			new LimitationMessage();
 			
@@ -513,10 +475,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			zoomedSize = initialSize;
 			edi.setSize(zoomedSize);
 			graphPanel.setSize(zoomedSize);
-//		} else if (command.startsWith("faceColor")) {
-//			int faceNum = Integer.parseInt(command.substring(9));
-//			String colorString =  gui.nodePalette[1][7 + faceNum];			
-//			selectedTopic.setColor(colorString);
 
 		} else if (command == "wxr") {
 			new WXR2SQL(mainWindow);
@@ -524,8 +482,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			new DAG(nodes, edges, this);
 		} else if (command == "makecircle") {
 			new MakeCircle(nodes, edges, this);
-		} else if (command == "hashes") {
-			toggleHashes(gui.menuItem63.isSelected());
 		} else if (command == "planar") {
 			new CheckOverlaps(this, nodes, edges);
 		} else if (command == "random") {
@@ -564,28 +520,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	    		animationTimer.stop();
 	    		animationPercent = 0;
 	    		performUpdate(); 
-	        	graphPanel.setModel(nodes, edges);
-	     	}
-	    	updateBounds();
-	    	translation = graphPanel.getTranslation();
-	    	setMouseCursor(Cursor.DEFAULT_CURSOR);
-	    	graphPanel.repaint();
-	    } 
-	});
-
-	//	Trying animation for find result panning 
-	private Timer animationTimer2 = new Timer(20, new ActionListener() { 
-	    public void actionPerformed (ActionEvent e) {
-	    	if (animationPercent < 100) {
-	    		animationPercent = animationPercent + 5;
-	        	Double dX = -panning.x / 20.0;
-	        	Double dY = -panning.y / 20.0;
-	        	int pannedX = dX.intValue();;
-	        	int pannedY = dY.intValue();;
-	        	graphPanel.translateGraph(pannedX, pannedY);
-	    	} else {
-	    		animationTimer2.stop();
-	    		animationPercent = 0;
 	        	graphPanel.setModel(nodes, edges);
 	     	}
 	    	updateBounds();
@@ -711,31 +645,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		JOptionPane.showMessageDialog(mainWindow, msg);
 	}
 
-	public void toggleHyp(int whichWasToggled, boolean silent) {
-		
-		if (!silent) {
-			// Ignore hit if already selected
-			if (whichWasToggled == 1) { 	// hyperlinks 
-				if (gui.menuItem41.isSelected() == hyp) return;
-			} else {
-				if (gui.menuItem22.isSelected() == !hyp) return;
-			}
-		} else {
-			if (hyp) return;
-			gui.menuItem41.setSelected(!hyp);
-			gui.menuItem22.setSelected(hyp);
-		}
-		// Do the work 
-		edi.toggleHyp();
-		hyp = !hyp;
-		// Reflect change in texts
-		int stateHyp = 0;
-		if (gui.menuItem41.isSelected()) stateHyp = 1;
-		if (!silent) displayPopup(gui.popupHyp[stateHyp]);
-		gui.menuItem22.setToolTipText(gui.tooltip22[stateHyp]);
-		gui.menuItem41.setToolTipText(gui.tooltip41[1 - stateHyp]);
-	}
-
 	public void toggleTablet() {
 		boolean tablet = gui.menuItem55.isSelected();
 		footbar.setVisible(tablet);
@@ -825,10 +734,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 		graphPanel = new GraphPanel(this);
 		nodes = new Hashtable<Integer, GraphNode>();
 		edges = new Hashtable<Integer, GraphEdge>();
+		controlerExtras.setMap();
 		
 		undoManager = new UndoManager();
 		gui = new Gui(this, graphPanel, edi, newStuff, undoManager );
 		controlerExtras.setGui(gui);
+		controlerExtras.setEdi(edi);
 		
 		graphPanel.setModel(nodes, edges);
 		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
@@ -879,7 +790,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	public void deselect(GraphNode node) {
 		if (!node.equals(dummyNode)) {
 			node.setLabel(labelField.getText());
-			if (!hyp) node.setDetail(edi.getText());
+			if (!controlerExtras.getHyp()) node.setDetail(edi.getText());
 			edi.tracking(false);
 			edi.setText("");
 			labelField.setText("");
@@ -902,7 +813,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		edi.setText((selectedTopic).getDetail());
 		edi.tracking(true);
 		edi.setDirty(false);
-		if (hyp) edi.getTextComponent().setCaretPosition(0);
+		if (controlerExtras.getHyp()) edi.getTextComponent().setCaretPosition(0);
 		edi.getTextComponent().requestFocus();
 		String labelText = selectedTopic.getLabel();
 		labelField.setText(labelText);
@@ -1251,6 +1162,10 @@ public final class PresentationService implements ActionListener, MouseListener,
      	return graphPanel.getExtras();
     }
     
+    public GraphPanel getGraphPanel() {
+     	return graphPanel;
+    }
+    
     public Point getTranslation() {
     	return graphPanel.getTranslation();
     }
@@ -1464,80 +1379,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		gui.menuItem39.setEnabled(rectangle);
 	}
 
-	public void find(boolean again) {
-		String userRequest;
-		int hitNumber = 0; 
-		if (!again) {
-			findString = "";
-			shownResults = new HashSet<Integer>();
-		}
-		while (hitNumber >= 0) {	//	Exit by user pressing cancel
-			hitNumber++;
-			if (findString.isEmpty()) {
-				userRequest = (String) JOptionPane.showInputDialog("Find (in labels):", findString);
-			} else {
-				userRequest = (String) JOptionPane.showInputDialog("Find (in labels) again:", findString);
-			}
-			if (userRequest == null) {
-				break;
-			}
-			findString = userRequest;
-			gui.menuItem98.setEnabled(true);
-			Enumeration<Integer> nodesEnum = nodes.keys();
-			while (nodesEnum.hasMoreElements()) {
-				int nodeID = nodesEnum.nextElement();
-				GraphNode node = nodes.get(nodeID);
-				String label = node.getLabel().toLowerCase();
-				if (label.contains(findString.toLowerCase())) {
-					if (shownResults.contains(nodeID)) continue;
-					shownResults.add(nodeID);
-					Point xy = node.getXY();
-					Point transl = graphPanel.getTranslation();
-					int dx = xy.x - mainWindow.getWidth()/2 + transl.x + 200;
-					int dy = xy.y - mainWindow.getHeight()/2 + transl.y;
-					panning = new Point(dx, dy);
-					graphPanel.nodeSelected(node);
-					animationTimer2.start();
-					break;
-				} else continue;
-			}
-		}
-	}
-
-	public void findHash(String hash) {
-		boolean found = false;
-		findString = hash;
-		Enumeration<Integer> nodesEnum = nodes.keys();
-		while (nodesEnum.hasMoreElements()) {
-			int nodeID = nodesEnum.nextElement();
-			GraphNode node = nodes.get(nodeID);
-			String label = node.getLabel();
-			// Allow for B+ additions
-			label = label.trim();
-			if (!hyp && label.contains(" ")) {
-				int offset = label.indexOf(" ");
-				label = label.substring(0, offset);
-			} 
-			if (label.equalsIgnoreCase(findString)) {	
-				Point xy = node.getXY();
-				Point transl = graphPanel.getTranslation();
-				int dx = xy.x - mainWindow.getWidth()/2 + transl.x + 200;
-				int dy = xy.y - mainWindow.getHeight()/2 + transl.y;
-				panning = new Point(dx, dy);
-				graphPanel.nodeSelected(node);
-				animationTimer2.start();
-				found = true;
-				break;
-			} else continue;
-		}
-		if (!found) displayPopup(hash + " not found on this map.");
-	}
-	public void toggleHashes(boolean onOff) {
-		gui.menuItem63.setSelected(onOff);
-		edi.toggleHashes(onOff);
-		toggleHyp(1, true);
-	}
-
 	public void fixDivider() {
 		splitPane.setDividerLocation(mainWindow.getWidth() - 464);
 		splitPane.setResizeWeight(1);
@@ -1563,8 +1404,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 	}
 
-	// For LuhmannImport():
-
 	public Hashtable<Integer,GraphNode> getNodes() {
 		return nodes;
 	}
@@ -1581,7 +1420,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 	public void linkTo(String label) {
-		toggleHashes(true);
+		controlerExtras.toggleHashes(true);
 		GraphNode activeNode = selectedTopic;
 		activeNode.setDetail(edi.getText());
 

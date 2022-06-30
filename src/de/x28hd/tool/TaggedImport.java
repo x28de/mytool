@@ -398,7 +398,7 @@ public class TaggedImport implements ActionListener, Comparator<HashSet<String>>
 		}
 		
 		System.out.println(nodes.size() + " nodes added");
-		controler.toggleHashes(true);
+	   	controler.getControlerExtras().toggleHashes(true);
 
 //
 //		pass on

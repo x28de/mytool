@@ -235,7 +235,7 @@ public class Gui {
 		menuItem96.setActionCommand("find");
 		menuItem96.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, shortcutMask));
 		menuItem96.setToolTipText("Find a label");
-		menuItem96.addActionListener(controler);
+		menuItem96.addActionListener(controlerExtras);
 		menu2.add(menuItem96);
 
 		menuItem98 = new JMenuItem("Find again");
@@ -243,7 +243,7 @@ public class Gui {
 		menuItem98.setEnabled(false);
 		menuItem98.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, shortcutMask));
 		menuItem98.setToolTipText("Find a label again");
-		menuItem98.addActionListener(controler);
+		menuItem98.addActionListener(controlerExtras);
 		menu2.add(menuItem98);
 
 		JMenuItem menuItem97 = new JMenuItem("Select ?");
@@ -437,14 +437,14 @@ public class Gui {
 		menuItem41 = new JRadioButtonMenuItem("Hyperlinks on", false);
 		menuItem41.setActionCommand("ToggleHyp");
 		menuItem41.setToolTipText(tooltip41[1]);
-		menuItem41.addActionListener(controler);
+		menuItem41.addActionListener(controlerExtras);
 		buttonGroup.add(menuItem41);
 		menu5.add(menuItem41);
 
 		menuItem22 = new JRadioButtonMenuItem("Hyperlinks off  (Edit Mode)", true);
 		menuItem22.setActionCommand("ToggleDetEdit");
 		menuItem22.setToolTipText(tooltip22[0]);
-		menuItem22.addActionListener(controler);
+		menuItem22.addActionListener(controlerExtras);
 		buttonGroup.add(menuItem22);
 		menu5.add(menuItem22);
 
@@ -453,7 +453,7 @@ public class Gui {
 		menuItem63 = new JCheckBoxMenuItem("HyperHopping enabled", false);
 		menuItem63.setActionCommand("hashes");
 		menuItem63.setToolTipText("Local hyperlinks (#...) used for Find in labels");
-		menuItem63.addActionListener(controler);
+		menuItem63.addActionListener(controlerExtras);
 		menu5.add(menuItem63);
 
 		menu5.addSeparator();
@@ -826,7 +826,7 @@ public class Gui {
 		sub2.add(flipVerti);
 		
 		JMenuItem jump = new JMenuItem();
-		jump.addActionListener(controler);
+		jump.addActionListener(controlerExtras);
 		jump.setActionCommand("jump");
 		jump.setText("Jump to End");
 		sub2.add(jump);

@@ -173,7 +173,7 @@ public class GrsshopperImport {
     	if (!report.isEmpty()) { 
     		controler.displayPopup("Import completed with warnings:\n\n" + report);
     	}
-		controler.toggleHashes(true);
+	   	controler.getControlerExtras().toggleHashes(true);
 	}
 	
 	public void warn (int i, String whatsMissing) {

@@ -140,7 +140,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, UndoableE
 			if (Desktop.isDesktopSupported()) {
 				if (hashesEnabled) {
 					if (!localAddr.isEmpty() && url == null) {
-						controler.findHash(localAddr);
+						controler.getControlerExtras().findHash(localAddr);
 						return;
 					}
 				}

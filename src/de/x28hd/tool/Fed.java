@@ -237,7 +237,7 @@ public class Fed {
     	controler.setTreeModel(null);
     	controler.setNonTreeEdges(null);
     	
-		controler.toggleHashes(true);
+	   	controler.getControlerExtras().toggleHashes(true);
 		controler.fixDivider();
 	}
 	

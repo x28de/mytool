@@ -206,7 +206,7 @@ public class ImportRoam {
     	controler.setTreeModel(null);
     	controler.setNonTreeEdges(null);
 		
-		controler.toggleHashes(true);
+	   	controler.getControlerExtras().toggleHashes(true);
 		controler.fixDivider();
 		String msg = "Import completed.\n"
 				+ "Use Advanced > Layouts to arrange your links.\n";

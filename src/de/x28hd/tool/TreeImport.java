@@ -945,7 +945,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
         frame.setVisible(false);
         frame.dispose();
         finish();
-		if (hypOpt) controler.toggleHyp(1, true);
+		if (hypOpt) controler.getControlerExtras().toggleHyp(1, true);
 	}
 
 	@Override

@@ -37,13 +37,10 @@ interface GraphPanelControler {
 	void stopHint();
 	void zoom(boolean on);
 	boolean getExtended();
-	void toggleHyp(int whichWasToggled, boolean auto);
 	JFrame getMainWindow();
 	void replaceForLayout(Hashtable<Integer,GraphNode> replacingNodes, 
 			   Hashtable<Integer,GraphEdge> replacingEdges); 
 	boolean startStoring(String storeFilename, boolean anonymized);
-	void findHash(String hash);
-	void toggleHashes(boolean onOff);
 	void deleteCluster(boolean rectangle, GraphEdge assoc, boolean auto);
 	Hashtable<Integer,GraphNode> getNodes();
 	Hashtable<Integer,GraphEdge> getEdges();
@@ -53,4 +50,7 @@ interface GraphPanelControler {
 	public void fixDivider();
 	void linkTo(String textToAdd);
 	public GraphExtras getGraphExtras();
+	public PresentationExtras getControlerExtras();
+	public Point getTranslation();
+	public GraphPanel getGraphPanel();
 	}
