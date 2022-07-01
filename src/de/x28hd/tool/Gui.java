@@ -78,6 +78,7 @@ public class Gui {
 				"editing the detail text is now impossible."};
 	JPopupMenu menu;
 	String [] showHide = {"Hide", "Show"};
+	int paletteID = 1;
 	String [][] nodePalette = 
 		{{"#b200b2", "#0000ff", "#00ff00", "#ffff00", 	// purple, blue, green, yellow
 		"#ffc800", "#ff0000", "#c0c0c0", "#808080"},	// orange, red, pale, dark
@@ -162,7 +163,7 @@ public class Gui {
 		JMenuItem menuItem14 = new JMenuItem("Print ?");
 		menuItem14.setActionCommand("HowToPrint");
 		menuItem14.setToolTipText("How to print");
-		menuItem14.addActionListener(controler);
+		menuItem14.addActionListener(controlerExtras);
 		menu1.add(menuItem14);
 
 		menu1.addSeparator();
@@ -249,7 +250,7 @@ public class Gui {
 		JMenuItem menuItem97 = new JMenuItem("Select ?");
 		menuItem97.setActionCommand("select");
 		menuItem97.setToolTipText("How to select");
-		menuItem97.addActionListener(controler);
+		menuItem97.addActionListener(controlerExtras);
 		menu2.add(menuItem97);
 
 		menu2.addSeparator();
@@ -257,7 +258,7 @@ public class Gui {
 		menuItem23 = new JCheckBoxMenuItem("Lurid Colors", false);
 		menuItem23.setActionCommand("TogglePalette");
 		menuItem23.setToolTipText("Color scheme for new icons and lines");
-		menuItem23.addActionListener(controler);
+		menuItem23.addActionListener(controlerExtras);
 		menu2.add(menuItem23);
 
 		menuBar.add(menu2);
@@ -271,13 +272,13 @@ public class Gui {
 		JMenuItem menuItem32 = new JMenuItem("Import the Intro Game");
 		menuItem32.setActionCommand("introgame");
 		menuItem32.setToolTipText("Load a little whodunnit ");
-		menuItem32.addActionListener(controler);
+		menuItem32.addActionListener(controlerExtras);
 		menu3.add(menuItem32);
 
 		JMenuItem menuItem33 = new JMenuItem("Import the Tutorial");
 		menuItem33.setActionCommand("loadhelp");
 		menuItem33.setToolTipText("Insert items that contain some help info ");
-		menuItem33.addActionListener(controler);
+		menuItem33.addActionListener(controlerExtras);
 		menu3.add(menuItem33);
 
 		menu3.addSeparator();
@@ -406,19 +407,19 @@ public class Gui {
 		JMenuItem zoomin = new JMenuItem("Larger text");
 		zoomin.setActionCommand("zoomin");
 		zoomin.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, shortcutMask));
-		zoomin.addActionListener(controler);
+		zoomin.addActionListener(controlerExtras);
 		sub3.add(zoomin);
 
 		JMenuItem zoomreset = new JMenuItem("Reset text size");
 		zoomreset.setActionCommand("zoomreset");
 		zoomreset.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0, shortcutMask));
-		zoomreset.addActionListener(controler);
+		zoomreset.addActionListener(controlerExtras);
 		sub3.add(zoomreset);
 
 		JMenuItem zoomout = new JMenuItem("Smaller text");
 		zoomout.setActionCommand("zoomout");
 		zoomout.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, shortcutMask));
-		zoomout.addActionListener(controler);
+		zoomout.addActionListener(controlerExtras);
 		sub3.add(zoomout);
 		
 		menu5.add(sub3);
@@ -511,7 +512,7 @@ public class Gui {
 		menuItem27 = new JCheckBoxMenuItem("Cluster Drag&Drop enabled", false);
 		menuItem27.setActionCommand("ToggleClusterCopy");
 		menuItem27.setToolTipText("Enables to copy entire clusters -- may be confusing");
-		menuItem27.addActionListener(controler);
+		menuItem27.addActionListener(controlerExtras);
 		sub4.add(menuItem27);
 
 		menuItem24 = new JCheckBoxMenuItem("Appending dropped stuff", true);
@@ -522,14 +523,14 @@ public class Gui {
 		menuItem25 = new JCheckBoxMenuItem("Parsing dropped HTML", false);
 		menuItem25.setToolTipText("Try to find headings or lists");
 		menuItem25.setActionCommand("toggleParse");
-		menuItem25.addActionListener(controler);
+		menuItem25.addActionListener(controlerExtras);
 		sub4.add(menuItem25);
 
 		menuItem28 = new JCheckBoxMenuItem("Dropped files are UTF-8", true);
 		menuItem28.setToolTipText("Disable for old Windows files");
 		menuItem28.setActionCommand("toggleEncoding");
 		if (!System.getProperty("os.name").startsWith("Windows")) menuItem28.setEnabled(false);
-		menuItem28.addActionListener(controler);
+		menuItem28.addActionListener(controlerExtras);
 		sub4.add(menuItem28);
 
 		menu5.add(sub4);
@@ -540,26 +541,26 @@ public class Gui {
 		menuItem46.setActionCommand("ToggleCards");
 		menuItem46.setSelected(true);
 		menuItem46.setToolTipText("Rectangles or circles");
-		menuItem46.addActionListener(controler);
+		menuItem46.addActionListener(controlerExtras);
 		sub5.add(menuItem46);
 
 		menuItem47 = new JCheckBoxMenuItem("Icon Shape Automatic", false);
 		menuItem47.setActionCommand("AutoCircles");
 		menuItem47.setSelected(true);
 		menuItem47.setToolTipText("Show items as circles if more lines than items exist");
-		menuItem47.addActionListener(controler);
+		menuItem47.addActionListener(controlerExtras);
 		sub5.add(menuItem47);
 		
 		JCheckBoxMenuItem menuItem44 = new JCheckBoxMenuItem("Big Icons", false);
 		menuItem44.setActionCommand("TogglePreso");
 		menuItem44.setToolTipText("Presentation Mode");
-		menuItem44.addActionListener(controler);
+		menuItem44.addActionListener(controlerExtras);
 		sub5.add(menuItem44);
 
 		menuItem42 = new JCheckBoxMenuItem("Borders", false);
 		menuItem42.setActionCommand("ToggleBorders");
 		menuItem42.setToolTipText("Display arrows pointing to lost areas");
-		menuItem42.addActionListener(controler);
+		menuItem42.addActionListener(controlerExtras);
 		sub5.add(menuItem42);
 
 		menuItem45 = new JCheckBoxMenuItem("Accelerate", false);
@@ -569,13 +570,13 @@ public class Gui {
 		}
 		menuItem45.setActionCommand("ToggleHeavy");
 		menuItem45.setToolTipText("Fast but coarse graphics");
-		menuItem45.addActionListener(controler);
+		menuItem45.addActionListener(controlerExtras);
 		sub5.add(menuItem45);
 
 		menuItem43 = new JCheckBoxMenuItem("Menu Bar", true);
 		menuItem43.setActionCommand("classicMenu");
 		menuItem43.setToolTipText("Hide menu bar (restore via rightclick on canvas)");
-		menuItem43.addActionListener(controler);
+		menuItem43.addActionListener(controlerExtras);
 		sub5.add(menuItem43);
 		
 		menu5.add(sub5);
@@ -591,7 +592,7 @@ public class Gui {
 		menuItem55 = new JCheckBoxMenuItem("Tablet Pen Mode", false);
 		menuItem55.setActionCommand("tablet");
 		menuItem55.setToolTipText("Doubleclick improvement, Alt-Key for Pen and Touch");
-		menuItem55.addActionListener(controler);
+		menuItem55.addActionListener(controlerExtras);
 		sub6.add(menuItem55);
 
 		JMenuItem menuItem54 = new JMenuItem("Preferences");
@@ -621,7 +622,7 @@ public class Gui {
 		menuItem52 = new JCheckBoxMenuItem("Power User Mode", false);
 		menuItem52.setActionCommand("power");
 		menuItem52.setToolTipText("Acceleration, Lurid Colors and Borders");
-		menuItem52.addActionListener(controler);
+		menuItem52.addActionListener(controlerExtras);
 		sub6.add(menuItem52);
 
 		JMenuItem menuItem56 = new JMenuItem("Another Map Window");
@@ -650,7 +651,7 @@ public class Gui {
 		JMenuItem menuItem61 = new JMenuItem("Help");
 		menuItem61.setToolTipText("<html><em>Shows a short help page</em></html>");
 		menuItem61.setActionCommand("?");
-		menuItem61.addActionListener(controler);
+		menuItem61.addActionListener(controlerExtras);
 		menu6.add(menuItem61);
 
 		JMenuItem menuItem62 = new JMenuItem("About");
@@ -726,9 +727,9 @@ public class Gui {
 
 		if (!menuItem43.isSelected()) {
 		JMenuItem item9 = new JMenuItem();
-		item9.addActionListener(controler);
+		item9.addActionListener(controlerExtras);
 		item9.setActionCommand("classicMenu");
-		item9.setText(showHide[controler.toggle4] + " Classic Menu");
+		item9.setText(showHide[controlerExtras.toggle4] + " Classic Menu");
 		menu.add(item9);
 		}
 
@@ -882,6 +883,10 @@ public class Gui {
 			return initText2;
 		}
 	}
+	
+	public JMenuBar getMenuBar() {
+		return menuBar;
+	}
 
 	public static final String initText1 = "<p style=\"margin-top: 0\"><font color=\"gray\">"
 			+ "<em>To get started, insert some items. Then: </em><br />&nbsp;<br />"
@@ -894,6 +899,11 @@ public class Gui {
 			+ "<a href=\"mailto:support@x28hd.de\">support@x28hd.de</a></em>"
 			+ "</font></p>";
 
+
+	public void togglePalette() {
+		paletteID = 1 - paletteID;
+	}
+	
 	public String getSample(boolean help) {
 		if (help) return HELP_EN;
 		String lang = Locale.getDefault().getLanguage();

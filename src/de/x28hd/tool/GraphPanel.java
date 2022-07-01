@@ -905,7 +905,7 @@ class GraphPanel extends JDesktopPane  {
 		
 		public void toggleAlt(boolean down) {
 			simulatedAltDown = down;
-			controler.toggleAltColor(down);
+			controler.getControlerExtras().toggleAltColor(down);
 		}
 
 		public void toggleTablet(boolean toggle) {

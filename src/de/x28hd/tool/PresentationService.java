@@ -14,7 +14,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -41,7 +40,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
-import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.undo.UndoManager;
 import javax.xml.transform.TransformerConfigurationException;
@@ -65,9 +63,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	JPanel labelBox = null;
 	JTextField labelField = null;
 	private JButton OK;	
-	JPanel altButton = null;
-	boolean altDown = false;
-	JPanel footbar = null;
 	
 	JSplitPane splitPane = null;
 	JPanel rightPanel = null;
@@ -82,7 +77,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	public String preferences = "No preferences yet (no installation)";
 	
 	int initialSize = 12;
-	int zoomedSize = initialSize;
 	
 	//	Graphics accessories
 	Point clickedSpot = null;
@@ -117,11 +111,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	boolean treeBug = false;	// TODO fix
 
 	//	Toggles
-	int toggle4 = 0;   // => hide classicMenu 
-	boolean presoSizedMode = false;
-	int paletteID = 1;
 	boolean rectangle = false;
-	boolean dragFake = false;
 
 	// Placeholders
 	GraphNode dummyNode = new GraphNode(-1, null, null, null, null);
@@ -151,10 +141,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 		// Open or Insert
 
-		if (command == "testimp") {
-			new ImportDirector(this);
-			
-		} else if (command == "open") {
+		if (command == "open") {
 			String filename = lifeCycle.open();
 			newStuff.setInput(filename, 1);
 
@@ -170,19 +157,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "redo") {
 			undoManager.redo();
 			
-		//	Copy / Cut / Delete / Select
+		//	Copy / Cut 
 			
 		} else if (command == "copy") {
 			copy(rectangle, selectedAssoc);
 		} else if (command == "cut") {
 			cut(rectangle, selectedAssoc);
-		} else if (command == "select") {
-			displayPopup("<html><h3>How to Select</h3>" 
-					+ "Select a cluster of connected items by clicking any line;<br />" 
-					+ "select a single item by clicking its icon.<br /><br />"
-					+ "For rectangular rubberband selection, ALT + Drag <br>"
-					+ "the mouse on the canvas for spanning the rectangle;<br>"
-					+ "click inside the rectangle to dismiss it.</html>");
 			
 		// Paste
 
@@ -233,87 +213,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 			if (startStoring(s, true)) displayPopup(s + " saved.\n" +
 			"All letters a-z replaced by x, all A-Z by X");
 				
-		//	Various toggles	
-			
-		} else if (command == "TogglePreso") {
-			graphPanel.togglePreso();
-			
-		} else if (command == "ToggleCards") {
-			boolean desiredState = gui.menuItem46.isSelected();
-			graphPanel.toggleCards(desiredState);
-			gui.menuItem47.setSelected(false);	// Auto off
-			
-		} else if (command == "AutoCircles") {
-			boolean desiredState = gui.menuItem47.isSelected();
-			if (desiredState) recount();
-			
-		} else if (command =="ToggleBorders") {
-			graphPanel.toggleBorders();
-			
-		} else if (command =="ToggleClusterCopy") {
-			graphPanel.toggleClusterCopy();
-			
-		} else if (command == "TogglePalette") {
-			paletteID = 1 - paletteID;
-
-		} else if (command == "ToggleHeavy") {
-			graphPanel.toggleAntiAliasing();
-		
-		} else if (command == "classicMenu") {
-			toggleClassicMenu();
-			toggle4 = 1 - toggle4;
-			
-		} else if (command == "power") {
-			if (gui.menuItem52.isSelected()) {
-				if (!gui.menuItem42.isSelected()) {
-					graphPanel.toggleBorders();
-					gui.menuItem42.setSelected(true);
-				}
-				if (!gui.menuItem23.isSelected()) {
-					paletteID = 0;
-					gui.menuItem23.setSelected(true);
-				}
-				if (!gui.menuItem45.isSelected()) {
-					graphPanel.toggleAntiAliasing();
-					gui.menuItem45.setSelected(true);
-				}
-			} else {
-				if (gui.menuItem42.isSelected()) {
-					graphPanel.toggleBorders();
-					gui.menuItem42.setSelected(false);
-				}
-				if (gui.menuItem23.isSelected()) {
-					paletteID = 1;
-					gui.menuItem23.setSelected(false);
-				}
-				if (gui.menuItem45.isSelected()) {
-					graphPanel.toggleAntiAliasing();
-					gui.menuItem45.setSelected(false);
-				}
-			}
-		} else if (command == "toggleParse") {
-			String javav = System.getProperty("java.version");
-			if (javav.contains("1.8")) {
-				newStuff.setParseMode(gui.menuItem25.isSelected());
-			} else {
-				displayPopup("Your Java Runtime " + javav + " is too old, 1.8 needed.");
-				gui.menuItem25.setSelected(false);
-			}
-		} else if (command == "toggleEncoding") {
-			newStuff.setDropEncoding(gui.menuItem28.isSelected());
-			
 		} else if (command == "zoom") {
 			zoom(true);
 			
-		} else if (command == "tablet") {
-			toggleTablet();
-			
-		} else if (command == "?") {
-			gui.displayHelp();
-			
+		// using startup data
 		} else if (command == "about") {
 				displayPopup(about);
-
 		} else if (command == "prefs") {
 			displayPopup(preferences);
 
@@ -385,6 +290,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "h5pexp") {
 				new H5pExport(nodes, edges, this);
 		
+				
 		} else if (command == "delCluster") {
 				deleteCluster(rectangle, selectedAssoc);
 				graphSelected();
@@ -402,13 +308,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			
 		} else if (command == "extmsg") {
 			new LimitationMessage();
-			
-		} else if (command == "introgame") {
-			newStuff.setInput(gui.getSample(false), 2);
-			
-		} else if (command == "loadhelp") {
-			newStuff.setInput(gui.getSample(true), 2);
-			dragFake = true;
 						
 		//	Context menu command
 
@@ -430,17 +329,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 				nodeSelected(node);
 				labelField.requestFocus();
 
-			} else if (command == "?") {
-				gui.displayHelp();
-			
-		} else if (command == "HowToPrint") {
-			displayPopup("<html><h3>How to Print or Snapshot</h3>" 
-					+ "You can <b>Export</b> to a printable HTML page and then<br />" 
-					+ "print, zoom or screenshot from your browser.<br /><br />"
-					+ "Instead of a <i>static</i> snapshot, you may also consider<br />"
-					+ "an <i>interactive</i> HTML page that allows panning<br /> "
-					+ "and selecting.</html>");
-			
 		} else if (command == "Print") {
 			String lastHTMLFilename = lifeCycle.getLastHTMLFilename();
 			if (lastHTMLFilename.isEmpty()) {
@@ -462,19 +350,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			} else {
 				new MakeHTML(false, nodes, edges, lastHTMLFilename, this);
 			}
-			
-		} else if (command == "zoomin") {
-			zoomedSize += 4;
-			edi.setSize(zoomedSize);
-			graphPanel.setSize(zoomedSize);
-		} else if (command == "zoomout") {
-			zoomedSize -= 4;
-			edi.setSize(zoomedSize);
-			graphPanel.setSize(zoomedSize);
-		} else if (command == "zoomreset") {
-			zoomedSize = initialSize;
-			edi.setSize(zoomedSize);
-			graphPanel.setSize(zoomedSize);
 
 		} else if (command == "wxr") {
 			new WXR2SQL(mainWindow);
@@ -548,7 +423,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		JSplitPane splitPane = createMainGUI();
 
 		myMenuBar = gui.createMenuBar();
-		if (showMenuBar) {
+		if (controlerExtras.showMenuBar) {
 			mainWindow.setJMenuBar(myMenuBar);
 		} else {
 			JMenuBar nullMenuBar = new JMenuBar();
@@ -569,32 +444,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		splitPane.setDividerSize(8);
 
 		graphPanel.setBackground(Color.WHITE);
-		
-		//	Simulate "Alt" button (for pen or touch, since Button3+drag is not available,
-		//	and Button2+Drag would interfere with, or delay, the context menu whose immediacy
-		//	has a higher relevance for user's perceived control)
-		graphPanel.setLayout(new BorderLayout());
-		footbar = new JPanel();
-		footbar.setBackground(Color.WHITE);
-		footbar.setLayout(new BorderLayout());
-		altButton = new JPanel();
-		altButton.add(new JLabel("Alt"));
-		altButton.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-		altButton.setBackground(Color.LIGHT_GRAY);
-		altButton.setPreferredSize(new Dimension(40, 40));
-		altButton.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) {	//	On MS Surface not working 
-			}
-			public void mouseReleased(MouseEvent e) {
-				altDown = !altDown;
-				graphPanel.toggleAlt(altDown);
-				toggleAltColor(altDown);
-			}
-		});
-		footbar.add(altButton, BorderLayout.WEST);
-		footbar.setVisible(false);	// until Tools > tablet is specified
-		graphPanel.add(footbar, BorderLayout.SOUTH);
 		
 		splitPane.setLeftComponent(graphPanel);
 
@@ -645,40 +494,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		JOptionPane.showMessageDialog(mainWindow, msg);
 	}
 
-	public void toggleTablet() {
-		boolean tablet = gui.menuItem55.isSelected();
-		footbar.setVisible(tablet);
-		edi.toggleTablet(tablet);
-		graphPanel.toggleTablet(tablet);
-		if (tablet) displayPopup("Now you can simulate the Alt Key either by a toggle \"button\"\n" +
-				"in the lower left, or by double-clicking on an icon or on a line.\n\n" +
-				"Warning: \nSince this functionality is still not satisfying it may be changed again.");
-	}
-	
-	public void toggleClassicMenu() {
-		showMenuBar = !showMenuBar;
-		if (showMenuBar) {
-			gui.menuItem43.setSelected(true);
-			mainWindow.setJMenuBar(myMenuBar);
-			mainWindow.validate();
-			cp.repaint();
-		} else {
-			JMenuBar nullMenuBar = new JMenuBar();
-			mainWindow.setJMenuBar(nullMenuBar);
-			mainWindow.validate();
-			cp.repaint();
-		}
-	}
-	
-	//	Display nodes as cards until edges outweigh
-	public void recount() {
-		boolean moreNodes = (nodes.size() >= edges.size());
-		if (gui.menuItem47.isSelected()) {	// auto 
-			graphPanel.toggleCards(moreNodes);
-			gui.menuItem46.setSelected(moreNodes);
-		}
-	}
-	
 	public void setDirty(boolean toggle) {
 		lifeCycle.setDirty(toggle);
 	}
@@ -697,6 +512,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		graphPanel.setSize(initialSize);
 		mainWindow.setVisible(true);
 		edi.setSize(initialSize);
+		controlerExtras.setInitialSize(initialSize);
 		if (lifeCycle.getFilename().isEmpty()) {
 			hintTimer.start();
 		}
@@ -714,11 +530,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "My Tool");
 			new AppleHandler(this);			// for QuitHandler
 			initialSize = 12;
-			zoomedSize = initialSize;
 		} else {
 			int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
 			initialSize = dpi / 8;
-			zoomedSize = initialSize;
 		}
 		baseDir = null;
 		try {
@@ -817,7 +631,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		edi.getTextComponent().requestFocus();
 		String labelText = selectedTopic.getLabel();
 		labelField.setText(labelText);
-		if (dragFake && labelText.equals("Drop input")) edi.setFake();
+		if (controlerExtras.dragFake && labelText.equals("Drop input")) edi.setFake();
 		edi.repaint();
 		updateCcpGui();
 	}
@@ -855,9 +669,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 	public GraphNode createNode(Point xy) {
 		if (xy != null) {
 			int newId = newKey(nodes.keySet());
-			GraphNode topic = new GraphNode(newId, xy, Color.decode(gui.nodePalette[paletteID][7]), "", "");
+			GraphNode topic = new GraphNode(newId, xy, Color.decode(gui.nodePalette[gui.paletteID][7]), "", "");
 			nodes.put(newId, topic);
-			recount();
+			controlerExtras.recount();
 			updateBounds();
 			graphPanel.nodeSelected(topic);
 			graphPanel.repaint();
@@ -871,10 +685,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 	public GraphEdge createEdge(GraphNode topic1, GraphNode topic2) {
 		if (topic1 != null && topic2 != null) {
 			int newId = newKey(edges.keySet());
-			GraphEdge assoc = new GraphEdge(newId, topic1, topic2, Color.decode(gui.edgePalette[paletteID][7]), "");  // nicht 239
+			GraphEdge assoc = new GraphEdge(newId, topic1, topic2, Color.decode(gui.edgePalette[gui.paletteID][7]), "");  // nicht 239
 			assoc.setID(newId);
 			edges.put(newId, assoc);
-			recount();
+			controlerExtras.recount();
 			
 			topic1.addEdge(assoc);
 			topic2.addEdge(assoc);
@@ -931,7 +745,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		}
 		int topicKey = topic.getID();
 		nodes.remove(topicKey);
-		recount();
+		controlerExtras.recount();
 		updateBounds();
 		lifeCycle.setDirty(true);
 		commit(0, topic, null, null);
@@ -964,7 +778,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		edges.remove(assocKey);
 		nodes.put(topicID1,  topic1);
 		nodes.put(topicID2,  topic2);
-		recount();
+		controlerExtras.recount();
 		graphPanel.repaint();
 		lifeCycle.setDirty(true);
 		commit(1, null, assoc, null);
@@ -1119,16 +933,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		mainWindow.setCursor(new Cursor(cursorType));
 	}
 	
-	public void toggleAltColor(boolean down) {
-		if (down) {
-			altButton.setBackground(Color.YELLOW);
-		} else {
-			altButton.setBackground(Color.LIGHT_GRAY);
-		}
-		altDown = down;
-	}
-	
-
 //
 //	Misc and temp
     
@@ -1175,7 +979,7 @@ public final class PresentationService implements ActionListener, MouseListener,
     }
     
    public String getNewNodeColor() {
-	   return gui.nodePalette[paletteID][7];
+	   return gui.nodePalette[gui.paletteID][7];
    }
     
    public DefaultTreeModel getTreeModel() {
@@ -1266,7 +1070,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   edges = integrateNodes.getEdges();
 
 	   graphPanel.setModel(nodes, edges);
-		recount();
+	   controlerExtras.recount();
 	   updateBounds();
 	   setMouseCursor(Cursor.DEFAULT_CURSOR);
 	   graphPanel.repaint();
@@ -1393,14 +1197,14 @@ public final class PresentationService implements ActionListener, MouseListener,
 			splitPane.setRightComponent(graphPanelZoom.createSlider());
 			graphPanelZoom.setModel(nodes, edges);
 			splitPane.setLeftComponent(graphPanelZoom);
-			toggleClassicMenu();
+			controlerExtras.toggleClassicMenu();
 		} 
 		if (!on) {
 			gui.menuItem58.setSelected(false);
 			splitPane.setDividerLocation(dividerPos);
 			splitPane.setLeftComponent(graphPanel);
 			splitPane.setRightComponent(rightPanel);
-			toggleClassicMenu();
+			controlerExtras.toggleClassicMenu();
 		}
 	}
 

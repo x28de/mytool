@@ -25,7 +25,6 @@ interface GraphPanelControler {
 	void updateBounds();
 	String getNewNodeColor();
 	Rectangle getBounds();
-	void toggleAltColor(boolean down);
 	void setTreeModel(DefaultTreeModel model);
 	DefaultTreeModel getTreeModel();
 	void setNonTreeEdges(HashSet<GraphEdge> nonTreeEdges);
