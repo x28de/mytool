@@ -572,7 +572,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 //		Create a JTree 
 	    
 	    DefaultTreeModel model = new DefaultTreeModel(top);
-	    controler.setTreeModel(model);
+	    controler.getControlerExtras().setTreeModel(model);
 		
 	    tree = new JTree(model);
 	    
@@ -693,8 +693,8 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 					nodes.remove(id);
 				}
 			}
-			controler.setNonTreeEdges(nonTreeEdges);
-			controler.replaceByTree(nodes, edges);
+			controler.getControlerExtras().setNonTreeEdges(nonTreeEdges);
+			controler.getControlerExtras().replaceByTree(nodes, edges);
 		} else {
 			if (layoutOpt) {
 
@@ -741,8 +741,8 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
         		System.out.println("Error TI110 " + e1);
         	}
         	controler.getNSInstance().setInput(dataString, 2);
-        	controler.setTreeModel(null);
-        	controler.setNonTreeEdges(null);
+        	controler.getControlerExtras().setTreeModel(null);
+        	controler.getControlerExtras().setNonTreeEdges(null);
         } 
 	}
 	

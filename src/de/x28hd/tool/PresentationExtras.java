@@ -28,6 +28,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.FontUIResource;
+import javax.swing.tree.DefaultTreeModel;
 
 public class PresentationExtras implements ActionListener, PopupMenuListener{
 	GraphPanelControler controler;
@@ -49,6 +50,7 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 	Point panning = new Point(3, 0);
 	int animationPercent = 0;
 	Point translation;
+	
 	// Finding accessories
 	String findString = "";
 	HashSet<Integer> shownResults = null;
@@ -59,6 +61,11 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 	boolean hyp = false;
 	boolean dragFake = false;
 	
+	// Tree accessories
+	DefaultTreeModel treeModel;
+	HashSet<GraphEdge> nonTreeEdges;
+	boolean treeBug = false;	// TODO fix
+
 	//	Trying animation for find result panning 
 	private Timer animationTimer2 = new Timer(20, new ActionListener() { 
 	    public void actionPerformed (ActionEvent e) {
@@ -538,7 +545,53 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 		}
 	}
 	
-    // establish addressability
+	   public void replaceByTree(Hashtable<Integer,GraphNode> replacingNodes, 
+			   Hashtable<Integer,GraphEdge> replacingEdges) {
+		   if (nodes.size() > 0) {
+			   controler.displayPopup("Please use an empty map if you want to use\n" 
+					   + "the imported tree information for re-export.");
+			   treeModel = null;
+			   nonTreeEdges = null;
+			   return;
+		   }
+		   nodes = replacingNodes;
+		   edges = replacingEdges;
+		   controler.setModel(nodes, edges);
+		   controler.updateBounds();
+		   controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
+		   controler.stopHint();
+		   graphPanel.jumpingArrow(false);
+		   graphPanel.repaint();
+	   }
+	   
+	   public void replaceForLayout(Hashtable<Integer,GraphNode> replacingNodes, 
+			   Hashtable<Integer,GraphEdge> replacingEdges) {	
+		   // TODO integrate with replaceByTree
+		   nodes = replacingNodes;
+		   edges = replacingEdges;
+		   graphPanel.setModel(nodes, edges);
+		   controler.updateBounds();
+		   controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
+		   controler.stopHint();
+		   graphPanel.jumpingArrow(false);
+		   graphPanel.repaint();
+	   }
+
+	   public DefaultTreeModel getTreeModel() {
+		   return treeModel;
+	   }
+	   public void setTreeModel(DefaultTreeModel treeModel) {
+		   this.treeModel = treeModel;
+	   }
+	   
+	   public void setNonTreeEdges(HashSet<GraphEdge> nonTreeEdges) {
+		   this.nonTreeEdges = nonTreeEdges;
+	   }
+	   public HashSet<GraphEdge> getNonTreeEdges() {
+		   return nonTreeEdges;
+	   }
+
+	   // establish addressability
   
     public GraphPanelControler getControler() {
     	return controler;

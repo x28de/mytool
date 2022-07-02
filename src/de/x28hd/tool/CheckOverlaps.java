@@ -33,6 +33,7 @@ public class CheckOverlaps implements Comparator<Integer>, ActionListener {
 	Hashtable<Integer,GraphEdge> edges;	
 	Hashtable<Integer,GraphEdge> realEdges;	
 	GraphPanelControler controler;
+	PresentationExtras controlerExtras;
 	
 	// Major collections
 	UndirectedSparseGraph<Integer, Integer> graph = new UndirectedSparseGraph<Integer,Integer>();
@@ -81,6 +82,7 @@ public class CheckOverlaps implements Comparator<Integer>, ActionListener {
 		this.realNodes = realNodes;
 		this.realEdges = realEdges;
 		this.controler = controler;
+		controlerExtras = controler.getControlerExtras();
 
 		// Create a copy of the map (TODO: integrate with MakeCircle)
 		// Copy the 'realNodes' to work 'nodes'
@@ -131,12 +133,12 @@ public class CheckOverlaps implements Comparator<Integer>, ActionListener {
 		}
 		
 		// Trivial case
-		controler.replaceForLayout(nodes,  edges);
+		controlerExtras.replaceForLayout(nodes,  edges);
 		if (nodes.size() < 1) {
 			controler.displayPopup("<html>After iterative simplification,<br> "
 				+ "(eliminating icons with less than 3 neighbors),<br>"
 				+ "no icons are left. So, the graph is <b>planar</b>.");
-			controler.replaceForLayout(realNodes, realEdges);
+			controlerExtras.replaceForLayout(realNodes, realEdges);
 			return;
 		}
 		
@@ -740,7 +742,7 @@ public class CheckOverlaps implements Comparator<Integer>, ActionListener {
 				node.setXY(xy);
 			}
 		}
-		controler.replaceForLayout(realNodes, realEdges);
+		controlerExtras.replaceForLayout(realNodes, realEdges);
 	}
 	
 //

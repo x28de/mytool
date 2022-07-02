@@ -95,10 +95,10 @@ public class ZknExport {
 
 		//	Zettels
 		
-		treeModel = controler.getTreeModel();
+		treeModel = controler.getControlerExtras().getTreeModel();
 		
 		if (treeModel != null) {
-			nonTreeEdges = controler.getNonTreeEdges();
+			nonTreeEdges = controler.getControlerExtras().getNonTreeEdges();
 			DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) treeModel.getRoot();
 
 			descendTree(treeNode, 0, "");

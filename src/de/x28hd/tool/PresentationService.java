@@ -40,7 +40,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.undo.UndoManager;
 import javax.xml.transform.TransformerConfigurationException;
 
@@ -101,15 +100,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	// Undo accessories 
 	UndoManager undoManager;
 	
-	// Finding accessories
-	String findString = "";
-	HashSet<Integer> shownResults = null;
-	
-	// Tree accessories
-	DefaultTreeModel treeModel;
-	HashSet<GraphEdge> nonTreeEdges;
-	boolean treeBug = false;	// TODO fix
-
 	//	Toggles
 	boolean rectangle = false;
 
@@ -144,6 +134,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 		if (command == "open") {
 			String filename = lifeCycle.open();
 			newStuff.setInput(filename, 1);
+		} else if (command == "testimp") {	// TODO rename
+			new ImportDirector(this);	
 
 		// Quit
 
@@ -223,7 +215,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			displayPopup(preferences);
 
 		} else if (command == "centcol") {
-			treeBug = true;
 			if (gui.menuItem51.isSelected()) {
 			centralityColoring = new CentralityColoring(nodes, edges);
 				centralityColoring.changeColors();
@@ -235,7 +226,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "layout") {
 			centralityColoring = new CentralityColoring(nodes, edges);
 				centralityColoring.changeColors(true, this);
-				treeBug = true;
 			graphPanel.repaint();
 			gui.menuItem51.setSelected(true);
 			
@@ -304,7 +294,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			graphSelected();
 
 		} else if (command == "subtree") {
-			new SubtreeLayout(selectedTopic, nodes, edges, this, treeBug, translation);
+			new SubtreeLayout(selectedTopic, nodes, edges, this, true, translation);
 			
 		} else if (command == "extmsg") {
 			new LimitationMessage();
@@ -982,20 +972,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   return gui.nodePalette[gui.paletteID][7];
    }
     
-   public DefaultTreeModel getTreeModel() {
-	   return treeModel;
-   }
-   public void setTreeModel(DefaultTreeModel treeModel) {
-	   this.treeModel = treeModel;
-   }
-   
-   public void setNonTreeEdges(HashSet<GraphEdge> nonTreeEdges) {
-	   this.nonTreeEdges = nonTreeEdges;
-   }
-   public HashSet<GraphEdge> getNonTreeEdges() {
-	   return nonTreeEdges;
-   }
-
+	public void setModel(Hashtable<Integer, GraphNode> nodes, 
+			Hashtable<Integer, GraphEdge> edges) {
+		this.nodes = nodes;
+		this.edges = edges;
+		graphPanel.setModel(nodes, edges);
+	}
    
    public boolean getExtended() {
 	   return extended;
@@ -1079,38 +1061,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   graphSelected();
    }
 
-   public void replaceByTree(Hashtable<Integer,GraphNode> replacingNodes, 
-		   Hashtable<Integer,GraphEdge> replacingEdges) {
-	   if (nodes.size() > 0) {
-		   displayPopup("Please use an empty map if you want to use\n" 
-				   + "the imported tree information for re-export.");
-		   treeModel = null;
-		   nonTreeEdges = null;
-		   return;
-	   }
-	   nodes = replacingNodes;
-	   edges = replacingEdges;
-	   graphPanel.setModel(nodes, edges);
-	   updateBounds();
-	   setMouseCursor(Cursor.DEFAULT_CURSOR);
-	   hintTimer.stop();	// Any action => no more hint
-	   graphPanel.jumpingArrow(false);
-	   graphPanel.repaint();
-   }
-   
-   public void replaceForLayout(Hashtable<Integer,GraphNode> replacingNodes, 
-		   Hashtable<Integer,GraphEdge> replacingEdges) {	
-	   // TODO integrate with replaceByTree
-	   nodes = replacingNodes;
-	   edges = replacingEdges;
-	   graphPanel.setModel(nodes, edges);
-	   updateBounds();
-	   setMouseCursor(Cursor.DEFAULT_CURSOR);
-	   hintTimer.stop();	// Any action => no more hint
-	   graphPanel.jumpingArrow(false);
-	   graphPanel.repaint();
-   }
-   
 //
 //	Accessories intended for right-click (paste) in labelfield
     

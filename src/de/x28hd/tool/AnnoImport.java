@@ -155,8 +155,8 @@ public class AnnoImport {
     		System.out.println("Error AI110 " + e1);
     	}
     	controler.getNSInstance().setInput(dataString, 2);
-    	controler.setTreeModel(null);
-    	controler.setNonTreeEdges(null);
+    	controler.getControlerExtras().setTreeModel(null);
+    	controler.getControlerExtras().setNonTreeEdges(null);
 	}
 	
 	public void colorUsers() {

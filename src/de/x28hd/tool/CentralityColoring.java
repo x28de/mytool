@@ -349,10 +349,11 @@ public class CentralityColoring implements TreeSelectionListener {
 		}
 	    
 	    DefaultTreeModel model = new DefaultTreeModel(topTop);
-	    controler.setTreeModel(model);
-	    controler.setNonTreeEdges(nonTreeEdges);
+	    PresentationExtras controlerExtras = controler.getControlerExtras();
+	    controlerExtras.setTreeModel(model);
+	    controlerExtras.setNonTreeEdges(nonTreeEdges);
 	    model = null;
-	    model = controler.getTreeModel();
+	    model = controlerExtras.getTreeModel();
 	    tree = new JTree(model);
 	    
 	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);

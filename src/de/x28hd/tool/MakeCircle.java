@@ -199,7 +199,7 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 		}
 		
 		// Hide the tangents (subtrees and transit chains)
-		controler.replaceForLayout(nodes,  edges);
+		controler.getControlerExtras().replaceForLayout(nodes,  edges);
 		
 		// Prompt for Step 2
 		JLabel info = new JLabel("<html>Click <b>Next</b> when done with "
@@ -235,7 +235,7 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 	public void step2() {
 
 		// Reveal the tangents again
-		controler.replaceForLayout(realNodes, realEdges);
+		controler.getControlerExtras().replaceForLayout(realNodes, realEdges);
 		
 		
 		// Find center (no easier way?) for radial placing() later

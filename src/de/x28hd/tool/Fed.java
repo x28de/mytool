@@ -234,8 +234,8 @@ public class Fed {
     		System.out.println("Error FE110 " + e1);
     	}
     	controler.getNSInstance().setInput(dataString, 2);
-    	controler.setTreeModel(null);
-    	controler.setNonTreeEdges(null);
+    	controler.getControlerExtras().setTreeModel(null);
+    	controler.getControlerExtras().setNonTreeEdges(null);
     	
 	   	controler.getControlerExtras().toggleHashes(true);
 		controler.fixDivider();

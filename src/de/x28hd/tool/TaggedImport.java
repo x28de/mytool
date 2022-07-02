@@ -413,8 +413,8 @@ public class TaggedImport implements ActionListener, Comparator<HashSet<String>>
     		System.out.println("Error TGI110 " + e1);
     	}
     	controler.getNSInstance().setInput(dataString, 2);
-    	controler.setTreeModel(null);
-    	controler.setNonTreeEdges(null);
+    	controler.getControlerExtras().setTreeModel(null);
+    	controler.getControlerExtras().setNonTreeEdges(null);
     	
     	if (suspendList.isEmpty()) return;
 		FileWriter list;

@@ -267,7 +267,7 @@ public class ZknImport implements ActionListener {
 //		Create a JTree 
 	    
 	    DefaultTreeModel model = new DefaultTreeModel(top);
-	    controler.setTreeModel(model);
+	    controler.getControlerExtras().setTreeModel(model);
 		
 	    tree = new JTree(model);
 	    
@@ -452,8 +452,8 @@ public class ZknImport implements ActionListener {
 			}
 		}
 		if (transit) { 
-			controler.setNonTreeEdges(nonTreeEdges);
-			controler.replaceByTree(nodes, edges);
+			controler.getControlerExtras().setNonTreeEdges(nonTreeEdges);
+			controler.getControlerExtras().replaceByTree(nodes, edges);
 		} else {
 			try {
 				dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
@@ -465,8 +465,8 @@ public class ZknImport implements ActionListener {
 				System.out.println("Error ZI110 " + e1);
 			}
 			controler.getNSInstance().setInput(dataString, 2);
-			controler.setTreeModel(null);
-			controler.setNonTreeEdges(null);
+	    	controler.getControlerExtras().setTreeModel(null);
+	    	controler.getControlerExtras().setNonTreeEdges(null);
 		} 
 	}
 

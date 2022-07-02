@@ -626,9 +626,9 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 						new de.x28hd.tool.BranchInfo(refNum, branchInfo.toString());
 				((DefaultMutableTreeNode) node).setUserObject(newInfo);
 			}
-		    controler.setTreeModel(model);
-			controler.setNonTreeEdges(nonTreeEdges);
-			controler.replaceByTree(nodes, edges);
+		    controler.getControlerExtras().setTreeModel(model);
+			controler.getControlerExtras().setNonTreeEdges(nonTreeEdges);
+			controler.getControlerExtras().replaceByTree(nodes, edges);
 		} else 
 		
 		try {

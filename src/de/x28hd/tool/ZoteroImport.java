@@ -67,8 +67,8 @@ public class ZoteroImport {
     		System.out.println("Error ZI110 " + e1);
     	}
     	controler.getNSInstance().setInput(dataString, 2);
-    	controler.setTreeModel(null);
-    	controler.setNonTreeEdges(null);
+    	controler.getControlerExtras().setTreeModel(null);
+    	controler.getControlerExtras().setNonTreeEdges(null);
 	}
 	
 	public GraphNode addNode(String label, String detail, boolean publication) {
