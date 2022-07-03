@@ -120,7 +120,7 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 	
 	public GedcomImport(Document inputXml, GraphPanelControler controler) {
 		this.controler = controler;
-        controler.stopHint();	//	to keep the frame in front
+        controler.getControlerExtras().stopHint();	//	to keep the frame in front
 
 		if (!inputXml.getXmlEncoding().equals("UTF-8") && 
 				!System.getProperty("file.encoding").equals("UTF-8")) {

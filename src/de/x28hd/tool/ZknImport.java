@@ -311,7 +311,7 @@ public class ZknImport implements ActionListener {
         frame.setMinimumSize(new Dimension(596, 418));
 
         frame.setVisible(true);
-        controler.stopHint();
+        controler.getControlerExtras().stopHint();
         //	Continues with finish() after acterPerformed
 	}
 	

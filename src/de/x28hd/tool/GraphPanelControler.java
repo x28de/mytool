@@ -25,20 +25,12 @@ interface GraphPanelControler {
 	void updateBounds();
 	String getNewNodeColor();
 	Rectangle getBounds();
-//	void setTreeModel(DefaultTreeModel model);
-//	DefaultTreeModel getTreeModel();
-//	void setNonTreeEdges(HashSet<GraphEdge> nonTreeEdges);
-//	HashSet<GraphEdge> getNonTreeEdges();
-//	void replaceByTree(Hashtable<Integer, GraphNode> nodes,
-//			Hashtable<Integer, GraphEdge> edges);
 	void commit(int type, GraphNode node, GraphEdge edge, Point move);
 	void toggleRectanglePresent(boolean on);
-	void stopHint();
+//	void stopHint();
 	void zoom(boolean on);
 	boolean getExtended();
 	JFrame getMainWindow();
-//	void replaceForLayout(Hashtable<Integer,GraphNode> replacingNodes, 
-//			   Hashtable<Integer,GraphEdge> replacingEdges); 
 	boolean startStoring(String storeFilename, boolean anonymized);
 	void deleteCluster(boolean rectangle, GraphEdge assoc, boolean auto);
 	Hashtable<Integer,GraphNode> getNodes();

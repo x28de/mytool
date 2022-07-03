@@ -66,6 +66,14 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 	HashSet<GraphEdge> nonTreeEdges;
 	boolean treeBug = false;	// TODO fix
 
+	//	Show a hint instead of initial Composition window
+	public Timer hintTimer = new Timer(25, new ActionListener() { 
+	    public void actionPerformed (ActionEvent e) { 
+			graphPanel.jumpingArrow(true);
+			graphPanel.grabFocus();
+	    } 
+	});
+	
 	//	Trying animation for find result panning 
 	private Timer animationTimer2 = new Timer(20, new ActionListener() { 
 	    public void actionPerformed (ActionEvent e) {
@@ -93,7 +101,7 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 	}
 	
 	public void actionPerformed(ActionEvent arg0) {
-		controler.stopHint();
+		stopHint();
 		String command = arg0.getActionCommand();
 		JMenuItem item = (JMenuItem) arg0.getSource();
 		JPopupMenu menu = (JPopupMenu) item.getParent();
@@ -536,6 +544,11 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 		}
 	}
 	
+	   public void stopHint() {
+		   hintTimer.stop();
+		   graphPanel.jumpingArrow(false);
+	   }
+	
 	//	Display nodes as cards until edges outweigh
 	public void recount() {
 		boolean moreNodes = (nodes.size() >= edges.size());
@@ -559,8 +572,7 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 		   controler.setModel(nodes, edges);
 		   controler.updateBounds();
 		   controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
-		   controler.stopHint();
-		   graphPanel.jumpingArrow(false);
+		   stopHint();
 		   graphPanel.repaint();
 	   }
 	   
@@ -572,8 +584,7 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 		   graphPanel.setModel(nodes, edges);
 		   controler.updateBounds();
 		   controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
-		   controler.stopHint();
-		   graphPanel.jumpingArrow(false);
+		   stopHint();
 		   graphPanel.repaint();
 	   }
 

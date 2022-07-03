@@ -124,8 +124,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 	
 	public void actionPerformed(ActionEvent e) {
 		
-		hintTimer.stop();	// Any action => no more hint
-		graphPanel.jumpingArrow(false);
+//		hintTimer.stop();	// Any action => no more hint
+//		graphPanel.jumpingArrow(false);
+		controlerExtras.stopHint();
 		
 		String command = e.getActionCommand();
 
@@ -364,13 +365,13 @@ public final class PresentationService implements ActionListener, MouseListener,
 //
 //	Main Window	
 	
-	//	Show a hint instead of initial Composition window
-	private Timer hintTimer = new Timer(25, new ActionListener() { 
-	    public void actionPerformed (ActionEvent e) { 
-			graphPanel.jumpingArrow(true);
-			graphPanel.grabFocus();
-	    } 
-	});
+//	//	Show a hint instead of initial Composition window
+//	private Timer hintTimer = new Timer(25, new ActionListener() { 
+//	    public void actionPerformed (ActionEvent e) { 
+//			graphPanel.jumpingArrow(true);
+//			graphPanel.grabFocus();
+//	    } 
+//	});
 	//	Trying animation for map insertion 
 	private Timer animationTimer = new Timer(20, new ActionListener() { 
 	    public void actionPerformed (ActionEvent e) {
@@ -504,7 +505,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		edi.setSize(initialSize);
 		controlerExtras.setInitialSize(initialSize);
 		if (lifeCycle.getFilename().isEmpty()) {
-			hintTimer.start();
+			controlerExtras.hintTimer.start();
 		}
 	}
 	
@@ -987,10 +988,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   updateCcpGui();
    }
    
-   public void stopHint() {
-	   hintTimer.stop();
-	   graphPanel.jumpingArrow(false);
-   }
+//   public void stopHint() {
+//	   controlerExtras.hintTimer.stop();
+//	   graphPanel.jumpingArrow(false);
+//   }
 	
    // Major class exchanges
    
@@ -1030,8 +1031,9 @@ public final class PresentationService implements ActionListener, MouseListener,
    
    public void performUpdate() {
 	   boolean existingMap = newStuff.isExistingMap();
-	   hintTimer.stop();
-	   graphPanel.jumpingArrow(false);
+//	   hintTimer.stop();
+//	   graphPanel.jumpingArrow(false);
+	   controlerExtras.stopHint();
 	   if (!lifeCycle.isLoaded() && existingMap && nodes.size() < 1) {
 		   //  don't set dirty yet
 		   lifeCycle.setConfirmedFilename(newStuff.getAdvisableFilename());

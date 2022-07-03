@@ -183,7 +183,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		progressFrame.setMinimumSize(new Dimension(596, 418));
 
 		progressFrame.setVisible(true);
-		controler.stopHint();
+		controler.getControlerExtras().stopHint();
 
 		addPropertyChangeListener(this);	//	updates progress bar when setProgress()
 		execute();							//	calls loadStuff() via doInBackground()
@@ -652,7 +652,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
         	layoutOpt = true;
         	finish();
         }
-        controler.stopHint();
+        controler.getControlerExtras().stopHint();
 	}
 //		
 //		Pass on the new map

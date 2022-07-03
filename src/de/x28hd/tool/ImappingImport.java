@@ -363,7 +363,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 	        frame.setMinimumSize(new Dimension(596, 418));
 
 	        frame.setVisible(true);
-	        controler.stopHint();
+	        controler.getControlerExtras().stopHint();
 
 //	        
 //			Read in the cross links
