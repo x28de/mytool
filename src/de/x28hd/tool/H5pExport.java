@@ -126,11 +126,11 @@ public class H5pExport implements HyperlinkListener, ActionListener {
 //		Create background image
 		
 		GraphExtras graphExtras = controler.getGraphExtras();
-		controler.updateBounds();
+		controler.getControlerExtras().updateBounds();
 
 		BufferedImage bufferedImage = graphExtras.snapShot();
 
-		Rectangle bounds = controler.getBounds();
+		Rectangle bounds = controler.getControlerExtras().getBounds();
 		translation = new Point(bounds.x - 40, bounds.y - 40);
 		int width = bufferedImage.getWidth();
 		int height = bufferedImage.getHeight();
@@ -419,7 +419,7 @@ public class H5pExport implements HyperlinkListener, ActionListener {
 
 	public void actionPerformed(ActionEvent arg0) {
 		simple = !glossaryHotspots.isSelected();
-		int width = controler.getBounds().width;
+		int width = controler.getControlerExtras().getBounds().width;
 		if (simple && width > 700) controler.displayPopup("Warning: "
 				+ "Large maps (more than 700 px wide) don't look good yet\n"
 				+ "because the original marker icons are too large.\n"

@@ -517,7 +517,6 @@ public class Gui {
 
 		menuItem24 = new JCheckBoxMenuItem("Appending dropped stuff", true);
 		menuItem24.setToolTipText("Exact drop position is ignored and new stuff is just appended");
-		menuItem24.addActionListener(controler);
 		sub4.add(menuItem24);
 
 		menuItem25 = new JCheckBoxMenuItem("Parsing dropped HTML", false);

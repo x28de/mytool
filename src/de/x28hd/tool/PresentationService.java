@@ -81,13 +81,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 	Point clickedSpot = null;
 	Point translation = new Point(0, 0);
 	Point panning = new Point(3, 0);
-	Point upperGap = new Point(3, 0);
-	Point dropLocation = null;
-	boolean dropHere = false;
-	Point pasteLocation = null;
-	boolean pasteHere = false;
 	int animationPercent = 0;
-	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	CentralityColoring centralityColoring;
 
 	// Input/ output accessories
@@ -160,7 +154,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		// Paste
 
 		} else if (command == "paste") {
-			pasteHere = false;
+			controlerExtras.setPasteOptions(false, null);
 
 			Transferable t = newStuff.readClipboard();
 			if (!newStuff.transferTransferable(t)) {
@@ -172,8 +166,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 
 		} else if (command == "pasteHere") {
 
-			pasteHere = true;
-			pasteLocation = clickedSpot;
+			controlerExtras.setPasteOptions(true, clickedSpot);
 			Transferable t = newStuff.readClipboard();
 			if (!newStuff.transferTransferable(t)) {
 				System.out.println("Error PS121a");
@@ -365,36 +358,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 //
 //	Main Window	
 	
-//	//	Show a hint instead of initial Composition window
-//	private Timer hintTimer = new Timer(25, new ActionListener() { 
-//	    public void actionPerformed (ActionEvent e) { 
-//			graphPanel.jumpingArrow(true);
-//			graphPanel.grabFocus();
-//	    } 
-//	});
-	//	Trying animation for map insertion 
-	private Timer animationTimer = new Timer(20, new ActionListener() { 
-	    public void actionPerformed (ActionEvent e) {
-	    	if (animationPercent < 100) {
-	    		animationPercent = animationPercent + 5;
-	        	Double dX = -panning.x / 20.0;
-	        	Double dY = -panning.y / 20.0;
-	        	int pannedX = dX.intValue();;
-	        	int pannedY = dY.intValue();;
-	        	graphPanel.translateGraph(pannedX, pannedY);
-	    	} else {
-	    		animationTimer.stop();
-	    		animationPercent = 0;
-	    		performUpdate(); 
-	        	graphPanel.setModel(nodes, edges);
-	     	}
-	    	updateBounds();
-	    	translation = graphPanel.getTranslation();
-	    	setMouseCursor(Cursor.DEFAULT_CURSOR);
-	    	graphPanel.repaint();
-	    } 
-	});
-
 	public void createMainWindow(String title) {
 		mainWindow = new JFrame(title) {
 			private static final long serialVersionUID = 1L;
@@ -663,7 +626,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 			GraphNode topic = new GraphNode(newId, xy, Color.decode(gui.nodePalette[gui.paletteID][7]), "", "");
 			nodes.put(newId, topic);
 			controlerExtras.recount();
-			updateBounds();
+			controlerExtras.updateBounds();
 			graphPanel.nodeSelected(topic);
 			graphPanel.repaint();
 			lifeCycle.setDirty(true);
@@ -737,7 +700,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		int topicKey = topic.getID();
 		nodes.remove(topicKey);
 		controlerExtras.recount();
-		updateBounds();
+		controlerExtras.updateBounds();
 		lifeCycle.setDirty(true);
 		commit(0, topic, null, null);
 		return;
@@ -857,53 +820,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		lifeCycle.setDirty(true);
 	}
 
-	public Rectangle getBounds() {
-		updateBounds();
-		return bounds;
-	}
-	
-	public void updateBounds() {
-		int xMin = Integer.MAX_VALUE;
-		int yMin = Integer.MAX_VALUE;
-		int xMax = Integer.MIN_VALUE;
-		int yMax = Integer.MIN_VALUE;
-		Enumeration<GraphNode> e = nodes.elements();
-		while (e.hasMoreElements()) {
-			GraphNode node = e.nextElement();
-			Point p = node.getXY();
-			if (p.x < xMin) xMin = p.x;
-			if (p.x > xMax) xMax = p.x;
-			if (p.y < yMin) yMin = p.y;
-			if (p.y > yMax) yMax = p.y;
-		}
-		bounds.x = xMin;
-		bounds.y = yMin;
-		bounds.width = xMax - xMin;
-		bounds.height = yMax - yMin;
-		graphPanel.setBounds(bounds);
-	}
-
-
-	public Point determineBottom(Hashtable<Integer,GraphNode> nodes, Rectangle bounds) {
-		int maxX = bounds.x + bounds.width;
-		int maxY = bounds.y + bounds.height;
-		int minXbottom = maxX -bounds.width/2;
-		if (bounds.width < 726) {	//	graphPanel width, 960 window - 232 right pane
-			minXbottom = maxX -bounds.width/2;
-		}
-		Enumeration<GraphNode> nodesEnum = nodes.elements();
-		while (nodesEnum.hasMoreElements()) {
-			GraphNode node = nodesEnum.nextElement();
-			Point xy = node.getXY();
-			int x = xy.x;
-			int y = xy.y;
-			if (y > maxY - 100){
-				if (x < minXbottom) minXbottom = x;
-			}
-		}
-		return new Point(minXbottom, maxY);
-	}
-	
 	public void addToLabel(String textToAdd) {
 		if (selectedTopic == dummyNode) return;
 		String oldText = labelField.getText();
@@ -988,81 +904,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   updateCcpGui();
    }
    
-//   public void stopHint() {
-//	   controlerExtras.hintTimer.stop();
-//	   graphPanel.jumpingArrow(false);
-//   }
-	
-   // Major class exchanges
-   
-   public void triggerUpdate() {
-	   translation = graphPanel.getTranslation();
-	   if (nodes.size() < 1) {
-		   panning = new Point(0, 0);
-		   upperGap = new Point(0, 0);
-		   performUpdate();
-	   } else {
-		   Point bottomOfExisting = determineBottom(nodes, bounds);
-		   panning = new Point(bottomOfExisting.x - 40 + translation.x, 
-				   bottomOfExisting.y - 100 + translation.y); 
-		   upperGap = new Point(40, 140); 
-		   dropLocation = newStuff.getDropLocation();
-		   if (dropLocation != null && !gui.menuItem24.isSelected()) dropHere = true; 
-		   if (!dropHere && !pasteHere) {
-			   animationTimer.start();
-			   //  performUpdate is called from timer's ActionPerformed() 
-		   } else {
-			   panning = new Point(0, 0);
-			   //	"upperGap" is misleading in this case
-			   if (dropLocation != null) {
-				   upperGap = dropLocation;
-			   } else {
-				   upperGap = pasteLocation;
-			   }
-			   translation = graphPanel.getTranslation();
-			   graphPanel.translateGraph(-panning.x, -panning.y);
-			   performUpdate();
-			   updateBounds();
-			   setMouseCursor(Cursor.DEFAULT_CURSOR);
-			   graphPanel.repaint();
-		   }
-	   }
-   }
-   
-   public void performUpdate() {
-	   boolean existingMap = newStuff.isExistingMap();
-//	   hintTimer.stop();
-//	   graphPanel.jumpingArrow(false);
-	   controlerExtras.stopHint();
-	   if (!lifeCycle.isLoaded() && existingMap && nodes.size() < 1) {
-		   //  don't set dirty yet
-		   lifeCycle.setConfirmedFilename(newStuff.getAdvisableFilename());
-		   lifeCycle.setLoaded(true);
-	   } else {
-		   lifeCycle.setDirty(true);
-	   }
-	   Hashtable<Integer, GraphNode> newNodes = newStuff.getNodes();
-	   Hashtable<Integer, GraphEdge> newEdges = newStuff.getEdges();
-	   if (lifeCycle.getFilename().isEmpty()) {
-		   lifeCycle.resetFilename(newStuff.getAdvisableFilename());
-	   }
-	   IntegrateNodes integrateNodes = new IntegrateNodes(nodes, edges, newNodes, newEdges);
-	   translation = graphPanel.getTranslation();
-
-	   integrateNodes.mergeNodes(upperGap, translation);
-	   nodes = integrateNodes.getNodes();
-	   edges = integrateNodes.getEdges();
-
-	   graphPanel.setModel(nodes, edges);
-	   controlerExtras.recount();
-	   updateBounds();
-	   setMouseCursor(Cursor.DEFAULT_CURSOR);
-	   graphPanel.repaint();
-	   pasteHere = false;
-	   dropHere = false;
-	   graphSelected();
-   }
-
 //
 //	Accessories intended for right-click (paste) in labelfield
     
@@ -1197,4 +1038,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 	public PresentationExtras getControlerExtras() {
 		return controlerExtras;
 	}
+
+	public LifeCycle getLifeCycle() {
+		return lifeCycle;
+	}
+
 }

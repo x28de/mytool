@@ -600,7 +600,7 @@ class GraphPanel extends JDesktopPane  {
 					} else {
 						translateNode(selection.topic, dx, dy);
 					}
-					controler.updateBounds();
+					controler.getControlerExtras().updateBounds();
 
 				} else if (clusterInProgress) {
 					if (enableClusterCopy && (isSpecial(e) || simulatedAltDown)) {
@@ -611,7 +611,7 @@ class GraphPanel extends JDesktopPane  {
 					} else {
 						translateCluster(dx, dy);
 					}
-					controler.updateBounds();
+					controler.getControlerExtras().updateBounds();
 
 				} else {
 					if (rectangleInProgress && 

@@ -16,18 +16,14 @@ interface GraphPanelControler {
 	TextEditorPanel edi = null;
 	void addToLabel(String text);
 	void setFilename(String filename, int type);
-	void triggerUpdate();
 	NewStuff getNSInstance();
 	void manip(int x);
 	GraphEdge createEdge(GraphNode topic1, GraphNode topic2);
 	void setMouseCursor(int type);
 	void setDirty(boolean toggle);
-	void updateBounds();
 	String getNewNodeColor();
-	Rectangle getBounds();
 	void commit(int type, GraphNode node, GraphEdge edge, Point move);
 	void toggleRectanglePresent(boolean on);
-//	void stopHint();
 	void zoom(boolean on);
 	boolean getExtended();
 	JFrame getMainWindow();
@@ -46,4 +42,5 @@ interface GraphPanelControler {
 	public GraphPanel getGraphPanel();
 	public void setModel(Hashtable<Integer, GraphNode> nodes, 
 			Hashtable<Integer, GraphEdge> edges);
+	LifeCycle getLifeCycle();
 	}

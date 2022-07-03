@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -35,6 +36,7 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 	GraphPanel graphPanel;
 	NewStuff newStuff;
 	Gui gui;
+	LifeCycle lifeCycle;
 	TextEditorPanel edi;
 	Hashtable<Integer, GraphNode> nodes;
 	Hashtable<Integer, GraphEdge> edges;
@@ -66,6 +68,14 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 	HashSet<GraphEdge> nonTreeEdges;
 	boolean treeBug = false;	// TODO fix
 
+	Point upperGap = new Point(3, 0);
+	Point dropLocation = null;
+	boolean dropHere = false;
+	Point pasteLocation = null;
+	boolean pasteHere = false;
+	Rectangle bounds = new Rectangle(2, 2, 2, 2);
+
+	
 	//	Show a hint instead of initial Composition window
 	public Timer hintTimer = new Timer(25, new ActionListener() { 
 	    public void actionPerformed (ActionEvent e) { 
@@ -89,7 +99,30 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 	    		animationPercent = 0;
 	        	graphPanel.setModel(nodes, edges);
 	     	}
-	    	controler.updateBounds();
+	    	updateBounds();
+	    	translation = graphPanel.getTranslation();
+	    	controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
+	    	graphPanel.repaint();
+	    } 
+	});
+	
+	//	Trying animation for map insertion 
+	private Timer animationTimer = new Timer(20, new ActionListener() { 
+	    public void actionPerformed (ActionEvent e) {
+	    	if (animationPercent < 100) {
+	    		animationPercent = animationPercent + 5;
+	        	Double dX = -panning.x / 20.0;
+	        	Double dY = -panning.y / 20.0;
+	        	int pannedX = dX.intValue();;
+	        	int pannedY = dY.intValue();;
+	        	graphPanel.translateGraph(pannedX, pannedY);
+	    	} else {
+	    		animationTimer.stop();
+	    		animationPercent = 0;
+	    		performUpdate(); 
+	        	graphPanel.setModel(nodes, edges);
+	     	}
+	    	updateBounds();
 	    	translation = graphPanel.getTranslation();
 	    	controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
 	    	graphPanel.repaint();
@@ -112,7 +145,7 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 
 		if (command == "insert" || command == "new") {
 			openComposition();
-			
+				
 		//	Context menu command
 
 		// Node menu
@@ -549,6 +582,120 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 		   graphPanel.jumpingArrow(false);
 	   }
 	
+	   // Major class exchanges
+	   
+	   public void triggerUpdate() {
+		   translation = graphPanel.getTranslation();
+		   if (nodes.size() < 1) {
+			   panning = new Point(0, 0);
+			   upperGap = new Point(0, 0);
+			   performUpdate();
+		   } else {
+			   Point bottomOfExisting = determineBottom(nodes, bounds);
+			   panning = new Point(bottomOfExisting.x - 40 + translation.x, 
+					   bottomOfExisting.y - 100 + translation.y); 
+			   upperGap = new Point(40, 140); 
+			   dropLocation = newStuff.getDropLocation();
+			   if (dropLocation != null && !gui.menuItem24.isSelected()) dropHere = true; 
+			   if (!dropHere && !pasteHere) {
+				   animationTimer.start();
+				   //  performUpdate is called from timer's ActionPerformed() 
+			   } else {
+				   panning = new Point(0, 0);
+				   //	"upperGap" is misleading in this case
+				   if (dropLocation != null) {
+					   upperGap = dropLocation;
+				   } else {
+					   upperGap = pasteLocation;
+				   }
+				   translation = graphPanel.getTranslation();
+				   graphPanel.translateGraph(-panning.x, -panning.y);
+				   performUpdate();
+				   updateBounds();
+				   controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
+				   graphPanel.repaint();
+			   }
+		   }
+	   }
+	   
+	   public void performUpdate() {
+		   boolean existingMap = newStuff.isExistingMap();
+		   stopHint();
+		   if (!lifeCycle.isLoaded() && existingMap && nodes.size() < 1) {
+			   //  don't set dirty yet
+			   lifeCycle.setConfirmedFilename(newStuff.getAdvisableFilename());
+			   lifeCycle.setLoaded(true);
+		   } else {
+			   lifeCycle.setDirty(true);
+		   }
+		   Hashtable<Integer, GraphNode> newNodes = newStuff.getNodes();
+		   Hashtable<Integer, GraphEdge> newEdges = newStuff.getEdges();
+		   if (lifeCycle.getFilename().isEmpty()) {
+			   lifeCycle.resetFilename(newStuff.getAdvisableFilename());
+		   }
+		   IntegrateNodes integrateNodes = new IntegrateNodes(nodes, edges, newNodes, newEdges);
+		   translation = graphPanel.getTranslation();
+
+		   integrateNodes.mergeNodes(upperGap, translation);
+		   nodes = integrateNodes.getNodes();
+		   edges = integrateNodes.getEdges();
+
+		   graphPanel.setModel(nodes, edges);
+		   recount();
+		   updateBounds();
+		   controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
+		   graphPanel.repaint();
+		   pasteHere = false;
+		   dropHere = false;
+		   controler.graphSelected();
+	   }
+	   
+		public Rectangle getBounds() {
+			updateBounds();
+			return bounds;
+		}
+		
+		public void updateBounds() {
+			int xMin = Integer.MAX_VALUE;
+			int yMin = Integer.MAX_VALUE;
+			int xMax = Integer.MIN_VALUE;
+			int yMax = Integer.MIN_VALUE;
+			Enumeration<GraphNode> e = nodes.elements();
+			while (e.hasMoreElements()) {
+				GraphNode node = e.nextElement();
+				Point p = node.getXY();
+				if (p.x < xMin) xMin = p.x;
+				if (p.x > xMax) xMax = p.x;
+				if (p.y < yMin) yMin = p.y;
+				if (p.y > yMax) yMax = p.y;
+			}
+			bounds.x = xMin;
+			bounds.y = yMin;
+			bounds.width = xMax - xMin;
+			bounds.height = yMax - yMin;
+			graphPanel.setBounds(bounds);
+		}
+
+
+		public Point determineBottom(Hashtable<Integer,GraphNode> nodes, Rectangle bounds) {
+			int maxX = bounds.x + bounds.width;
+			int maxY = bounds.y + bounds.height;
+			int minXbottom = maxX -bounds.width/2;
+			if (bounds.width < 726) {	//	graphPanel width, 960 window - 232 right pane
+				minXbottom = maxX -bounds.width/2;
+			}
+			Enumeration<GraphNode> nodesEnum = nodes.elements();
+			while (nodesEnum.hasMoreElements()) {
+				GraphNode node = nodesEnum.nextElement();
+				Point xy = node.getXY();
+				int x = xy.x;
+				int y = xy.y;
+				if (y > maxY - 100){
+					if (x < minXbottom) minXbottom = x;
+				}
+			}
+			return new Point(minXbottom, maxY);
+		}
 	//	Display nodes as cards until edges outweigh
 	public void recount() {
 		boolean moreNodes = (nodes.size() >= edges.size());
@@ -570,7 +717,7 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 		   nodes = replacingNodes;
 		   edges = replacingEdges;
 		   controler.setModel(nodes, edges);
-		   controler.updateBounds();
+		   updateBounds();
 		   controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
 		   stopHint();
 		   graphPanel.repaint();
@@ -582,7 +729,7 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 		   nodes = replacingNodes;
 		   edges = replacingEdges;
 		   graphPanel.setModel(nodes, edges);
-		   controler.updateBounds();
+		   updateBounds();
 		   controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
 		   stopHint();
 		   graphPanel.repaint();
@@ -616,6 +763,7 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 	public void setGui(Gui g) {
 		gui = g;
 		gui.setControlerExtras(this);
+		lifeCycle = controler.getLifeCycle();	// TODO better place
 	}
 	
 	public void setMap() {
@@ -633,5 +781,11 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 		initialSize = size;
 		zoomedSize = initialSize;
 
+	}
+
+	public void setPasteOptions(boolean pasteHere, Point pasteLocation) {
+		this.pasteHere = pasteHere;
+		this.pasteLocation = pasteLocation;
+		
 	}
 }

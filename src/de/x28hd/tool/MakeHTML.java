@@ -21,7 +21,7 @@ public class MakeHTML {
 		// TODO eliminate detour via topicid
 		Hashtable<Integer, Integer> nodeids = new Hashtable<Integer, Integer>();
 		Hashtable<Integer, Integer> edgeids = new Hashtable<Integer, Integer>();
-		Rectangle bounds = controler.getBounds();
+		Rectangle bounds = controler.getControlerExtras().getBounds();
 //		System.out.println(bounds.x + " - " + bounds.width + " x " + bounds.y + " - " + bounds.height);
 		int width = bounds.width + 150;
 		int height = bounds.height + 60;

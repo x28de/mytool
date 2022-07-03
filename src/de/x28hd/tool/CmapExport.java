@@ -72,7 +72,7 @@ public class CmapExport {
 		//	Header
 		Element outMap = out.createElement("map");
 		
-		Rectangle bounds = controler.getBounds();
+		Rectangle bounds = controler.getControlerExtras().getBounds();
 		Point adjust = new Point(0, 0);
 		if (bounds.x < 0) {
 			adjust.x = -bounds.x + 40;

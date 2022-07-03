@@ -108,7 +108,7 @@ public class NewStuff {
 //	Handlers for dropped and pasted stuff
 	
 //	canImport and importData are called by drop from GraphPanel and CompositionWindow,
-//	readClipboard is called from Paste operations in PresentationService and 
+//	readClipboard is called from Paste operations in PresentationExtras and 
 //	CompositionWindow. 
 	
 	public boolean canImport(TransferHandler.TransferSupport support, String diag) {
@@ -298,7 +298,7 @@ public class NewStuff {
 			newNodes = fetchToUpperLeft(newNodes);
 		}
 		if (inputType == 1 && readyMap) existingMap = true;		
-		controler.triggerUpdate();
+		controlerExtras.triggerUpdate();
 		dropLocation = null;
 		readyMap = false;
 	}
