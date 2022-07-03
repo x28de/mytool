@@ -291,7 +291,7 @@ public class Gui {
 		menu3.add(menuItem31);
 
 		JMenuItem menuItem37 = new JMenuItem("Launch the Import Wizard",  new ImageIcon(wizardImage));
-		menuItem37.setActionCommand("testimp");		// TODO rename
+		menuItem37.setActionCommand("importDirector");	
 		menuItem37.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, shortcutMask));
 		menuItem37.setToolTipText("Import data in one of 15 formats");
 		menuItem37.addActionListener(controler);
@@ -308,67 +308,67 @@ public class Gui {
 		JMenuItem menuItem73 = new JMenuItem("to Wordpress WXR format");
 		menuItem73.setActionCommand("wxr");
 		menuItem73.setToolTipText("(Wordpress Export Format)");
-		menuItem73.addActionListener(controler);
+		menuItem73.addActionListener(controlerExtras);
 		menu7.add(menuItem73);
 
 		JMenuItem menuItem76 = new JMenuItem("to CMap CXL file");
 		menuItem76.setActionCommand("cmapexp");
 		menuItem76.setToolTipText("ConceptMap by cmap.ihmc.us");
-		menuItem76.addActionListener(controler);
+		menuItem76.addActionListener(controlerExtras);
 		menu7.add(menuItem76);
 
 		JMenuItem menuItem77 = new JMenuItem("to Brain XML file");
 		menuItem77.setActionCommand("brainexp");
 		menuItem77.setToolTipText("Create a TheBrain PB-XML import file");
-		menuItem77.addActionListener(controler);
+		menuItem77.addActionListener(controlerExtras);
 		menu7.add(menuItem77);
 
 		JMenuItem menuItem78 = new JMenuItem("to VUE map file");
 		menuItem78.setActionCommand("vueexp");
 		menuItem78.setToolTipText("(For Visual Understanding Environment)");
-		menuItem78.addActionListener(controler);
+		menuItem78.addActionListener(controlerExtras);
 		menu7.add(menuItem78);
 
 		JMenuItem menuItem81 = new JMenuItem("to Zettelkasten XML file");
 		menuItem81.setActionCommand("zkexp");
 		menuItem81.setToolTipText("Note-taking application according to Luhmann ");
-		menuItem81.addActionListener(controler);
+		menuItem81.addActionListener(controlerExtras);
 		menu7.add(menuItem81);
 
 		JMenuItem menuItem79 = new JMenuItem("items to CSV text file");
 		menuItem79.setActionCommand("csvexp");
 		menuItem79.setToolTipText("Just Character separated Values");
-		menuItem79.addActionListener(controler);
+		menuItem79.addActionListener(controlerExtras);
 		menu7.add(menuItem79);
 
 		JMenuItem menuItem84 = new JMenuItem("lines to CSV text file");
 		menuItem84.setActionCommand("edgeexp");
 		menuItem84.setToolTipText("Labels, IDs and relationships to CSV");
-		menuItem84.addActionListener(controler);
+		menuItem84.addActionListener(controlerExtras);
 		menu7.add(menuItem84);
 
 		JMenuItem menuItem74 = new JMenuItem("to iMapping iMap file *)");
 		menuItem74.setActionCommand("imexp");
 		menuItem74.setToolTipText("(Think Tool iMapping,info)");
-		menuItem74.addActionListener(controler);
+		menuItem74.addActionListener(controlerExtras);
 		menu7.add(menuItem74);
 
 		JMenuItem menuItem75 = new JMenuItem("to DenkWerkZeug KGIF file *)");
 		menuItem75.setActionCommand("dwzexp");
 		menuItem75.setToolTipText("(Think Tool DenkWerkZeug.org)");
-		menuItem75.addActionListener(controler);
+		menuItem75.addActionListener(controlerExtras);
 		menu7.add(menuItem75);
 
 		JMenuItem menuItem85 = new JMenuItem("to H5P content folder");
 		menuItem85.setActionCommand("h5pexp");
 		menuItem85.setToolTipText("(Interactive HTML 5 content, type like ImageHotspots)");
-		menuItem85.addActionListener(controler);
+		menuItem85.addActionListener(controlerExtras);
 		menu7.add(menuItem85);
 
 		JMenuItem menuItem83 = new JMenuItem("to Metamaps JSON file (test)");
 		menuItem83.setActionCommand("metamexp");
 		menuItem83.setToolTipText("(Think Tool Metamaps.cc)");
-		menuItem83.addActionListener(controler);
+		menuItem83.addActionListener(controlerExtras);
 		menu7.add(menuItem83);
 
 		menu7.addSeparator();
@@ -376,13 +376,13 @@ public class Gui {
 		JMenuItem menuItem71 = new JMenuItem("to interactive HTML page");
 		menuItem71.setActionCommand("MakeHTML");
 		menuItem71.setToolTipText("An HTML snapshot for interactive Read-Only mode");
-		menuItem71.addActionListener(controler);
+		menuItem71.addActionListener(controlerExtras);
 		menu7.add(menuItem71);
 
 		JMenuItem menuItem72 = new JMenuItem("to printable HTML page");
 		menuItem72.setActionCommand("Print");
 		menuItem72.setToolTipText("HTML graphics to zoom out");
-		menuItem72.addActionListener(controler);
+		menuItem72.addActionListener(controlerExtras);
 		menu7.add(menuItem72);
 
 		menu7.addSeparator();
@@ -428,7 +428,7 @@ public class Gui {
 		menuItem58.setActionCommand("zoom");
 		menuItem58.setSelected(false);
 		menuItem58.setToolTipText("Zoomable view (less-than-ideal solution)");
-		menuItem58.addActionListener(controler);
+		menuItem58.addActionListener(controlerExtras);
 		menu5.add(menuItem58);
 
 		menu5.addSeparator();
@@ -464,7 +464,7 @@ public class Gui {
 		JMenuItem menuItem53 = new JMenuItem("Make Tree");
 		menuItem53.setActionCommand("layout");
 		menuItem53.setToolTipText("Generates a tree layout and structure for exporting");
-		menuItem53.addActionListener(controler);
+		menuItem53.addActionListener(controlerExtras);
 		sub2.add(menuItem53);
 
 		JMenuItem menuItem60 = new JMenuItem("Make Circle");
@@ -488,21 +488,21 @@ public class Gui {
 		menuItem51 = new JCheckBoxMenuItem("Centrality Heatmap", false);
 		menuItem51.setActionCommand("centcol");
 		menuItem51.setToolTipText("Warmer colors represent higher betweenness centrality");
-		menuItem51.addActionListener(controler);
+		menuItem51.addActionListener(controlerExtras);
 		sub2.add(menuItem51);
 
 		menuItem38 = new JMenuItem("Flip rectangle horizontal");
 		menuItem38.setActionCommand("flipHori");
 		menuItem38.setEnabled(false);
 		menuItem38.setToolTipText("Flip the selected clipping horizontally");
-		menuItem38.addActionListener(controler);
+		menuItem38.addActionListener(controlerExtras);
 		sub2.add(menuItem38);
 
 		menuItem39 = new JMenuItem("Flip rectangle vertical");
 		menuItem39.setActionCommand("flipVerti");
 		menuItem39.setEnabled(false);
 		menuItem39.setToolTipText("Flip the selected clipping vertically");
-		menuItem39.addActionListener(controler);
+		menuItem39.addActionListener(controlerExtras);
 		sub2.add(menuItem39);
 
 		menu5.add(sub2);
@@ -585,7 +585,7 @@ public class Gui {
 		JMenuItem menuItem64 = new JMenuItem("Puzzle Game");
 		menuItem64.setActionCommand("random");
 		menuItem64.setToolTipText("A random map for relaxing or for testing");
-		menuItem64.addActionListener(controler);
+		menuItem64.addActionListener(controlerExtras);
 		sub6.add(menuItem64);
 
 		menuItem55 = new JCheckBoxMenuItem("Tablet Pen Mode", false);
@@ -603,19 +603,19 @@ public class Gui {
 		JMenuItem menuItem80 = new JMenuItem("Copy to anonymized map...");
 		menuItem80.setActionCommand("Anonymize");
 		menuItem80.setToolTipText("Saves a copy with all a-z replaced by x");
-		menuItem80.addActionListener(controler);
+		menuItem80.addActionListener(controlerExtras);
 		sub6.add(menuItem80);
 
 		JMenuItem menuItem16 = new JMenuItem("Legacy Save...");
 		menuItem16.setActionCommand("export");
 		menuItem16.setToolTipText("Export to legacy zip file format");
-		menuItem16.addActionListener(controler);
+		menuItem16.addActionListener(controlerExtras);
 		sub6.add(menuItem16);
 
 		JMenuItem menuItem68 = new JMenuItem("Experimental Save...");
 		menuItem68.setActionCommand("expJson");
 		menuItem68.setToolTipText("Export to experimental JSON format");
-		menuItem68.addActionListener(controler);
+		menuItem68.addActionListener(controlerExtras);
 		sub6.add(menuItem68);
 
 		menuItem52 = new JCheckBoxMenuItem("Power User Mode", false);
@@ -814,13 +814,13 @@ public class Gui {
 		sub2.add(copyCluster);
 		
 		JMenuItem flipHori = new JMenuItem();
-		flipHori.addActionListener(controler);
+		flipHori.addActionListener(controlerExtras);
 		flipHori.setActionCommand("flipHori");
 		flipHori.setText("Flip Cluster Horizontal");
 		sub2.add(flipHori);
 		
 		JMenuItem flipVerti = new JMenuItem();
-		flipVerti.addActionListener(controler);
+		flipVerti.addActionListener(controlerExtras);
 		flipVerti.setActionCommand("flipVerti");
 		flipVerti.setText("Flip Cluster Vertical");
 		sub2.add(flipVerti);

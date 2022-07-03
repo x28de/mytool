@@ -1,11 +1,8 @@
 package de.x28hd.tool;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.HashSet;
 import java.util.Hashtable;
 
 import javax.swing.JFrame;
-import javax.swing.tree.DefaultTreeModel;
 
 interface GraphPanelControler {
 	void nodeSelected(GraphNode node);
@@ -17,14 +14,12 @@ interface GraphPanelControler {
 	void addToLabel(String text);
 	void setFilename(String filename, int type);
 	NewStuff getNSInstance();
-	void manip(int x);
 	GraphEdge createEdge(GraphNode topic1, GraphNode topic2);
 	void setMouseCursor(int type);
 	void setDirty(boolean toggle);
 	String getNewNodeColor();
 	void commit(int type, GraphNode node, GraphEdge edge, Point move);
 	void toggleRectanglePresent(boolean on);
-	void zoom(boolean on);
 	boolean getExtended();
 	JFrame getMainWindow();
 	boolean startStoring(String storeFilename, boolean anonymized);
@@ -43,4 +38,5 @@ interface GraphPanelControler {
 	public void setModel(Hashtable<Integer, GraphNode> nodes, 
 			Hashtable<Integer, GraphEdge> edges);
 	LifeCycle getLifeCycle();
+	boolean getRectangle();
 	}

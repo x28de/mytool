@@ -6,7 +6,6 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
@@ -38,7 +37,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
-import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.undo.UndoManager;
 import javax.xml.transform.TransformerConfigurationException;
@@ -65,12 +63,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 	
 	JSplitPane splitPane = null;
 	JPanel rightPanel = null;
-	int dividerPos = 0;
-	GraphPanelZoom graphPanelZoom;
 	
 	JMenuBar myMenuBar = null;
 	boolean showMenuBar = true;
-	String [] onOff = {"off", "on"};
 	public String about =  " ******** Provisional BANNER ********* " +
 			"\r\n ******** Provisional BANNER ********* ";
 	public String preferences = "No preferences yet (no installation)";
@@ -80,9 +75,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	//	Graphics accessories
 	Point clickedSpot = null;
 	Point translation = new Point(0, 0);
-	Point panning = new Point(3, 0);
-	int animationPercent = 0;
-	CentralityColoring centralityColoring;
 
 	// Input/ output accessories
 	NewStuff newStuff = null;
@@ -118,89 +110,45 @@ public final class PresentationService implements ActionListener, MouseListener,
 	
 	public void actionPerformed(ActionEvent e) {
 		
-//		hintTimer.stop();	// Any action => no more hint
-//		graphPanel.jumpingArrow(false);
 		controlerExtras.stopHint();
-		
 		String command = e.getActionCommand();
-
-		// Open or Insert
 
 		if (command == "open") {
 			String filename = lifeCycle.open();
 			newStuff.setInput(filename, 1);
-		} else if (command == "testimp") {	// TODO rename
+		} else if (command == "importDirector") {
 			new ImportDirector(this);	
-
-		// Quit
 
 		} else if (command == "quit") {
 			close();
-
-		//	Undo / Redo
 			
 		} else if (command == "undo") {
 			undoManager.undo();
 		} else if (command == "redo") {
 			undoManager.redo();
 			
-		//	Copy / Cut 
-			
 		} else if (command == "copy") {
 			copy(rectangle, selectedAssoc);
 		} else if (command == "cut") {
 			cut(rectangle, selectedAssoc);
 			
-		// Paste
-
 		} else if (command == "paste") {
 			controlerExtras.setPasteOptions(false, null);
-
 			Transferable t = newStuff.readClipboard();
 			if (!newStuff.transferTransferable(t)) {
 				System.out.println("Error PS121");
-			} else {
 			}
-			
-		// Paste here
-
 		} else if (command == "pasteHere") {
-
 			controlerExtras.setPasteOptions(true, clickedSpot);
 			Transferable t = newStuff.readClipboard();
 			if (!newStuff.transferTransferable(t)) {
 				System.out.println("Error PS121a");
-			} else {
 			}
-
-			
-		// Save	
 
 		} else if (command == "Store") {
 			lifeCycle.save();
-			
-		// Save as
-			
 		} else if (command == "SaveAs") {
 			lifeCycle.saveAs();
-			
-		// Export to legacy or exotic formats
-			
-		} else if (command == "export") {
-			String s = lifeCycle.askForLocation("legacy.zip");
-			new TopicMapExporter(nodes, edges).createTopicmapArchive(s);
-				
-		} else if (command == "expJson") {
-			String s = lifeCycle.askForLocation("experimental.json");
-			new DemoJsonExporter(nodes, edges, s);
-				
-		} else if (command == "Anonymize") { 
-			String s = lifeCycle.askForLocation("anonymized.xml");
-			if (startStoring(s, true)) displayPopup(s + " saved.\n" +
-			"All letters a-z replaced by x, all A-Z by X");
-				
-		} else if (command == "zoom") {
-			zoom(true);
 			
 		// using startup data
 		} else if (command == "about") {
@@ -208,85 +156,14 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "prefs") {
 			displayPopup(preferences);
 
-		} else if (command == "centcol") {
-			if (gui.menuItem51.isSelected()) {
-			centralityColoring = new CentralityColoring(nodes, edges);
-				centralityColoring.changeColors();
-			} else {
-				centralityColoring.revertColors();
-			}
-			graphPanel.repaint();
-			
-		} else if (command == "layout") {
-			centralityColoring = new CentralityColoring(nodes, edges);
-				centralityColoring.changeColors(true, this);
-			graphPanel.repaint();
-			gui.menuItem51.setSelected(true);
-			
 		} else if (command == "sibling") {
 			launchSibling();
 			
-		//	Exports 
-			
-		} else if (command == "wxr") {
-			new Export2WXR(nodes, edges, this);
-			
-		} else if (command == "imexp") {
-			if (!extended) new LimitationMessage(); 
-			else {
-				String s = lifeCycle.askForLocation("im.iMap");
-				if (!s.isEmpty()) new ImappingExport(nodes, edges, s, this);
-			}
-		} else if (command == "zkexp") {
-			String s = lifeCycle.askForLocation("zk.zkn3");	//	zkx3 did not work
-			if (!s.isEmpty())new ZknExport(nodes, edges, s, this);
-			
-		} else if (command == "dwzexp") {
-			if (!extended) new LimitationMessage();
-			else {
-				String s = lifeCycle.askForLocation("dwz.kgif.xml");
-				if (!s.isEmpty()) new DwzExport(nodes, edges, s, this);
-			}
-		} else if (command == "cmapexp") {
-				String s = lifeCycle.askForLocation("my.cmap.cxl");
-				if (!s.isEmpty()) new CmapExport(nodes, edges, s, this);
-
-		} else if (command == "brainexp") {
-				String s = lifeCycle.askForLocation("my.brain.xml");
-				if (!s.isEmpty()) new BrainExport(nodes, edges, s, this);
-
-		} else if (command == "vueexp") {
-				String s = lifeCycle.askForLocation("my.vue");
-				if (!s.isEmpty()) new VueExport(nodes, edges, s, this);
-
-		} else if (command == "metamexp") {
-				String s = lifeCycle.askForLocation("export.json");
-				if (!s.isEmpty()) new MetamapsExport(nodes, edges, s, this);
-
-		} else if (command == "csvexp") {
-				String s = lifeCycle.askForLocation("csv.txt");
-				if (!s.isEmpty()) new CsvExport(nodes, edges, s, this);
-
-		} else if (command == "edgeexp") {
-				String s = lifeCycle.askForLocation("csv.txt");
-				if (!s.isEmpty()) new CsvExport(nodes, edges, s, this, true);
-
-		} else if (command == "h5pexp") {
-				new H5pExport(nodes, edges, this);
-		
 				
 		} else if (command == "delCluster") {
 				deleteCluster(rectangle, selectedAssoc);
 				graphSelected();
 				
-		} else if (command == "flipHori") {
-			flipCluster(selectedAssoc, true);
-			graphSelected();
-			
-		} else if (command == "flipVerti") {
-			flipCluster(selectedAssoc, false);
-			graphSelected();
-
 		} else if (command == "subtree") {
 			new SubtreeLayout(selectedTopic, nodes, edges, this, true, translation);
 			
@@ -313,28 +190,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 				nodeSelected(node);
 				labelField.requestFocus();
 
-		} else if (command == "Print") {
-			String lastHTMLFilename = lifeCycle.getLastHTMLFilename();
-			if (lastHTMLFilename.isEmpty()) {
-				if (lifeCycle.askForFilename("htm")) {
-					lastHTMLFilename = lifeCycle.getLastHTMLFilename();
-					new MakeHTML(true, nodes, edges, lastHTMLFilename, this);
-				}
-			} else {
-				new MakeHTML(true, nodes, edges, lastHTMLFilename, this);
-			}
-			
-		} else if (command == "MakeHTML") {
-			String lastHTMLFilename = lifeCycle.getLastHTMLFilename();
-			if (lastHTMLFilename.isEmpty()) {
-				if (lifeCycle.askForFilename("htm")) {
-					lastHTMLFilename = lifeCycle.getLastHTMLFilename();
-					new MakeHTML(false, nodes, edges, lastHTMLFilename, this);
-				}
-			} else {
-				new MakeHTML(false, nodes, edges, lastHTMLFilename, this);
-			}
-
 		} else if (command == "wxr") {
 			new WXR2SQL(mainWindow);
 		} else if (command == "dag") {
@@ -343,12 +198,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 			new MakeCircle(nodes, edges, this);
 		} else if (command == "planar") {
 			new CheckOverlaps(this, nodes, edges);
-		} else if (command == "random") {
-			RandomMap randomMap = new RandomMap(this);
-			if (randomMap.triggerColoring()) {
-				centralityColoring = new CentralityColoring(nodes, edges);
-				centralityColoring.changeColors();
-			}
 //		} else if (command == "tst") {
 		} else {
 			System.out.println("PS: Wrong action: " + command);
@@ -431,6 +280,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		splitPane.setRightComponent(rightPanel);
 		splitPane.repaint();
 		
+		controlerExtras.setSplitPane(splitPane, rightPanel);
 		return splitPane;
 }
 
@@ -777,49 +627,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		return;
 	}
 
-	public void flipCluster(GraphEdge assoc, boolean horizontal) {
-		GraphNode topic1 = assoc.getNode1();	
-		Hashtable<Integer,GraphNode> cluster = rectangle ? graphPanel.createNodeRectangle() : 
-				graphPanel.createNodeCluster(topic1);
-		GraphNode node;
-		int min = Integer.MAX_VALUE;
-		int max = Integer.MIN_VALUE;
-		int z;
-		HashSet<Integer> todoList = new HashSet<Integer>();
-		Enumeration<GraphNode> e3 = cluster.elements();
-		while (e3.hasMoreElements()) {
-			node = (GraphNode) e3.nextElement();
-			Point xy = node.getXY();
-			if (horizontal) {
-				z = xy.x;
-			} else {
-				z = xy.y;
-			}
-			if (z < min) min = z;
-			if (z > max) max = z;
-			int key = node.getID();
-			todoList.add(key);
-		}
-		int mid = (max + min)/ 2;
-		Iterator<Integer> todo = todoList.iterator();
-		while (todo.hasNext()) {
-			int key = todo.next();
-			node = (GraphNode) nodes.get(key);
-			Point xy = node.getXY();
-			int x = xy.x;
-			int y = xy.y;
-			if (horizontal) {
-				x = x + 2*(mid - x);
-			} else { 
-				y = y + 2*(mid - y);
-			}
-			xy = new Point(x, y);
-			node.setXY(xy);
-		}
-		graphPanel.repaint();
-		lifeCycle.setDirty(true);
-	}
-
 	public void addToLabel(String textToAdd) {
 		if (selectedTopic == dummyNode) return;
 		String oldText = labelField.getText();
@@ -834,28 +641,12 @@ public final class PresentationService implements ActionListener, MouseListener,
 	}
 
 //
-//	Accessories for cursors and carets
+//	Misc 
     
 	public void setMouseCursor(int cursorType) {
 		mainWindow.setCursor(new Cursor(cursorType));
 	}
 	
-//
-//	Misc and temp
-    
-	// tmp diagnostic
-	public void findAboutFocus() {
-		System.out.println("graphPanel? " + graphPanel.hasFocus());
-		System.out.println("labelField? " + labelField.hasFocus());
-		System.out.println("edi? " + edi.hasFocus());
-		System.out.println("compositionWindow? " + controlerExtras.getCWInstance().compositionWindow.hasFocus());
-	}
-
-	// (placeholder)
-	public void manip(int x) {
-		System.out.println(edi.getText());
-	}
-
 	public void launchSibling() {
 		new MyTool();
 		String[] dummyArg = {""};
@@ -962,6 +753,10 @@ public final class PresentationService implements ActionListener, MouseListener,
 		graphPanel.copyCluster(rectangle, topic);
 	}
 
+	public boolean getRectangle() {
+		return rectangle;
+	}
+	
 	public void cut(boolean rectangle, GraphEdge assoc) {
 		GraphNode topic = assoc.getNode1();	
 		graphPanel.copyCluster(rectangle, topic);
@@ -981,26 +776,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		splitPane.setResizeWeight(1);
 	}
 
-	public void zoom(boolean on) {
-		dividerPos = splitPane.getDividerLocation();
-		if (on) {
-			Point transl = graphPanel.getTranslation();
-			graphPanelZoom = new GraphPanelZoom(transl, this);
-			splitPane.setDividerLocation(dividerPos);
-			splitPane.setRightComponent(graphPanelZoom.createSlider());
-			graphPanelZoom.setModel(nodes, edges);
-			splitPane.setLeftComponent(graphPanelZoom);
-			controlerExtras.toggleClassicMenu();
-		} 
-		if (!on) {
-			gui.menuItem58.setSelected(false);
-			splitPane.setDividerLocation(dividerPos);
-			splitPane.setLeftComponent(graphPanel);
-			splitPane.setRightComponent(rightPanel);
-			controlerExtras.toggleClassicMenu();
-		}
-	}
-
 	public Hashtable<Integer,GraphNode> getNodes() {
 		return nodes;
 	}
@@ -1016,6 +791,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		return selectedAssoc;
 	}
 
+	// Temporary and experimental
 	public void linkTo(String label) {
 		controlerExtras.toggleHashes(true);
 		GraphNode activeNode = selectedTopic;

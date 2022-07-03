@@ -248,7 +248,7 @@ public class GraphPanelZoom extends JComponent implements ChangeListener, ItemLi
 	}
 
 	public void actionPerformed(ActionEvent arg0) {
-		controler.zoom(false);
+		controler.getControlerExtras().zoom(false);
 	}
 
 	public void itemStateChanged(ItemEvent arg0) {

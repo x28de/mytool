@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -15,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
@@ -22,6 +22,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JSplitPane;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -48,7 +49,6 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 	boolean showMenuBar = true;
 	int toggle4 = 0;   // => hide classicMenu 
 	
-	// temporary copies
 	Point panning = new Point(3, 0);
 	int animationPercent = 0;
 	Point translation;
@@ -74,6 +74,12 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 	Point pasteLocation = null;
 	boolean pasteHere = false;
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
+	CentralityColoring centralityColoring;
+	JSplitPane splitPane = null;
+	JPanel rightPanel = null;
+	int dividerPos = 0;
+	GraphPanelZoom graphPanelZoom;
+	boolean rectangle = false;
 
 	
 	//	Show a hint instead of initial Composition window
@@ -328,6 +334,127 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 				zoomedSize = initialSize;
 				edi.setSize(zoomedSize);
 				graphPanel.setSize(zoomedSize);
+				
+				
+			//	Exports 
+				
+			} else if (command == "wxr") {
+				new Export2WXR(nodes, edges, controler);
+				
+			} else if (command == "imexp") {
+				if (!controler.getExtended()) new LimitationMessage(); 
+				else {
+					String s = lifeCycle.askForLocation("im.iMap");
+					if (!s.isEmpty()) new ImappingExport(nodes, edges, s, controler);
+				}
+			} else if (command == "zkexp") {
+				String s = lifeCycle.askForLocation("zk.zkn3");	//	zkx3 did not work
+				if (!s.isEmpty())new ZknExport(nodes, edges, s, controler);
+				
+			} else if (command == "dwzexp") {
+				if (!controler.getExtended()) new LimitationMessage();
+				else {
+					String s = lifeCycle.askForLocation("dwz.kgif.xml");
+					if (!s.isEmpty()) new DwzExport(nodes, edges, s, controler);
+				}
+			} else if (command == "cmapexp") {
+					String s = lifeCycle.askForLocation("my.cmap.cxl");
+					if (!s.isEmpty()) new CmapExport(nodes, edges, s, controler);
+
+			} else if (command == "brainexp") {
+					String s = lifeCycle.askForLocation("my.brain.xml");
+					if (!s.isEmpty()) new BrainExport(nodes, edges, s, controler);
+
+			} else if (command == "vueexp") {
+					String s = lifeCycle.askForLocation("my.vue");
+					if (!s.isEmpty()) new VueExport(nodes, edges, s, controler);
+
+			} else if (command == "metamexp") {
+					String s = lifeCycle.askForLocation("export.json");
+					if (!s.isEmpty()) new MetamapsExport(nodes, edges, s, controler);
+
+			} else if (command == "csvexp") {
+					String s = lifeCycle.askForLocation("csv.txt");
+					if (!s.isEmpty()) new CsvExport(nodes, edges, s, controler);
+
+			} else if (command == "edgeexp") {
+					String s = lifeCycle.askForLocation("csv.txt");
+					if (!s.isEmpty()) new CsvExport(nodes, edges, s, controler, true);
+
+			} else if (command == "h5pexp") {
+					new H5pExport(nodes, edges, controler);
+					
+			// Export to legacy or exotic formats
+					
+			} else if (command == "MakeHTML") {
+				String lastHTMLFilename = lifeCycle.getLastHTMLFilename();
+				if (lastHTMLFilename.isEmpty()) {
+					if (lifeCycle.askForFilename("htm")) {
+						lastHTMLFilename = lifeCycle.getLastHTMLFilename();
+						new MakeHTML(false, nodes, edges, lastHTMLFilename, controler);
+					}
+				} else {
+					new MakeHTML(false, nodes, edges, lastHTMLFilename, controler);
+				}
+			} else if (command == "Print") {
+				String lastHTMLFilename = lifeCycle.getLastHTMLFilename();
+				if (lastHTMLFilename.isEmpty()) {
+					if (lifeCycle.askForFilename("htm")) {
+						lastHTMLFilename = lifeCycle.getLastHTMLFilename();
+						new MakeHTML(true, nodes, edges, lastHTMLFilename, controler);
+					}
+				} else {
+					new MakeHTML(true, nodes, edges, lastHTMLFilename, controler);
+				}
+				
+			} else if (command == "export") {
+				String s = lifeCycle.askForLocation("legacy.zip");
+				new TopicMapExporter(nodes, edges).createTopicmapArchive(s);
+					
+			} else if (command == "expJson") {
+				String s = lifeCycle.askForLocation("experimental.json");
+				new DemoJsonExporter(nodes, edges, s);
+					
+			} else if (command == "Anonymize") { 
+				String s = lifeCycle.askForLocation("anonymized.xml");
+				if (controler.startStoring(s, true)) controler.displayPopup(s + " saved.\n" +
+				"All letters a-z replaced by x, all A-Z by X");
+			
+			// Layouts
+				
+			} else if (command == "centcol") {
+				if (gui.menuItem51.isSelected()) {
+				centralityColoring = new CentralityColoring(nodes, edges);
+					centralityColoring.changeColors();
+				} else {
+					centralityColoring.revertColors();
+				}
+				graphPanel.repaint();
+				
+			} else if (command == "layout") {
+				centralityColoring = new CentralityColoring(nodes, edges);
+					centralityColoring.changeColors(true, controler);
+				graphPanel.repaint();
+				gui.menuItem51.setSelected(true);
+				
+			} else if (command == "random") {
+				RandomMap randomMap = new RandomMap(controler);
+				if (randomMap.triggerColoring()) {
+					centralityColoring = new CentralityColoring(nodes, edges);
+					centralityColoring.changeColors();
+				}
+				
+			} else if (command == "zoom") {
+				zoom(true);
+				
+			} else if (command == "flipHori") {
+				flipCluster(controler.getSelectedEdge(), true);
+				controler.graphSelected();
+				
+			} else if (command == "flipVerti") {
+				flipCluster(controler.getSelectedEdge(), false);
+				controler.graphSelected();
+
 			}
 	}
 	
@@ -728,7 +855,7 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 		   // TODO integrate with replaceByTree
 		   nodes = replacingNodes;
 		   edges = replacingEdges;
-		   graphPanel.setModel(nodes, edges);
+		   controler.setModel(nodes, edges);
 		   updateBounds();
 		   controler.setMouseCursor(Cursor.DEFAULT_CURSOR);
 		   stopHint();
@@ -749,6 +876,69 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 		   return nonTreeEdges;
 	   }
 
+	   public void zoom(boolean on) {
+		   dividerPos = splitPane.getDividerLocation();
+		   if (on) {
+			   Point transl = graphPanel.getTranslation();
+			   graphPanelZoom = new GraphPanelZoom(transl, controler);
+			   splitPane.setDividerLocation(dividerPos);
+			   splitPane.setRightComponent(graphPanelZoom.createSlider());
+			   graphPanelZoom.setModel(nodes, edges);
+			   splitPane.setLeftComponent(graphPanelZoom);
+			   toggleClassicMenu();
+		   } 
+		   if (!on) {
+			   gui.menuItem58.setSelected(false);
+			   splitPane.setDividerLocation(dividerPos);
+			   splitPane.setLeftComponent(graphPanel);
+			   splitPane.setRightComponent(rightPanel);
+			   toggleClassicMenu();
+		   }
+		}
+		public void flipCluster(GraphEdge assoc, boolean horizontal) {
+			rectangle = controler.getRectangle();
+			GraphNode topic1 = assoc.getNode1();	
+			Hashtable<Integer,GraphNode> cluster = rectangle ? graphPanel.createNodeRectangle() : 
+					graphPanel.createNodeCluster(topic1);
+			GraphNode node;
+			int min = Integer.MAX_VALUE;
+			int max = Integer.MIN_VALUE;
+			int z;
+			HashSet<Integer> todoList = new HashSet<Integer>();
+			Enumeration<GraphNode> e3 = cluster.elements();
+			while (e3.hasMoreElements()) {
+				node = (GraphNode) e3.nextElement();
+				Point xy = node.getXY();
+				if (horizontal) {
+					z = xy.x;
+				} else {
+					z = xy.y;
+				}
+				if (z < min) min = z;
+				if (z > max) max = z;
+				int key = node.getID();
+				todoList.add(key);
+			}
+			int mid = (max + min)/ 2;
+			Iterator<Integer> todo = todoList.iterator();
+			while (todo.hasNext()) {
+				int key = todo.next();
+				node = (GraphNode) nodes.get(key);
+				Point xy = node.getXY();
+				int x = xy.x;
+				int y = xy.y;
+				if (horizontal) {
+					x = x + 2*(mid - x);
+				} else { 
+					y = y + 2*(mid - y);
+				}
+				xy = new Point(x, y);
+				node.setXY(xy);
+			}
+			graphPanel.repaint();
+			lifeCycle.setDirty(true);
+		}
+
 	   // establish addressability
   
     public GraphPanelControler getControler() {
@@ -764,6 +954,11 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 		gui = g;
 		gui.setControlerExtras(this);
 		lifeCycle = controler.getLifeCycle();	// TODO better place
+	}
+	
+	public void setSplitPane (JSplitPane splitPane, JPanel rightPane) {
+		this.splitPane = splitPane;
+		this.rightPanel = rightPane;
 	}
 	
 	public void setMap() {
