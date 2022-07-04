@@ -10,19 +10,12 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
@@ -43,7 +36,7 @@ import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
 
-public final class PresentationService implements ActionListener, MouseListener, KeyListener, GraphPanelControler, Runnable {
+public final class PresentationService implements ActionListener, GraphPanelControler, Runnable {
 
 	//	Main fields
 	Hashtable<Integer, GraphNode> nodes;
@@ -156,19 +149,9 @@ public final class PresentationService implements ActionListener, MouseListener,
 		} else if (command == "prefs") {
 			displayPopup(preferences);
 
-		} else if (command == "sibling") {
-			launchSibling();
-			
-				
 		} else if (command == "delCluster") {
 				deleteCluster(rectangle, selectedAssoc);
 				graphSelected();
-				
-		} else if (command == "subtree") {
-			new SubtreeLayout(selectedTopic, nodes, edges, this, true, translation);
-			
-		} else if (command == "extmsg") {
-			new LimitationMessage();
 						
 		//	Context menu command
 
@@ -190,14 +173,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 				nodeSelected(node);
 				labelField.requestFocus();
 
-		} else if (command == "wxr") {
-			new WXR2SQL(mainWindow);
-		} else if (command == "dag") {
-			new DAG(nodes, edges, this);
-		} else if (command == "makecircle") {
-			new MakeCircle(nodes, edges, this);
-		} else if (command == "planar") {
-			new CheckOverlaps(this, nodes, edges);
 //		} else if (command == "tst") {
 		} else {
 			System.out.println("PS: Wrong action: " + command);
@@ -258,8 +233,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 		labelBox.add(new JLabel("Label", JLabel.CENTER));
 		labelBox.setToolTipText("Short text that also appears on the map. To see it there, click the map.");
 		labelField = new JTextField();
-		labelField.addMouseListener(this);
-		labelField.addKeyListener(this);
+		labelField.addMouseListener(controlerExtras);
+		labelField.addKeyListener(controlerExtras);
 		labelBox.add(labelField,"South");
 		Dimension dim = new Dimension(1400,150);
 		labelBox.setMaximumSize(dim);
@@ -362,7 +337,7 @@ public final class PresentationService implements ActionListener, MouseListener,
 		graphPanel.setModel(nodes, edges);
 		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
 		about = (new AboutBuild(extended)).getAbout();
-		graphPanel.addKeyListener(this);
+		graphPanel.addKeyListener(controlerExtras);
 
 		createMainWindow(lifeCycle.getMainWindowTitle());
 		lifeCycle.add(this, baseDir);
@@ -647,12 +622,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		mainWindow.setCursor(new Cursor(cursorType));
 	}
 	
-	public void launchSibling() {
-		new MyTool();
-		String[] dummyArg = {""};
-		MyTool.main(dummyArg);
-	}
-	
 //
 //	Communication with other classes
     
@@ -695,51 +664,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 	   updateCcpGui();
    }
    
-//
-//	Accessories intended for right-click (paste) in labelfield
-    
-	public void mouseClicked(MouseEvent arg0) {
-		if ((arg0.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
-			JPopupMenu menu = Utilities.showContextMenu();
-			menu.show(labelField, arg0.getX(), arg0.getY());
-		}
-	}
-
-	public void mouseEntered(MouseEvent arg0) {
-	}
-
-	public void mouseExited(MouseEvent arg0) {
-	}
-
-	public void mousePressed(MouseEvent arg0) {
-	}
-
-	public void mouseReleased(MouseEvent arg0) {
-	}
-
-//
-//	Accessories intended for entering in labelfield
-    
-	public void keyPressed(KeyEvent arg0) {
-		if (arg0.getKeyChar() == KeyEvent.VK_ENTER) {
-			GraphNode justUpdated = selectedTopic;
-			graphSelected();
-			graphPanel.labelUpdateToggle(true);
-			nodeSelected(justUpdated);
-			graphPanel.labelUpdateToggle(false);
-			mainWindow.repaint();   // this was crucial
-		}
-	}
-
-	public void keyReleased(KeyEvent arg0) {
-	}
-
-	public void keyTyped(KeyEvent arg0) {
-		if (arg0.getKeyChar() == KeyEvent.VK_DELETE) {
-				if (rectangle) deleteCluster(true, selectedAssoc, false);
-		}
-	}
-
 	public void commit(int type, GraphNode node, GraphEdge edge, Point move) {
 		MyUndoableEdit myUndoableEdit = new MyUndoableEdit(type, node, edge, move, 
 				nodes, edges, graphPanel, gui);
@@ -783,7 +707,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		return edges;
 	}
 
-	// For circle refinement
 	public GraphNode getSelectedNode() {
 		return selectedTopic;
 	}
@@ -791,26 +714,6 @@ public final class PresentationService implements ActionListener, MouseListener,
 		return selectedAssoc;
 	}
 
-	// Temporary and experimental
-	public void linkTo(String label) {
-		controlerExtras.toggleHashes(true);
-		GraphNode activeNode = selectedTopic;
-		activeNode.setDetail(edi.getText());
-
-		Point activeXY = selectedTopic.getXY();
-		Point newXY = new Point(activeXY.x - 30, activeXY.y + 30);
-		GraphNode newNode = createNode(newXY);
-		labelField.setText(label);
-
-		String labelActive = activeNode.getLabel();
-		String detailNew = "<br/>See also <a href=\"#" + labelActive + "\">" + labelActive + "</a>";
-		newNode.setDetail(detailNew);
-		nodeSelected(newNode);	// see deselect() peculiarities
-
-		createEdge(activeNode, newNode);
-		mainWindow.repaint();
-	}
-	
 	public PresentationExtras getControlerExtras() {
 		return controlerExtras;
 	}
@@ -819,4 +722,8 @@ public final class PresentationService implements ActionListener, MouseListener,
 		return lifeCycle;
 	}
 
+	public JTextField getLabelField() {
+		return labelField;
+	}
+	
 }

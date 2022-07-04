@@ -550,7 +550,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, UndoableE
 					+ "special characters don't work yet; sorry.");
 		}	// no idea how to tame JEditorPane's strange HTML storing
 		editorPane.setText(after);
-		controler.linkTo(clickText);
+		controler.getControlerExtras().linkTo(clickText);
 	}
 	
 	public void tracking(boolean onOff) {

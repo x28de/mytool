@@ -390,7 +390,7 @@ public class Gui {
 		JMenuItem menuItem82 = new JMenuItem("*) = Extended version only");
 		menuItem82.setActionCommand("extmsg");
 		menuItem82.setToolTipText("click here for the download link");
-		menuItem82.addActionListener(controler);
+		menuItem82.addActionListener(controlerExtras);
 		menu7.add(menuItem82);
 
 		menuBar.add(menu7);
@@ -470,19 +470,19 @@ public class Gui {
 		JMenuItem menuItem60 = new JMenuItem("Make Circle");
 		menuItem60.setActionCommand("makecircle");
 		menuItem60.setToolTipText("Separates trees and chains from core circle");
-		menuItem60.addActionListener(controler);
+		menuItem60.addActionListener(controlerExtras);
 		sub2.add(menuItem60);
 
 		JMenuItem menuItem59 = new JMenuItem("DAG Layout");
 		menuItem59.setActionCommand("dag");
 		menuItem59.setToolTipText("Directed Acyclic Graph, depth last");
-		menuItem59.addActionListener(controler);
+		menuItem59.addActionListener(controlerExtras);
 		sub2.add(menuItem59);
 		
 		JMenuItem menuItem48 = new JMenuItem("Check Overlap Need");
 		menuItem48.setActionCommand("planar");
 		menuItem48.setToolTipText("If the graph is planar, lines need not overlap");
-		menuItem48.addActionListener(controler);
+		menuItem48.addActionListener(controlerExtras);
 		sub2.add(menuItem48);
 
 		menuItem51 = new JCheckBoxMenuItem("Centrality Heatmap", false);
@@ -627,13 +627,13 @@ public class Gui {
 		JMenuItem menuItem56 = new JMenuItem("Another Map Window");
 		menuItem56.setActionCommand("sibling");
 		menuItem56.setToolTipText("One more map (to ALT + Drag item clusters)");
-		menuItem56.addActionListener(controler);
+		menuItem56.addActionListener(controlerExtras);
 		sub6.add(menuItem56);
 
 		JMenuItem menuItem57 = new JMenuItem("WXR to SQL");
-		menuItem57.setActionCommand("wxr");
+		menuItem57.setActionCommand("wxr2sql");
 		menuItem57.setToolTipText("experimental");
-		menuItem57.addActionListener(controler);
+		menuItem57.addActionListener(controlerExtras);
 		sub6.add(menuItem57);
 		
 		menu5.add(sub6);
@@ -761,7 +761,7 @@ public class Gui {
 		menu.addSeparator();
 
 		JMenuItem subtree = new JMenuItem();
-		subtree.addActionListener(controler);
+		subtree.addActionListener(controlerExtras);
 		subtree.setActionCommand("subtree");
 		subtree.setText("Tree layout");
 		menu.add(subtree);

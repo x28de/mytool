@@ -9,8 +9,12 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -32,7 +36,7 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.tree.DefaultTreeModel;
 
-public class PresentationExtras implements ActionListener, PopupMenuListener{
+public class PresentationExtras implements ActionListener, MouseListener, KeyListener, PopupMenuListener{
 	GraphPanelControler controler;
 	GraphPanel graphPanel;
 	NewStuff newStuff;
@@ -190,10 +194,11 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 			int faceNum = Integer.parseInt(command.substring(9));
 			String colorString =  gui.nodePalette[1][7 + faceNum];			
 			controler.getSelectedNode().setColor(colorString);
-			
+		}
+		
 		//	Various toggles	
 
-		} else if (command == "TogglePreso") {
+		if (command == "TogglePreso") {
 			graphPanel.togglePreso();
 
 		} else if (command =="ToggleBorders") {
@@ -302,6 +307,8 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 				
 			} else if (command == "?") {
 				gui.displayHelp();
+			} else if (command == "extmsg") {
+				new LimitationMessage();
 			} else if (command == "select") {
 				controler.displayPopup("<html><h3>How to Select</h3>" 
 						+ "Select a cluster of connected items by clicking any line;<br />" 
@@ -334,6 +341,11 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 				zoomedSize = initialSize;
 				edi.setSize(zoomedSize);
 				graphPanel.setSize(zoomedSize);
+				
+			} else if (command == "sibling") {
+				launchSibling();
+			} else if (command == "wxr2sql") {
+				new WXR2SQL(controler.getMainWindow());
 				
 				
 			//	Exports 
@@ -422,6 +434,12 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 			
 			// Layouts
 				
+			} else if (command == "dag") {
+				new DAG(nodes, edges, controler);
+			} else if (command == "makecircle") {
+				new MakeCircle(nodes, edges, controler);
+			} else if (command == "planar") {
+				new CheckOverlaps(controler, nodes, edges);
 			} else if (command == "centcol") {
 				if (gui.menuItem51.isSelected()) {
 				centralityColoring = new CentralityColoring(nodes, edges);
@@ -436,6 +454,10 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 					centralityColoring.changeColors(true, controler);
 				graphPanel.repaint();
 				gui.menuItem51.setSelected(true);
+				
+				} else if (command == "subtree") {
+				new SubtreeLayout(controler.getSelectedNode(), nodes, edges, 
+						controler, true, controler.getTranslation());
 				
 			} else if (command == "random") {
 				RandomMap randomMap = new RandomMap(controler);
@@ -938,8 +960,74 @@ public class PresentationExtras implements ActionListener, PopupMenuListener{
 			graphPanel.repaint();
 			lifeCycle.setDirty(true);
 		}
+		
+		public void launchSibling() {
+			new MyTool();
+			String[] dummyArg = {""};
+			MyTool.main(dummyArg);
+		}
 
-	   // establish addressability
+//
+//		Accessories intended for right-click (paste) in label field
+	    
+		public void mouseClicked(MouseEvent arg0) {
+			if ((arg0.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+				JPopupMenu menu = Utilities.showContextMenu();
+				menu.show(controler.getLabelField(), arg0.getX(), arg0.getY());
+			}
+		}
+		public void mouseEntered(MouseEvent arg0) {
+		}
+		public void mouseExited(MouseEvent arg0) {
+		}
+		public void mousePressed(MouseEvent arg0) {
+		}
+		public void mouseReleased(MouseEvent arg0) {
+		}
+
+//
+//		Accessories intended for enter in label field and delete rectangle 
+	    
+		public void keyPressed(KeyEvent arg0) {
+			if (arg0.getKeyChar() == KeyEvent.VK_ENTER) {
+				GraphNode justUpdated = controler.getSelectedNode();
+				controler.graphSelected();
+				graphPanel.labelUpdateToggle(true);
+				controler.nodeSelected(justUpdated);
+				graphPanel.labelUpdateToggle(false);
+				controler.getMainWindow().repaint();   // this was crucial
+			}
+		}
+		public void keyReleased(KeyEvent arg0) {
+		}
+		public void keyTyped(KeyEvent arg0) {
+			if (arg0.getKeyChar() == KeyEvent.VK_DELETE) {
+					if (controler.getRectangle()) controler.deleteCluster(true, controler.getSelectedEdge(), false);
+			}
+		}
+		
+		// Temporary and experimental
+		public void linkTo(String label) {
+			toggleHashes(true);
+			GraphNode activeNode = controler.getSelectedNode();
+			activeNode.setDetail(edi.getText());
+
+			Point activeXY = controler.getSelectedNode().getXY();
+			Point newXY = new Point(activeXY.x - 30, activeXY.y + 30);
+			GraphNode newNode = controler.createNode(newXY);
+			controler.getLabelField().setText(label);
+
+			String labelActive = activeNode.getLabel();
+			String detailNew = "<br/>See also <a href=\"#" + labelActive + "\">" + labelActive + "</a>";
+			newNode.setDetail(detailNew);
+			controler.nodeSelected(newNode);	// see deselect() peculiarities
+
+			controler.createEdge(activeNode, newNode);
+			controler.getMainWindow().repaint();
+		}
+		
+//		
+// establish addressability
   
     public GraphPanelControler getControler() {
     	return controler;

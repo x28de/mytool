@@ -3,6 +3,7 @@ import java.awt.Point;
 import java.util.Hashtable;
 
 import javax.swing.JFrame;
+import javax.swing.JTextField;
 
 interface GraphPanelControler {
 	void nodeSelected(GraphNode node);
@@ -30,7 +31,7 @@ interface GraphPanelControler {
 	public GraphNode getSelectedNode();
 	public GraphEdge getSelectedEdge();
 	public void fixDivider();
-	void linkTo(String textToAdd);
+//	void linkTo(String textToAdd);
 	public GraphExtras getGraphExtras();
 	public PresentationExtras getControlerExtras();
 	public Point getTranslation();
@@ -39,4 +40,6 @@ interface GraphPanelControler {
 			Hashtable<Integer, GraphEdge> edges);
 	LifeCycle getLifeCycle();
 	boolean getRectangle();
+	JTextField getLabelField();
+	GraphNode createNode(Point newXY);
 	}
