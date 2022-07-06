@@ -18,6 +18,8 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.undo.UndoManager;
 
+import de.x28hd.tool.importers.NewStuff;
+
 public class Gui {
 	
 //

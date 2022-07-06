@@ -36,6 +36,30 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.tree.DefaultTreeModel;
 
+import de.x28hd.tool.exporters.BrainExport;
+import de.x28hd.tool.exporters.CmapExport;
+import de.x28hd.tool.exporters.CsvExport;
+import de.x28hd.tool.exporters.DemoJsonExporter;
+import de.x28hd.tool.exporters.DwzExport;
+import de.x28hd.tool.exporters.Export2WXR;
+import de.x28hd.tool.exporters.H5pExport;
+import de.x28hd.tool.exporters.ImappingExport;
+import de.x28hd.tool.exporters.MakeHTML;
+import de.x28hd.tool.exporters.MetamapsExport;
+import de.x28hd.tool.exporters.TopicMapExporter;
+import de.x28hd.tool.exporters.VueExport;
+import de.x28hd.tool.exporters.ZknExport;
+import de.x28hd.tool.importers.CompositionWindow;
+import de.x28hd.tool.importers.IntegrateNodes;
+import de.x28hd.tool.importers.NewStuff;
+import de.x28hd.tool.layouts.CentralityColoring;
+import de.x28hd.tool.layouts.CheckOverlaps;
+import de.x28hd.tool.layouts.DAG;
+import de.x28hd.tool.layouts.GraphPanelZoom;
+import de.x28hd.tool.layouts.MakeCircle;
+import de.x28hd.tool.layouts.RandomMap;
+import de.x28hd.tool.layouts.SubtreeLayout;
+
 public class PresentationExtras implements ActionListener, MouseListener, KeyListener, PopupMenuListener{
 	GraphPanelControler controler;
 	GraphPanel graphPanel;
