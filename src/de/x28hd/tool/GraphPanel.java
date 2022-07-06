@@ -36,6 +36,9 @@ import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import de.x28hd.tool.exporters.TopicMapStorer;
+import de.x28hd.tool.importers.NewStuff;
+
 class GraphPanel extends JDesktopPane  {
 
 	private GraphPanelControler controler;

@@ -36,6 +36,11 @@ import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import de.x28hd.tool.exporters.TopicMapStorer;
+import de.x28hd.tool.importers.CompositionWindow;
+import de.x28hd.tool.importers.ImportDirector;
+import de.x28hd.tool.importers.NewStuff;
+
 public final class GraphPanelControler implements ActionListener, Runnable {
 
 	//	Main fields
@@ -89,7 +94,7 @@ public final class GraphPanelControler implements ActionListener, Runnable {
 	GraphEdge selectedAssoc = dummyEdge;
 	
 	Selection selection = null;
-	boolean extended = false;
+	public boolean extended = false;
 
 	
 	public GraphPanelControler(boolean ext) {
