@@ -23,7 +23,7 @@ public class Gui {
 //
 //	Contains buttons and (yet) only closely related toggles
 	
-	PresentationService controler;
+	GraphPanelControler controler;
 	PresentationExtras controlerExtras;
 	GraphPanel graphPanel;
 	TextEditorPanel edi;	// TODO remove
@@ -98,7 +98,7 @@ public class Gui {
 		"#fbefe8", "#fcf0d0", "#fdf1b8", "#e59f63", "#65473c"}};	
 	
 	
-	public Gui(PresentationService ps, GraphPanel gp, TextEditorPanel te, NewStuff ns,
+	public Gui(GraphPanelControler ps, GraphPanel gp, TextEditorPanel te, NewStuff ns,
 			UndoManager um) {
 		controler = ps;
 		graphPanel = gp;

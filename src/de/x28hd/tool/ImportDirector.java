@@ -220,7 +220,7 @@ public class ImportDirector implements ActionListener {
 		//	Import type choice
 	    for (int i = 0; i < importers.length - 3; i++) {
 	    	if (action.getActionCommand().equals("type-" + i)) {
-			if (i == Importer.Citavi && !((PresentationService) controler).extended) {
+			if (i == Importer.Citavi && !controler.extended) {
 				new LimitationMessage();
 		        frame.setVisible(false);
 		        frame.dispose();
