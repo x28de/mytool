@@ -234,6 +234,8 @@ class GraphPanel extends JDesktopPane  {
 		setToolTipText("");		//	turns getToolTipText on
 		graphPanel.setTransferHandler(handler);
 		add(graphPanel);
+		
+		if (System.getProperty("os.name").equals("Linux")) toggleAntiAliasing();	// TODO raus
 	}
 
 //

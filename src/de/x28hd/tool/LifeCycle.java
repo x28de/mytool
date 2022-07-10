@@ -25,7 +25,8 @@ public class LifeCycle {
 	
 
 
-	public LifeCycle() {
+	public LifeCycle(GraphPanelControler c) {
+		controler = c;
 		//	more parameters added later by add() 
 	}
 	
@@ -56,7 +57,6 @@ public class LifeCycle {
 	
 	
 	public void add(GraphPanelControler controler, String baseDir) {
-		this.controler = controler;
 		this.baseDir = baseDir;
 		mainWindow = controler.getMainWindow();
 	}

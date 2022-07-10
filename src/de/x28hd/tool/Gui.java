@@ -104,9 +104,9 @@ public class Gui {
 			UndoManager um) {
 		controler = ps;
 		graphPanel = gp;
-		edi = te;
+		edi = controler.getEdi();
 		newStuff = ns;
-		undoManager = um;
+		undoManager = controler.getUndoManager();
 	}
 
 	public JMenuBar createMenuBar() {
@@ -567,7 +567,6 @@ public class Gui {
 		menuItem45 = new JCheckBoxMenuItem("Accelerate", false);
 		if (System.getProperty("os.name").equals("Linux")) {
 			menuItem45.setSelected(true);
-			graphPanel.toggleAntiAliasing();
 		}
 		menuItem45.setActionCommand("ToggleHeavy");
 		menuItem45.setToolTipText("Fast but coarse graphics");

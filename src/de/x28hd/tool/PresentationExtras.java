@@ -165,6 +165,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	
 	public PresentationExtras(GraphPanelControler c) {
 		controler = c;
+		lifeCycle = controler.getLifeCycle();
+		edi = controler.getEdi();
 	}
 	
 	public void actionPerformed(ActionEvent arg0) {
@@ -1065,7 +1067,6 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	public void setGui(Gui g) {
 		gui = g;
 		gui.setControlerExtras(this);
-		lifeCycle = controler.getLifeCycle();	// TODO better place
 	}
 	
 	public void setSplitPane (JSplitPane splitPane, JPanel rightPane) {
@@ -1073,15 +1074,11 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 		this.rightPanel = rightPane;
 	}
 	
-	public void setMap() {
+	public void init() {
 		nodes = controler.getNodes();
 		edges = controler.getEdges();
 		graphPanel = controler.getGraphPanel();
 		setAltSimulation();
-	}
-
-	public void setEdi(TextEditorPanel e) {
-		edi = e;
 	}
 
 	public void setInitialSize(int size) {

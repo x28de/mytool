@@ -43,14 +43,17 @@ import de.x28hd.tool.importers.NewStuff;
 
 public final class GraphPanelControler implements ActionListener, Runnable {
 
-	//	Main fields
+	LifeCycle lifeCycle = new LifeCycle(this);
+	TextEditorPanel edi = new TextEditorPanel(this);
+	UndoManager undoManager = new UndoManager();
+	
+	PresentationExtras controlerExtras = new PresentationExtras(this);
+
+	Gui gui;
+	
 	Hashtable<Integer, GraphNode> nodes;
 	Hashtable<Integer, GraphEdge> edges;
 	GraphPanel graphPanel;
-	TextEditorPanel edi = new TextEditorPanel(this);	
-	Gui gui;
-	LifeCycle lifeCycle;
-	PresentationExtras controlerExtras;
 	
 	// User Interface
 	public JFrame mainWindow;
@@ -81,9 +84,6 @@ public final class GraphPanelControler implements ActionListener, Runnable {
 	int inputType = 0;
 	String baseDir;
 	
-	// Undo accessories 
-	UndoManager undoManager;
-	
 	//	Toggles
 	boolean rectangle = false;
 
@@ -99,8 +99,6 @@ public final class GraphPanelControler implements ActionListener, Runnable {
 	
 	public GraphPanelControler(boolean ext) {
 		extended = ext;
-		controlerExtras = new PresentationExtras(this);
-		lifeCycle = new LifeCycle();
 	}
 
 //
@@ -332,12 +330,10 @@ public final class GraphPanelControler implements ActionListener, Runnable {
 		graphPanel = new GraphPanel(this);
 		nodes = new Hashtable<Integer, GraphNode>();
 		edges = new Hashtable<Integer, GraphEdge>();
-		controlerExtras.setMap();
+		controlerExtras.init();
 		
-		undoManager = new UndoManager();
 		gui = new Gui(this, graphPanel, edi, newStuff, undoManager );
 		controlerExtras.setGui(gui);
-		controlerExtras.setEdi(edi);
 		
 		graphPanel.setModel(nodes, edges);
 		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
@@ -727,6 +723,14 @@ public final class GraphPanelControler implements ActionListener, Runnable {
 		return lifeCycle;
 	}
 
+	public UndoManager getUndoManager() {
+		return undoManager;
+	}
+	
+	public TextEditorPanel getEdi() {
+		return edi;
+	}
+	
 	public JTextField getLabelField() {
 		return labelField;
 	}
