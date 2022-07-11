@@ -53,7 +53,8 @@ import org.xml.sax.SAXException;
 import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.MyHTMLEditorKit;
 import de.x28hd.tool.exporters.TopicMapStorer;
 import de.x28hd.tool.layouts.CentralityColoring;
 
@@ -79,7 +80,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	HashSet<GraphEdge> nonTreeEdges = new HashSet<GraphEdge>();
 	HashSet<GraphEdge> xrefTreeEdges = new HashSet<GraphEdge>();
 	HashSet<GraphNode> xrefTreeNodes = new HashSet<GraphNode>();
-	GraphPanelControler controler;
+	PresentationService controler;
 	Hashtable<Integer,String> nodeColors = new Hashtable<Integer,String>();
 	Hashtable<Integer,String> nodeDetails = new Hashtable<Integer,String>();
 	Hashtable<Integer,Long> nodeDates = new Hashtable<Integer,Long>();
@@ -164,7 +165,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	String idAttr = "";
 	JProgressBar progressBar;
 	
-	public TreeImport(File file, GraphPanelControler controler, int knownFormat) {
+	public TreeImport(File file, PresentationService controler, int knownFormat) {
 		this.file = file;
 		this.controler = controler;
 		this.knownFormat = knownFormat;
@@ -196,7 +197,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		execute();							//	calls loadStuff() via doInBackground()
 	}
 	
-	public void loadStuff(File file, GraphPanelControler controler, int knownFormat) {
+	public void loadStuff(File file, PresentationService controler, int knownFormat) {
         
 		extended = controler.getExtended();
 		windows = (System.getProperty("os.name").startsWith("Windows"));
@@ -428,11 +429,11 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		}
 	}
 	
-	public TreeImport(Document inputXml, GraphPanelControler controler, int knownFormat) {
+	public TreeImport(Document inputXml, PresentationService controler, int knownFormat) {
 		new TreeImport(inputXml, controler, knownFormat, false);
 	}
 
-	public TreeImport(Document inputXml, GraphPanelControler controler, int knownFormat, 
+	public TreeImport(Document inputXml, PresentationService controler, int knownFormat, 
 			boolean silent) {
 
 		this.controler = controler;
@@ -908,14 +909,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			System.out.println("Error TI110 " + e3.toString());
 		}
 		return htmlOut;
-	}
-
-	private static class MyHTMLEditorKit extends HTMLEditorKit {
-		private static final long serialVersionUID = 7279700400657879527L;
-
-		public Parser getParser() {
-			return super.getParser();
-		}
 	}
 
 	public void actionPerformed(ActionEvent arg0) {

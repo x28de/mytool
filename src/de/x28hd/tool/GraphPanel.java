@@ -41,7 +41,7 @@ import de.x28hd.tool.importers.NewStuff;
 
 class GraphPanel extends JDesktopPane  {
 
-	private GraphPanelControler controler;
+	private PresentationService controler;
 	JComponent graphPanel;
 	GraphExtras graphExtras;
 	Hashtable<Integer, GraphNode> nodes;
@@ -123,7 +123,7 @@ class GraphPanel extends JDesktopPane  {
 
 	private static final long serialVersionUID = 1L;
 
-	GraphPanel(final GraphPanelControler controler) {
+	GraphPanel(final PresentationService controler) {
 		graphExtras = new GraphExtras(this);
 		this.controler = controler;
 		this.translation = new Point(0, 0);

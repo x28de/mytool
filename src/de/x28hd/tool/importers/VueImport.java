@@ -25,7 +25,7 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
 public class VueImport {
@@ -46,9 +46,9 @@ public class VueImport {
 	public final static String XSI = "http://www.w3.org/2001/XMLSchema-instance"; 
 //	public final static String XSI = "www.w3.org/2001/XMLSchema-instance"; 
 	int maxVert = 10;
-	GraphPanelControler controler;
+	PresentationService controler;
 	
-	public VueImport(File file, GraphPanelControler controler) {
+	public VueImport(File file, PresentationService controler) {
 		this.controler = controler;
 		Reader fileReader = null;
 		try {

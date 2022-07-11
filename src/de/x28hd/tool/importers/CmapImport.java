@@ -23,7 +23,7 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
 public class CmapImport {
@@ -45,9 +45,9 @@ public class CmapImport {
 	//	Constants
 	private static final String XML_ROOT = "cmap";
 	int maxVert = 10;
-	GraphPanelControler controler;
+	PresentationService controler;
 	
-	public CmapImport(JFrame mainWindow, GraphPanelControler controler) {
+	public CmapImport(JFrame mainWindow, PresentationService controler) {
 		this.controler = controler;
 		
 //
@@ -94,7 +94,7 @@ public class CmapImport {
 		new CmapImport(inputXml, controler);
 	}
 	
-	public CmapImport(Document inputXml, GraphPanelControler controler) {
+	public CmapImport(Document inputXml, PresentationService controler) {
 		
 		NodeList graphContainer = inputXml.getElementsByTagName("map");
 		Element graph = (Element) graphContainer.item(0);

@@ -34,12 +34,13 @@ import org.w3c.dom.Element;
 import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.MyHTMLEditorKit;
 
 public class ZknExport {
 	
 	private static final String XML_ROOT = "zettelkasten";
-	GraphPanelControler controler;
+	PresentationService controler;
 	boolean success = false;
 	HashSet<GraphEdge> nonTreeEdges; 
 	int zettelNumber = 0;
@@ -56,7 +57,7 @@ public class ZknExport {
 	String htmlOut = "";
 	
 	public ZknExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
-			String zipFilename, GraphPanelControler controler) {
+			String zipFilename, PresentationService controler) {
 		
 		this.nodes = nodes;
 		this.edges = edges;
@@ -330,13 +331,5 @@ public class ZknExport {
 			System.out.println("Error ZE120 " + e3.toString());
 		}
 		return htmlOut;
-	}
-
-	private static class MyHTMLEditorKit extends HTMLEditorKit {
-		private static final long serialVersionUID = 7279700400657879527L;
-
-		public Parser getParser() {
-			return super.getParser();
-		}
 	}
 }

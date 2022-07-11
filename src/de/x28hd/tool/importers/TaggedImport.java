@@ -33,7 +33,7 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
 import de.x28hd.tool.exporters.TopicMapStorer;
 import edu.uci.ics.jung.graph.util.Pair;  
@@ -43,7 +43,7 @@ public class TaggedImport implements ActionListener, Comparator<HashSet<String>>
 	// Standard mytool fields
 	Hashtable<Integer,GraphNode> nodes = new Hashtable<Integer,GraphNode>();
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
-	GraphPanelControler controler;
+	PresentationService controler;
 	int j = 0;
 	int maxVert = 10;
 	String dataString = "";
@@ -174,7 +174,7 @@ public class TaggedImport implements ActionListener, Comparator<HashSet<String>>
 		
 	Hashtable<HashSet<String>,CombiUnit> combiUnits = new Hashtable<HashSet<String>,CombiUnit>();
 
-	public TaggedImport(File file, GraphPanelControler controler) {
+	public TaggedImport(File file, PresentationService controler) {
 		this.controler = controler;
 
 		//	Read the input
@@ -195,7 +195,7 @@ public class TaggedImport implements ActionListener, Comparator<HashSet<String>>
 		new TaggedImport(contentString, controler);
 	}
 	
-	public TaggedImport(String contentString, GraphPanelControler controler) {
+	public TaggedImport(String contentString, PresentationService controler) {
 		this.controler = controler;
 
 		records = contentString.split("\\n");

@@ -45,7 +45,7 @@ import org.xml.sax.SAXException;
 import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.exporters.TopicMapStorer;
 import de.x28hd.tool.layouts.CentralityColoring;
 
@@ -69,7 +69,7 @@ public class ZknImport implements ActionListener {
 	HashSet<String> usedKw = new HashSet<String>();
 	Hashtable<Integer,Integer> edgeColors = new Hashtable<Integer,Integer>();
 	
-	GraphPanelControler controler;
+	PresentationService controler;
 	
 	String topNode = "zettelkasten";
 	String idAttr = "zknid";
@@ -96,7 +96,7 @@ public class ZknImport implements ActionListener {
 	boolean layoutOpt = true;
 	JCheckBox layoutBox = null;
 	
-	public ZknImport(File file, GraphPanelControler controler) {
+	public ZknImport(File file, PresentationService controler) {
 		Charset CP850 = Charset.forName("CP850");
 		ZipFile zfile = null;
 		try {
@@ -118,7 +118,7 @@ public class ZknImport implements ActionListener {
 			System.out.println("Error ZI111 " + e1);
 		}
 	}
-	public void zknImport(InputStream stream, GraphPanelControler controler) {
+	public void zknImport(InputStream stream, PresentationService controler) {
 		
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = null;

@@ -18,7 +18,7 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
@@ -26,14 +26,14 @@ public class GrsshopperImport {
 	Hashtable<Integer,GraphNode> nodes = new Hashtable<Integer,GraphNode>();
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
 	Hashtable<String,Integer> concordance = new Hashtable<String,Integer>();
-	GraphPanelControler controler;
+	PresentationService controler;
 	int j = 0;
 	int maxVert = 10;
 
 	String report = "";
 	String [] direction = {"to", "from"};
 	
-	public GrsshopperImport(File file, GraphPanelControler controler) {
+	public GrsshopperImport(File file, PresentationService controler) {
 		this.controler = controler;
 		String inputString = "";
 		FileInputStream fileInputStream = null;

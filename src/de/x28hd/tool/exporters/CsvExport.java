@@ -13,7 +13,8 @@ import javax.swing.text.html.HTMLEditorKit;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.MyHTMLEditorKit;
 
 public class CsvExport {
 	Hashtable<Integer,GraphNode> nodes;
@@ -23,11 +24,11 @@ public class CsvExport {
 	boolean start;
 	
 	public CsvExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
-		String storeFilename, GraphPanelControler controler) {
+		String storeFilename, PresentationService controler) {
 		new CsvExport(nodes, edges, storeFilename, controler, false);
 	}
 	public CsvExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
-		String storeFilename, GraphPanelControler controler, boolean lines) {
+		String storeFilename, PresentationService controler, boolean lines) {
 		String newLine = System.getProperty("line.separator");
 		
 		FileWriter list;
@@ -105,13 +106,5 @@ public class CsvExport {
 			System.out.println("Error CSV110 " + e3.toString());
 		}
 		return htmlOut;
-	}
-
-	private static class MyHTMLEditorKit extends HTMLEditorKit {
-		private static final long serialVersionUID = 7279700400657879527L;
-
-		public Parser getParser() {
-			return super.getParser();
-		}
 	}
 }

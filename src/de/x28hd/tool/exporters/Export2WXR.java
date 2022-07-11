@@ -39,7 +39,7 @@ import org.xml.sax.helpers.AttributesImpl;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 
 
 public class Export2WXR implements ActionListener{
@@ -63,7 +63,7 @@ public class Export2WXR implements ActionListener{
 	String dir = "";
 	
 	public Export2WXR(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
-			GraphPanelControler controler) {
+			PresentationService controler) {
 		this.nodes = nodes;
 		this.edges = edges;
 		askForColor();

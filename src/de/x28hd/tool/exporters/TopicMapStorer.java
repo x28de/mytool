@@ -28,6 +28,7 @@ import org.xml.sax.helpers.AttributesImpl;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
+import de.x28hd.tool.MyHTMLEditorKit;
 
 import javax.xml.transform.OutputKeys;
 
@@ -260,14 +261,5 @@ public class TopicMapStorer {
 		}
 		return htmlOut;
 	}
-
-	private static class MyHTMLEditorKit extends HTMLEditorKit {
-		private static final long serialVersionUID = 7279700400657879527L;
-
-		public Parser getParser() {
-			return super.getParser();
-		}
-	}
-
 
 }

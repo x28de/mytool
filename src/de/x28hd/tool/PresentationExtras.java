@@ -61,7 +61,7 @@ import de.x28hd.tool.layouts.RandomMap;
 import de.x28hd.tool.layouts.SubtreeLayout;
 
 public class PresentationExtras implements ActionListener, MouseListener, KeyListener, PopupMenuListener{
-	GraphPanelControler controler;
+	PresentationService controler;
 	GraphPanel graphPanel;
 	NewStuff newStuff;
 	Gui gui;
@@ -163,7 +163,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	    } 
 	});
 	
-	public PresentationExtras(GraphPanelControler c) {
+	public PresentationExtras(PresentationService c) {
 		controler = c;
 		lifeCycle = controler.getLifeCycle();
 		edi = controler.getEdi();
@@ -1057,7 +1057,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 //		
 // establish addressability
   
-    public GraphPanelControler getControler() {
+    public PresentationService getControler() {
     	return controler;
     }
     

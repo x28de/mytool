@@ -50,12 +50,13 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import de.x28hd.tool.BranchInfo;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.MyHTMLEditorKit;
 import de.x28hd.tool.Utilities;
 
 public class RogetImport implements TreeSelectionListener, ActionListener, HyperlinkListener {
 	
-	GraphPanelControler controler;
+	PresentationService controler;
 	Hashtable<String,String> catsLong = new Hashtable<String,String>();
 	String[] records;
 	String contentString = "";
@@ -103,7 +104,7 @@ public class RogetImport implements TreeSelectionListener, ActionListener, Hyper
     String[] sentiTexts = {"negatives", "positives", "0"};
     String singleChapter = "initial";
     
-	public RogetImport(GraphPanelControler controler) {
+	public RogetImport(PresentationService controler) {
 		this.controler = controler;
 
 		// Switch point if Dornseiff (DE) instead of Roget (EN);
@@ -335,14 +336,6 @@ public class RogetImport implements TreeSelectionListener, ActionListener, Hyper
 		return htmlOut;
 	}
     
-	private static class MyHTMLEditorKit extends HTMLEditorKit {
-    	private static final long serialVersionUID = 7279700400657879527L;
-
-    	public Parser getParser() {
-    		return super.getParser();
-    	}
-    }
-	
 	public HashSet<String> fillSenti(int whichSide) {
 		HashSet<String> left = new HashSet<String>();
 		HashSet<String> right = new HashSet<String>();
@@ -562,7 +555,7 @@ public class RogetImport implements TreeSelectionListener, ActionListener, Hyper
 		frame.setVisible(true);
 	}
 	
-	public String askForFile(String which, GraphPanelControler controler) {
+	public String askForFile(String which, PresentationService controler) {
 		File file = null;
 		String baseDir = "";
 		try {

@@ -12,7 +12,7 @@ import org.w3c.dom.NodeList;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 
 public class TopicMapLoader {
 	public Hashtable<Integer, GraphNode> newNodes = new Hashtable<Integer, GraphNode>();
@@ -33,7 +33,7 @@ public class TopicMapLoader {
 	Point lowerLeft = new Point(580, 0);
 	boolean tree = false;
 
-	public TopicMapLoader(Document doc, GraphPanelControler controler, boolean tree) {
+	public TopicMapLoader(Document doc, PresentationService controler, boolean tree) {
 		this.tree = tree;
 		if (doc.hasChildNodes()) {
 			root = doc.getDocumentElement();

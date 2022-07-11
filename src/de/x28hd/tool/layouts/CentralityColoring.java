@@ -32,7 +32,7 @@ import javax.swing.tree.TreeSelectionModel;
 import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.PresentationExtras;
 import de.x28hd.tool.Utilities;
 import edu.uci.ics.jung.algorithms.importance.BetweennessCentrality;
@@ -61,7 +61,7 @@ public class CentralityColoring implements TreeSelectionListener {
 	JTree tree;
 	int level = -1;
 	JFrame frame;
-	GraphPanelControler controler;
+	PresentationService controler;
 	
 	private WindowAdapter myWindowAdapter = new WindowAdapter() {
 		public void windowClosing(WindowEvent e) {
@@ -102,7 +102,7 @@ public class CentralityColoring implements TreeSelectionListener {
 		}
 	}
 
-	public void changeColors(boolean andLayout, GraphPanelControler controler) {
+	public void changeColors(boolean andLayout, PresentationService controler) {
 		layout = andLayout;
 		this.controler = controler;
 		changeColors();

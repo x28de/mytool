@@ -44,8 +44,10 @@ import org.w3c.dom.Element;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.MyHTMLEditorKit;
 import de.x28hd.tool.PresentationExtras;
+import de.x28hd.tool.Utilities;
 
 public class NewStuff {
 	
@@ -57,7 +59,7 @@ public class NewStuff {
 	Point dropLocation = null;
 	
 	//	About caller (PresentationService()) and CompositionWindow()
-	private GraphPanelControler controler;
+	private PresentationService controler;
 	PresentationExtras controlerExtras;
 	boolean compositionMode = false;
 	boolean firstComposition = true;
@@ -68,6 +70,8 @@ public class NewStuff {
 	int inputType = 0;
 	InputStream stream = null;
 	String advisableFilename = "";
+	Utilities utilities = new Utilities();
+
 	
 	//	Map loading
 	boolean readyMap = false;
@@ -104,7 +108,7 @@ public class NewStuff {
 
 
 	
-	public NewStuff(final GraphPanelControler controler) {
+	public NewStuff(final PresentationService controler) {
 		this.controler = controler;
 		windows = (System.getProperty("os.name").startsWith("Windows"));
 	}
@@ -236,7 +240,7 @@ public class NewStuff {
 		if (content.isDataFlavorSupported(htmlSelectionFlavor)) {
 			try {
 				InputStream in = (InputStream) content.getTransferData(htmlSelectionFlavor);
-				dataString = convertStreamToString(in);
+				dataString = utilities.convertStreamToString(in);
 				in.close();
 				dataStringResort = (String) content.getTransferData(DataFlavor.stringFlavor);
 			} catch (UnsupportedFlavorException e1) {
@@ -390,12 +394,12 @@ public class NewStuff {
     					InputStream in = (InputStream) stream;
     					if (windows) {
     						if (dropEncoding) {
-    							contentString = convertStreamToString(in, Charset.forName("UTF-8"));
+    							contentString = utilities.convertStreamToString(in, Charset.forName("UTF-8"));
     						} else {
-        					contentString = convertStreamToString(in, Charset.forName("Cp1252"));
+        					contentString = utilities.convertStreamToString(in, Charset.forName("Cp1252"));
     						}
 						} else {
-        					contentString = convertStreamToString(in);
+        					contentString = utilities.convertStreamToString(in);
     					}
     					in.close();
     					success = true;
@@ -479,7 +483,7 @@ public class NewStuff {
 				return;
 			}
 			if (entryCount == 1) {
-				dataString = convertStreamToString(stream);
+				dataString = utilities.convertStreamToString(stream);
 				inputType = 2;
 				advisableFilename = file.getAbsolutePath();
 				step2();
@@ -588,7 +592,7 @@ public class NewStuff {
 					controler.displayPopup("Error NS126 File not found " + e);
 					return;
 				}
-				flatFileContent = convertStreamToString(stream);
+				flatFileContent = utilities.convertStreamToString(stream);
 				dataString = flatFileContent;
 			}
 			inputType = 6;
@@ -706,13 +710,6 @@ public class NewStuff {
 		}
 		return htmlOut;
 	}
-    private static class MyHTMLEditorKit extends HTMLEditorKit {
-    	private static final long serialVersionUID = 7279700400657879527L;
-
-    	public Parser getParser() {
-    		return super.getParser();
-    	}
-    }
     
 //	Determine upper left visible corner
 	public Point determineCorner(Hashtable<Integer,GraphNode> nodes) {
@@ -747,58 +744,6 @@ public class NewStuff {
 		return nodes;
 	}
 	
-
-//
-// Accessory for html flavored dropping and pasting, and for processSimplefiles
-
-	private String convertStreamToString(InputStream is, Charset charset) {
-    	
-        //
-        // From http://kodejava.org/how-do-i-convert-inputstream-to-string/
-        // ("To convert the InputStream to String we use the
-        // Reader.read(char[] buffer) method. We iterate until the
-        // Reader return -1 which means there's no more data to
-        // read. We use the StringWriter class to produce the string.")
-    	
-    	if (is != null) {
-    		Writer writer = new StringWriter();
-    		char[] buffer = new char[1024];
-    		Reader reader = null;;
-    		
-   			reader = new BufferedReader(
-//					new InputStreamReader(is, "UTF-8"));
-// 					changed to allow windows's exotic Charset.defaultCharset() for simple files
-   					new InputStreamReader(is, charset));	
-
-    		int n;
-    		try {
-    			while ((n = reader.read(buffer)) != -1) {
-    				writer.write(buffer, 0, n);
-    			}
-    		} catch (IOException e) {
-    			System.out.println("Error NS117 " + e);
-    			try {
-    				writer.close();
-    			} catch (IOException e1) {
-    				System.out.println("Error NS118 " + e1);
-    			}
-    		} finally {
-    			try {
-    				is.close();
-    			} catch (IOException e) {
-    				System.out.println("Error NS119 " + e);
-    			}
-    		}
-    		String convertedString = writer.toString();
-    		return convertedString;
-    	} else {        
-    		return "";
-    	}
-    }
-    private String convertStreamToString(InputStream is) {
-    	return convertStreamToString(is, Charset.forName("UTF-8"));
-    }
-    	
 	//	Methods to try if XML 
 	
 	private Document getParsedDocument(InputStream stream) {

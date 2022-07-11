@@ -9,9 +9,9 @@ public class AppleHandler implements com.apple.eawt.OpenFilesHandler, com.apple.
 com.apple.eawt.OpenURIHandler, AppReOpenedListener {
 
 	com.apple.eawt.Application app = com.apple.eawt.Application.getApplication();
-	GraphPanelControler ps;
+	PresentationService ps;
 
-	public AppleHandler(GraphPanelControler ps) {
+	public AppleHandler(PresentationService ps) {
 		app.setAboutHandler(this);
 		app.setPreferencesHandler(this);
 		app.setQuitHandler(this);

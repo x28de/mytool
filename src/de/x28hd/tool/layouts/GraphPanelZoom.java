@@ -31,7 +31,7 @@ import javax.swing.event.ChangeListener;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 
 public class GraphPanelZoom extends JComponent implements ChangeListener, ItemListener, ActionListener {
 	private static final long serialVersionUID = 1L;
@@ -39,7 +39,7 @@ public class GraphPanelZoom extends JComponent implements ChangeListener, ItemLi
 	Hashtable<Integer,GraphNode> nodes;
 	Hashtable<Integer,GraphEdge> edges;
 	private Point translation;
-	GraphPanelControler controler;
+	PresentationService controler;
 	int zoomFactor = 100;
 	int mX;
 	int mY;
@@ -53,7 +53,7 @@ public class GraphPanelZoom extends JComponent implements ChangeListener, ItemLi
                         10.0f, dash1, 0.0f);
     JCheckBox markerBox;
 
-	public GraphPanelZoom(Point transl, GraphPanelControler controler) {
+	public GraphPanelZoom(Point transl, PresentationService controler) {
 		this.controler = controler;
 		translation = transl;
 		

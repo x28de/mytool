@@ -53,7 +53,7 @@ import org.xml.sax.SAXParseException;
 import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
@@ -97,7 +97,7 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	// Main fields
 	Hashtable<Integer,GraphNode> nodes = new Hashtable<Integer,GraphNode>();
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
-	GraphPanelControler controler;
+	PresentationService controler;
 	File[] dirList = null;
 	String dataString = null;
 	
@@ -166,7 +166,7 @@ public class LuhmannImport implements Comparator<String>, ActionListener {
 	int count = 0;
 
 	
-	public LuhmannImport(GraphPanelControler controler) {
+	public LuhmannImport(PresentationService controler) {
 		this.controler = controler;
 		JFrame mainWindow = controler.getMainWindow();
 		String baseDir = "";

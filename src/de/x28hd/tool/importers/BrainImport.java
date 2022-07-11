@@ -23,7 +23,7 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
 public class BrainImport {
@@ -45,9 +45,9 @@ public class BrainImport {
 	//	Constants
 	private static final String XML_ROOT = "BrainData";
 	int maxVert = 10;
-	GraphPanelControler controler;
+	PresentationService controler;
 	
-	public BrainImport(JFrame mainWindow, GraphPanelControler controler) {
+	public BrainImport(JFrame mainWindow, PresentationService controler) {
 		this.controler = controler;
 		
 //
@@ -96,7 +96,7 @@ public class BrainImport {
 
 	}
 	
-	public BrainImport(Document inputXml, GraphPanelControler controler) {
+	public BrainImport(Document inputXml, PresentationService controler) {
 //
 //		Find input items
 		

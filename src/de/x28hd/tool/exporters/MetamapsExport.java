@@ -15,7 +15,8 @@ import org.w3c.dom.Element;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.MyHTMLEditorKit;
 
 public class MetamapsExport {
 	Hashtable<Integer,GraphNode> nodes;
@@ -26,7 +27,7 @@ public class MetamapsExport {
 	boolean firstRecord = true;
 	
 	public MetamapsExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
-		String storeFilename, GraphPanelControler controler) {
+		String storeFilename, PresentationService controler) {
 		String newLine = System.getProperty("line.separator");
 		
 		// CSV version commented because of current error in Metamaps.cc
@@ -139,11 +140,4 @@ public class MetamapsExport {
 		return htmlOut;
 	}
 
-	private static class MyHTMLEditorKit extends HTMLEditorKit {
-		private static final long serialVersionUID = 7279700400657879527L;
-
-		public Parser getParser() {
-			return super.getParser();
-		}
-	}
 }

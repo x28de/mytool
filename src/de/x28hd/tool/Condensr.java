@@ -17,7 +17,7 @@ public class Condensr extends JApplet {
 	private void initApplication(String[] args) {
 		System.setProperty("com.apple.mrj.application.apple.menu.about.name", "MyTool");
 		try {
-			GraphPanelControler ps = new GraphPanelControler(false);
+			PresentationService ps = new PresentationService(false);
 			new Thread(ps).start();
 			if (args.length >0) ps.setFilename(args[0], 0);
 		} catch (Throwable e) {

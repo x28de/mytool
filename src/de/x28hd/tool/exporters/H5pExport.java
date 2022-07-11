@@ -50,12 +50,12 @@ import org.json.JSONWriter;
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphExtras;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 
 public class H5pExport implements HyperlinkListener, ActionListener {
 	Hashtable<Integer,GraphNode> nodes;
 	Hashtable<Integer,GraphEdge> edges;
-	GraphPanelControler controler;
+	PresentationService controler;
 	
 	TreeMap<String,Integer> alphaMap = new TreeMap<String,Integer>();
 	SortedMap<String,Integer> alphaList = (SortedMap<String,Integer>) alphaMap; 
@@ -73,7 +73,7 @@ public class H5pExport implements HyperlinkListener, ActionListener {
 	Point translation = null;
 
 	public H5pExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges,
-			GraphPanelControler controler) {
+			PresentationService controler) {
 		this.nodes = nodes;
 		this.edges = edges;
 		this.controler = controler;

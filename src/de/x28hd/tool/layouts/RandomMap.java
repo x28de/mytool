@@ -26,14 +26,14 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
 public class RandomMap implements ActionListener {
 	
 	Hashtable<Integer,GraphNode> nodes = new Hashtable<Integer,GraphNode>();
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
-	GraphPanelControler controler;
+	PresentationService controler;
 	String dataString = "";
 	int edgesNum = 0;
 	Random random;
@@ -42,7 +42,7 @@ public class RandomMap implements ActionListener {
 	JDialog panel;
 	JCheckBox colorBox;
 
-	public RandomMap(GraphPanelControler controler) {
+	public RandomMap(PresentationService controler) {
 		this.controler = controler;
 		
 		random = new Random((new Date()).getTime() + 8432570);

@@ -25,14 +25,14 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
 public class PowerPointImport {
 
 	Hashtable<Integer,GraphNode> nodes = new Hashtable<Integer,GraphNode>();
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
-	GraphPanelControler controler;
+	PresentationService controler;
 	String dataString = "";
 	
 	private static final String XML_ROOT = "p:sld";
@@ -43,7 +43,7 @@ public class PowerPointImport {
 	
 	FileWriter list;
 
-	public PowerPointImport(File file, GraphPanelControler controler) {
+	public PowerPointImport(File file, PresentationService controler) {
 		presoName = file.getName();
 		
 		// Prepare text file output
@@ -118,7 +118,7 @@ public class PowerPointImport {
 
 	// Zip entry to XML
 	
-	public void powerPointImport(InputStream stream, GraphPanelControler controler) {
+	public void powerPointImport(InputStream stream, PresentationService controler) {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = null;
 		Document inputXml = null;
@@ -150,7 +150,7 @@ public class PowerPointImport {
 
 	// Extract texts from XML
 	
-	public void powerPointImport(Document inputXml, GraphPanelControler controler) {
+	public void powerPointImport(Document inputXml, PresentationService controler) {
 
 		NodeList slideContainer = inputXml.getElementsByTagName("p:cSld");
 		Element slide = (Element) slideContainer.item(0);

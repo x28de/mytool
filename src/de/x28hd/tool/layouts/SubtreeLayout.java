@@ -16,7 +16,7 @@ import javax.swing.JOptionPane;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import edu.uci.ics.jung.algorithms.layout.PolarPoint;
 import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
 import edu.uci.ics.jung.graph.DelegateForest;
@@ -29,7 +29,7 @@ public class SubtreeLayout {
 	RadialTreeLayout<Integer,Integer> layout;
 	Hashtable<Integer,GraphNode> nodes;
 	Hashtable<Integer,GraphEdge> edges;
-	GraphPanelControler controler;
+	PresentationService controler;
 	Point translation;
 	Hashtable<GraphNode,Point> originalLocations = new Hashtable<GraphNode,Point>();
 	String loopMsg = "This is no tree; loops were detected at:\n\n";
@@ -39,13 +39,13 @@ public class SubtreeLayout {
 	boolean loop = false;
 	
 	public SubtreeLayout(GraphNode clickedNode, Hashtable<Integer,GraphNode> nodes, 
-			Hashtable<Integer,GraphEdge> edges, GraphPanelControler controler,
+			Hashtable<Integer,GraphEdge> edges, PresentationService controler,
 			boolean warn, Point translation) {
 //		if (warn) controler.displayPopup("MakeTree broke this. Save & restart.");
 		new SubtreeLayout(clickedNode, nodes, edges, controler, translation, false);
 	}
 	public SubtreeLayout(GraphNode clickedNode, Hashtable<Integer,GraphNode> nodes, 
-			Hashtable<Integer,GraphEdge> edges, GraphPanelControler controler, 
+			Hashtable<Integer,GraphEdge> edges, PresentationService controler, 
 			Point translation, boolean silent) {
 		this.nodes = nodes;
 		this.edges = edges;

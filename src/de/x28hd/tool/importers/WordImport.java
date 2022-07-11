@@ -24,7 +24,7 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 
 public class WordImport {
 	
@@ -45,9 +45,9 @@ public class WordImport {
 	//	Constants
 	private static final String XML_ROOT = "w:document";
 	int maxVert = 10;
-	GraphPanelControler controler;
+	PresentationService controler;
 	
-	public WordImport(JFrame mainWindow, GraphPanelControler controler) {
+	public WordImport(JFrame mainWindow, PresentationService controler) {
 		this.controler = controler;
 		
 //
@@ -63,7 +63,7 @@ public class WordImport {
 		new WordImport(file, controler);
 	}
 	
-	public WordImport(File file, GraphPanelControler controler) {
+	public WordImport(File file, PresentationService controler) {
 		Charset CP850 = Charset.forName("CP850");
 		ZipFile zfile = null;
 		try {
@@ -85,7 +85,7 @@ public class WordImport {
 		}
 	}
 	
-	public WordImport(InputStream stream, GraphPanelControler controler) {
+	public WordImport(InputStream stream, PresentationService controler) {
 		
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = null;
@@ -116,7 +116,7 @@ public class WordImport {
 		new WordImport(inputXml, controler);
 	}
 	
-	public WordImport(Document inputXml, GraphPanelControler controler) {
+	public WordImport(Document inputXml, PresentationService controler) {
 
 //
 //		Find input items

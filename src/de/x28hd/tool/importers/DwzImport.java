@@ -47,7 +47,7 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
 public class DwzImport  implements TreeSelectionListener, ActionListener {
@@ -91,7 +91,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 	
 	//	Misc
 	boolean success = false;
-	GraphPanelControler controler;
+	PresentationService controler;
 	int loopDetector = 0;
 	
 //
@@ -116,7 +116,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 	}
 
 
-	public DwzImport(JFrame mainWindow, GraphPanelControler controler) {
+	public DwzImport(JFrame mainWindow, PresentationService controler) {
 		
 		this.controler = controler;
 //
@@ -167,7 +167,7 @@ public class DwzImport  implements TreeSelectionListener, ActionListener {
 		new DwzImport(dwz, controler);
 	}
 	
-	public DwzImport(Document dwz, GraphPanelControler controler) {
+	public DwzImport(Document dwz, PresentationService controler) {
 		
 		this.controler = controler;
 		
