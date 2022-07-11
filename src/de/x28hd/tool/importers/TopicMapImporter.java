@@ -27,7 +27,7 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
 public class TopicMapImporter {		//	OLD map format !
@@ -49,7 +49,7 @@ public class TopicMapImporter {		//	OLD map format !
 	//	Constants
 	private static final String XML_ROOT = "topicmap";
 	int maxVert = 10;
-	GraphPanelControler controler;
+	PresentationService controler;
 	
 	//	Map loading
 	boolean readyMap = false;
@@ -65,7 +65,7 @@ public class TopicMapImporter {		//	OLD map format !
 	Hashtable<String, Integer> edgeids = new Hashtable<String, Integer>();
 	int minX, maxX, minY, maxY;
 	
-	public TopicMapImporter(JFrame mainWindow, GraphPanelControler controler) {
+	public TopicMapImporter(JFrame mainWindow, PresentationService controler) {
 		this.controler = controler;
 		
 //
@@ -81,7 +81,7 @@ public class TopicMapImporter {		//	OLD map format !
 		new TopicMapImporter(file, controler);
 	}
 	
-	public TopicMapImporter(File file, GraphPanelControler controler) {
+	public TopicMapImporter(File file, PresentationService controler) {
 		Charset CP850 = Charset.forName("CP850");
 		ZipFile zfile = null;
 		try {
@@ -104,7 +104,7 @@ public class TopicMapImporter {		//	OLD map format !
 		}
 	}
 	
-	public TopicMapImporter(InputStream stream, GraphPanelControler controler) {
+	public TopicMapImporter(InputStream stream, PresentationService controler) {
 		
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = null;
@@ -133,7 +133,7 @@ public class TopicMapImporter {		//	OLD map format !
 		new TopicMapImporter(inputXml, controler);
 	}
 	
-	public TopicMapImporter(Document inputXml, GraphPanelControler controler) {
+	public TopicMapImporter(Document inputXml, PresentationService controler) {
 
 		Element root = inputXml.getDocumentElement();
 

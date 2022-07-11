@@ -15,7 +15,7 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
 public class TinderImport {
@@ -28,7 +28,7 @@ public class TinderImport {
 	int j = 0;
 	int edgesNum = 0;
 			
-	public TinderImport(Document inputXml, GraphPanelControler controler) {
+	public TinderImport(Document inputXml, PresentationService controler) {
 			inputRoot = inputXml.getDocumentElement();
 		
 		//	Extract nodes 

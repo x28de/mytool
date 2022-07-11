@@ -35,7 +35,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.LimitationMessage;
 
 public class ImportDirector implements ActionListener {
@@ -62,7 +62,7 @@ public class ImportDirector implements ActionListener {
         }
     };
     
-	GraphPanelControler controler;
+	PresentationService controler;
 	JFrame frame = null;
 	JFileChooser fd = null;
 	Importer[] importers = Importer.getImporters();
@@ -77,14 +77,14 @@ public class ImportDirector implements ActionListener {
 	
 	
 	//	Nothing given => Launch wizard
-	public ImportDirector(GraphPanelControler controler) {
+	public ImportDirector(PresentationService controler) {
 		this.controler = controler;
 			launchWizard();
 //			new LuhmannImport(controler);
 		}
 	
 	//	XML given
-	public ImportDirector(int knownFormat, Document doc, GraphPanelControler controler) {
+	public ImportDirector(int knownFormat, Document doc, PresentationService controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
 		if (this.knownFormat == Importer.Evernote) {
@@ -110,7 +110,7 @@ public class ImportDirector implements ActionListener {
 	}
 
 	//	File given
-	public ImportDirector(int knownFormat, File file, GraphPanelControler controler) {
+	public ImportDirector(int knownFormat, File file, PresentationService controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
 		if (this.knownFormat == Importer.iMapping) {
@@ -144,7 +144,7 @@ public class ImportDirector implements ActionListener {
 	}
 
 	//	Zip Input stream given
-	public ImportDirector(int knownFormat, InputStream stream, GraphPanelControler controler) {
+	public ImportDirector(int knownFormat, InputStream stream, PresentationService controler) {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
 		if (this.knownFormat == Importer.Word 

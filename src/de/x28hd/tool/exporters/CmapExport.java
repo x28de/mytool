@@ -26,16 +26,16 @@ import org.w3c.dom.Element;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 
 public class CmapExport {
 	
 	private static final String XML_ROOT = "cmap";
-	GraphPanelControler controler;
+	PresentationService controler;
 	boolean success = false;
 
 	public CmapExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
-			String storeFilename, GraphPanelControler controler) {
+			String storeFilename, PresentationService controler) {
 		
 		// Initialize output 
 		FileOutputStream fout = null;

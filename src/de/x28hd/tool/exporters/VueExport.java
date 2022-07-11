@@ -29,18 +29,19 @@ import org.w3c.dom.Element;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.MyHTMLEditorKit;
 
 public class VueExport {
 	
 	private static final String XML_ROOT = "LW-MAP";
-	GraphPanelControler controler;
+	PresentationService controler;
 	boolean success = false;
 	String htmlOut = "";
 	public final static String XSI = "http://www.w3.org/2001/XMLSchema-instance"; 
 	
 	public VueExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
-			String storeFilename, GraphPanelControler controler) {
+			String storeFilename, PresentationService controler) {
 		
 		// Initialize output 
 		FileOutputStream fout = null;
@@ -210,11 +211,4 @@ private String filterHTML(String html) {
 	return htmlOut;
 }
 
-private static class MyHTMLEditorKit extends HTMLEditorKit {
-	private static final long serialVersionUID = 7279700400657879527L;
-
-	public Parser getParser() {
-		return super.getParser();
-	}
-}
 }

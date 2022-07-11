@@ -23,17 +23,17 @@ import org.w3c.dom.Element;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 
 public class BrainExport {
 	
 	private static final String XML_ROOT = "BrainData";
-	GraphPanelControler controler;
+	PresentationService controler;
 	boolean success = false;
 	int firstThought = 0;
 
 	public BrainExport(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
-			String storeFilename, GraphPanelControler controler) {
+			String storeFilename, PresentationService controler) {
 		
 		
 		// Initialize output 

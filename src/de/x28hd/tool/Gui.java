@@ -23,7 +23,7 @@ public class Gui {
 //
 //	Contains buttons and (yet) only closely related toggles
 	
-	GraphPanelControler controler;
+	PresentationService controler;
 	PresentationExtras controlerExtras;
 	GraphPanel graphPanel;
 	UndoManager undoManager;
@@ -96,7 +96,7 @@ public class Gui {
 		"#fbefe8", "#fcf0d0", "#fdf1b8", "#e59f63", "#65473c"}};	
 	
 	
-	public Gui(GraphPanelControler ps) {
+	public Gui(PresentationService ps) {
 		controler = ps;
 		undoManager = controler.getUndoManager();
 	}

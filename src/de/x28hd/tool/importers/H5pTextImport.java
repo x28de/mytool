@@ -18,7 +18,7 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
@@ -33,7 +33,7 @@ public class H5pTextImport {
 	static final int TIMELINE = 2;
 	int type = -1;
 	
-	public H5pTextImport(File file, GraphPanelControler controler) {
+	public H5pTextImport(File file, PresentationService controler) {
 		InputStream fileInputStream = null;
 		try {
 			zipFile = new ZipFile(file);

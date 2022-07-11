@@ -58,13 +58,15 @@ import org.xml.sax.SAXException;
 import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.MyHTMLEditorKit;
+import de.x28hd.tool.Utilities;
 import de.x28hd.tool.exporters.TopicMapStorer;
 import de.x28hd.tool.layouts.CentralityColoring;
 
 public class ImappingImport implements TreeSelectionListener, ActionListener {
 	
-	GraphPanelControler controler;
+	PresentationService controler;
 	String dataString = "";
 	
 	Hashtable<String,String> rdfItems = new Hashtable<String,String>();
@@ -166,7 +168,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		if (!success) failed();
 	}
 
-	public ImappingImport(JFrame mainWindow, GraphPanelControler controler) {
+	public ImappingImport(JFrame mainWindow, PresentationService controler) {
 		
 		this.controler = controler;
 
@@ -183,7 +185,7 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		new ImappingImport(file, controler);
 	}
 	
-	public ImappingImport(File file, GraphPanelControler controler) {
+	public ImappingImport(File file, PresentationService controler) {
 		this.controler = controler;
 		try {
 			zipFile = new ZipFile(file);
@@ -199,7 +201,8 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		
 //
 //		RDF -- for graphical hierarchy
-		String triplesString = convertStreamToString(rdfInputStream);		
+		Utilities utilities = new Utilities();
+		String triplesString = utilities.convertStreamToString(rdfInputStream);		
 		String [] triples = triplesString.split("\\r?\\n");
 //		String [] triples = triplesString.split("\\r");
 
@@ -915,63 +918,5 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 		}
 		return htmlOut;
 	}
-	
-    private static class MyHTMLEditorKit extends HTMLEditorKit {
-    	private static final long serialVersionUID = 7279700400657879527L;
-
-    	public Parser getParser() {
-    		return super.getParser();
-    	}
-    }
     
-//
-// 	Accessory 
-//	Duplicate of NewStuff TODO reuse
-
-	private String convertStreamToString(InputStream is, Charset charset) {
-    	
-        //
-        // From http://kodejava.org/how-do-i-convert-inputstream-to-string/
-        // ("To convert the InputStream to String we use the
-        // Reader.read(char[] buffer) method. We iterate until the
-        // Reader return -1 which means there's no more data to
-        // read. We use the StringWriter class to produce the string.")
-    	
-    	if (is != null) {
-    		Writer writer = new StringWriter();
-    		char[] buffer = new char[1024];
-    		Reader reader = null;;
-    		
-   			reader = new BufferedReader(
-   					new InputStreamReader(is, charset));	
-
-    		int n;
-    		try {
-    			while ((n = reader.read(buffer)) != -1) {
-    				writer.write(buffer, 0, n);
-    			}
-    		} catch (IOException e) {
-    			System.out.println("Error IM117 " + e);
-    			try {
-    				writer.close();
-    			} catch (IOException e1) {
-    				System.out.println("Error IM118 " + e1);
-    			}
-    		} finally {
-    			try {
-    				is.close();
-    			} catch (IOException e) {
-    				System.out.println("Error IM119 " + e);
-    			}
-    		}
-    		String convertedString = writer.toString();
-    		return convertedString;
-    	} else {        
-    		return "";
-    	}
-    }
-    private String convertStreamToString(InputStream is) {
-    	return convertStreamToString(is, Charset.forName("UTF-8"));
-    }
-
 }

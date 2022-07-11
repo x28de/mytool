@@ -11,7 +11,7 @@ import java.util.Set;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
 
 public class EdgeList {
@@ -21,7 +21,7 @@ public class EdgeList {
 	int maxVert = 10;
 	int j = 0;
 	
-	public EdgeList (File file, GraphPanelControler controler) {
+	public EdgeList (File file, PresentationService controler) {
 		nodes = controler.getNodes();
 		edges = controler.getEdges();
 

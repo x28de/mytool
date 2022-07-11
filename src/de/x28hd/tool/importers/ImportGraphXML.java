@@ -19,7 +19,7 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
 public class ImportGraphXML {
@@ -31,7 +31,7 @@ public class ImportGraphXML {
 	int maxVert = 10;
 	int edgesNum = 0;
 	
-	public ImportGraphXML(Document inputXml, GraphPanelControler controler) {
+	public ImportGraphXML(Document inputXml, PresentationService controler) {
 		FileInputStream fileInputStream = null;
 		try {
 			fileInputStream = new FileInputStream("C:\\users\\matthias\\desktop\\tags.xml");

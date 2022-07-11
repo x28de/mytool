@@ -17,7 +17,7 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
@@ -25,7 +25,7 @@ public class DemoJsonImport {
 	Hashtable<Integer,GraphNode> nodes = new Hashtable<Integer,GraphNode>();
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
 	
-	public DemoJsonImport(File file, GraphPanelControler controler) {
+	public DemoJsonImport(File file, PresentationService controler) {
 		String inputString = "";
 		FileInputStream fileInputStream = null;
 		try {

@@ -22,7 +22,7 @@ import javax.swing.border.EmptyBorder;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.PresentationExtras;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
@@ -36,7 +36,7 @@ public class CheckOverlaps implements Comparator<Integer>, ActionListener {
 	Hashtable<Integer,GraphNode> realNodes; 
 	Hashtable<Integer,GraphEdge> edges;	
 	Hashtable<Integer,GraphEdge> realEdges;	
-	GraphPanelControler controler;
+	PresentationService controler;
 	PresentationExtras controlerExtras;
 	
 	// Major collections
@@ -78,7 +78,7 @@ public class CheckOverlaps implements Comparator<Integer>, ActionListener {
 //
 //	Step 1: Prepare the graph
 	
-	public CheckOverlaps(GraphPanelControler controler, 
+	public CheckOverlaps(PresentationService controler, 
 			Hashtable<Integer,GraphNode> realNodes, 
 			Hashtable<Integer,GraphEdge> realEdges) {
 		nodes = new Hashtable<Integer,GraphNode>();

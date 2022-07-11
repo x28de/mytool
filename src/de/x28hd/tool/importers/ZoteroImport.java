@@ -20,7 +20,8 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.MyHTMLEditorKit;
 import de.x28hd.tool.Utilities;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
@@ -29,7 +30,7 @@ public class ZoteroImport {
 	
 	Hashtable<Integer,GraphNode> nodes = new Hashtable<Integer,GraphNode>();
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
-	GraphPanelControler controler;
+	PresentationService controler;
 	String dataString = "";
 	int j = 0;
 	int maxVert = 10;
@@ -47,7 +48,7 @@ public class ZoteroImport {
 	GraphNode lastMajorNode;
 	GraphNode lastMinorNode;
 
-	public ZoteroImport(File file, GraphPanelControler controler) {
+	public ZoteroImport(File file, PresentationService controler) {
 		
 		InputStream fileInputStream = null;
 		try {
@@ -96,13 +97,6 @@ public class ZoteroImport {
 		return topic;
 	}
 	
-	private static class MyHTMLEditorKit extends HTMLEditorKit {
-    	private static final long serialVersionUID = 7279700400657879527L;
-
-    	public Parser getParser() {
-    		return super.getParser();
-    	}
-    }
 	private void filterHTML(String html) {
 		MyHTMLEditorKit htmlKit = new MyHTMLEditorKit();
 		HTMLEditorKit.Parser parser = null;

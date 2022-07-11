@@ -45,7 +45,7 @@ import org.xml.sax.SAXException;
 import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
 public class GedcomImport implements ListSelectionListener, ActionListener {
@@ -122,9 +122,9 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 	
 	//	Constants
 	int maxVert = 10;
-	GraphPanelControler controler;
+	PresentationService controler;
 	
-	public GedcomImport(Document inputXml, GraphPanelControler controler) {
+	public GedcomImport(Document inputXml, PresentationService controler) {
 		this.controler = controler;
         controler.getControlerExtras().stopHint();	//	to keep the frame in front
 

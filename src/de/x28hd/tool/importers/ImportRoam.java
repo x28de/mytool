@@ -22,7 +22,7 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
@@ -42,7 +42,7 @@ public class ImportRoam {
 	int liCount = 0;
 	boolean sizeWarn = false;
 	
-	public ImportRoam(File file, GraphPanelControler controler) {
+	public ImportRoam(File file, PresentationService controler) {
 		Object[] simplifyOptions =  {"Simplify", "Don't simplify", "Cancel"};
 		int	simplifyResponse = JOptionPane.showOptionDialog(null,
 			"Do you want to simplify the map\n"

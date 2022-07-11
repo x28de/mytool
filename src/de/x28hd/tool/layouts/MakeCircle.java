@@ -32,7 +32,7 @@ import javax.swing.tree.TreeNode;
 import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
@@ -50,7 +50,7 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 	Hashtable<Integer,GraphNode> realNodes; 
 	Hashtable<Integer,GraphEdge> edges;	
 	Hashtable<Integer,GraphEdge> realEdges;	
-	GraphPanelControler controler;
+	PresentationService controler;
 	UndirectedSparseGraph<Integer, Integer> graph = new UndirectedSparseGraph<Integer,Integer>();
 	CircleLayout<Integer,Integer> layout = new CircleLayout<Integer,Integer>(graph);
 	
@@ -78,11 +78,11 @@ public class MakeCircle implements Comparator<Integer>, ActionListener {
 	boolean elim = false;
 	
 	public MakeCircle(Hashtable<Integer,GraphNode> realNodes, Hashtable<Integer,GraphEdge> realEdges, 
-			GraphPanelControler controler) {
+			PresentationService controler) {
 		new MakeCircle(realNodes, realEdges, controler, true);
 	}
 	public MakeCircle(Hashtable<Integer,GraphNode> realNodes, Hashtable<Integer,GraphEdge> realEdges, 
-			GraphPanelControler controler, boolean elim) {
+			PresentationService controler, boolean elim) {
 
 		nodes = new Hashtable<Integer,GraphNode>();
 		edges = new Hashtable<Integer,GraphEdge>();

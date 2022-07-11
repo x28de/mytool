@@ -8,14 +8,14 @@ import java.util.Hashtable;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 
 public class MakeHTML {
 	
 	FileWriter list = null;
 	
 	public MakeHTML(boolean graphOnly, Hashtable<Integer,GraphNode> nodesIn, 
-			Hashtable<Integer,GraphEdge> edgesIn, String filename, GraphPanelControler controler) {
+			Hashtable<Integer,GraphEdge> edgesIn, String filename, PresentationService controler) {
 		if (nodesIn.size() > 3000 || edgesIn.size() > 3000) {
 			controler.displayPopup("Sorry, current size limit is 3000 nodes/ edges");
 			return;  	//	TODO get rid of limitation

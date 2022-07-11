@@ -28,7 +28,8 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.MyHTMLEditorKit;
 
 public class EnexImport {
 	Hashtable<Integer,GraphNode> nodes = new Hashtable<Integer,GraphNode>();
@@ -41,9 +42,9 @@ public class EnexImport {
 	
 	private static final String XML_ROOT = "en-export";
 	
-	GraphPanelControler controler;
+	PresentationService controler;
 
-	public EnexImport(JFrame mainWindow, GraphPanelControler controler) {
+	public EnexImport(JFrame mainWindow, PresentationService controler) {
 //		File file = new File("C:\\Users\\Matthias\\Desktop\\Evernote.enex");
 		controler.displayPopup("May 12, 2016: This is just a Quick and Dirty first attempt.\n" + 
 				"Regard it as a Proof Of Concept. Maybe soon more.");
@@ -87,7 +88,7 @@ public class EnexImport {
 		new EnexImport(enex, controler);
 	}
 	
-	public EnexImport(Document enex, GraphPanelControler controler) {
+	public EnexImport(Document enex, PresentationService controler) {
 		int maxVert = 10;
 		
 		NodeList enexItems = enex.getElementsByTagName("note");
@@ -199,13 +200,5 @@ public class EnexImport {
 			System.out.println("Error EI110 " + e3.toString());
 		}
 		return htmlOut;
-	}
-
-	private static class MyHTMLEditorKit extends HTMLEditorKit {
-		private static final long serialVersionUID = 7279700400657879527L;
-
-		public Parser getParser() {
-			return super.getParser();
-		}
 	}
 }

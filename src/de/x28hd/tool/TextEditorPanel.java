@@ -55,7 +55,7 @@ import javax.swing.undo.UndoableEdit;
 
 public class TextEditorPanel extends JPanel implements ActionListener, UndoableEditListener, HyperlinkListener {
 
-	GraphPanelControler controler;
+	PresentationService controler;
 	private JEditorPane editorPane; 
 	EditorKit eki;;
 	HTMLDocument htmlDoc;
@@ -172,7 +172,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, UndoableE
 		}
 	}
 
-	public TextEditorPanel(GraphPanelControler controler) {
+	public TextEditorPanel(PresentationService controler) {
 		
 		this.controler = controler;
 		setLayout(new BorderLayout());

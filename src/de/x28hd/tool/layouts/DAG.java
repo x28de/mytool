@@ -16,7 +16,7 @@ import javax.swing.tree.TreeNode;
 import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
 
 public class DAG {
@@ -38,7 +38,7 @@ public class DAG {
 	// 'depth last layout' (?) algorithm (references welcome) 
 	
 	public DAG(Hashtable<Integer,GraphNode> inputNodes, 
-			Hashtable<Integer,GraphEdge> inputEdges, GraphPanelControler controler) {
+			Hashtable<Integer,GraphEdge> inputEdges, PresentationService controler) {
 		nodes = inputNodes;
 		edges = inputEdges;
 		DefaultMutableTreeNode topTop = new DefaultMutableTreeNode(new BranchInfo(0, "1"));

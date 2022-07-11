@@ -20,7 +20,8 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.Utilities;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
 public class MetamapsImport {
@@ -36,14 +37,15 @@ public class MetamapsImport {
 	int edgesNum = 0;
 
 	
-	public MetamapsImport (File file, GraphPanelControler controler) {
+	public MetamapsImport (File file, PresentationService controler) {
 		FileInputStream fileInputStream = null;
 		try {
 			fileInputStream = new FileInputStream(file);
 		} catch (FileNotFoundException e) {
 			System.out.println("Error MI101 " + e);
 		}
-		String linesString = convertStreamToString(fileInputStream);		
+		Utilities utilities = new Utilities();
+		String linesString = utilities.convertStreamToString(fileInputStream);		
 		String [] lines = linesString.split("\\r?\\n");	
 		int startTopics = Integer.MAX_VALUE;
 		int startSynapses = Integer.MAX_VALUE;
@@ -130,53 +132,4 @@ public class MetamapsImport {
 	}
 	
 	
-//
-// 	Accessory 
-//	Duplicate of NewStuff TODO reuse
-
-	private String convertStreamToString(InputStream is, Charset charset) {
-    	
-        //
-        // From http://kodejava.org/how-do-i-convert-inputstream-to-string/
-        // ("To convert the InputStream to String we use the
-        // Reader.read(char[] buffer) method. We iterate until the
-        // Reader return -1 which means there's no more data to
-        // read. We use the StringWriter class to produce the string.")
-    	
-    	if (is != null) {
-    		Writer writer = new StringWriter();
-    		char[] buffer = new char[1024];
-    		Reader reader = null;;
-    		
-   			reader = new BufferedReader(
-   					new InputStreamReader(is, charset));	
-
-    		int n;
-    		try {
-    			while ((n = reader.read(buffer)) != -1) {
-    				writer.write(buffer, 0, n);
-    			}
-    		} catch (IOException e) {
-    			System.out.println("Error MI117 " + e);
-    			try {
-    				writer.close();
-    			} catch (IOException e1) {
-    				System.out.println("Error MI118 " + e1);
-    			}
-    		} finally {
-    			try {
-    				is.close();
-    			} catch (IOException e) {
-    				System.out.println("Error MI119 " + e);
-    			}
-    		}
-    		String convertedString = writer.toString();
-    		return convertedString;
-    	} else {        
-    		return "";
-    	}
-    }
-    private String convertStreamToString(InputStream is) {
-    	return convertStreamToString(is, Charset.forName("UTF-8"));
-    }
 }

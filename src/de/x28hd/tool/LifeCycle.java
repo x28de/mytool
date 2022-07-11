@@ -17,7 +17,7 @@ public class LifeCycle {
 	String mainWindowTitle = "Main Window";
 	
 	// Added later:
-	GraphPanelControler controler;
+	PresentationService controler;
 	JFrame mainWindow;
 	String baseDir;
 	String confirmedFilename = "";
@@ -25,7 +25,7 @@ public class LifeCycle {
 	
 
 
-	public LifeCycle(GraphPanelControler c) {
+	public LifeCycle(PresentationService c) {
 		controler = c;
 		//	more parameters added later by add() 
 	}

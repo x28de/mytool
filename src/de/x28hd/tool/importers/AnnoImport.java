@@ -29,7 +29,8 @@ import org.xml.sax.SAXException;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.Utilities;
 import de.x28hd.tool.exporters.TopicMapStorer;
 
 public class AnnoImport {
@@ -49,7 +50,7 @@ public class AnnoImport {
 	int edgesNum = 0;
 	int colorNum = 0;
 	
-	public AnnoImport(File json, GraphPanelControler controler) {
+	public AnnoImport(File json, PresentationService controler) {
 //		File json = new File("c:\\users\\matthias\\desktop\\hypothesis.json");
 		FileInputStream fileInputStream = null;
 		try {
@@ -58,7 +59,8 @@ public class AnnoImport {
 		} catch (FileNotFoundException e) {
 			System.out.println("Error AI101 " + e);
 		}
-		String pageString = convertStreamToString(fileInputStream);	
+		Utilities utilities = new Utilities();
+		String pageString = utilities.convertStreamToString(fileInputStream);	
 		pageString = pageString.substring(1, pageString.length() - 1); // TODO: parse the [[
 		
 		JSONObject itemObj = null;
@@ -215,53 +217,4 @@ public class AnnoImport {
 		edges.put(edgesNum, edge);
 	}
 	
-//
-//	Accessory 
-//	Duplicate of NewStuff TODO reuse
-
-	private String convertStreamToString(InputStream is, Charset charset) {
-
-		//
-		// From http://kodejava.org/how-do-i-convert-inputstream-to-string/
-		// ("To convert the InputStream to String we use the
-		// Reader.read(char[] buffer) method. We iterate until the
-		// Reader return -1 which means there's no more data to
-		// read. We use the StringWriter class to produce the string.")
-
-		if (is != null) {
-			Writer writer = new StringWriter();
-			char[] buffer = new char[1024];
-			Reader reader = null;;
-
-			reader = new BufferedReader(
-					new InputStreamReader(is, charset));	
-
-			int n;
-			try {
-				while ((n = reader.read(buffer)) != -1) {
-					writer.write(buffer, 0, n);
-				}
-			} catch (IOException e) {
-				System.out.println("Error AI117 " + e);
-				try {
-					writer.close();
-				} catch (IOException e1) {
-					System.out.println("Error AI118 " + e1);
-				}
-			} finally {
-				try {
-					is.close();
-				} catch (IOException e) {
-					System.out.println("Error AI119 " + e);
-				}
-			}
-			String convertedString = writer.toString();
-			return convertedString;
-		} else {        
-			return "";
-		}
-	}
-	private String convertStreamToString(InputStream is) {
-		return convertStreamToString(is, Charset.forName("UTF-8"));
-	}
 }

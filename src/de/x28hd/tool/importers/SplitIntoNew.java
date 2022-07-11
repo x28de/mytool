@@ -8,11 +8,11 @@ import javax.swing.JOptionPane;
 
 import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphNode;
-import de.x28hd.tool.GraphPanelControler;
+import de.x28hd.tool.PresentationService;
 
 
 public class SplitIntoNew {
-	private GraphPanelControler controler;
+	private PresentationService controler;
 
 	Hashtable<Integer, GraphNode> nodes = new Hashtable<Integer, GraphNode>();
 	Hashtable<Integer, GraphEdge> edges = new Hashtable<Integer, GraphEdge>();
@@ -22,7 +22,7 @@ public class SplitIntoNew {
 	int [] blanks = new int [500];
 
 	
-	public SplitIntoNew(final GraphPanelControler controler) {
+	public SplitIntoNew(final PresentationService controler) {
 		this.controler = controler;
 		
 	}
