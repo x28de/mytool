@@ -127,7 +127,6 @@ class GraphPanel extends JDesktopPane  {
 		graphExtras = new GraphExtras(this);
 		this.controler = controler;
 		this.translation = new Point(0, 0);
-		newStuff = controler.getNSInstance();
 		setLayout(null);
 		selection = new Selection();
 		
@@ -942,6 +941,10 @@ class GraphPanel extends JDesktopPane  {
 		
 		public GraphExtras getExtras() {
 			return graphExtras;
+		}
+
+		public void init() {
+			newStuff = controler.getNSInstance();
 		}
 
 		public void normalize() {

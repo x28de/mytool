@@ -18,8 +18,6 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.undo.UndoManager;
 
-import de.x28hd.tool.importers.NewStuff;
-
 public class Gui {
 	
 //
@@ -28,8 +26,6 @@ public class Gui {
 	GraphPanelControler controler;
 	PresentationExtras controlerExtras;
 	GraphPanel graphPanel;
-	TextEditorPanel edi;	// TODO remove
-	NewStuff newStuff;		// TODO remove
 	UndoManager undoManager;
 
 	JMenuBar menuBar;
@@ -100,12 +96,8 @@ public class Gui {
 		"#fbefe8", "#fcf0d0", "#fdf1b8", "#e59f63", "#65473c"}};	
 	
 	
-	public Gui(GraphPanelControler ps, GraphPanel gp, TextEditorPanel te, NewStuff ns,
-			UndoManager um) {
+	public Gui(GraphPanelControler ps) {
 		controler = ps;
-		graphPanel = gp;
-		edi = controler.getEdi();
-		newStuff = ns;
 		undoManager = controler.getUndoManager();
 	}
 
@@ -567,6 +559,7 @@ public class Gui {
 		menuItem45 = new JCheckBoxMenuItem("Accelerate", false);
 		if (System.getProperty("os.name").equals("Linux")) {
 			menuItem45.setSelected(true);
+			graphPanel.toggleAntiAliasing();
 		}
 		menuItem45.setActionCommand("ToggleHeavy");
 		menuItem45.setToolTipText("Fast but coarse graphics");
@@ -902,6 +895,11 @@ public class Gui {
 
 	public void togglePalette() {
 		paletteID = 1 - paletteID;
+	}
+	
+	public void init() {
+		controlerExtras = controler.getControlerExtras();
+		graphPanel = controler.getGraphPanel();
 	}
 	
 	public String getSample(boolean help) {
