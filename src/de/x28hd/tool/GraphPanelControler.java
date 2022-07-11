@@ -43,17 +43,19 @@ import de.x28hd.tool.importers.NewStuff;
 
 public final class GraphPanelControler implements ActionListener, Runnable {
 
+	// Main cooperating classes
 	LifeCycle lifeCycle = new LifeCycle(this);
 	TextEditorPanel edi = new TextEditorPanel(this);
 	UndoManager undoManager = new UndoManager();
-	
-	PresentationExtras controlerExtras = new PresentationExtras(this);
-
-	Gui gui;
-	
-	Hashtable<Integer, GraphNode> nodes;
-	Hashtable<Integer, GraphEdge> edges;
+	// The next 4 are mutually interdependent:
+	PresentationExtras controlerExtras;	// needs edi & lifeCycle
+	Gui gui;							// needs undoManager
 	GraphPanel graphPanel;
+	NewStuff newStuff = null;
+	
+	// Main fields
+	Hashtable<Integer, GraphNode> nodes = new Hashtable<Integer, GraphNode>();
+	Hashtable<Integer, GraphEdge> edges = new Hashtable<Integer, GraphEdge>();
 	
 	// User Interface
 	public JFrame mainWindow;
@@ -78,7 +80,6 @@ public final class GraphPanelControler implements ActionListener, Runnable {
 	Point translation = new Point(0, 0);
 
 	// Input/ output accessories
-	NewStuff newStuff = null;
 	CompositionWindow compositionWindow = null;
 	String dataString = "";	
 	int inputType = 0;
@@ -324,16 +325,17 @@ public final class GraphPanelControler implements ActionListener, Runnable {
 			System.out.println("Error PS108" + e );
 		}
 
-		newStuff = new NewStuff(this);
-		controlerExtras.setNewStuff(newStuff);
-		
+		// The next 4 classes need each other
+		controlerExtras = new PresentationExtras(this);
+		gui = new Gui(this);
 		graphPanel = new GraphPanel(this);
-		nodes = new Hashtable<Integer, GraphNode>();
-		edges = new Hashtable<Integer, GraphEdge>();
-		controlerExtras.init();
+		newStuff = new NewStuff(this);
 		
-		gui = new Gui(this, graphPanel, edi, newStuff, undoManager );
-		controlerExtras.setGui(gui);
+		// Introduce them to each other
+		controlerExtras.init();
+		gui.init();
+		graphPanel.init();
+		newStuff.init();
 		
 		graphPanel.setModel(nodes, edges);
 		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
@@ -341,7 +343,7 @@ public final class GraphPanelControler implements ActionListener, Runnable {
 		graphPanel.addKeyListener(controlerExtras);
 
 		createMainWindow(lifeCycle.getMainWindowTitle());
-		lifeCycle.add(this, baseDir);
+		lifeCycle.add(baseDir);
 		
 		System.out.println("PS: Initialized");
 		System.out.println("\n\n**** This console window may be ignored ****\n");
@@ -729,6 +731,10 @@ public final class GraphPanelControler implements ActionListener, Runnable {
 	
 	public TextEditorPanel getEdi() {
 		return edi;
+	}
+	
+	public Gui getGui() {
+		return gui;
 	}
 	
 	public JTextField getLabelField() {

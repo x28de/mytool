@@ -167,6 +167,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 		controler = c;
 		lifeCycle = controler.getLifeCycle();
 		edi = controler.getEdi();
+		nodes = controler.getNodes();
+		edges = controler.getEdges();
 	}
 	
 	public void actionPerformed(ActionEvent arg0) {
@@ -1059,11 +1061,6 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
     	return controler;
     }
     
-	public void setNewStuff(NewStuff ns) {
-		newStuff = ns;
-		ns.setControlerExtras(this);
-	}
-	
 	public void setGui(Gui g) {
 		gui = g;
 		gui.setControlerExtras(this);
@@ -1075,10 +1072,10 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	}
 	
 	public void init() {
-		nodes = controler.getNodes();
-		edges = controler.getEdges();
+		gui = controler.getGui();
 		graphPanel = controler.getGraphPanel();
 		setAltSimulation();
+		newStuff = controler.getNSInstance();
 	}
 
 	public void setInitialSize(int size) {

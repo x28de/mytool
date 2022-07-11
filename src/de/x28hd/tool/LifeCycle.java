@@ -56,7 +56,7 @@ public class LifeCycle {
 	}
 	
 	
-	public void add(GraphPanelControler controler, String baseDir) {
+	public void add(String baseDir) {
 		this.baseDir = baseDir;
 		mainWindow = controler.getMainWindow();
 	}

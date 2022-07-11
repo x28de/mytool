@@ -879,7 +879,7 @@ public class NewStuff {
 		return existingMap;
 	}
 	
-	public void setControlerExtras(PresentationExtras c) {
-		controlerExtras = c;
+	public void init() {
+		controlerExtras = controler.getControlerExtras();
 	}
 }
