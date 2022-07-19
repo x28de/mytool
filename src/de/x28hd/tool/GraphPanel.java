@@ -42,6 +42,7 @@ import de.x28hd.tool.importers.NewStuff;
 class GraphPanel extends JDesktopPane  {
 
 	private PresentationService controler;
+	public PresentationCore controCore;
 	JComponent graphPanel;
 	GraphExtras graphExtras;
 	Hashtable<Integer, GraphNode> nodes;
@@ -53,7 +54,7 @@ class GraphPanel extends JDesktopPane  {
 	private Selection selection;
 	boolean labelUpdate = false;
 	Font font = new Font("monospace", Font.PLAIN, 12);
-	NewStuff newStuff = null;
+	public NewStuff newStuff = null;
 	Point lastPoint = new Point(0, 0);
 	
 	private boolean rectangleInProgress;
@@ -120,9 +121,97 @@ class GraphPanel extends JDesktopPane  {
 		}
 	}
 
+	JComponent graphComponent = new JComponent() {
+
+//
+//		Main graphics activity
+
+		public void paint(Graphics g) { 
+			graphExtras.paintHints(g);	// borders and jumping arrows, if set
+			if (antiAliasing) {
+				((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+						RenderingHints.VALUE_ANTIALIAS_ON);
+			}
+			g.translate(translation.x, translation.y);
+			paintEdges(g);
+			paintNodes(g);
+		}
+		private void paintNodes(Graphics g) {
+			Enumeration<GraphNode> e = nodes.elements();
+			while (e.hasMoreElements()) {
+				try {
+					GraphNode node = e.nextElement();
+					paintNode(node, g);
+				} catch (Throwable t) {
+					System.out.println("GP: Error paintnodes " + t);	
+				}
+			}
+			if (rectangleInProgress) paintRect(g);
+		}
+		private void paintEdges(Graphics g) {
+			Enumeration<GraphEdge> e = edges.elements();
+			while (e.hasMoreElements()) {
+				GraphEdge edge = e.nextElement();
+				paintEdge(edge, g);
+			}
+			if (edgeInProgress) {
+				Point p = selection.topic.getXY();
+				g.setColor(Color.gray.darker());
+				paintLine(g, p.x, p.y, ex - translation.x, ey - translation.y, true);
+			}
+		} 
+		private static final long serialVersionUID = 1L;
+		private void paintRect(Graphics g) {
+			if (rectangleGrowing) {
+				int x = rectangleMark.x;
+				int y = rectangleMark.y;
+				Point rectangleDot = new Point(ex, ey);
+				int w = rectangleDot.x - x;
+				int h = rectangleDot.y - y;
+				if (w < 0) {
+					x = rectangleDot.x;
+					w = 0 - w;
+				}
+				if (h < 0) {
+					y = rectangleDot.y;
+					h = 0 - h;
+				}
+				g.setColor(Color.RED);
+				g.drawRect(x, y, w, h);
+				rectangle.setBounds(x, y, w, h);
+			} else {
+				g.setColor(Color.RED);
+				g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+			}
+		}
+	};
 
 	private static final long serialVersionUID = 1L;
 
+	GraphPanel(final PresentationCore controler) {
+		graphExtras = new GraphExtras(this);
+		this.controCore = controler;
+		this.translation = new Point(0, 0);
+		setLayout(null);
+		selection = new Selection();
+		
+		graphPanel = graphComponent;
+		
+		addComponentListener(new ComponentAdapter() {       // this was crucial
+			public void componentResized(ComponentEvent e) {
+				Dimension s = getSize();
+				graphPanel.setSize(s);
+				// update border images
+				graphExtras.setDimension(s);
+				repaint();
+			}
+		});
+
+		setToolTipText("");		//	turns getToolTipText on
+		graphPanel.setTransferHandler(handler);
+		add(graphPanel);
+	}
+	
 	GraphPanel(final PresentationService controler) {
 		graphExtras = new GraphExtras(this);
 		this.controler = controler;
@@ -130,70 +219,7 @@ class GraphPanel extends JDesktopPane  {
 		setLayout(null);
 		selection = new Selection();
 		
-		graphPanel = new JComponent() {
-
-//
-//			Main graphics activity
-
-			public void paint(Graphics g) { 
-				graphExtras.paintHints(g);	// borders and jumping arrows, if set
-				if (antiAliasing) {
-					((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-						RenderingHints.VALUE_ANTIALIAS_ON);
-				}
-				g.translate(translation.x, translation.y);
-				paintEdges(g);
-				paintNodes(g);
-			}
-			private void paintNodes(Graphics g) {
-				Enumeration<GraphNode> e = nodes.elements();
-				while (e.hasMoreElements()) {
-					try {
-						GraphNode node = e.nextElement();
-						paintNode(node, g);
-					} catch (Throwable t) {
-						System.out.println("GP: Error paintnodes " + t);	
-					}
-				}
-				if (rectangleInProgress) paintRect(g);
-			}
-			private void paintEdges(Graphics g) {
-				Enumeration<GraphEdge> e = edges.elements();
-				while (e.hasMoreElements()) {
-					GraphEdge edge = e.nextElement();
-					paintEdge(edge, g);
-				}
-				if (edgeInProgress) {
-					Point p = selection.topic.getXY();
-					g.setColor(Color.gray.darker());
-					paintLine(g, p.x, p.y, ex - translation.x, ey - translation.y, true);
-				}
-			} 
-			private static final long serialVersionUID = 1L;
-			private void paintRect(Graphics g) {
-				if (rectangleGrowing) {
-					int x = rectangleMark.x;
-					int y = rectangleMark.y;
-					Point rectangleDot = new Point(ex, ey);
-					int w = rectangleDot.x - x;
-					int h = rectangleDot.y - y;
-					if (w < 0) {
-						x = rectangleDot.x;
-						w = 0 - w;
-					}
-					if (h < 0) {
-						y = rectangleDot.y;
-						h = 0 - h;
-					}
-					g.setColor(Color.RED);
-					g.drawRect(x, y, w, h);
-					rectangle.setBounds(x, y, w, h);
-				} else {
-					g.setColor(Color.RED);
-					g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-				}
-			}
-		};
+		graphPanel = graphComponent;
 
 //
 //		Accessories for Mouse (press, release, drag) and window resizing
@@ -944,9 +970,10 @@ class GraphPanel extends JDesktopPane  {
 		}
 
 		public void init() {
+			if (controCore instanceof PresentationCore) return;	// newStuff later
 			newStuff = controler.getNSInstance();
 		}
-
+		
 		public void normalize() {
 			Enumeration<GraphNode> todoList = nodes.elements();
 			while (todoList.hasMoreElements()) {
