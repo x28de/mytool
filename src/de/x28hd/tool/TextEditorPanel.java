@@ -55,7 +55,10 @@ import javax.swing.undo.UndoableEdit;
 
 public class TextEditorPanel extends JPanel implements ActionListener, UndoableEditListener, HyperlinkListener {
 
-	PresentationService controler;
+	public PresentationService controler;
+	public PresentationCore controCore;
+	boolean dumbCaller;	// to disable things temporarily
+	
 	private JEditorPane editorPane; 
 	EditorKit eki;;
 	HTMLDocument htmlDoc;
@@ -172,9 +175,12 @@ public class TextEditorPanel extends JPanel implements ActionListener, UndoableE
 		}
 	}
 
-	public TextEditorPanel(PresentationService controler) {
+	public TextEditorPanel(Object caller) {
+		dumbCaller = !(caller instanceof PresentationService);
+		controCore = (PresentationCore) caller;
+		if (!dumbCaller) controler = (PresentationService) caller;
+		showDiag();
 		
-		this.controler = controler;
 		setLayout(new BorderLayout());
 		editorPane = new JEditorPane();
 		
@@ -377,7 +383,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, UndoableE
 
 	public void setDirty(boolean toggle) {
 		if (isDirty != toggle) {
-			if (toggle) {
+			if (toggle && !dumbCaller) {
 				controler.setDirty(toggle);
 			}
 			isDirty = toggle;
@@ -559,5 +565,8 @@ public class TextEditorPanel extends JPanel implements ActionListener, UndoableE
 		UndoableEdit undoableEdit = arg0.getEdit();
 		undoManager.addEdit(undoableEdit);
 		setDirty(true);
+	}
+	public void showDiag() {
+		System.out.println("TE from dumb? " + dumbCaller);
 	}
 }

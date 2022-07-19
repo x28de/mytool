@@ -41,8 +41,10 @@ import de.x28hd.tool.importers.NewStuff;
 
 class GraphPanel extends JDesktopPane  {
 
-	private PresentationService controler;
+	public PresentationService controler;
 	public PresentationCore controCore;
+	boolean dumbCaller;	// to disable things temporarily
+	
 	JComponent graphPanel;
 	GraphExtras graphExtras;
 	Hashtable<Integer, GraphNode> nodes;
@@ -188,33 +190,13 @@ class GraphPanel extends JDesktopPane  {
 
 	private static final long serialVersionUID = 1L;
 
-	GraphPanel(final PresentationCore controler) {
-		graphExtras = new GraphExtras(this);
-		this.controCore = controler;
-		this.translation = new Point(0, 0);
-		setLayout(null);
-		selection = new Selection();
-		
-		graphPanel = graphComponent;
-		
-		addComponentListener(new ComponentAdapter() {       // this was crucial
-			public void componentResized(ComponentEvent e) {
-				Dimension s = getSize();
-				graphPanel.setSize(s);
-				// update border images
-				graphExtras.setDimension(s);
-				repaint();
-			}
-		});
+	GraphPanel(Object caller) {
+		dumbCaller = !(caller instanceof PresentationService);
+		controCore = (PresentationCore) caller;
+		if (!dumbCaller) controler = (PresentationService) caller;
+		showDiag();
 
-		setToolTipText("");		//	turns getToolTipText on
-		graphPanel.setTransferHandler(handler);
-		add(graphPanel);
-	}
-	
-	GraphPanel(final PresentationService controler) {
 		graphExtras = new GraphExtras(this);
-		this.controler = controler;
 		this.translation = new Point(0, 0);
 		setLayout(null);
 		selection = new Selection();
@@ -575,7 +557,7 @@ class GraphPanel extends JDesktopPane  {
 		}
 		
 		private void thisPanelDragged(MouseEvent e) {
-			
+			if (dumbCaller) return;
 			//	Intercept ALT-Drag on Graph -- TODO simplify & check if must be here
 			if (selection.mode == Selection.SELECTED_TOPICMAP && (isSpecial(e) || simulatedAltDown)) {
 				translateInProgress = false;
@@ -677,6 +659,7 @@ class GraphPanel extends JDesktopPane  {
 		}
 		
 		private void thisPanelReleased(MouseEvent e) {
+			if (dumbCaller) return;
 			if (moveInProgress) {
 				moveInProgress = false; 
 				int dx = e.getX() - lastPoint.x;
@@ -735,6 +718,7 @@ class GraphPanel extends JDesktopPane  {
 		private void nodeClicked(GraphNode node, MouseEvent e) {
 			
 			nodeSelected(node);	
+			if (dumbCaller) return;
 			int x = e.getX();
 			int y = e.getY();
 			if (e.getClickCount() == 2) {		// double clicked
@@ -754,6 +738,7 @@ class GraphPanel extends JDesktopPane  {
 
 		private void edgeClicked(GraphEdge edge, MouseEvent e) {
 			edgeSelected(edge);
+			if (dumbCaller) return;
 			if (e.getClickCount() == 2) {		// double clicked
 				toggleAlt(true);
 			} else if (isPopupTrigger(e)) {		// right-click -- show edge context menu
@@ -765,6 +750,7 @@ class GraphPanel extends JDesktopPane  {
 
 		private void graphClicked(MouseEvent e) {
 			graphSelected();	
+			if (dumbCaller) return;
 			if (isPopupTrigger(e)) {	// right-click -- show graph context menu
 					controler.displayContextMenu("graph", e.getX(), e.getY());
 			} else {	// default -- start moving the graph
@@ -784,7 +770,7 @@ class GraphPanel extends JDesktopPane  {
 		public void nodeSelected(GraphNode node) {
 			if (node != selection.topic && !labelUpdate) {
 				selection.mode = Selection.SELECTED_TOPIC;
-				controler.nodeSelected(node);
+				controCore.nodeSelected(node);
 				repaint();
 				selection.topic = node;
 				selection.assoc = null;
@@ -794,7 +780,7 @@ class GraphPanel extends JDesktopPane  {
 		private void edgeSelected(GraphEdge edge) {
 			if (edge != selection.assoc) {
 				selection.mode = Selection.SELECTED_ASSOCIATION;
-				controler.edgeSelected(edge);
+				controCore.edgeSelected(edge);
 				repaint();
 				selection.assoc = edge;
 				selection.topic = null;
@@ -807,7 +793,7 @@ class GraphPanel extends JDesktopPane  {
 				selection.mode = Selection.SELECTED_TOPICMAP;
 				selection.topic = null;
 				selection.assoc = null;
-				controler.graphSelected();
+				controCore.graphSelected();
 			}
 		}
 		
@@ -970,7 +956,7 @@ class GraphPanel extends JDesktopPane  {
 		}
 
 		public void init() {
-			if (controCore instanceof PresentationCore) return;	// newStuff later
+			if (dumbCaller) return;	// newStuff later
 			newStuff = controler.getNSInstance();
 		}
 		
@@ -985,4 +971,7 @@ class GraphPanel extends JDesktopPane  {
 			translation = new Point(0, 0);
 		}
 		
+		public void showDiag() {
+			System.out.println("GP from dumb? " + dumbCaller);
+		}
 }

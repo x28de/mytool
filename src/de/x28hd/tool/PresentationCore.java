@@ -10,7 +10,6 @@ import java.awt.event.WindowEvent;
 import java.util.Hashtable;
 
 import javax.swing.BoxLayout;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,7 +19,7 @@ import javax.swing.WindowConstants;
 
 public class PresentationCore implements Runnable {
 
-	JEditorPane edi = new JEditorPane();
+	TextEditorPanel edi = new TextEditorPanel(this);
 	GraphPanel graphPanel;
 	
 	// Main fields
@@ -37,18 +36,30 @@ public class PresentationCore implements Runnable {
 	JPanel rightPanel = null;
 	Selection selection = null;
 	
+	// Placeholders
+	GraphNode dummyNode = new GraphNode(-1, null, null, null, null);
+	GraphNode selectedTopic = dummyNode;		// TODO integrate into Selection()
+	GraphEdge dummyEdge = new GraphEdge(-1, dummyNode, dummyNode, null, null);
+	GraphEdge selectedAssoc = dummyEdge;
+	
 	public void run() {
 		createGraphPanel();
-		initialize("Mein Window");
+		initialize("Simple Window");
 		graphPanel.setSize(12);
 		mainWindow.setVisible(true);
 	}
 	
 	public void createGraphPanel() {
-		GraphNode n1 = new GraphNode(1,new Point(40, 40), Color.RED, "n1", "");
-		GraphNode n2 = new GraphNode(2,new Point(140, 40), Color.GREEN, "n2", "");
+		// tmp data
+		GraphNode n1 = new GraphNode(1,new Point(40, 40), Color.RED, "n1", "n1txt");
+		GraphNode n2 = new GraphNode(2,new Point(140, 40), Color.GREEN, "n2", "n2txt");
 		nodes.put(1, n1);
 		nodes.put(2, n2);
+		GraphEdge edge = new GraphEdge(1, n1, n2, Color.YELLOW, "edgetxt");
+		edges.put(1, edge);
+		n1.addEdge(edge);
+		n2.addEdge(edge);
+		
 		graphPanel = new GraphPanel(this);
 	}
 	
@@ -119,7 +130,57 @@ public class PresentationCore implements Runnable {
 		cp.add(splitPane);
 	}
 	
+//	Selection processing
+
+	public void deselect(GraphNode node) {
+		if (!node.equals(dummyNode)) {
+			node.setLabel(labelField.getText());
+			labelField.setText("");
+			node.setDetail(edi.getText());
+			edi.tracking(false);
+			edi.setText("");
+		}
+	}
+
+	public void deselect(GraphEdge edge) {
+		if (!edge.equals(dummyEdge)) {
+			String det = edi.getText();
+			if (det.length() > 59) edge.setDetail(det);
+			edi.setText("");
+		}
+	}	
+	
+	public void nodeSelected(GraphNode node) {
+		deselect(selectedTopic);
+		deselect(selectedAssoc);
+		selectedAssoc = dummyEdge;
+		selectedTopic = node;
+		String labelText = selectedTopic.getLabel();
+		labelField.setText(labelText);
+		
+		edi.setText((selectedTopic).getDetail());
+		edi.tracking(true);
+		edi.setDirty(false);
+		edi.getTextComponent().requestFocus();
+		edi.repaint();
+	}
+
+	public void edgeSelected(GraphEdge edge) {
+		deselect(selectedAssoc);
+		deselect(selectedTopic);
+		selectedTopic = dummyNode;
+		selectedAssoc = edge;
+		edi.setText(selectedAssoc.getDetail());
+		edi.getTextComponent().setCaretPosition(0);
+		edi.repaint();
+	}
+	
 	public void graphSelected() {
+		deselect(selectedTopic);
+		selectedTopic = dummyNode;
+		deselect(selectedAssoc);
+		selectedAssoc = dummyEdge;
+		edi.setText("");
 		graphPanel.grabFocus();		//  was crucial
 	}
 	
