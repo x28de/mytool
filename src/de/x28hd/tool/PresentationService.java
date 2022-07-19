@@ -35,7 +35,7 @@ public final class PresentationService extends PresentationCore implements Actio
 
 	// Main cooperating classes
 	LifeCycle lifeCycle = new LifeCycle(this);
-	TextEditorPanel edi = new TextEditorPanel(this);
+	TextEditorPanel edi = super.edi;
 	UndoManager undoManager = new UndoManager();
 	// The next 4 are mutually interdependent:
 	PresentationExtras controlerExtras;	// needs edi & lifeCycle
@@ -65,12 +65,6 @@ public final class PresentationService extends PresentationCore implements Actio
 	
 	//	Toggles
 	boolean rectangle = false;
-
-	// Placeholders
-	GraphNode dummyNode = new GraphNode(-1, null, null, null, null);
-	GraphNode selectedTopic = dummyNode;		// TODO integrate into Selection()
-	GraphEdge dummyEdge = new GraphEdge(-1, dummyNode, dummyNode, null, null);
-	GraphEdge selectedAssoc = dummyEdge;
 	
 	public boolean extended = false;
 
@@ -207,7 +201,8 @@ public final class PresentationService extends PresentationCore implements Actio
 		mainWindow.setVisible(true);
 		edi.setSize(initialSize);
 		controlerExtras.setInitialSize(initialSize);
-		if (lifeCycle.getFilename().isEmpty()) {
+		if (lifeCycle.getFilename().isEmpty() 
+				&& nodes.size() <= 0) {  // tmp
 			controlerExtras.hintTimer.start();
 		}
 	}
@@ -298,59 +293,20 @@ public final class PresentationService extends PresentationCore implements Actio
 
 //	Selection processing
 
-	public void deselect(GraphNode node) {
-		if (!node.equals(dummyNode)) {
-			node.setLabel(labelField.getText());
-			if (!controlerExtras.getHyp()) node.setDetail(edi.getText());
-			edi.tracking(false);
-			edi.setText("");
-			labelField.setText("");
-		}
-	}	
-
-	public void deselect(GraphEdge edge) {
-		if (!edge.equals(dummyEdge)) {
-			String det = edi.getText();
-			if (det.length() > 59) edge.setDetail(det);
-			edi.setText("");
-		}
-	}	
-	
 	public void nodeSelected(GraphNode node) {
-		deselect(selectedTopic);
-		deselect(selectedAssoc);
-		selectedAssoc = dummyEdge;
-		selectedTopic = node;
-		edi.setText((selectedTopic).getDetail());
-		edi.tracking(true);
-		edi.setDirty(false);
+		super.nodeSelected(node);
 		if (controlerExtras.getHyp()) edi.getTextComponent().setCaretPosition(0);
-		edi.getTextComponent().requestFocus();
-		String labelText = selectedTopic.getLabel();
-		labelField.setText(labelText);
-		if (controlerExtras.dragFake && labelText.equals("Drop input")) edi.setFake();
-		edi.repaint();
 		updateCcpGui();
 	}
 
 	public void edgeSelected(GraphEdge edge) {
-		deselect(selectedAssoc);
-		deselect(selectedTopic);
-		selectedTopic = dummyNode;
-		selectedAssoc = edge;
-		edi.setText(selectedAssoc.getDetail());
-		edi.getTextComponent().setCaretPosition(0);
-		edi.repaint();
+		super.edgeSelected(edge);
 		updateCcpGui();
 	}
 
 	public void graphSelected() {
-		deselect(selectedTopic);
-		selectedTopic = dummyNode;
-		deselect(selectedAssoc);
-		selectedAssoc = dummyEdge;
+		super.graphSelected();
 		edi.setText(gui.getInitText(nodes.size() <= 0));
-		graphPanel.grabFocus();		//  was crucial
 		updateCcpGui();
 	}
 	
