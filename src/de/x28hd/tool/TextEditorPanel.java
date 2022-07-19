@@ -467,13 +467,6 @@ public class TextEditorPanel extends JPanel implements ActionListener, UndoableE
 		}
 		return htmlOut;
 	}
-    private static class MyHTMLEditorKit extends HTMLEditorKit {
-    	private static final long serialVersionUID = 7279700400657879527L;
-
-    	public Parser getParser() {
-    		return super.getParser();
-    	}
-    }
 
 //
 //	Accessory for demo trick

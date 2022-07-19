@@ -1,17 +1,12 @@
 package de.x28hd.tool;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -19,18 +14,13 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JSplitPane;
 import javax.swing.JTextField;
-import javax.swing.WindowConstants;
 import javax.swing.undo.UndoManager;
 import javax.xml.transform.TransformerConfigurationException;
 
@@ -41,7 +31,7 @@ import de.x28hd.tool.importers.CompositionWindow;
 import de.x28hd.tool.importers.ImportDirector;
 import de.x28hd.tool.importers.NewStuff;
 
-public final class PresentationService implements ActionListener, Runnable {
+public final class PresentationService extends PresentationCore implements ActionListener, Runnable {
 
 	// Main cooperating classes
 	LifeCycle lifeCycle = new LifeCycle(this);
@@ -50,22 +40,10 @@ public final class PresentationService implements ActionListener, Runnable {
 	// The next 4 are mutually interdependent:
 	PresentationExtras controlerExtras;	// needs edi & lifeCycle
 	Gui gui;							// needs undoManager
-	GraphPanel graphPanel;
 	NewStuff newStuff = null;
 	
-	// Main fields
-	Hashtable<Integer, GraphNode> nodes = new Hashtable<Integer, GraphNode>();
-	Hashtable<Integer, GraphEdge> edges = new Hashtable<Integer, GraphEdge>();
-	
 	// User Interface
-	public JFrame mainWindow;
-	public Container cp;	// Content Pane
-	JPanel labelBox = null;
-	JTextField labelField = null;
 	private JButton OK;	
-	
-	JSplitPane splitPane = null;
-	JPanel rightPanel = null;
 	
 	JMenuBar myMenuBar = null;
 	boolean showMenuBar = true;
@@ -94,7 +72,6 @@ public final class PresentationService implements ActionListener, Runnable {
 	GraphEdge dummyEdge = new GraphEdge(-1, dummyNode, dummyNode, null, null);
 	GraphEdge selectedAssoc = dummyEdge;
 	
-	Selection selection = null;
 	public boolean extended = false;
 
 	
@@ -187,23 +164,7 @@ public final class PresentationService implements ActionListener, Runnable {
 //	Main Window	
 	
 	public void createMainWindow(String title) {
-		mainWindow = new JFrame(title) {
-			private static final long serialVersionUID = 1L;
-		};
-		
-		mainWindow.setLocation(0, 30);
-		mainWindow.setSize(960, 580);
-		mainWindow.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-
-		mainWindow.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				close();
-			}
-		});
-
-		cp = mainWindow.getContentPane();
-		JSplitPane splitPane = createMainGUI();
-
+		super.createMainWindow(title);
 		myMenuBar = gui.createMenuBar();
 		if (controlerExtras.showMenuBar) {
 			mainWindow.setJMenuBar(myMenuBar);
@@ -211,57 +172,7 @@ public final class PresentationService implements ActionListener, Runnable {
 			JMenuBar nullMenuBar = new JMenuBar();
 			mainWindow.setJMenuBar(nullMenuBar);
 		}
-		graphSelected();
-
-		cp.add(splitPane);
-		
 	}
-
-	public JSplitPane createMainGUI() {
-		controlerExtras.setSystemUI(true);
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
-		splitPane.setOneTouchExpandable(true);
-		splitPane.setDividerLocation(960 - 232);
-		splitPane.setResizeWeight(.8);
-		splitPane.setDividerSize(8);
-
-		graphPanel.setBackground(Color.WHITE);
-		
-		splitPane.setLeftComponent(graphPanel);
-
-		rightPanel = new JPanel();
-		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
-		
-		labelBox = new JPanel();
-		labelBox.setLayout(new BorderLayout());
-		labelBox.add(new JLabel("Label", JLabel.CENTER));
-		labelBox.setToolTipText("Short text that also appears on the map. To see it there, click the map.");
-		labelField = new JTextField();
-		labelField.addMouseListener(controlerExtras);
-		labelField.addKeyListener(controlerExtras);
-		labelBox.add(labelField,"South");
-		Dimension dim = new Dimension(1400,150);
-		labelBox.setMaximumSize(dim);
-
-		rightPanel.add(labelBox,"North");
-		
-		JPanel detailBox = new JPanel();
-		detailBox.setLayout(new BoxLayout(detailBox, BoxLayout.Y_AXIS));
-		JLabel detailBoxLabel = new JLabel("Detail", JLabel.CENTER);
-		detailBoxLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-		detailBox.add(detailBoxLabel);
-		detailBox.setToolTipText("More text about the selected item, always at your fingertips.");
-		detailBox.add(edi,"South");
-		rightPanel.add(detailBox,"South");
-
-		lifeCycle.setDirty(false);
-		
-		splitPane.setRightComponent(rightPanel);
-		splitPane.repaint();
-		
-		controlerExtras.setSplitPane(splitPane, rightPanel);
-		return splitPane;
-}
 
 //
 //	Popups
@@ -328,7 +239,7 @@ public final class PresentationService implements ActionListener, Runnable {
 		// The next 4 classes need each other
 		controlerExtras = new PresentationExtras(this);
 		gui = new Gui(this);
-		graphPanel = new GraphPanel(this);
+		super.createGraphPanel();
 		newStuff = new NewStuff(this);
 		
 		// Introduce them to each other
@@ -337,12 +248,16 @@ public final class PresentationService implements ActionListener, Runnable {
 		graphPanel.init();
 		newStuff.init();
 		
-		graphPanel.setModel(nodes, edges);
-		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
 		about = (new AboutBuild(extended)).getAbout();
 		graphPanel.addKeyListener(controlerExtras);
 
-		createMainWindow(lifeCycle.getMainWindowTitle());
+		// Main GUI
+		controlerExtras.setSystemUI(true);
+		super.initialize(lifeCycle.getMainWindowTitle());  // model, main Window @ GUI
+		labelField.addMouseListener(controlerExtras);
+		labelField.addKeyListener(controlerExtras);
+		lifeCycle.setDirty(false);
+		controlerExtras.setSplitPane(splitPane, rightPanel);
 		lifeCycle.add(baseDir);
 		
 		System.out.println("PS: Initialized");
@@ -513,6 +428,7 @@ public final class PresentationService implements ActionListener, Runnable {
 					JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_CANCEL_OPTION); 
 			JDialog d = confirm.createDialog(null, "Warning");
 			Point p = topic.getXY();
+			translation = graphPanel.getTranslation();
 			d.setLocation(p.x - 20 + translation.x, p.y + 100 + translation.y);
 			d.setVisible(true);
 			Object responseObj = confirm.getValue();
