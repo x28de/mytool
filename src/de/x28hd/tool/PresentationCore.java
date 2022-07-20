@@ -8,6 +8,7 @@ import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Hashtable;
+import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -182,6 +183,39 @@ public class PresentationCore implements Runnable {
 		selectedAssoc = dummyEdge;
 		edi.setText("");
 		graphPanel.grabFocus();		//  was crucial
+	}
+	
+	public GraphEdge createEdge(GraphNode topic1, GraphNode topic2) {
+		if (topic1 != null && topic2 != null) {
+			int newId = newKey(edges.keySet());
+			GraphEdge assoc = new GraphEdge(newId, topic1, topic2, Color.decode("#c0c0c0"), "");  // nicht 239
+			assoc.setID(newId);
+			edges.put(newId, assoc);
+			topic1.addEdge(assoc);
+			topic2.addEdge(assoc);
+			return assoc;
+		} else {
+			return null;
+		}
+	}
+	
+	public int newKey(Set<Integer> keySet) {
+		int idTest = keySet.size();
+		while (keySet.contains(idTest)) idTest++;
+		return idTest;
+	}
+	
+	public void addToLabel(String textToAdd) {
+		if (selectedTopic == dummyNode) return;
+		String oldText = labelField.getText();
+		String newText = oldText + " " + textToAdd;
+		labelField.setText(newText);
+		GraphNode justUpdated = selectedTopic;
+		graphSelected();
+		graphPanel.labelUpdateToggle(true);
+		nodeSelected(justUpdated);
+		graphPanel.labelUpdateToggle(false);
+		mainWindow.repaint();   // this was crucial
 	}
 	
 	public boolean close() {

@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -336,29 +335,12 @@ public final class PresentationService extends PresentationCore implements Actio
 	}
 	
 	public GraphEdge createEdge(GraphNode topic1, GraphNode topic2) {
-		if (topic1 != null && topic2 != null) {
-			int newId = newKey(edges.keySet());
-			GraphEdge assoc = new GraphEdge(newId, topic1, topic2, Color.decode(gui.edgePalette[gui.paletteID][7]), "");  // nicht 239
-			assoc.setID(newId);
-			edges.put(newId, assoc);
-			controlerExtras.recount();
-			
-			topic1.addEdge(assoc);
-			topic2.addEdge(assoc);
-			
-			lifeCycle.setDirty(true);
-			return assoc;
-		} else {
-			return null;
-		}
+		GraphEdge assoc = super.createEdge(topic1,  topic2);
+		controlerExtras.recount();
+		lifeCycle.setDirty(true);
+		return assoc;
 	}
 	
-	public int newKey(Set<Integer> keySet) {
-		int idTest = keySet.size();
-		while (keySet.contains(idTest)) idTest++;
-		return idTest;
-	}
-
 	public void deleteNode(GraphNode topic) {
 		deleteNode(topic, false);
 	}
@@ -475,19 +457,6 @@ public final class PresentationService extends PresentationCore implements Actio
 		GraphNode topic1 = assoc.getNode1();	
 		graphPanel.copyCluster(rectangle, topic1);
 		return;
-	}
-
-	public void addToLabel(String textToAdd) {
-		if (selectedTopic == dummyNode) return;
-		String oldText = labelField.getText();
-		String newText = oldText + " " + textToAdd;
-		labelField.setText(newText);
-		GraphNode justUpdated = selectedTopic;
-		graphSelected();
-		graphPanel.labelUpdateToggle(true);
-		nodeSelected(justUpdated);
-		graphPanel.labelUpdateToggle(false);
-		mainWindow.repaint();   // this was crucial
 	}
 
 //

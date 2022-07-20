@@ -557,7 +557,10 @@ class GraphPanel extends JDesktopPane  {
 		}
 		
 		private void thisPanelDragged(MouseEvent e) {
-			if (dumbCaller) return;
+			if (dumbCaller) {
+				thisPanelDraggedSimple(e);
+				return;
+			}
 			//	Intercept ALT-Drag on Graph -- TODO simplify & check if must be here
 			if (selection.mode == Selection.SELECTED_TOPICMAP && (isSpecial(e) || simulatedAltDown)) {
 				translateInProgress = false;
@@ -658,8 +661,38 @@ class GraphPanel extends JDesktopPane  {
 			}
 		}
 		
+		private void thisPanelDraggedSimple(MouseEvent e) {
+			if (moveInProgress || translateInProgress) {
+				dragInProgress = true;
+				int x = e.getX();
+				int y = e.getY();
+				int dx = x - mX;
+				int dy = y - mY;
+				mX = x;
+				mY = y;
+				if (moveInProgress) translateNode(selection.topic, dx, dy);
+				else translateGraph(dx, dy);
+				repaint();
+			} else if (edgeInProgress) {
+				dragInProgress = true;
+				ex = e.getX();
+				ey = e.getY();
+				GraphNode foundNode = findNode(ex, ey, false);
+				targetNode = foundNode;
+				if (targetNode != null) {
+					Point p = targetNode.getXY();
+					ex = p.x + translation.x;
+					ey = p.y + translation.y;
+				}
+				repaint();
+			}
+		}
+		
 		private void thisPanelReleased(MouseEvent e) {
-			if (dumbCaller) return;
+			if (dumbCaller) {
+				thisPanelReleasedSimple(e);
+				return;
+			}
 			if (moveInProgress) {
 				moveInProgress = false; 
 				int dx = e.getX() - lastPoint.x;
@@ -715,10 +748,52 @@ class GraphPanel extends JDesktopPane  {
 			}
 		}
 		
+		private void thisPanelReleasedSimple(MouseEvent e) {
+			if (moveInProgress) {
+				moveInProgress = false; 
+				dragInProgress = false;
+			} else if (translateInProgress) {
+				translateInProgress = false;
+				dragInProgress = false;
+			} else if (edgeInProgress) {
+				edgeInProgress = false;
+				dragInProgress = false;
+				if (targetNode != null && targetNode != selection.topic) {
+					GraphNode node1 = selection.topic;
+					GraphNode node2 = targetNode;
+					controCore.createEdge(node1, node2);
+				}	
+				repaint();		
+			}
+		}
+		
 		private void nodeClicked(GraphNode node, MouseEvent e) {
 			
 			nodeSelected(node);	
-			if (dumbCaller) return;
+			int x = e.getX();
+			int y = e.getY();
+			if (!dumbCaller) {
+				if (e.getClickCount() == 2) {		// double clicked
+					toggleAlt(true);
+					return;
+				} else if (isPopupTrigger(e)) {		// right-click -- show node context menu
+					controler.displayContextMenu("node", e.getX(), e.getY());
+					return;
+				}
+			}
+			if (e.isAltDown() || simulatedAltDown) {	// alt modifier is pressed -- start creating an edge
+				edgeInProgress = true;
+				targetNode = null;
+				ex = x;
+				ey = y;
+			} else {							// default -- start moving a node
+				moveInProgress = true;
+				lastPoint = new Point(x, y);
+			}
+		}
+		private void nodeClickedOld(GraphNode node, MouseEvent e) {
+			
+			nodeSelected(node);	
 			int x = e.getX();
 			int y = e.getY();
 			if (e.getClickCount() == 2) {		// double clicked
@@ -750,7 +825,10 @@ class GraphPanel extends JDesktopPane  {
 
 		private void graphClicked(MouseEvent e) {
 			graphSelected();	
-			if (dumbCaller) return;
+			if (dumbCaller) {
+				translateInProgress = true;
+				return;
+			}
 			if (isPopupTrigger(e)) {	// right-click -- show graph context menu
 					controler.displayContextMenu("graph", e.getX(), e.getY());
 			} else {	// default -- start moving the graph
