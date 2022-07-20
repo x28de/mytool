@@ -170,7 +170,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, UndoableE
 		public void actionPerformed(ActionEvent a) {
 			if (a.getActionCommand().equals("AddToLabel")) {
 				boldAction.actionPerformed(a);
-				controler.addToLabel(textToAdd);
+				controCore.addToLabel(textToAdd);
 			}
 		}
 	}
@@ -364,6 +364,8 @@ public class TextEditorPanel extends JPanel implements ActionListener, UndoableE
 		redoItem.setText(undoManager.getRedoPresentationName());
 		menu.add(redoItem);
 		
+		if (!dumbCaller) {
+		
 		menu.addSeparator();
 		
 		JMenuItem copyListItem = new JMenuItem();
@@ -377,6 +379,7 @@ public class TextEditorPanel extends JPanel implements ActionListener, UndoableE
 		linktoItem.addActionListener(this);
 		linktoItem.setText("Create connected Item");
 		menu.add(linktoItem);
+		}
 		
 		menu.show(this, x, y);
 	}
