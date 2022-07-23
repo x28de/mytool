@@ -22,6 +22,7 @@ public class PresentationCore implements Runnable {
 
 	TextEditorPanel edi = new TextEditorPanel(this);
 	GraphPanel graphPanel;
+//	GraphCore graphPanel;
 	
 	// Main fields
 	Hashtable<Integer, GraphNode> nodes = new Hashtable<Integer, GraphNode>();
@@ -62,6 +63,7 @@ public class PresentationCore implements Runnable {
 		n2.addEdge(edge);
 		
 		graphPanel = new GraphPanel(this);
+//		graphPanel = new GraphCore(this);
 	}
 	
 	public void initialize(String title) {
@@ -212,9 +214,9 @@ public class PresentationCore implements Runnable {
 		labelField.setText(newText);
 		GraphNode justUpdated = selectedTopic;
 		graphSelected();
-		graphPanel.labelUpdateToggle(true);
+//		graphPanel.labelUpdateToggle(true);
 		nodeSelected(justUpdated);
-		graphPanel.labelUpdateToggle(false);
+//		graphPanel.labelUpdateToggle(false);
 		mainWindow.repaint();   // this was crucial
 	}
 	
