@@ -39,7 +39,7 @@ import org.xml.sax.SAXException;
 import de.x28hd.tool.exporters.TopicMapStorer;
 import de.x28hd.tool.importers.NewStuff;
 
-class GraphPanel extends JDesktopPane  {
+class GraphPanel extends GraphCore  {
 
 	public PresentationService controler;
 	public PresentationCore controCore;
@@ -47,15 +47,11 @@ class GraphPanel extends JDesktopPane  {
 	
 	JComponent graphPanel;
 	GraphExtras graphExtras;
-	Hashtable<Integer, GraphNode> nodes;
-	Hashtable<Integer, GraphEdge> edges;
     JMenuItem menuItem = new JMenuItem("Paste new Input");	//	TODO cleanup
 //    Point insertion = new Point(300, 300);
 	private Vector currentBunch;
 	private int currentBunchIndex;
-	private Selection selection;
 	boolean labelUpdate = false;
-	Font font = new Font("monospace", Font.PLAIN, 12);
 	public NewStuff newStuff = null;
 	Point lastPoint = new Point(0, 0);
 	
@@ -82,9 +78,6 @@ class GraphPanel extends JDesktopPane  {
 	//
 	private Hashtable cluster;				// cluster of associated nodes
 	private GraphNode targetNode;			// used while edgeInProgress
-	private int ex, ey;						// used while edgeInProgress (& rectangleGrowing)
-	private int mX, mY;						// last mouse position
-	private Point translation;
 	//
 	Rectangle bounds;
 	boolean x28PresoSizedMode = false;
@@ -138,59 +131,13 @@ class GraphPanel extends JDesktopPane  {
 			paintEdges(g);
 			paintNodes(g);
 		}
-		private void paintNodes(Graphics g) {
-			Enumeration<GraphNode> e = nodes.elements();
-			while (e.hasMoreElements()) {
-				try {
-					GraphNode node = e.nextElement();
-					paintNode(node, g);
-				} catch (Throwable t) {
-					System.out.println("GP: Error paintnodes " + t);	
-				}
-			}
-			if (rectangleInProgress) paintRect(g);
-		}
-		private void paintEdges(Graphics g) {
-			Enumeration<GraphEdge> e = edges.elements();
-			while (e.hasMoreElements()) {
-				GraphEdge edge = e.nextElement();
-				paintEdge(edge, g);
-			}
-			if (edgeInProgress) {
-				Point p = selection.topic.getXY();
-				g.setColor(Color.gray.darker());
-				paintLine(g, p.x, p.y, ex - translation.x, ey - translation.y, true);
-			}
-		} 
 		private static final long serialVersionUID = 1L;
-		private void paintRect(Graphics g) {
-			if (rectangleGrowing) {
-				int x = rectangleMark.x;
-				int y = rectangleMark.y;
-				Point rectangleDot = new Point(ex, ey);
-				int w = rectangleDot.x - x;
-				int h = rectangleDot.y - y;
-				if (w < 0) {
-					x = rectangleDot.x;
-					w = 0 - w;
-				}
-				if (h < 0) {
-					y = rectangleDot.y;
-					h = 0 - h;
-				}
-				g.setColor(Color.RED);
-				g.drawRect(x, y, w, h);
-				rectangle.setBounds(x, y, w, h);
-			} else {
-				g.setColor(Color.RED);
-				g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-			}
-		}
 	};
 
 	private static final long serialVersionUID = 1L;
 
 	GraphPanel(Object caller) {
+		super(caller);
 		dumbCaller = !(caller instanceof PresentationService);
 		controCore = (PresentationCore) caller;
 		if (!dumbCaller) controler = (PresentationService) caller;
@@ -199,7 +146,6 @@ class GraphPanel extends JDesktopPane  {
 		graphExtras = new GraphExtras(this);
 		this.translation = new Point(0, 0);
 		setLayout(null);
-		selection = new Selection();
 		
 		graphPanel = graphComponent;
 
@@ -248,12 +194,45 @@ class GraphPanel extends JDesktopPane  {
 //
 //	Paint methods
 
+	public void paintNodes(Graphics g) {
+		super.paintNodes(g);
+		if (rectangleInProgress) paintRect(g);
+	}
+	private void paintRect(Graphics g) {
+		if (rectangleGrowing) {
+			int x = rectangleMark.x;
+			int y = rectangleMark.y;
+			Point rectangleDot = new Point(ex, ey);
+			int w = rectangleDot.x - x;
+			int h = rectangleDot.y - y;
+			if (w < 0) {
+				x = rectangleDot.x;
+				w = 0 - w;
+			}
+			if (h < 0) {
+				y = rectangleDot.y;
+				h = 0 - h;
+			}
+			g.setColor(Color.RED);
+			g.drawRect(x, y, w, h);
+			rectangle.setBounds(x, y, w, h);
+		} else {
+			g.setColor(Color.RED);
+			g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+		}
+	}
+
 	void setModel(Hashtable<Integer, GraphNode> nodes, Hashtable<Integer, GraphEdge> edges) {
 		this.nodes = nodes;
 		this.edges = edges;
 	}
 
-	private void paintNode(GraphNode node, Graphics g) {
+	public void paintNode(GraphNode node, Graphics g) {
+		if (indexCards && !x28PresoSizedMode) {
+			super.paintNode(node, g);
+			return;
+		}
+		// TODO where to put the sizes?
 		g.setColor(node.getColor());
 		Point p = node.getXY();
 		int iconWidth = 18;
@@ -290,46 +269,6 @@ class GraphPanel extends JDesktopPane  {
 		}
 	}
 
-	private void paintEdge(GraphEdge edge, Graphics g) {
-		Point from = nodes.get(edge.getN1()).getXY();
-		Point to = nodes.get(edge.getN2()).getXY();
-
-		g.setColor(edge.getColor());
-
-		paintLine(g, from.x, from.y, to.x, to.y, true);
-		if (!edge.getDetail().isEmpty()) {
-			g.fillOval(from.x -2 + (to.x - from.x)/2, 
-					from.y - 2 + (to.y - from.y)/2, 5, 5);
-		}
-		if (edge == selection.assoc && selection.mode == Selection.SELECTED_ASSOCIATION) {
-			g.setColor(Color.red);
-			g.drawLine(from.x - 2, from.y - 2, to.x - 2, to.y - 2);
-			g.drawLine(from.x + 3, from.y - 2, to.x + 3, to.y - 2);
-			g.drawLine(from.x - 2, from.y + 3, to.x - 2, to.y + 3);
-			g.drawLine(from.x + 2, from.y + 3, to.x + 2, to.y + 3);
-		}
-	}
-
-	// Directly copied from Joerg Richter's DeepaMehta 2	(like much of this class)
-	public static void paintLine(Graphics g, int x1, int y1, int x2, int y2,
-			boolean hasDirection) {
-		if (hasDirection) {
-			g.drawLine(x1, y1 - 1, x2, y2);
-			g.drawLine(x1 + 1, y1 - 1, x2, y2);
-			g.drawLine(x1 + 2, y1, x2, y2);
-			g.drawLine(x1 + 2, y1 + 1, x2, y2);
-			g.drawLine(x1 + 1, y1 + 2, x2, y2);
-			g.drawLine(x1, y1 + 2, x2, y2);
-			g.drawLine(x1 - 1, y1 + 1, x2, y2);
-			g.drawLine(x1 - 1, y1, x2, y2);
-		} else {
-			g.drawLine(x1, y1, x2, y2);
-			g.drawLine(x1 + 1, y1, x2 + 1, y2);
-			g.drawLine(x1, y1 + 1, x2, y2 + 1);
-			g.drawLine(x1 + 1, y1 + 1, x2 + 1, y2 + 1);
-		}
-	}
-	
 	public boolean isEmpty() {
 		return nodes.size() == 0;
 	}
@@ -909,10 +848,6 @@ class GraphPanel extends JDesktopPane  {
 		}
 	}
 	
-	Point getTranslation() {
-		return translation;
-	}
-
 	public void bundleForDrag(MouseEvent e) {
 		if (bundleDelay > 10) {
 			myTransferable = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<x28map></x28map>";
@@ -1050,6 +985,6 @@ class GraphPanel extends JDesktopPane  {
 		}
 		
 		public void showDiag() {
-			System.out.println("GP from dumb? " + dumbCaller);
+			System.out.println("GC from dumb? " + dumbCaller);
 		}
 }
