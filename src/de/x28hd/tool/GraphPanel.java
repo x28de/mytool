@@ -2,7 +2,6 @@ package de.x28hd.tool;
 
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -13,9 +12,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -26,10 +22,8 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Vector;
 
 import javax.swing.JComponent;
-import javax.swing.JDesktopPane;
 import javax.swing.JMenuItem;
 import javax.swing.TransferHandler;
 import javax.xml.transform.TransformerConfigurationException;
@@ -41,19 +35,11 @@ import de.x28hd.tool.importers.NewStuff;
 
 class GraphPanel extends GraphCore  {
 
-	public PresentationService controler;
-	public PresentationCore controCore;
-	boolean dumbCaller;	// to disable things temporarily
-	
 	JComponent graphPanel;
 	GraphExtras graphExtras;
     JMenuItem menuItem = new JMenuItem("Paste new Input");	//	TODO cleanup
 //    Point insertion = new Point(300, 300);
-	private Vector currentBunch;
-	private int currentBunchIndex;
-	boolean labelUpdate = false;
 	public NewStuff newStuff = null;
-	Point lastPoint = new Point(0, 0);
 	
 	private boolean rectangleInProgress;
 	private boolean rectangleGrowing;
@@ -68,16 +54,8 @@ class GraphPanel extends GraphCore  {
 	boolean simulatedAltDown = false;
 	boolean tabletMode = false;
 
-	
 	// directly from jri
-	private boolean dragInProgress;			// true if dragged before released
-	private boolean translateInProgress;	// \
-	private boolean moveInProgress;			// | max one is set
-	private boolean edgeInProgress;			// |
 	private boolean clusterInProgress;		// /
-	//
-	private Hashtable cluster;				// cluster of associated nodes
-	private GraphNode targetNode;			// used while edgeInProgress
 	//
 	Rectangle bounds;
 	boolean x28PresoSizedMode = false;
@@ -138,19 +116,12 @@ class GraphPanel extends GraphCore  {
 
 	GraphPanel(Object caller) {
 		super(caller);
-		dumbCaller = !(caller instanceof PresentationService);
-		controCore = (PresentationCore) caller;
-		if (!dumbCaller) controler = (PresentationService) caller;
-		showDiag();
 
 		graphExtras = new GraphExtras(this);
 		this.translation = new Point(0, 0);
 		setLayout(null);
 		
 		graphPanel = graphComponent;
-
-//
-//		Accessories for Mouse (press, release, drag) and window resizing
 
 		addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
@@ -162,8 +133,6 @@ class GraphPanel extends GraphCore  {
 		});
 		addMouseMotionListener(new MouseMotionAdapter() {
 			public void mouseDragged(MouseEvent e) {
-				if (isSpecial(e)) {
-				}
 				thisPanelDragged(e);
 			}
 		});
@@ -173,20 +142,8 @@ class GraphPanel extends GraphCore  {
 				repaint();
 			}
 		});
-
-		addComponentListener(new ComponentAdapter() {       // this was crucial
-			public void componentResized(ComponentEvent e) {
-				Dimension s = getSize();
-				graphPanel.setSize(s);
-				// update border images
-				graphExtras.setDimension(s);
-				repaint();
-			}
-		});
-
 		setToolTipText("");		//	turns getToolTipText on
 		graphPanel.setTransferHandler(handler);
-		add(graphPanel);
 		
 		if (System.getProperty("os.name").equals("Linux")) toggleAntiAliasing();	// TODO raus
 	}
@@ -220,11 +177,6 @@ class GraphPanel extends GraphCore  {
 			g.setColor(Color.RED);
 			g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 		}
-	}
-
-	void setModel(Hashtable<Integer, GraphNode> nodes, Hashtable<Integer, GraphEdge> edges) {
-		this.nodes = nodes;
-		this.edges = edges;
 	}
 
 	public void paintNode(GraphNode node, Graphics g) {
@@ -278,128 +230,6 @@ class GraphPanel extends GraphCore  {
 		graphExtras.setBounds(bounds);
 	}
 	
-
-//
-//	Find methods and classes   
-//	TODO decide if to reactivate the click on label possibility 
-	
-	private Vector findAllNodes(int x, int y) {
-		x -= translation.x;
-		y -= translation.y;
-		//
-		Vector foundNodes = new Vector();
-		Enumeration e = nodes.elements();
-		while (e.hasMoreElements()) {
-			GraphNode node = (GraphNode) e.nextElement();
-			Point p = node.getXY();
-			int iconWidth = 18;     
-			int iconHeight = 18;
-			int iw2 = iconWidth / 2;
-			int ih2 = iconHeight / 2;
-//			iw2 = 18;
-//			ih2 = 18;
-			// check if inside icon
-//			if (Math.abs(x - p.x) <= iw2 && Math.abs(y - p.y) <= ih2) {
-			if (Math.abs(x - p.x) <= iw2 && Math.abs(y - p.y - 4) <= 15) {
-				foundNodes.addElement(node);
-			}
-		}
-		return foundNodes;
-	}
-
-	private boolean edgeHit(Point p1, Point p2, Point hit) {
-		// original implementation
-		/*
-		int x = hit.x;
-		int y = hit.y;
-		xMin = Math.min(p1.x, p2.x) - 2;
-		xMax = Math.max(p1.x, p2.x) + 2;
-		yMin = Math.min(p1.y, p2.y) - 2;
-		yMax = Math.max(p1.y, p2.y) + 2;
-		return (x >= xMin && x <= xMax && y >= yMin && y <= yMax);
-		*/
-		// a, b, and c should be considered as geometric vectors with components x, y
-		Point a = new Point(hit.x - p1.x, hit.y - p1.y);  // vector from p1 to hit
-		Point b = new Point(p2.x  - p1.x, p2.y  - p1.y);  // vector from p1 to p2
-		float ab_scalarproduct = (float) a.x * b.x + a.y * b.y;  // scalar product of a and b
-		float b_length_square = (float) b.x * b.x + b.y * b.y;  // 
-		if (b_length_square == 0) {
-			return false;
-		}		
-		float x = ab_scalarproduct / b_length_square;
-		Point c = new Point((int) (x * b.x) - a.x, (int) (x * b.y) - a.y);
-		int c_length_square = c.x * c.x + c.y * c.y;		
-		return 0 < x && x < 1 && c_length_square <= 25;
-	}
-
-	//	TODO try to eliminate
-	private GraphNode findNode(int x, int y, boolean selectNextInBunch) {
-		Vector bunch = findAllNodes(x, y);
-		//
-		if (bunch.equals(currentBunch)) {
-			if (selectNextInBunch && currentBunch.size() > 0) {
-				currentBunchIndex = (currentBunchIndex + 1) % currentBunch.size();
-				// ### System.out.println(">>> same bunch (" + currentBunch.size() + " nodes) ==> new index is " + currentBunchIndex);
-			}
-		} else {
-			currentBunch = bunch;
-			currentBunchIndex = 0;
-			// ### System.out.println(">>> new bunch (" + bunch.size() + " nodes) ==> begin at 0");
-		}
-		//
-		return currentBunch.size() > 0 ? (GraphNode) currentBunch.elementAt(currentBunchIndex) : null;
-	}
-
-	private GraphEdge findEdge(int x, int y) {
-		x -= translation.x;
-		y -= translation.y;
-		Enumeration e = edges.elements();
-		GraphEdge edge = null;
-		GraphNode node1, node2;
-		Point p1, p2;
-		// --- phase 1: collect edge candidates based on bounding rectangle ---
-		Vector candidates = new Vector();
-		while (e.hasMoreElements()) {
-			edge = (GraphEdge) e.nextElement();
-			node1 = edge.getNode1();
-			node2 = edge.getNode2();
-			if (node1 == null || node2 == null) {
-				// Note: this is an error condition and has been already reported
-				continue;
-			}
-			p1 = node1.getXY();
-			p2 = node2.getXY();
-			if (edgeHit(p1, p2, new Point(x,y))) {
-				candidates.addElement(edge);
-			}
-		}
-		int candCount = candidates.size();
-		if (candCount == 0) {
-			return null;
-		}
-		if (candCount == 1) {
-			// ### this is a workaround to enable selection of horizontal resp. vertical
-			// edges
-			return (GraphEdge) candidates.firstElement();
-		}
-		// --- phase 2: determine the nearest edge ---
-		e = candidates.elements();
-		float dist;
-		float minDist = 100;
-		GraphEdge nearestEdge = null;
-		while (e.hasMoreElements()) {
-			edge = (GraphEdge) e.nextElement();
-			p1 = edge.getNode1().getXY();
-			p2 = edge.getNode2().getXY();
-			dist = Math.abs(Math.abs(((x - p1.x) / (float) (y - p1.y)) /
-									 ((p2.x - p1.x) / (float) (p2.y - p1.y))) - 1);
-			if (dist < minDist) {
-				minDist = dist;
-				nearestEdge = edge;
-			}
-		}
-		return minDist < 0.3 ? nearestEdge : null;
-	}
 	
 	public String getToolTipText(MouseEvent evt) {
 		int x = evt.getX();
@@ -495,9 +325,9 @@ class GraphPanel extends GraphCore  {
 			}
 		}
 		
-		private void thisPanelDragged(MouseEvent e) {
+		public void thisPanelDragged(MouseEvent e) {
 			if (dumbCaller) {
-				thisPanelDraggedSimple(e);
+				super.thisPanelDragged(e);
 				return;
 			}
 			//	Intercept ALT-Drag on Graph -- TODO simplify & check if must be here
@@ -600,36 +430,9 @@ class GraphPanel extends GraphCore  {
 			}
 		}
 		
-		private void thisPanelDraggedSimple(MouseEvent e) {
-			if (moveInProgress || translateInProgress) {
-				dragInProgress = true;
-				int x = e.getX();
-				int y = e.getY();
-				int dx = x - mX;
-				int dy = y - mY;
-				mX = x;
-				mY = y;
-				if (moveInProgress) translateNode(selection.topic, dx, dy);
-				else translateGraph(dx, dy);
-				repaint();
-			} else if (edgeInProgress) {
-				dragInProgress = true;
-				ex = e.getX();
-				ey = e.getY();
-				GraphNode foundNode = findNode(ex, ey, false);
-				targetNode = foundNode;
-				if (targetNode != null) {
-					Point p = targetNode.getXY();
-					ex = p.x + translation.x;
-					ey = p.y + translation.y;
-				}
-				repaint();
-			}
-		}
-		
-		private void thisPanelReleased(MouseEvent e) {
+		public void thisPanelReleased(MouseEvent e) {
 			if (dumbCaller) {
-				thisPanelReleasedSimple(e);
+				super.thisPanelReleased(e);
 				return;
 			}
 			if (moveInProgress) {
@@ -687,26 +490,7 @@ class GraphPanel extends GraphCore  {
 			}
 		}
 		
-		private void thisPanelReleasedSimple(MouseEvent e) {
-			if (moveInProgress) {
-				moveInProgress = false; 
-				dragInProgress = false;
-			} else if (translateInProgress) {
-				translateInProgress = false;
-				dragInProgress = false;
-			} else if (edgeInProgress) {
-				edgeInProgress = false;
-				dragInProgress = false;
-				if (targetNode != null && targetNode != selection.topic) {
-					GraphNode node1 = selection.topic;
-					GraphNode node2 = targetNode;
-					controCore.createEdge(node1, node2);
-				}	
-				repaint();		
-			}
-		}
-		
-		private void nodeClicked(GraphNode node, MouseEvent e) {
+		public void nodeClicked(GraphNode node, MouseEvent e) {
 			
 			nodeSelected(node);	
 			int x = e.getX();
@@ -730,27 +514,8 @@ class GraphPanel extends GraphCore  {
 				lastPoint = new Point(x, y);
 			}
 		}
-		private void nodeClickedOld(GraphNode node, MouseEvent e) {
-			
-			nodeSelected(node);	
-			int x = e.getX();
-			int y = e.getY();
-			if (e.getClickCount() == 2) {		// double clicked
-				toggleAlt(true);
-			} else if (e.isAltDown() || simulatedAltDown) {	// alt modifier is pressed -- start creating an edge
-				edgeInProgress = true;
-				targetNode = null;
-				ex = x;
-				ey = y;
-			} else if (isPopupTrigger(e)) {		// right-click -- show node context menu
-				controler.displayContextMenu("node", e.getX(), e.getY());
-			} else {							// default -- start moving a node
-				moveInProgress = true;
-				lastPoint = new Point(x, y);
-			}
-		}
 
-		private void edgeClicked(GraphEdge edge, MouseEvent e) {
+		public void edgeClicked(GraphEdge edge, MouseEvent e) {
 			edgeSelected(edge);
 			if (dumbCaller) return;
 			if (e.getClickCount() == 2) {		// double clicked
@@ -762,7 +527,7 @@ class GraphPanel extends GraphCore  {
 					clusterInProgress = true;
 		}
 
-		private void graphClicked(MouseEvent e) {
+		public void graphClicked(MouseEvent e) {
 			graphSelected();	
 			if (dumbCaller) {
 				translateInProgress = true;
@@ -779,57 +544,9 @@ class GraphPanel extends GraphCore  {
 //
 //		Selection processing
 
-		//	TODO eliminate this tmp thing
-		public Selection getSelectionInstance() {
-			return selection;
-		}
-		
-		public void nodeSelected(GraphNode node) {
-			if (node != selection.topic && !labelUpdate) {
-				selection.mode = Selection.SELECTED_TOPIC;
-				controCore.nodeSelected(node);
-				repaint();
-				selection.topic = node;
-				selection.assoc = null;
-			}
-		}
-
-		private void edgeSelected(GraphEdge edge) {
-			if (edge != selection.assoc) {
-				selection.mode = Selection.SELECTED_ASSOCIATION;
-				controCore.edgeSelected(edge);
-				repaint();
-				selection.assoc = edge;
-				selection.topic = null;
-			}
-		}
-		
-		public void graphSelected() {
-			if (selection.mode != Selection.SELECTED_TOPICMAP) {
-				repaint();
-				selection.mode = Selection.SELECTED_TOPICMAP;
-				selection.topic = null;
-				selection.assoc = null;
-				controCore.graphSelected();
-			}
-		}
-		
-		void labelUpdateToggle(boolean toggle) {
-			labelUpdate = toggle;
-		}
-
 //
 //		Dragging
 	
-	public void translateGraph(int x, int y) {
-		translation.x += x;
-		translation.y += y;
-	}
-
-	private void translateNode(GraphNode node, int x, int y) {
-		node.getXY().translate(x, y);
-	}
-
 	private void translateRectangle(int x, int y) {
 		rectangle.translate(x,  y);
 		Iterator<GraphNode> rectangleNodes = rectangleSet.iterator();
@@ -899,21 +616,6 @@ class GraphPanel extends GraphCore  {
 	}
 		
 //
-//		Right-clicking etc.
-		
-		private boolean isSpecial(MouseEvent e) {
-			return e.getClickCount() == 2 || e.isAltDown() || isPopupTrigger(e);
-		}
-		private boolean isPopupTrigger(MouseEvent e) {
-			if (e.isPopupTrigger()) {
-				return true;
-			} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
-				return true;
-			}
-			return false;
-		}
-
-//
 //		Misc
 		
 		public void togglePreso() {
@@ -955,6 +657,10 @@ class GraphPanel extends GraphCore  {
 			repaint();
 		}
 		
+		Point getTranslation() {
+			return translation;
+		}
+		
 		public void setSize(int size) {
 			font = new Font(font.getName(), font.getStyle(), size);
 			repaint();
@@ -985,6 +691,6 @@ class GraphPanel extends GraphCore  {
 		}
 		
 		public void showDiag() {
-			System.out.println("GC from dumb? " + dumbCaller);
+			System.out.println("GP from dumb? " + dumbCaller);
 		}
 }
