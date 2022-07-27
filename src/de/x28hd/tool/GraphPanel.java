@@ -143,7 +143,7 @@ class GraphPanel extends GraphCore  {
 			}
 		});
 		setToolTipText("");		//	turns getToolTipText on
-		graphPanel.setTransferHandler(handler);
+		setTransferHandler(handler);
 		
 		if (System.getProperty("os.name").equals("Linux")) toggleAntiAliasing();	// TODO raus
 	}
@@ -541,6 +541,10 @@ class GraphPanel extends GraphCore  {
 			if (!simulatedAltDown) toggleAlt(false);
 		}
 
+		void labelUpdateToggle(boolean toggle) {
+			labelUpdate = toggle;
+		}
+		
 //
 //		Selection processing
 

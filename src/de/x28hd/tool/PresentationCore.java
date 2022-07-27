@@ -21,8 +21,8 @@ import javax.swing.WindowConstants;
 public class PresentationCore implements Runnable {
 
 	TextEditorPanel edi = new TextEditorPanel(this);
-	GraphPanel graphPanel;
-//	GraphCore graphPanel;
+	GraphCore graphObject = new GraphCore(this);
+
 	
 	// Main fields
 	Hashtable<Integer, GraphNode> nodes = new Hashtable<Integer, GraphNode>();
@@ -47,7 +47,7 @@ public class PresentationCore implements Runnable {
 	public void run() {
 		createGraphPanel();
 		initialize("Simple Window");
-		graphPanel.setSize(12);
+		graphObject.setSize(12);
 		mainWindow.setVisible(true);
 	}
 	
@@ -62,13 +62,12 @@ public class PresentationCore implements Runnable {
 		n1.addEdge(edge);
 		n2.addEdge(edge);
 		
-		graphPanel = new GraphPanel(this);
-//		graphPanel = new GraphCore(this);
+		if (this instanceof PresentationService) graphObject = new GraphPanel(this);
 	}
 	
 	public void initialize(String title) {
-		graphPanel.setModel(nodes, edges);
-		selection = graphPanel.getSelectionInstance();	//	TODO eliminate again
+		graphObject.setModel(nodes, edges);
+		selection = graphObject.getSelectionInstance();	//	TODO eliminate again
 		splitPane = createMainGUI();
 		createMainWindow(title);
 		graphSelected();
@@ -81,9 +80,9 @@ public class PresentationCore implements Runnable {
 		splitPane.setResizeWeight(.8);
 		splitPane.setDividerSize(8);
 
-		graphPanel.setBackground(Color.WHITE);
+		graphObject.setBackground(Color.WHITE);
 		
-		splitPane.setLeftComponent(graphPanel);
+		splitPane.setLeftComponent(graphObject);
 
 		rightPanel = new JPanel();
 		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
@@ -184,7 +183,7 @@ public class PresentationCore implements Runnable {
 		deselect(selectedAssoc);
 		selectedAssoc = dummyEdge;
 		edi.setText("");
-		graphPanel.grabFocus();		//  was crucial
+		graphObject.grabFocus();		//  was crucial
 	}
 	
 	public GraphEdge createEdge(GraphNode topic1, GraphNode topic2) {
@@ -214,9 +213,7 @@ public class PresentationCore implements Runnable {
 		labelField.setText(newText);
 		GraphNode justUpdated = selectedTopic;
 		graphSelected();
-//		graphPanel.labelUpdateToggle(true);
 		nodeSelected(justUpdated);
-//		graphPanel.labelUpdateToggle(false);
 		mainWindow.repaint();   // this was crucial
 	}
 	
