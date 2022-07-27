@@ -286,17 +286,12 @@ public class GraphCore extends JDesktopPane {
 		translateInProgress = true;
 	}
 	
-	void labelUpdateToggle(boolean toggle) {
-		labelUpdate = toggle;
-	}
-	
 //
 //	Selecting
 
 	
 	public void nodeSelected(GraphNode node) {
-		if (node != selection.topic && !labelUpdate) {
-//		if (node != selection.topic) {
+		if (node != selection.topic) {
 			selection.mode = Selection.SELECTED_TOPIC;
 			controCore.nodeSelected(node);
 			repaint();
