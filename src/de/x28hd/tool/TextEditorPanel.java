@@ -45,6 +45,7 @@ import javax.swing.undo.UndoableEdit;
 
 public class TextEditorPanel extends TextEditorCore implements ActionListener, UndoableEditListener, HyperlinkListener {
 
+	public PresentationService controler;
 	UndoManager undoManager = new UndoManager();
 	MyMouseMotionAdapter myMouseMotionAdapter = new MyMouseMotionAdapter();
 	boolean isDirty = false;
@@ -134,6 +135,7 @@ public class TextEditorPanel extends TextEditorCore implements ActionListener, U
 
 	public TextEditorPanel(Object caller) {
 		super(caller);
+		controler = (PresentationService) caller;
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (UnsupportedLookAndFeelException e) {
@@ -406,9 +408,5 @@ public class TextEditorPanel extends TextEditorCore implements ActionListener, U
 		UndoableEdit undoableEdit = arg0.getEdit();
 		undoManager.addEdit(undoableEdit);
 		setDirty(true);
-	}
-	
-	public void showDiag() {
-		System.out.println("TE from dumb? " + dumbCaller);
 	}
 }

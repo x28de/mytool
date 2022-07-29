@@ -68,6 +68,7 @@ public final class PresentationService extends PresentationCore implements Actio
 
 	
 	public PresentationService(boolean ext) {
+		ediObject = new TextEditorPanel(this);
 		extended = ext;
 	}
 
@@ -232,7 +233,7 @@ public final class PresentationService extends PresentationCore implements Actio
 		// The next 4 classes need each other
 		controlerExtras = new PresentationExtras(this);
 		gui = new Gui(this);
-		super.createGraphPanel();
+		graphObject = new GraphPanel(this);
 		newStuff = new NewStuff(this);
 		
 		// Introduce them to each other

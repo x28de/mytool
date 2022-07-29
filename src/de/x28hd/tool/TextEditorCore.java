@@ -19,7 +19,6 @@ import javax.swing.text.html.HTMLDocument;
 
 public class TextEditorCore extends JPanel {
 	
-	public PresentationService controler;
 	public PresentationCore controCore;
 	boolean dumbCaller;	// to disable things temporarily
 	
@@ -61,10 +60,8 @@ public class TextEditorCore extends JPanel {
 	}
 
 	public TextEditorCore(Object caller) {
-		dumbCaller = !(caller instanceof PresentationService);
+		dumbCaller = (caller.getClass() == PresentationCore.class);
 		controCore = (PresentationCore) caller;
-		if (!dumbCaller) controler = (PresentationService) caller;
-		showDiag();
 		
 		setLayout(new BorderLayout());
 		editorPane = new JEditorPane();
@@ -150,7 +147,6 @@ public class TextEditorCore extends JPanel {
 		}
 		try {
 			textToAdd = editorPane.getText(selMark, selectedLen);
-			System.out.println(textToAdd);
 		} catch (BadLocationException e1) {
 			System.out.println("Error TE103 " + e1);
 			textToAdd = "";
@@ -170,9 +166,5 @@ public class TextEditorCore extends JPanel {
 		if (text.startsWith("  <body>" + EndOfLineStringProperty)) text = text.substring(9);
 		if (text.endsWith("  </body>" + EndOfLineStringProperty)) text = text.substring(0, text.length() - 10);
 		return text;
-	}
-
-	public void showDiag() {
-		System.out.println("TC from dumb? " + dumbCaller);
 	}
 }

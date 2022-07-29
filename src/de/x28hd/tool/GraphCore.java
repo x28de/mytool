@@ -13,8 +13,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -23,8 +21,9 @@ import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 
 public class GraphCore extends JDesktopPane {
+	private static final long serialVersionUID = 1L;
+	
 	JComponent graphPanel;
-	public PresentationService controler;
 	public PresentationCore controCore;
 	boolean dumbCaller;	// to disable things temporarily
 	boolean labelUpdate = false;
@@ -65,10 +64,8 @@ public class GraphCore extends JDesktopPane {
 	};
 	
 	public GraphCore(Object caller) {
-		dumbCaller = !(caller instanceof PresentationService);
+		dumbCaller = (caller.getClass() == PresentationCore.class);
 		controCore = (PresentationCore) caller;
-		if (!dumbCaller) controler = (PresentationService) caller;
-		showDiag();
 		
 		graphPanel = graphComponent;
 		add(graphPanel);
@@ -478,8 +475,5 @@ public class GraphCore extends JDesktopPane {
 		repaint();
 	}
 	public void init() {
-	}
-	public void showDiag() {
-		System.out.println("GC from dumb? " + dumbCaller);
 	}
 }

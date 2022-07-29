@@ -45,28 +45,21 @@ public class PresentationCore implements Runnable {
 	GraphEdge selectedAssoc = dummyEdge;
 	
 	public void run() {
-		createGraphPanel();
+		createExample();
 		initialize("Simple Window");
 		graphObject.setSize(12);
 		mainWindow.setVisible(true);
 	}
 
-	public PresentationCore() {
-		if (this instanceof PresentationService) ediObject = new TextEditorPanel(this);
-	}
-	
-	public void createGraphPanel() {
-		// tmp data
-		GraphNode n1 = new GraphNode(1,new Point(40, 40), Color.RED, "n1", "n1txt");
-		GraphNode n2 = new GraphNode(2,new Point(140, 40), Color.GREEN, "n2", "n2txt");
+	public void createExample() {
+		GraphNode n1 = new GraphNode(1,new Point(40, 40), Color.RED, "Item 1", "Example text");
+		GraphNode n2 = new GraphNode(2,new Point(140, 40), Color.GREEN, "Item 2", "Example text");
 		nodes.put(1, n1);
 		nodes.put(2, n2);
-		GraphEdge edge = new GraphEdge(1, n1, n2, Color.YELLOW, "edgetxt");
+		GraphEdge edge = new GraphEdge(1, n1, n2, Color.YELLOW, "");
 		edges.put(1, edge);
 		n1.addEdge(edge);
 		n2.addEdge(edge);
-		
-		if (this instanceof PresentationService) graphObject = new GraphPanel(this);
 	}
 	
 	public void initialize(String title) {

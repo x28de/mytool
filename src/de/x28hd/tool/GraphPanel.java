@@ -35,6 +35,7 @@ import de.x28hd.tool.importers.NewStuff;
 
 class GraphPanel extends GraphCore  {
 
+	PresentationService controler;
 	JComponent graphPanel;
 	GraphExtras graphExtras;
     JMenuItem menuItem = new JMenuItem("Paste new Input");	//	TODO cleanup
@@ -116,6 +117,7 @@ class GraphPanel extends GraphCore  {
 
 	GraphPanel(Object caller) {
 		super(caller);
+		controler = (PresentationService) caller;
 
 		graphExtras = new GraphExtras(this);
 		this.translation = new Point(0, 0);
