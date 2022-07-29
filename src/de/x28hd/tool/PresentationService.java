@@ -34,7 +34,6 @@ public final class PresentationService extends PresentationCore implements Actio
 
 	// Main cooperating classes
 	LifeCycle lifeCycle = new LifeCycle(this);
-	TextEditorPanel edi = super.edi;
 	UndoManager undoManager = new UndoManager();
 	// The next 4 are mutually interdependent:
 	PresentationExtras controlerExtras;	// needs edi & lifeCycle
@@ -198,7 +197,7 @@ public final class PresentationService extends PresentationCore implements Actio
 		initialize();
 		graphObject.setSize(initialSize);
 		mainWindow.setVisible(true);
-		edi.setSize(initialSize);
+		((TextEditorPanel) ediObject).setSize(initialSize);
 		controlerExtras.setInitialSize(initialSize);
 		if (lifeCycle.getFilename().isEmpty() 
 				&& nodes.size() <= 0) {  // tmp
@@ -280,7 +279,7 @@ public final class PresentationService extends PresentationCore implements Actio
 		}
 		if (!anonymized) {
 			lifeCycle.setDirty(false);
-			edi.setDirty(false);
+			((TextEditorPanel) ediObject).setDirty(false);
 		}
 		return true;
 	}
@@ -292,20 +291,32 @@ public final class PresentationService extends PresentationCore implements Actio
 
 //	Selection processing
 
+	public void deselect(GraphNode node) {
+		super.deselect(node);
+		((TextEditorPanel) ediObject).tracking(false);
+	}
+	
 	public void nodeSelected(GraphNode node) {
 		super.nodeSelected(node);
-		if (controlerExtras.getHyp()) edi.getTextComponent().setCaretPosition(0);
+		((TextEditorPanel) ediObject).tracking(true);
+		((TextEditorPanel) ediObject).setDirty(false);
+		((TextEditorPanel) ediObject).getTextComponent().requestFocus();
+		if (controlerExtras.getHyp()) 
+			((TextEditorPanel) ediObject).getTextComponent().setCaretPosition(0);
+		if (controlerExtras.dragFake && node.getLabel().equals("Drop input")) 
+			((TextEditorPanel) ediObject).setFake();
 		updateCcpGui();
 	}
 
 	public void edgeSelected(GraphEdge edge) {
 		super.edgeSelected(edge);
+		((TextEditorPanel) ediObject).getTextComponent().setCaretPosition(0);
 		updateCcpGui();
 	}
 
 	public void graphSelected() {
 		super.graphSelected();
-		edi.setText(gui.getInitText(nodes.size() <= 0));
+		ediObject.setText(gui.getInitText(nodes.size() <= 0));
 		updateCcpGui();
 	}
 	
@@ -571,7 +582,7 @@ public final class PresentationService extends PresentationCore implements Actio
 	}
 	
 	public TextEditorPanel getEdi() {
-		return edi;
+		return (TextEditorPanel) ediObject;
 	}
 	
 	public Gui getGui() {

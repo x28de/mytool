@@ -20,7 +20,7 @@ import javax.swing.WindowConstants;
 
 public class PresentationCore implements Runnable {
 
-	TextEditorPanel edi = new TextEditorPanel(this);
+	TextEditorCore ediObject = new TextEditorCore(this);
 	GraphCore graphObject = new GraphCore(this);
 
 	
@@ -49,6 +49,10 @@ public class PresentationCore implements Runnable {
 		initialize("Simple Window");
 		graphObject.setSize(12);
 		mainWindow.setVisible(true);
+	}
+
+	public PresentationCore() {
+		if (this instanceof PresentationService) ediObject = new TextEditorPanel(this);
 	}
 	
 	public void createGraphPanel() {
@@ -104,7 +108,7 @@ public class PresentationCore implements Runnable {
 		detailBoxLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
 		detailBox.add(detailBoxLabel);
 		detailBox.setToolTipText("More text about the selected item, always at your fingertips.");
-		detailBox.add(edi,"South");
+		detailBox.add(ediObject,"South");
 		rightPanel.add(detailBox,"South");
 
 		splitPane.setRightComponent(rightPanel);
@@ -138,17 +142,16 @@ public class PresentationCore implements Runnable {
 		if (!node.equals(dummyNode)) {
 			node.setLabel(labelField.getText());
 			labelField.setText("");
-			node.setDetail(edi.getText());
-			edi.tracking(false);
-			edi.setText("");
+			node.setDetail(ediObject.getText());
+			ediObject.setText("");
 		}
 	}
 
 	public void deselect(GraphEdge edge) {
 		if (!edge.equals(dummyEdge)) {
-			String det = edi.getText();
+			String det = ediObject.getText();
 			if (det.length() > 59) edge.setDetail(det);
-			edi.setText("");
+			ediObject.setText("");
 		}
 	}	
 	
@@ -160,11 +163,8 @@ public class PresentationCore implements Runnable {
 		String labelText = selectedTopic.getLabel();
 		labelField.setText(labelText);
 		
-		edi.setText((selectedTopic).getDetail());
-		edi.tracking(true);
-		edi.setDirty(false);
-		edi.getTextComponent().requestFocus();
-		edi.repaint();
+		ediObject.setText((selectedTopic).getDetail());
+		ediObject.repaint();
 	}
 
 	public void edgeSelected(GraphEdge edge) {
@@ -172,9 +172,8 @@ public class PresentationCore implements Runnable {
 		deselect(selectedTopic);
 		selectedTopic = dummyNode;
 		selectedAssoc = edge;
-		edi.setText(selectedAssoc.getDetail());
-		edi.getTextComponent().setCaretPosition(0);
-		edi.repaint();
+		ediObject.setText(selectedAssoc.getDetail());
+		ediObject.repaint();
 	}
 	
 	public void graphSelected() {
@@ -182,7 +181,7 @@ public class PresentationCore implements Runnable {
 		selectedTopic = dummyNode;
 		deselect(selectedAssoc);
 		selectedAssoc = dummyEdge;
-		edi.setText("");
+		ediObject.setText("");
 		graphObject.grabFocus();		//  was crucial
 	}
 	
@@ -222,6 +221,5 @@ public class PresentationCore implements Runnable {
 		System.out.println("(tmp): Closed");
 		System.exit(0);
 		return true;
-
 	}
 }
