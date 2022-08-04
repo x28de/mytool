@@ -1,4 +1,4 @@
-package de.x28hd.tool;
+package de.x28hd.tool.core;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -16,31 +16,33 @@ import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.StyledEditorKit;
 
+/** The pane on the right where all detail texts appear */
 public class TextEditorCore extends JPanel {
 	
-	public PresentationCore controCore;
-	boolean dumbCaller;	// to disable things temporarily
+	/** The controller */
+	public PresentationCore controlerCore;
+	protected boolean dumbCaller;	// to disable things temporarily
 	
 	public JEditorPane editorPane; 
-	StyledDocument doc = null;
+	protected StyledDocument doc = null;
 	
 	public JScrollPane scrollPane;
-	JPanel toolbar;
-	StyledEditorKit.BoldAction boldAction = new StyledEditorKit.BoldAction();
-	CaretListener myCaretAdapter;
+	private JPanel toolbar;
+	private StyledEditorKit.BoldAction boldAction = new StyledEditorKit.BoldAction();
+	protected CaretListener myCaretAdapter;
 	
-	int selMark;
-	int selDot;
-	int myMark;
-	int myDot;
-	String textToAdd = "";
-	String EndOfLineStringProperty = "(nothing yet)";
+	private int selMark;
+	/** Start of a selected text span */
+	protected int myDot;
+	protected int selDot; 
+	/** Text marked by "Bold Special", will be appended to the label */
+	protected String textToAdd = "";
+	private String EndOfLineStringProperty = "(nothing yet)";
 	private static final long serialVersionUID = 1L;
 
-	class MyCaretAdapter implements CaretListener {
+	private class MyCaretAdapter implements CaretListener {
 		public void caretUpdate(CaretEvent e) {
 			myDot = e.getDot();
-			myMark = e.getMark();
 			selMark = e.getMark();
 			selDot = e.getDot();
 //			System.out.println("Dot = " + selDot + ", Mark = " + selMark );
@@ -48,18 +50,19 @@ public class TextEditorCore extends JPanel {
 		}
 	}
 	
-	class BoldSpecialActionAdapter implements ActionListener {
+	/** Make bold and add the marked text to the item's label above and on the map */
+	protected class BoldSpecialActionAdapter implements ActionListener {
 		public void actionPerformed(ActionEvent a) {
 			if (a.getActionCommand().equals("AddToLabel")) {
 				boldAction.actionPerformed(a);
-				controCore.addToLabel(textToAdd);
+				controlerCore.addToLabel(textToAdd);
 			}
 		}
 	}
 
-	public TextEditorCore(Object caller) {
+	protected TextEditorCore(Object caller) {
 		dumbCaller = (caller.getClass() == PresentationCore.class);
-		controCore = (PresentationCore) caller;
+		controlerCore = (PresentationCore) caller;
 		
 		setLayout(new BorderLayout());
 		editorPane = new JEditorPane();
@@ -136,7 +139,8 @@ public class TextEditorCore extends JPanel {
 		return editorPane.getText();
 	}
 
-	public void processClicks() {
+	/** Extract selected text */
+	protected void processClicks() {
 		int selectedLen = selDot - selMark;
 		if (selectedLen < 0) {
 			selectedLen = - selectedLen;
@@ -145,12 +149,12 @@ public class TextEditorCore extends JPanel {
 		try {
 			textToAdd = editorPane.getText(selMark, selectedLen);
 		} catch (BadLocationException e1) {
-			System.out.println("Error TE103 " + e1);
+			System.out.println("Error TC103 " + e1);
 			textToAdd = "";
 		}
 	}
 
-	public String unwrap(String text) {
+	private String unwrap(String text) {
 		// TODO create a regex
 		if (text.startsWith("\t<html>")) text = text.substring(7);	// NewStuff simple files
 		if (text.startsWith("<html>" + EndOfLineStringProperty)) text = text.substring(7);

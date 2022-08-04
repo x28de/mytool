@@ -47,10 +47,10 @@ import javax.swing.event.HyperlinkListener;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
-import de.x28hd.tool.GraphEdge;
 import de.x28hd.tool.GraphExtras;
-import de.x28hd.tool.GraphNode;
 import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
 
 public class H5pExport implements HyperlinkListener, ActionListener {
 	Hashtable<Integer,GraphNode> nodes;

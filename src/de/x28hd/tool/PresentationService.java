@@ -25,6 +25,9 @@ import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
+import de.x28hd.tool.core.PresentationCore;
 import de.x28hd.tool.exporters.TopicMapStorer;
 import de.x28hd.tool.importers.CompositionWindow;
 import de.x28hd.tool.importers.ImportDirector;

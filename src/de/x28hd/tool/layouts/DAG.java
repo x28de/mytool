@@ -14,10 +14,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import de.x28hd.tool.BranchInfo;
-import de.x28hd.tool.GraphEdge;
-import de.x28hd.tool.GraphNode;
 import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
 
 public class DAG {
 	Hashtable<Integer,GraphNode> nodes;

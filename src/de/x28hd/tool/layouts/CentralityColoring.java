@@ -30,11 +30,11 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import de.x28hd.tool.BranchInfo;
-import de.x28hd.tool.GraphEdge;
-import de.x28hd.tool.GraphNode;
 import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.PresentationExtras;
 import de.x28hd.tool.Utilities;
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
 import edu.uci.ics.jung.algorithms.importance.BetweennessCentrality;
 import edu.uci.ics.jung.algorithms.importance.Ranking;
 import edu.uci.ics.jung.algorithms.layout.PolarPoint;

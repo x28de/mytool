@@ -24,9 +24,9 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import de.x28hd.tool.GraphEdge;
-import de.x28hd.tool.GraphNode;
 import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
 
 public class CmapExport {
 	

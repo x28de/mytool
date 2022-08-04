@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import de.x28hd.tool.GraphEdge;
-import de.x28hd.tool.GraphNode;
 import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
 
 public class MakeHTML {
 	

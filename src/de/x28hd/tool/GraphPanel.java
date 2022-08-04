@@ -23,22 +23,23 @@ import java.util.Hashtable;
 import java.util.Iterator;
 
 import javax.swing.JComponent;
-import javax.swing.JMenuItem;
 import javax.swing.TransferHandler;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import de.x28hd.tool.core.GraphCore;
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
+import de.x28hd.tool.core.Selection;
 import de.x28hd.tool.exporters.TopicMapStorer;
 import de.x28hd.tool.importers.NewStuff;
 
-class GraphPanel extends GraphCore  {
+public class GraphPanel extends GraphCore  {
 
 	PresentationService controler;
 	JComponent graphPanel;
 	GraphExtras graphExtras;
-    JMenuItem menuItem = new JMenuItem("Paste new Input");	//	TODO cleanup
-//    Point insertion = new Point(300, 300);
 	public NewStuff newStuff = null;
 	
 	private boolean rectangleInProgress;
@@ -55,6 +56,7 @@ class GraphPanel extends GraphCore  {
 	boolean tabletMode = false;
 
 	// directly from jri
+	public Hashtable<Integer,GraphNode> cluster;	// cluster of associated nodes
 	private boolean clusterInProgress;		// /
 	//
 	Rectangle bounds;
@@ -114,7 +116,7 @@ class GraphPanel extends GraphCore  {
 
 	private static final long serialVersionUID = 1L;
 
-	GraphPanel(Object caller) {
+	protected GraphPanel(Object caller) {
 		super(caller);
 		controler = (PresentationService) caller;
 
@@ -323,7 +325,7 @@ class GraphPanel extends GraphCore  {
 				super.thisPanelDragged(e);
 				return;
 			}
-			//	Intercept ALT-Drag on Graph -- TODO simplify & check if must be here
+			//	Intercept ALT-Drag on Graph 
 			if (selection.mode == Selection.SELECTED_TOPICMAP && (isSpecial(e) || simulatedAltDown)) {
 				translateInProgress = false;
 				if (!rectangleInProgress) {
@@ -555,7 +557,7 @@ class GraphPanel extends GraphCore  {
 	}
 
 	private void translateCluster(int x, int y) {
-		Enumeration e = cluster.elements();
+		Enumeration<GraphNode> e = cluster.elements();
 		while (e.hasMoreElements()) {
 			GraphNode node = (GraphNode) e.nextElement();
 			translateNode(node, x, y);

@@ -14,9 +14,9 @@ import java.util.Iterator;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
-import de.x28hd.tool.GraphEdge;
-import de.x28hd.tool.GraphNode;
 import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
 import edu.uci.ics.jung.algorithms.layout.PolarPoint;
 import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
 import edu.uci.ics.jung.graph.DelegateForest;

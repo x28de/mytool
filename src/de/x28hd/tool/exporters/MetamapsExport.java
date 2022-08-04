@@ -13,9 +13,9 @@ import javax.swing.text.html.HTMLEditorKit;
 
 import org.w3c.dom.Element;
 
-import de.x28hd.tool.GraphEdge;
-import de.x28hd.tool.GraphNode;
 import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.MyHTMLEditorKit;
 
 public class MetamapsExport {

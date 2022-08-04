@@ -1,4 +1,4 @@
-package de.x28hd.tool;
+package de.x28hd.tool.core;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -17,39 +17,42 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
+/** The controller for graph class (left) and editor class (right pane) */
+
 public class PresentationCore implements Runnable {
 
-	TextEditorCore editorClass = new TextEditorCore(this);
-	GraphCore graphClass = new GraphCore(this);
+	/** TextEditorCore or a subclass such as TextEditorPanel */
+	protected TextEditorCore editorClass = new TextEditorCore(this);
+	/** GraphCore or a subclass such as GraphPanel */
+	protected GraphCore graphClass = new GraphCore(this);
 
-	
 	// Main fields
-	Hashtable<Integer, GraphNode> nodes = new Hashtable<Integer, GraphNode>();
-	Hashtable<Integer, GraphEdge> edges = new Hashtable<Integer, GraphEdge>();
+	protected Hashtable<Integer, GraphNode> nodes = new Hashtable<Integer, GraphNode>();
+	protected Hashtable<Integer, GraphEdge> edges = new Hashtable<Integer, GraphEdge>();
 	
 	// User Interface
 	public JFrame mainWindow;
 	public Container contentPane;
-	JPanel labelBox = null;
-	JTextField labelField = null;
+	private JPanel labelBox = null;
+	protected JTextField labelField = null;
 	
-	JSplitPane splitPane = null;
-	JPanel rightPanel = null;
-	Selection selection = null;
+	protected JSplitPane splitPane = null;
+	protected JPanel rightPanel = null;
+	protected Selection selection = null;
 	
 	// Placeholders
-	GraphNode dummyNode = new GraphNode(-1, null, null, null, null);
-	GraphNode selectedTopic = dummyNode;		// TODO integrate into Selection()
-	GraphEdge dummyEdge = new GraphEdge(-1, dummyNode, dummyNode, null, null);
-	GraphEdge selectedAssoc = dummyEdge;
+	private GraphNode dummyNode = new GraphNode(-1, null, null, null, null);
+	protected GraphNode selectedTopic = dummyNode;		// TODO integrate into Selection()
+	private GraphEdge dummyEdge = new GraphEdge(-1, dummyNode, dummyNode, null, null);
+	protected GraphEdge selectedAssoc = dummyEdge;
 	
 	public void run() {
 		initialize("Simple Window");
 		graphClass.setSize(12);
 		mainWindow.setVisible(true);
 	}
-
-	public void initialize(String title) {
+	
+	protected void initialize(String title) {
 		setModel(nodes, edges);
 		selection = graphClass.getSelectionInstance();	//	TODO eliminate again
 		splitPane = createMainGUI();
@@ -63,8 +66,8 @@ public class PresentationCore implements Runnable {
 		this.edges = edges;
 		graphClass.setModel(nodes, edges);
 	}
-		
-	public JSplitPane createMainGUI() {
+
+	private JSplitPane createMainGUI() {
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setDividerLocation(960 - 232);
@@ -104,7 +107,7 @@ public class PresentationCore implements Runnable {
 		return splitPane;
 	}
 
-	public void createMainWindow(String title) {
+	protected void createMainWindow(String title) {
 		mainWindow = new JFrame(title) {
 			private static final long serialVersionUID = 1L;
 		};
@@ -125,7 +128,7 @@ public class PresentationCore implements Runnable {
 	
 //	Selection processing
 
-	public void deselect(GraphNode node) {
+	protected void deselect(GraphNode node) {
 		if (!node.equals(dummyNode)) {
 			node.setLabel(labelField.getText());
 			labelField.setText("");
@@ -134,7 +137,7 @@ public class PresentationCore implements Runnable {
 		}
 	}
 
-	public void deselect(GraphEdge edge) {
+	private void deselect(GraphEdge edge) {
 		if (!edge.equals(dummyEdge)) {
 			String det = editorClass.getText();
 			if (det.length() > 59) edge.setDetail(det);
@@ -142,7 +145,7 @@ public class PresentationCore implements Runnable {
 		}
 	}	
 	
-	public void nodeSelected(GraphNode node) {
+	protected void nodeSelected(GraphNode node) {
 		deselect(selectedTopic);
 		deselect(selectedAssoc);
 		selectedAssoc = dummyEdge;
@@ -154,7 +157,7 @@ public class PresentationCore implements Runnable {
 		editorClass.repaint();
 	}
 
-	public void edgeSelected(GraphEdge edge) {
+	protected void edgeSelected(GraphEdge edge) {
 		deselect(selectedAssoc);
 		deselect(selectedTopic);
 		selectedTopic = dummyNode;
@@ -163,7 +166,8 @@ public class PresentationCore implements Runnable {
 		editorClass.repaint();
 	}
 	
-	public void graphSelected() {
+	/** Called from {@link de.x28hd.tool.core.GraphCore#graphSelected GraphCore.graphSelected} */
+	protected void graphSelected() {
 		deselect(selectedTopic);
 		selectedTopic = dummyNode;
 		deselect(selectedAssoc);
@@ -172,7 +176,7 @@ public class PresentationCore implements Runnable {
 		graphClass.grabFocus();		//  was crucial
 	}
 	
-	public GraphEdge createEdge(GraphNode topic1, GraphNode topic2) {
+	protected GraphEdge createEdge(GraphNode topic1, GraphNode topic2) {
 		if (topic1 != null && topic2 != null) {
 			int newId = newKey(edges.keySet());
 			GraphEdge assoc = new GraphEdge(newId, topic1, topic2, Color.decode("#c0c0c0"), "");  // nicht 239
@@ -186,13 +190,15 @@ public class PresentationCore implements Runnable {
 		}
 	}
 	
-	public int newKey(Set<Integer> keySet) {
+	protected int newKey(Set<Integer> keySet) {
 		int idTest = keySet.size();
 		while (keySet.contains(idTest)) idTest++;
 		return idTest;
 	}
 	
-	public void addToLabel(String textToAdd) {
+	/** Text marked by "Bold Special" is appended to the label 
+	 * @param textToAdd the marked text */
+	protected void addToLabel(String textToAdd) {
 		if (selectedTopic == dummyNode) return;
 		String oldText = labelField.getText();
 		String newText = oldText + " " + textToAdd;
@@ -203,7 +209,7 @@ public class PresentationCore implements Runnable {
 		mainWindow.repaint();   // this was crucial
 	}
 	
-	public boolean close() {
+	private boolean close() {
 		mainWindow.dispose();
 		System.out.println("(tmp): Closed");
 		System.exit(0);

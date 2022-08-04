@@ -1,4 +1,4 @@
-package de.x28hd.tool;
+package de.x28hd.tool.core;
 
 import java.util.Collection;
 import java.util.LinkedList;

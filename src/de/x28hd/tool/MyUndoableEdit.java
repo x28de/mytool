@@ -7,6 +7,9 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
+
 public class MyUndoableEdit implements UndoableEdit {
 	String [] presentationNames = {"Delete", "Delete Line", "Move", ""};
 	int lastChangeType;

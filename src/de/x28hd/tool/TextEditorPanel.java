@@ -43,6 +43,8 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 
+import de.x28hd.tool.core.TextEditorCore;
+
 public class TextEditorPanel extends TextEditorCore implements ActionListener, UndoableEditListener, HyperlinkListener {
 
 	public PresentationService controler;

@@ -42,12 +42,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import de.x28hd.tool.GraphEdge;
-import de.x28hd.tool.GraphNode;
 import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.MyHTMLEditorKit;
 import de.x28hd.tool.PresentationExtras;
 import de.x28hd.tool.Utilities;
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
 
 public class NewStuff {
 	

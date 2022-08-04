@@ -2,9 +2,9 @@ package de.x28hd.tool.exporters;
 
 import java.util.Hashtable;
 
-import de.x28hd.tool.GraphEdge;
-import de.x28hd.tool.GraphNode;
 import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.LimitationMessage;
 
 public class ImappingExport {

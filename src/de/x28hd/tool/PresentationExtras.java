@@ -36,6 +36,8 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.tree.DefaultTreeModel;
 
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.exporters.BrainExport;
 import de.x28hd.tool.exporters.CmapExport;
 import de.x28hd.tool.exporters.CsvExport;

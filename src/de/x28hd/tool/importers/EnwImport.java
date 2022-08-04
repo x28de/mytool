@@ -13,9 +13,9 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Hashtable;
 
-import de.x28hd.tool.GraphNode;
 import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
+import de.x28hd.tool.core.GraphNode;
 
 public class EnwImport {
 	
