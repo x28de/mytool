@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Hashtable;
@@ -20,8 +19,8 @@ import javax.swing.WindowConstants;
 
 public class PresentationCore implements Runnable {
 
-	TextEditorCore ediObject = new TextEditorCore(this);
-	GraphCore graphObject = new GraphCore(this);
+	TextEditorCore editorClass = new TextEditorCore(this);
+	GraphCore graphClass = new GraphCore(this);
 
 	
 	// Main fields
@@ -30,7 +29,7 @@ public class PresentationCore implements Runnable {
 	
 	// User Interface
 	public JFrame mainWindow;
-	public Container cp;	// Content Pane
+	public Container contentPane;
 	JPanel labelBox = null;
 	JTextField labelField = null;
 	
@@ -45,31 +44,26 @@ public class PresentationCore implements Runnable {
 	GraphEdge selectedAssoc = dummyEdge;
 	
 	public void run() {
-		createExample();
 		initialize("Simple Window");
-		graphObject.setSize(12);
+		graphClass.setSize(12);
 		mainWindow.setVisible(true);
 	}
 
-	public void createExample() {
-		GraphNode n1 = new GraphNode(1,new Point(40, 40), Color.RED, "Item 1", "Example text");
-		GraphNode n2 = new GraphNode(2,new Point(140, 40), Color.GREEN, "Item 2", "Example text");
-		nodes.put(1, n1);
-		nodes.put(2, n2);
-		GraphEdge edge = new GraphEdge(1, n1, n2, Color.YELLOW, "");
-		edges.put(1, edge);
-		n1.addEdge(edge);
-		n2.addEdge(edge);
-	}
-	
 	public void initialize(String title) {
-		graphObject.setModel(nodes, edges);
-		selection = graphObject.getSelectionInstance();	//	TODO eliminate again
+		setModel(nodes, edges);
+		selection = graphClass.getSelectionInstance();	//	TODO eliminate again
 		splitPane = createMainGUI();
 		createMainWindow(title);
 		graphSelected();
 	}
 
+	public void setModel(Hashtable<Integer, GraphNode> nodes, 
+			Hashtable<Integer, GraphEdge> edges) {
+		this.nodes = nodes;
+		this.edges = edges;
+		graphClass.setModel(nodes, edges);
+	}
+		
 	public JSplitPane createMainGUI() {
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
 		splitPane.setOneTouchExpandable(true);
@@ -77,9 +71,9 @@ public class PresentationCore implements Runnable {
 		splitPane.setResizeWeight(.8);
 		splitPane.setDividerSize(8);
 
-		graphObject.setBackground(Color.WHITE);
+		graphClass.setBackground(Color.WHITE);
 		
-		splitPane.setLeftComponent(graphObject);
+		splitPane.setLeftComponent(graphClass);
 
 		rightPanel = new JPanel();
 		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
@@ -101,7 +95,7 @@ public class PresentationCore implements Runnable {
 		detailBoxLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
 		detailBox.add(detailBoxLabel);
 		detailBox.setToolTipText("More text about the selected item, always at your fingertips.");
-		detailBox.add(ediObject,"South");
+		detailBox.add(editorClass,"South");
 		rightPanel.add(detailBox,"South");
 
 		splitPane.setRightComponent(rightPanel);
@@ -125,8 +119,8 @@ public class PresentationCore implements Runnable {
 			}
 		});
 
-		cp = mainWindow.getContentPane();
-		cp.add(splitPane);
+		contentPane = mainWindow.getContentPane();
+		contentPane.add(splitPane);
 	}
 	
 //	Selection processing
@@ -135,16 +129,16 @@ public class PresentationCore implements Runnable {
 		if (!node.equals(dummyNode)) {
 			node.setLabel(labelField.getText());
 			labelField.setText("");
-			node.setDetail(ediObject.getText());
-			ediObject.setText("");
+			node.setDetail(editorClass.getText());
+			editorClass.setText("");
 		}
 	}
 
 	public void deselect(GraphEdge edge) {
 		if (!edge.equals(dummyEdge)) {
-			String det = ediObject.getText();
+			String det = editorClass.getText();
 			if (det.length() > 59) edge.setDetail(det);
-			ediObject.setText("");
+			editorClass.setText("");
 		}
 	}	
 	
@@ -156,8 +150,8 @@ public class PresentationCore implements Runnable {
 		String labelText = selectedTopic.getLabel();
 		labelField.setText(labelText);
 		
-		ediObject.setText((selectedTopic).getDetail());
-		ediObject.repaint();
+		editorClass.setText((selectedTopic).getDetail());
+		editorClass.repaint();
 	}
 
 	public void edgeSelected(GraphEdge edge) {
@@ -165,8 +159,8 @@ public class PresentationCore implements Runnable {
 		deselect(selectedTopic);
 		selectedTopic = dummyNode;
 		selectedAssoc = edge;
-		ediObject.setText(selectedAssoc.getDetail());
-		ediObject.repaint();
+		editorClass.setText(selectedAssoc.getDetail());
+		editorClass.repaint();
 	}
 	
 	public void graphSelected() {
@@ -174,8 +168,8 @@ public class PresentationCore implements Runnable {
 		selectedTopic = dummyNode;
 		deselect(selectedAssoc);
 		selectedAssoc = dummyEdge;
-		ediObject.setText("");
-		graphObject.grabFocus();		//  was crucial
+		editorClass.setText("");
+		graphClass.grabFocus();		//  was crucial
 	}
 	
 	public GraphEdge createEdge(GraphNode topic1, GraphNode topic2) {

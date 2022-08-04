@@ -15,7 +15,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.StyledEditorKit;
-import javax.swing.text.html.HTMLDocument;
 
 public class TextEditorCore extends JPanel {
 	
@@ -23,7 +22,6 @@ public class TextEditorCore extends JPanel {
 	boolean dumbCaller;	// to disable things temporarily
 	
 	public JEditorPane editorPane; 
-	HTMLDocument htmlDoc;
 	StyledDocument doc = null;
 	
 	public JScrollPane scrollPane;
@@ -68,7 +66,6 @@ public class TextEditorCore extends JPanel {
 		editorPane.getEditorKit().createDefaultDocument();
 		editorPane.setContentType("text/html");
 		editorPane.setText("<body><p style=\"margin-top: 0\">t</p></body>");
-		htmlDoc = (HTMLDocument) editorPane.getDocument();
 		doc = (StyledDocument) editorPane.getDocument();
 		
 		editorPane.setEditable(true);		// ### false is required for hyperlinks to work

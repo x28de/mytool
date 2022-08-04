@@ -12,7 +12,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
@@ -125,14 +124,6 @@ class GraphPanel extends GraphCore  {
 		
 		graphPanel = graphComponent;
 
-		addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) {
-				thisPanelPressed(e);
-			}
-			public void mouseReleased(MouseEvent e) {
-				thisPanelReleased(e);
-			}
-		});
 		addMouseMotionListener(new MouseMotionAdapter() {
 			public void mouseDragged(MouseEvent e) {
 				thisPanelDragged(e);
@@ -694,9 +685,5 @@ class GraphPanel extends GraphCore  {
 				node.setXY(p);
 			}
 			translation = new Point(0, 0);
-		}
-		
-		public void showDiag() {
-			System.out.println("GP from dumb? " + dumbCaller);
 		}
 }

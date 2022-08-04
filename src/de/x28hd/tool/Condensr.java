@@ -20,7 +20,10 @@ public class Condensr extends JApplet {
 			PresentationService ps = new PresentationService(false);
 //			PresentationCore ps = new PresentationCore();
 			new Thread(ps).start();
-//			if (args.length >0) ps.setFilename(args[0], 0);
+			DataCore dc = new DataCore(ps);
+//			dc.useData((MapItems) new MyCoreData());
+			ps.setModel(dc.nodes, dc.edges);
+			if (args.length >0) ps.setFilename(args[0], 0);
 		} catch (Throwable e) {
 			System.out.println("Error initApplication " + e);
 			e.printStackTrace();

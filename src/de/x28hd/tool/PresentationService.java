@@ -68,7 +68,7 @@ public final class PresentationService extends PresentationCore implements Actio
 
 	
 	public PresentationService(boolean ext) {
-		ediObject = new TextEditorPanel(this);
+		editorClass = new TextEditorPanel(this);
 		extended = ext;
 	}
 
@@ -133,15 +133,15 @@ public final class PresentationService extends PresentationCore implements Actio
 				deleteNode(selectedTopic);
 				selection.topic = null;
 				graphSelected();
-				graphObject.repaint();
+				graphClass.repaint();
 
 		} else if (command == "delAssoc") {
 				deleteEdge(selectedAssoc);
 				graphSelected();
-				graphObject.repaint();
+				graphClass.repaint();
 
 		} else if (command == "NewNode") {
-				translation = ((GraphPanel) graphObject).getTranslation();
+				translation = ((GraphPanel) graphClass).getTranslation();
 		    	clickedSpot.translate(- translation.x, - translation.y);
 				GraphNode node = createNode(clickedSpot);
 				nodeSelected(node);
@@ -174,7 +174,7 @@ public final class PresentationService extends PresentationCore implements Actio
 		JPopupMenu menu = controlerExtras.createContextMenu(menuID);
 		clickedSpot = new Point(x, y);
 		controlerExtras.setSystemUI(false); //	avoid confusing colors when hovering, and indenting  of items in System LaF 
-		menu.show(cp, x, y);
+		menu.show(contentPane, x, y);
 	}
 
 	public void displayPopup(String msg) {
@@ -196,9 +196,9 @@ public final class PresentationService extends PresentationCore implements Actio
 	
 	public synchronized void run() {
 		initialize();
-		graphObject.setSize(initialSize);
+		graphClass.setSize(initialSize);
 		mainWindow.setVisible(true);
-		((TextEditorPanel) ediObject).setSize(initialSize);
+		((TextEditorPanel) editorClass).setSize(initialSize);
 		controlerExtras.setInitialSize(initialSize);
 		if (lifeCycle.getFilename().isEmpty() 
 				&& nodes.size() <= 0) {  // tmp
@@ -233,17 +233,17 @@ public final class PresentationService extends PresentationCore implements Actio
 		// The next 4 classes need each other
 		controlerExtras = new PresentationExtras(this);
 		gui = new Gui(this);
-		graphObject = new GraphPanel(this);
+		graphClass = new GraphPanel(this);
 		newStuff = new NewStuff(this);
 		
 		// Introduce them to each other
 		controlerExtras.init();
 		gui.init();
-		graphObject.init();
+		graphClass.init();
 		newStuff.init();
 		
 		about = (new AboutBuild(extended)).getAbout();
-		((GraphPanel) graphObject).addKeyListener(controlerExtras);
+		((GraphPanel) graphClass).addKeyListener(controlerExtras);
 
 		// Main GUI
 		controlerExtras.setSystemUI(true);
@@ -280,7 +280,7 @@ public final class PresentationService extends PresentationCore implements Actio
 		}
 		if (!anonymized) {
 			lifeCycle.setDirty(false);
-			((TextEditorPanel) ediObject).setDirty(false);
+			((TextEditorPanel) editorClass).setDirty(false);
 		}
 		return true;
 	}
@@ -294,30 +294,30 @@ public final class PresentationService extends PresentationCore implements Actio
 
 	public void deselect(GraphNode node) {
 		super.deselect(node);
-		((TextEditorPanel) ediObject).tracking(false);
+		((TextEditorPanel) editorClass).tracking(false);
 	}
 	
 	public void nodeSelected(GraphNode node) {
 		super.nodeSelected(node);
-		((TextEditorPanel) ediObject).tracking(true);
-		((TextEditorPanel) ediObject).setDirty(false);
-		((TextEditorPanel) ediObject).getTextComponent().requestFocus();
+		((TextEditorPanel) editorClass).tracking(true);
+		((TextEditorPanel) editorClass).setDirty(false);
+		((TextEditorPanel) editorClass).getTextComponent().requestFocus();
 		if (controlerExtras.getHyp()) 
-			((TextEditorPanel) ediObject).getTextComponent().setCaretPosition(0);
+			((TextEditorPanel) editorClass).getTextComponent().setCaretPosition(0);
 		if (controlerExtras.dragFake && node.getLabel().equals("Drop input")) 
-			((TextEditorPanel) ediObject).setFake();
+			((TextEditorPanel) editorClass).setFake();
 		updateCcpGui();
 	}
 
 	public void edgeSelected(GraphEdge edge) {
 		super.edgeSelected(edge);
-		((TextEditorPanel) ediObject).getTextComponent().setCaretPosition(0);
+		((TextEditorPanel) editorClass).getTextComponent().setCaretPosition(0);
 		updateCcpGui();
 	}
 
 	public void graphSelected() {
 		super.graphSelected();
-		ediObject.setText(gui.getInitText(nodes.size() <= 0));
+		editorClass.setText(gui.getInitText(nodes.size() <= 0));
 		updateCcpGui();
 	}
 	
@@ -337,8 +337,8 @@ public final class PresentationService extends PresentationCore implements Actio
 			nodes.put(newId, topic);
 			controlerExtras.recount();
 			controlerExtras.updateBounds();
-			graphObject.nodeSelected(topic);
-			graphObject.repaint();
+			graphClass.nodeSelected(topic);
+			graphClass.repaint();
 			lifeCycle.setDirty(true);
 			return topic;
 		} else {
@@ -378,7 +378,7 @@ public final class PresentationService extends PresentationCore implements Actio
 					JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_CANCEL_OPTION); 
 			JDialog d = confirm.createDialog(null, "Warning");
 			Point p = topic.getXY();
-			translation = ((GraphPanel) graphObject).getTranslation();
+			translation = ((GraphPanel) graphClass).getTranslation();
 			d.setLocation(p.x - 20 + translation.x, p.y + 100 + translation.y);
 			d.setVisible(true);
 			Object responseObj = confirm.getValue();
@@ -427,7 +427,7 @@ public final class PresentationService extends PresentationCore implements Actio
 		nodes.put(topicID1,  topic1);
 		nodes.put(topicID2,  topic2);
 		controlerExtras.recount();
-		graphObject.repaint();
+		graphClass.repaint();
 		lifeCycle.setDirty(true);
 		commit(1, null, assoc, null);
 		return;
@@ -441,9 +441,9 @@ public final class PresentationService extends PresentationCore implements Actio
 		GraphNode node;
 		if (!rectangle) {
 			GraphNode topic1 = assoc.getNode1();	
-			cluster = ((GraphPanel) graphObject).createNodeCluster(topic1);
+			cluster = ((GraphPanel) graphClass).createNodeCluster(topic1);
 		} else {
-			cluster = ((GraphPanel) graphObject).createNodeRectangle();
+			cluster = ((GraphPanel) graphClass).createNodeRectangle();
 		}
 		if (!auto) {
 			String what = rectangle ? "rectangle" : "cluster";
@@ -459,15 +459,15 @@ public final class PresentationService extends PresentationCore implements Actio
 			node = (GraphNode) e2.nextElement();
 			deleteNode(node, true);
 		}
-		((GraphPanel) graphObject).nodeRectangle(false);
-		graphObject.repaint();
+		((GraphPanel) graphClass).nodeRectangle(false);
+		graphClass.repaint();
 		lifeCycle.setDirty(true);
 		return;
 	}
 
 	public void copyCluster(boolean rectangle, GraphEdge assoc) {
 		GraphNode topic1 = assoc.getNode1();	
-		((GraphPanel) graphObject).copyCluster(rectangle, topic1);
+		((GraphPanel) graphClass).copyCluster(rectangle, topic1);
 		return;
 	}
 
@@ -486,15 +486,15 @@ public final class PresentationService extends PresentationCore implements Actio
     }
     
     public GraphExtras getGraphExtras() {
-     	return ((GraphPanel) graphObject).getExtras();
+     	return ((GraphPanel) graphClass).getExtras();
     }
     
     public GraphPanel getGraphPanel() {
-     	return (((GraphPanel) graphObject));
+     	return (((GraphPanel) graphClass));
     }
     
     public Point getTranslation() {
-    	return ((GraphPanel) graphObject).getTranslation();
+    	return ((GraphPanel) graphClass).getTranslation();
     }
 
     public JFrame getMainWindow() {
@@ -505,13 +505,6 @@ public final class PresentationService extends PresentationCore implements Actio
 	   return gui.nodePalette[gui.paletteID][7];
    }
     
-	public void setModel(Hashtable<Integer, GraphNode> nodes, 
-			Hashtable<Integer, GraphEdge> edges) {
-		this.nodes = nodes;
-		this.edges = edges;
-		graphObject.setModel(nodes, edges);
-	}
-   
    public boolean getExtended() {
 	   return extended;
    }
@@ -522,7 +515,7 @@ public final class PresentationService extends PresentationCore implements Actio
    
 	public void commit(int type, GraphNode node, GraphEdge edge, Point move) {
 		MyUndoableEdit myUndoableEdit = new MyUndoableEdit(type, node, edge, move, 
-				nodes, edges, ((GraphPanel) graphObject), gui);
+				nodes, edges, ((GraphPanel) graphClass), gui);
 		undoManager.addEdit(myUndoableEdit);
 		gui.updateUndoGui();
 	}
@@ -530,7 +523,7 @@ public final class PresentationService extends PresentationCore implements Actio
 
 	public void copy(boolean rectangle, GraphEdge assoc) {
 		GraphNode topic = assoc.getNode1();	
-		((GraphPanel) graphObject).copyCluster(rectangle, topic);
+		((GraphPanel) graphClass).copyCluster(rectangle, topic);
 	}
 
 	public boolean getRectangle() {
@@ -539,7 +532,7 @@ public final class PresentationService extends PresentationCore implements Actio
 	
 	public void cut(boolean rectangle, GraphEdge assoc) {
 		GraphNode topic = assoc.getNode1();	
-		((GraphPanel) graphObject).copyCluster(rectangle, topic);
+		((GraphPanel) graphClass).copyCluster(rectangle, topic);
 		deleteCluster(rectangle, assoc);
 	}
 
@@ -583,7 +576,7 @@ public final class PresentationService extends PresentationCore implements Actio
 	}
 	
 	public TextEditorPanel getEdi() {
-		return (TextEditorPanel) ediObject;
+		return (TextEditorPanel) editorClass;
 	}
 	
 	public Gui getGui() {
