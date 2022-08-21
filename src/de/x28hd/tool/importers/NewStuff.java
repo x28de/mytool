@@ -53,7 +53,6 @@ public class NewStuff {
 	
 	
 	//	Main fields
-	String dataString = "";
 	Hashtable<Integer, GraphNode> newNodes = new Hashtable<Integer, GraphNode>();
 	Hashtable<Integer, GraphEdge> newEdges = new Hashtable<Integer, GraphEdge>();
 	Point dropLocation = null;
@@ -62,35 +61,20 @@ public class NewStuff {
 	private PresentationService controler;
 	PresentationExtras controlerExtras;
 	boolean compositionMode = false;
-	boolean firstComposition = true;
-	boolean windows = false;
 	
 	//	Input
 	public static DataFlavor htmlSelectionFlavor;
-	int inputType = 0;
-	InputStream stream = null;
 	String advisableFilename = "";
-	Utilities utilities = new Utilities();
 
 	
 	//	Map loading
-	boolean readyMap = false;
 	boolean existingMap = false;
-	int topicnum = 0;
-	int assocnum = 0;
-	Element root;
-	boolean isAssoc = false;
-	int nodenum = -1;
-	int edgenum = -1;
-	String nodesArray [][] = new String [600][5];   // 0 = x, 1 = y, 2 = rgb, 3 = label, 4 = id
-	String edgesArray [][] = new String [600][3];    // 0 = n1, 1 = n2, 2 = rgb
-	Hashtable<String, Integer> nodeids = new Hashtable<String, Integer>();
-	Hashtable<String, Integer> edgeids = new Hashtable<String, Integer>();
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	
 	//	HTML exploitation
 	boolean parseMode = false; 
 	boolean dropEncoding = true;
+	
 	String htmlOut = "";
 	boolean listItem = false;
 	boolean firstColumn = true;
@@ -101,16 +85,10 @@ public class NewStuff {
 	boolean structureFound = false;
 	boolean listStructure = false;
 	
-	//	Input file sorting
-	Hashtable<Integer,String> byModDates = new Hashtable<Integer,String>();;
-	TreeMap<Long,Integer> datesMap = new TreeMap<Long,Integer>();
-	SortedMap<Long,Integer> datesList = (SortedMap<Long,Integer>) datesMap;
-
 
 	
 	public NewStuff(final PresentationService controler) {
 		this.controler = controler;
-		windows = (System.getProperty("os.name").startsWith("Windows"));
 	}
 	
 //
@@ -175,7 +153,9 @@ public class NewStuff {
 	
 	@SuppressWarnings("unchecked")
 	public boolean transferTransferable(Transferable content) {
-			
+		String dataString = "";			
+		Utilities utilities = new Utilities();
+		
 		//  File(s) ?
 
 		if (content.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
@@ -191,19 +171,16 @@ public class NewStuff {
 			}
 			if (l.size() == 1) {
 				dataString = l.get(0).getAbsolutePath();
-				inputType = 1;
 				advisableFilename = dataString;
 //				System.out.println("NS: was javaFileListFlavor; Inputtype = " + inputType);
-				interceptZips();
+				interceptZips(dataString);
 			} else {
 				for (File f : l) {
 					String fn = f.getAbsolutePath();
 					dataString = dataString + "\r\n" + fn;
 				}
-				inputType = 4;
-				readyMap = false;
 //				System.out.println("NS: was javaFileListFlavor; Inputtype = " + inputType);
-				exploitFilelist();
+				exploitFilelist(dataString, true);
 			}
 			return true;
 		}
@@ -222,8 +199,7 @@ public class NewStuff {
 				return false;
 			}
 //			System.out.println("NS: was fragmentHtmlFlavor: \r\n");
-			inputType = 3;
-			step2();
+			step2b(dataString, true);
 			return true;
 		} else {
 		try {
@@ -251,8 +227,7 @@ public class NewStuff {
 				return false;
 			}
 //			System.out.println("NS: was htmlSelectionFlavor: \r\n");
-			inputType = 3;
-			step2();
+			step2b(dataString, true);
 			return true;
 		} 
 		}
@@ -269,8 +244,7 @@ public class NewStuff {
 				System.out.println("Error NS115 " + e);
 				return false;
 			}
-			inputType = 2;
-			step2();
+			analyzeBlob(dataString, false);
 			return true;
 
 		// Nothing ?
@@ -281,10 +255,8 @@ public class NewStuff {
 		}
 	}
 	
-	
-	public void step2() {
-		if (inputType > 2) {
-	    	if (inputType == 3) dataString = filterHTML(dataString);
+	public void step2b(String dataString, boolean html) {
+	    	if (html) dataString = filterHTML(dataString);
 			if (compositionMode) {
 		    	controlerExtras.getCWInstance().insertSnippet(dataString);
 		    	return;
@@ -296,20 +268,18 @@ public class NewStuff {
 			splitIntoNew.createNodes(newNodesCount);	
 			newNodes = splitIntoNew.getNodes();
 			newEdges = splitIntoNew.getEdges();
-			step3();
-		} else {
-			analyzeBlob();
-		}
+			step3b();
 	}
 	
-	public void step3() {
-		if (readyMap) {
-			newNodes = fetchToUpperLeft(newNodes);
-		}
-		if (inputType == 1 && readyMap) existingMap = true;		
+	public void step3a() {
+		newNodes = fetchToUpperLeft(newNodes);
+		existingMap = true;	
+		step3b();
+	}
+	
+	public void step3b() {
 		controlerExtras.triggerUpdate();
 		dropLocation = null;
-		readyMap = false;
 	}
 	
 //
@@ -318,10 +288,17 @@ public class NewStuff {
 //
 //	Get the most out of file lists
 	
-	public void exploitFilelist() {
+	public void exploitFilelist(String dataString, boolean withDates) {
+		InputStream stream = null;
+		Utilities utilities = new Utilities();
+		boolean windows = (System.getProperty("os.name").startsWith("Windows"));
+		//	Input file sorting
+		Hashtable<Integer,String> byModDates = new Hashtable<Integer,String>();;
+		TreeMap<Long,Integer> datesMap = new TreeMap<Long,Integer>();
+		SortedMap<Long,Integer> datesList = (SortedMap<Long,Integer>) datesMap;
 		
 		// Sort files by modDate
-		if (inputType != 5) {
+		if (withDates) {
  	    	String textStr[] = dataString.split("\\r?\\n");
 			byModDates.clear();
  			datesMap.clear();
@@ -361,7 +338,7 @@ public class NewStuff {
     		String line = textStr[i];
   			File f = new File(line);
   			
-     		if (inputType == 5 || !f.exists() || f.isDirectory()) {
+     		if (!withDates || !f.exists() || f.isDirectory()) {
      			//	Just list the filename
      			//	TODO replace by utility (test with Mac)
 				shortName = line.replace('\\', '/');	
@@ -419,13 +396,15 @@ public class NewStuff {
 			dataString = output;
 		}
 
-		step2();
+		step2b(dataString, false);	// html already handled
 	}
 	
 //
 //	Intercept some peculiarities contained in ZIP files, plus folder trees
 	
-	public void interceptZips() {
+	public void interceptZips(String dataString) {
+		Utilities utilities = new Utilities();
+		InputStream stream = null;
 		Charset CP850 = Charset.forName("CP850");
 		File file = new File(dataString);	//	Brute force testing for zip
 		if (new File(dataString).isDirectory()) {
@@ -484,19 +463,17 @@ public class NewStuff {
 			}
 			if (entryCount == 1) {
 				dataString = utilities.convertStreamToString(stream);
-				inputType = 2;
 				advisableFilename = file.getAbsolutePath();
-				step2();
+				analyzeBlob(dataString, false);
 			} else {
 				dataString = filelist;
-				inputType = 5;
 				advisableFilename = "";
-				exploitFilelist();
+				exploitFilelist(dataString, false);
 			}
 //			zfile.close();
 		} catch (ZipException e1) {
 //			System.out.println("Error NS121 (can be ignored) " + e1);
-			step2();
+			analyzeBlob(dataString, true);
 		} catch (IOException err) {
 			System.out.println("Error NS122 " + err);
 			controler.displayPopup("Error NS122 " + err);
@@ -506,14 +483,16 @@ public class NewStuff {
 //
 //	Large single object (as opposed to composed lists)
 	
-	public void analyzeBlob() {
+	public void analyzeBlob(String dataString, boolean isFile) {
+		InputStream stream = null;
+		Utilities utilities = new Utilities();
 		boolean hope = true;
 		
 		//	Try if XML format
 		Document doc = null;
-		if (inputType == 2) {
+		if (!isFile) {
 			doc = getParsedDocument(dataString);	//	TODO consolidate
-		} else if (inputType == 1) {
+		} else if (isFile) {
 			try {
 				stream = new FileInputStream(dataString);
 				doc = getParsedDocument(stream);
@@ -523,17 +502,15 @@ public class NewStuff {
 			}
 		}
 		if (doc.hasChildNodes()) {
-			root = doc.getDocumentElement();
+			Element root = doc.getDocumentElement();
 			
 			//	Try if known XML format
 			if (root.getTagName() == "x28map") {
 				if (compositionMode) controlerExtras.getCWInstance().cancel();
 				TopicMapLoader loader = new TopicMapLoader(doc, controler, false);
 				bounds = loader.getBounds();
-				readyMap = true;
-				newNodes = loader.newNodes;
 				newEdges = loader.newEdges;
-				step3();
+				step3a();
 				return;
 			}
 			Importer[] importers = Importer.getImporters();
@@ -556,7 +533,7 @@ public class NewStuff {
 		//	No XML
 		//	Endnote is not (yet) recognized, => works only via Wizard 
 		if (!hope) {
-			if (inputType == 1) {
+			if (isFile) {
 				//	Analyze extension
 				File file = new File(dataString);
 				String filename = file.getName();
@@ -595,8 +572,7 @@ public class NewStuff {
 				flatFileContent = utilities.convertStreamToString(stream);
 				dataString = flatFileContent;
 			}
-			inputType = 6;
-			step2();
+			step2b(dataString, false);
 			return;
 		}
 	}
@@ -606,7 +582,7 @@ public class NewStuff {
 
 	private String filterHTML(String html) {
 //		System.out.println(html);
-		if (inputType != 3) return html;
+
 		htmlOut = "";
 		listItem = false;
 		belowHeading = false;
@@ -776,15 +752,13 @@ public class NewStuff {
 //	Communication with other classes
     
 	public void setInput(String dataString, int inputType) {
-		this.dataString = dataString;
-		this.inputType = inputType;
+		// TODO: fit to just 1, 2 and few 6
 		if (inputType == 1) {
 			advisableFilename = dataString;
-			interceptZips();
+			interceptZips(dataString);
 		}
-		else if (inputType == 4) exploitFilelist();
-		else if (inputType == 2) analyzeBlob();
-		else step2();
+		else if (inputType == 2) analyzeBlob(dataString, false);
+		else step2b(dataString, false);
 	}
 	
 	public Hashtable<Integer, GraphNode> getNodes() {
@@ -807,9 +781,8 @@ public class NewStuff {
 	}
 	
 	public void scoopCompositionWindow(CompositionWindow compositionWindow) {
-		dataString = compositionWindow.dataString;
-		inputType = 6;
-		step2();
+		String dataString = compositionWindow.dataString;
+		analyzeBlob(dataString, false);
 	}
 	
 	public String getAdvisableFilename() {
