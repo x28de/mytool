@@ -54,6 +54,7 @@ import de.x28hd.tool.exporters.ZknExport;
 import de.x28hd.tool.importers.CompositionWindow;
 import de.x28hd.tool.importers.IntegrateNodes;
 import de.x28hd.tool.importers.NewStuff;
+import de.x28hd.tool.importers.Step3a;
 import de.x28hd.tool.layouts.CentralityColoring;
 import de.x28hd.tool.layouts.CheckOverlaps;
 import de.x28hd.tool.layouts.DAG;
@@ -66,6 +67,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	PresentationService controler;
 	GraphPanel graphPanel;
 	NewStuff newStuff;
+	Object newStuffClass;
 	Gui gui;
 	LifeCycle lifeCycle;
 	TextEditorPanel edi;
@@ -763,7 +765,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	
 	   // Major class exchanges
 	   
-	   public void triggerUpdate() {
+	   public void triggerUpdate(Object newStuffClass) {
+		   this.newStuffClass = newStuffClass;
 		   translation = graphPanel.getTranslation();
 		   if (nodes.size() < 1) {
 			   panning = new Point(0, 0);
@@ -774,7 +777,9 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			   panning = new Point(bottomOfExisting.x - 40 + translation.x, 
 					   bottomOfExisting.y - 100 + translation.y); 
 			   upperGap = new Point(40, 140); 
-			   dropLocation = newStuff.getDropLocation();
+//			   dropLocation = newStuff.getDropLocation();
+			   dropLocation = ((Step3a) newStuffClass).getDropLocation();
+			   System.out.println("dropLocation " + dropLocation);
 			   if (dropLocation != null && !gui.menuItem24.isSelected()) dropHere = true; 
 			   if (!dropHere && !pasteHere) {
 				   animationTimer.start();
@@ -798,7 +803,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	   }
 	   
 	   public void performUpdate() {
-		   boolean existingMap = newStuff.isExistingMap();
+		   boolean existingMap = ((Step3a) newStuffClass).isExistingMap();
+		   System.out.println("PS existingMap " + existingMap);
 		   stopHint();
 		   if (!lifeCycle.isLoaded() && existingMap && nodes.size() < 1) {
 			   //  don't set dirty yet
@@ -807,8 +813,14 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 		   } else {
 			   lifeCycle.setDirty(true);
 		   }
-		   Hashtable<Integer, GraphNode> newNodes = newStuff.getNodes();
-		   Hashtable<Integer, GraphEdge> newEdges = newStuff.getEdges();
+		   System.out.println("Hallo?");
+		   Step3a step3a = (Step3a) newStuffClass;
+//		   Hashtable<Integer, GraphNode> newNodes = ((Step3a) newStuffClass).getNodes();
+//		   Hashtable<Integer, GraphEdge> newEdges = ((Step3a) newStuffClass).getEdges();
+		   Hashtable<Integer, GraphNode> newNodes = step3a.getNodes();
+		   Hashtable<Integer, GraphEdge> newEdges = step3a.getEdges();
+		   System.out.println("PS " + newNodes.size() + " nodes, " + newEdges.size() + " edges");
+		   System.out.println("Hallo??");
 		   if (lifeCycle.getFilename().isEmpty()) {
 			   lifeCycle.resetFilename(newStuff.getAdvisableFilename());
 		   }
