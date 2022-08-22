@@ -1,6 +1,7 @@
 package de.x28hd.tool;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -8,11 +9,16 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.text.StyledEditorKit;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
 
 public class Utilities {
 	
@@ -118,5 +124,32 @@ public class Utilities {
     	return convertStreamToString(is, Charset.forName("UTF-8"));
     }
     	
+	//	Methods to try if XML 
+	
+	public Document getParsedDocument(InputStream stream) {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder parser = null; 
+		try  {
+			dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+			parser = dbf.newDocumentBuilder(); 
+			return parser.parse(stream);
+		} catch (Exception e) {
+			System.out.println("Error NS124 (in getParsedDocument from stream): " + e);
+			return parser.newDocument();
+		}
+	}
+
+	public Document getParsedDocument(String input) {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
+		DocumentBuilder parser = null; 
+		try  {
+			parser = dbf.newDocumentBuilder(); 
+			return parser.parse(stream);
+		} catch (Exception e) {
+//			System.out.println("Error NS125 (can be ignored): " + e);
+			return parser.newDocument();
+		}
+	}
 	
 }
