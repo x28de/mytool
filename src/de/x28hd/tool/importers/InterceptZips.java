@@ -12,10 +12,15 @@ import java.util.zip.ZipFile;
 import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
 
+//
+//Intercept some peculiarities contained in ZIP files, plus folder trees
+
 public class InterceptZips {
 	
-	public InterceptZips(String dataString, PresentationService controler, boolean dropEncoding, boolean compositionMode) {
-		System.out.println("InterceptZips for " + dataString);
+	public InterceptZips(Assembly assembly) {
+		String dataString = assembly.dataString;
+		PresentationService controler = assembly.controler;
+		
 		Utilities utilities = new Utilities();
 		InputStream stream = null;
 		Charset CP850 = Charset.forName("CP850");
@@ -76,23 +81,22 @@ public class InterceptZips {
 			}
 			if (entryCount == 1) {
 				dataString = utilities.convertStreamToString(stream);
-//				advisableFilename = file.getAbsolutePath();
-				
-//				analyzeBlob(dataString, false);
-				new AnalyzeBlob(dataString, false, compositionMode, controler);
+				assembly.dataString = dataString;
+				assembly.advisableFilename = file.getAbsolutePath();
+				assembly.isFile = false;
+				new AnalyzeBlob(assembly);
 			} else {
 				dataString = filelist;
-//				advisableFilename = "";
-				
-//				exploitFilelist(dataString, false);
-				new ExploitFilelist(dataString, false, dropEncoding, compositionMode, controler);
+				assembly.dataString = dataString;
+				assembly.advisableFilename = "";
+				assembly.withDates = false;
+				new ExploitFilelist(assembly);
 			}
 //			zfile.close();
 		} catch (ZipException e1) {
 //			System.out.println("Error NS121 (can be ignored) " + e1);
-			
-//			analyzeBlob(dataString, true);
-			new AnalyzeBlob(dataString, true, compositionMode, controler);
+			assembly.isFile = true;
+			new AnalyzeBlob(assembly);
 		} catch (IOException err) {
 			System.out.println("Error NS122 " + err);
 			controler.displayPopup("Error NS122 " + err);

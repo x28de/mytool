@@ -10,31 +10,25 @@ import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 
 public class Step3a {
+	PresentationService controler;
 	Hashtable<Integer, GraphNode> newNodes;
 	Hashtable<Integer, GraphEdge> newEdges;
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
+	String advisableFilename = "";
 	Point dropLocation;
 	boolean existingMap;
 	
-	public Step3a(Hashtable<Integer, GraphNode> newNodes, Hashtable<Integer, GraphEdge> newEdges, 
-			Rectangle bounds, boolean existingMap, PresentationService controler) {
-		   System.out.println("3a existingMap " + existingMap);
-		this.newNodes = newNodes;
-		this.newEdges = newEdges;
-		   System.out.println("3a " + newNodes.size() + " nodes, " + newEdges.size() + " edges");
-		this.bounds = bounds;
-		this.existingMap = existingMap;
-		this.newNodes = fetchToUpperLeft(this.newNodes);
-//		step3b();
-//		step3a(this.newNodes, newEdges, controler);
+	public Step3a(Assembly assembly) {
+		this.controler = assembly.controler;
+		this.newNodes = assembly.nodes;
+		this.newEdges = assembly.edges;
+		this.advisableFilename = assembly.advisableFilename;
+		this.dropLocation = assembly.dropLocation;
+		this.existingMap = assembly.existingMap;
+		this.bounds = assembly.bounds;
+		if (existingMap) this.newNodes = fetchToUpperLeft(this.newNodes);
+
 		controler.getControlerExtras().triggerUpdate(this);
-	}
-	
-	public void step3a(Hashtable<Integer, GraphNode> newNodes, Hashtable<Integer, GraphEdge> newEdges, 
-			PresentationService controler) {
-		// formerly Step3b
-		controler.getControlerExtras().triggerUpdate(this);
-//		dropLocation = null;
 	}
 	
 	public Point getDropLocation() {
@@ -49,6 +43,12 @@ public class Step3a {
 	public Hashtable<Integer, GraphEdge> getEdges() {
 		return newEdges;
 	}
+	public String getAdvisableFilename() {
+		return advisableFilename;
+	}
+	
+//
+//	Accessories
 	
 	public Hashtable<Integer, GraphNode> fetchToUpperLeft(Hashtable<Integer,GraphNode> nodes) {
 		Point adjust = determineCorner(nodes);
@@ -61,6 +61,7 @@ public class Step3a {
 		return nodes;
 	}
 	
+//	Determine upper left visible corner
 	public Point determineCorner(Hashtable<Integer,GraphNode> nodes) {
 
 		int maxX = bounds.x + bounds.width;

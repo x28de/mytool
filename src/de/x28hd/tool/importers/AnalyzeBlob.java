@@ -1,25 +1,27 @@
 package de.x28hd.tool.importers;
 
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Hashtable;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
-import de.x28hd.tool.core.GraphEdge;
-import de.x28hd.tool.core.GraphNode;
+
+//
+//Large single object (as opposed to composed lists)
 
 public class AnalyzeBlob {
 	
-	public AnalyzeBlob(String dataString, boolean isFile, boolean compositionMode, 
-			PresentationService controler) {
-		System.out.println("AnalyzeBlob for " + dataString);
+	public AnalyzeBlob(Assembly assembly) {
+		String dataString = assembly.dataString;
+		PresentationService controler = assembly.controler;
+		boolean isFile = assembly.isFile;
+		boolean compositionMode = assembly.compositionMode;
+		
 		InputStream stream = null;
 		Utilities utilities = new Utilities();
 		boolean hope = true;
@@ -41,20 +43,15 @@ public class AnalyzeBlob {
 			Element root = doc.getDocumentElement();
 			
 			//	Try if known XML format
-			System.out.println(root.getTagName());
 			if (root.getTagName() == "x28map") {
 				if (compositionMode) controler.getControlerExtras().getCWInstance().cancel();
 				TopicMapLoader loader = new TopicMapLoader(doc, controler, false);
-				Rectangle bounds = loader.getBounds();
-				Hashtable<Integer, GraphEdge> newEdges = loader.newEdges;
-				Hashtable<Integer, GraphNode> newNodes = loader.newNodes;
-				boolean existingMap = true;
-//				step3a();
-				new Step3a(newNodes, newEdges, bounds, existingMap, controler);
-//				newNodes = fetchToUpperLeft(newNodes);
-//				existingMap = true;	
-////				step3b();
-//				new Step3b(controler);
+				assembly.dataString = dataString;
+				assembly.nodes = loader.newNodes;
+				assembly.edges = loader.newEdges;
+				assembly.bounds = loader.getBounds();
+				assembly.existingMap = true;
+				new Step3a(assembly);
 				return;
 			}
 			Importer[] importers = Importer.getImporters();
@@ -117,9 +114,8 @@ public class AnalyzeBlob {
 				dataString = flatFileContent;
 			}
 			
-//			step2b(dataString, false);
-			System.out.println("AnalyzeBlob for " + dataString + " (end)");
-			new Step2b(dataString, false, compositionMode, controler);
+			assembly.dataString = dataString;
+			new Step2b(assembly);
 			return;
 		}
 
