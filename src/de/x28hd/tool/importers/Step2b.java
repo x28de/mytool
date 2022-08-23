@@ -31,8 +31,13 @@ public class Step2b {
 	boolean structureFound = false;
 	boolean listStructure = false;
 	
-	public Step2b(String dataString, boolean html, boolean compositionMode, PresentationService controler) {
-System.out.println("Step2b for " + dataString);
+	public Step2b(Assembly assembly) {
+		String dataString = assembly.dataString;
+		PresentationService controler = assembly.controler;
+		boolean compositionMode = assembly.compositionMode;
+		boolean html = assembly.isHtml;
+
+		if (html) System.out.println("Step2b HTML for " + dataString);
 		this.controler = controler;
     	if (html) dataString = filterHTML(dataString);
 		if (compositionMode) {
@@ -47,12 +52,15 @@ System.out.println("Step2b for " + dataString);
 		newNodes = splitIntoNew.getNodes();
 		newEdges = splitIntoNew.getEdges();
 		
-//		step3b();
-//		new Step3a(newNodes, newEdges, controler);
-		new Step3a(newNodes, newEdges, bounds, false, controler);
-//		new Step3a(newNodes, newEdges, null, false, controler);
-
+		assembly.nodes = newNodes;
+		assembly.edges = newEdges;
+		assembly.existingMap = false;
+		new Step3a(assembly);
 	}
+	
+//
+//	Stuff from HTML lists
+	
 	private String filterHTML(String html) {
 //		System.out.println(html);
 

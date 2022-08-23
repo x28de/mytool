@@ -211,7 +211,7 @@ public class PresentationCore implements Runnable {
 	
 	private boolean close() {
 		mainWindow.dispose();
-		System.out.println("(tmp): Closed");
+		System.out.println("Closed without warning");
 		System.exit(0);
 		return true;
 	}

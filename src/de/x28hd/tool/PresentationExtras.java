@@ -777,9 +777,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			   panning = new Point(bottomOfExisting.x - 40 + translation.x, 
 					   bottomOfExisting.y - 100 + translation.y); 
 			   upperGap = new Point(40, 140); 
-//			   dropLocation = newStuff.getDropLocation();
 			   dropLocation = ((Step3a) newStuffClass).getDropLocation();
-			   System.out.println("dropLocation " + dropLocation);
 			   if (dropLocation != null && !gui.menuItem24.isSelected()) dropHere = true; 
 			   if (!dropHere && !pasteHere) {
 				   animationTimer.start();
@@ -804,25 +802,18 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	   
 	   public void performUpdate() {
 		   boolean existingMap = ((Step3a) newStuffClass).isExistingMap();
-		   System.out.println("PS existingMap " + existingMap);
 		   stopHint();
 		   if (!lifeCycle.isLoaded() && existingMap && nodes.size() < 1) {
 			   //  don't set dirty yet
-			   lifeCycle.setConfirmedFilename(newStuff.getAdvisableFilename());
+			   lifeCycle.setConfirmedFilename(((Step3a) newStuffClass).getAdvisableFilename());
 			   lifeCycle.setLoaded(true);
 		   } else {
 			   lifeCycle.setDirty(true);
 		   }
-		   System.out.println("Hallo?");
-		   Step3a step3a = (Step3a) newStuffClass;
-//		   Hashtable<Integer, GraphNode> newNodes = ((Step3a) newStuffClass).getNodes();
-//		   Hashtable<Integer, GraphEdge> newEdges = ((Step3a) newStuffClass).getEdges();
-		   Hashtable<Integer, GraphNode> newNodes = step3a.getNodes();
-		   Hashtable<Integer, GraphEdge> newEdges = step3a.getEdges();
-		   System.out.println("PS " + newNodes.size() + " nodes, " + newEdges.size() + " edges");
-		   System.out.println("Hallo??");
+		   Hashtable<Integer, GraphNode> newNodes = ((Step3a) newStuffClass).getNodes();
+		   Hashtable<Integer, GraphEdge> newEdges = ((Step3a) newStuffClass).getEdges();
 		   if (lifeCycle.getFilename().isEmpty()) {
-			   lifeCycle.resetFilename(newStuff.getAdvisableFilename());
+			   lifeCycle.resetFilename(((Step3a) newStuffClass).getAdvisableFilename());
 		   }
 		   IntegrateNodes integrateNodes = new IntegrateNodes(nodes, edges, newNodes, newEdges);
 		   translation = graphPanel.getTranslation();

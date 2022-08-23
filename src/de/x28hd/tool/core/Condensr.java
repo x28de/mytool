@@ -25,7 +25,7 @@ public class Condensr extends JApplet {
 			DataCore dc = new DataCore(ps);
 //			dc.useData((MapItems) new MyCoreData());
 			ps.setModel(dc.nodes, dc.edges);
-//			if (args.length >0) ps.setFilename(args[0], 0);
+			if (args.length >0) ps.setFilename(args[0], 0);
 		} catch (Throwable e) {
 			System.out.println("Error initApplication " + e);
 			e.printStackTrace();
