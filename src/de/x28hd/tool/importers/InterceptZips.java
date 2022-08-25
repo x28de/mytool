@@ -17,16 +17,15 @@ import de.x28hd.tool.Utilities;
 
 public class InterceptZips {
 	
-	public InterceptZips(Assembly assembly) {
+	public InterceptZips(Assembly assembly, File file) {
 		String dataString = assembly.dataString;
 		PresentationService controler = assembly.controler;
 		
 		Utilities utilities = new Utilities();
 		InputStream stream = null;
 		Charset CP850 = Charset.forName("CP850");
-		File file = new File(dataString);	//	Brute force testing for zip
-		if (new File(dataString).isDirectory()) {
-			new ImportDirector(Importer.Filetree, new File(dataString), controler);
+		if (file.isDirectory()) {
+			new ImportDirector(Importer.Filetree, file, controler);
 			return;
 		}
 		ZipFile zfile = null;
@@ -84,7 +83,7 @@ public class InterceptZips {
 				assembly.dataString = dataString;
 				assembly.advisableFilename = file.getAbsolutePath();
 				assembly.isFile = false;
-				new AnalyzeBlob(assembly);
+				new AnalyzeBlob(assembly, dataString);
 			} else {
 				dataString = filelist;
 				assembly.dataString = dataString;
@@ -96,7 +95,7 @@ public class InterceptZips {
 		} catch (ZipException e1) {
 //			System.out.println("Error NS121 (can be ignored) " + e1);
 			assembly.isFile = true;
-			new AnalyzeBlob(assembly);
+			new AnalyzeBlob(assembly, file);
 		} catch (IOException err) {
 			System.out.println("Error NS122 " + err);
 			controler.displayPopup("Error NS122 " + err);

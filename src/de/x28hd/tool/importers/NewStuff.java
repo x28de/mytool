@@ -145,7 +145,8 @@ public class NewStuff {
 				
 				Assembly assembly = new Assembly(dataString, controler);
 				assembly.advisableFilename = dataString;
-				new InterceptZips(assembly);
+				File file = l.get(0);
+				new InterceptZips(assembly, file);
 			} else {
 				for (File f : l) {
 					String fn = f.getAbsolutePath();
@@ -229,7 +230,7 @@ public class NewStuff {
 
 			Assembly assembly = new Assembly(dataString, controler);
 			assembly.isFile = false;
-			new AnalyzeBlob(assembly);
+			new AnalyzeBlob(assembly, dataString);
 			return true;
 
 		// Nothing ?
@@ -250,13 +251,13 @@ public class NewStuff {
 
 			Assembly assembly = new Assembly(dataString, controler);
 			assembly.advisableFilename = dataString;
-			new InterceptZips(assembly);
+			new InterceptZips(assembly, new File(dataString));
 		}
 		else if (inputType == 2) {
 
 			Assembly assembly = new Assembly(dataString, controler);
 			assembly.isFile = false;
-			new AnalyzeBlob(assembly);
+			new AnalyzeBlob(assembly, dataString);
 		}
 		else {
 
@@ -285,7 +286,7 @@ public class NewStuff {
 
 		Assembly assembly = new Assembly(dataString, controler);
 		assembly.isFile = false;
-		new AnalyzeBlob(assembly);
+		new AnalyzeBlob(assembly, dataString);
 	}
 	
 	public Point getDropLocation() {
