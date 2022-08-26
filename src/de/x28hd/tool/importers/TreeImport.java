@@ -50,12 +50,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.accessories.BranchInfo;
+import de.x28hd.tool.accessories.MyHTMLEditorKit;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
-import de.x28hd.tool.MyHTMLEditorKit;
 import de.x28hd.tool.exporters.TopicMapStorer;
+import de.x28hd.tool.inputs.Importer;
+import de.x28hd.tool.inputs.TopicMapLoader;
 import de.x28hd.tool.layouts.CentralityColoring;
 
 public class TreeImport extends SwingWorker<Void, Void> implements ActionListener, PropertyChangeListener {

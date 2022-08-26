@@ -1,4 +1,4 @@
-package de.x28hd.tool.importers;
+package de.x28hd.tool.inputs;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -36,7 +36,35 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import de.x28hd.tool.PresentationService;
-import de.x28hd.tool.LimitationMessage;
+import de.x28hd.tool.accessories.LimitationMessage;
+import de.x28hd.tool.importers.AnnoImport;
+import de.x28hd.tool.importers.BrainImport;
+import de.x28hd.tool.importers.CmapImport;
+import de.x28hd.tool.importers.CtvImport;
+import de.x28hd.tool.importers.DemoJsonImport;
+import de.x28hd.tool.importers.DwzImport;
+import de.x28hd.tool.importers.EdgeList;
+import de.x28hd.tool.importers.EnexImport;
+import de.x28hd.tool.importers.EnwImport;
+import de.x28hd.tool.importers.Fed;
+import de.x28hd.tool.importers.GedcomImport;
+import de.x28hd.tool.importers.GrsshopperImport;
+import de.x28hd.tool.importers.H5pTextImport;
+import de.x28hd.tool.importers.ImappingImport;
+import de.x28hd.tool.importers.ImportGraphXML;
+import de.x28hd.tool.importers.ImportRoam;
+import de.x28hd.tool.importers.LuhmannImport;
+import de.x28hd.tool.importers.MetamapsImport;
+import de.x28hd.tool.importers.PowerPointImport;
+import de.x28hd.tool.importers.RogetImport;
+import de.x28hd.tool.importers.TaggedImport;
+import de.x28hd.tool.importers.TinderImport;
+import de.x28hd.tool.importers.TopicMapImporter;
+import de.x28hd.tool.importers.TreeImport;
+import de.x28hd.tool.importers.VueImport;
+import de.x28hd.tool.importers.WordImport;
+import de.x28hd.tool.importers.ZknImport;
+import de.x28hd.tool.importers.ZoteroImport;
 
 public class ImportDirector implements ActionListener {
     Runnable fileChooserMac = new Runnable() {

@@ -10,7 +10,7 @@ import java.util.Hashtable;
 import java.util.Set;
 
 import de.x28hd.tool.PresentationService;
-import de.x28hd.tool.Utilities;
+import de.x28hd.tool.accessories.Utilities;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 

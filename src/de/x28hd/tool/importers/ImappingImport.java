@@ -55,10 +55,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.PresentationService;
-import de.x28hd.tool.MyHTMLEditorKit;
-import de.x28hd.tool.Utilities;
+import de.x28hd.tool.accessories.BranchInfo;
+import de.x28hd.tool.accessories.MyHTMLEditorKit;
+import de.x28hd.tool.accessories.Utilities;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.exporters.TopicMapStorer;
@@ -630,10 +630,10 @@ public class ImappingImport implements TreeSelectionListener, ActionListener {
 				TreeNode node = treeEnum.nextElement();
 				BranchInfo branchInfo = (BranchInfo) ((DefaultMutableTreeNode) node).getUserObject();
 				String refString = branchInfo.getKey();
-				int refNum = de.x28hd.tool.BranchInfo.NOZETTEL;
+				int refNum = de.x28hd.tool.accessories.BranchInfo.NOZETTEL;
 				if (uri2num.containsKey(refString)) refNum = uri2num.get(refString);
-				de.x28hd.tool.BranchInfo newInfo = 
-						new de.x28hd.tool.BranchInfo(refNum, branchInfo.toString());
+				de.x28hd.tool.accessories.BranchInfo newInfo = 
+						new de.x28hd.tool.accessories.BranchInfo(refNum, branchInfo.toString());
 				((DefaultMutableTreeNode) node).setUserObject(newInfo);
 			}
 		    controler.getControlerExtras().setTreeModel(model);

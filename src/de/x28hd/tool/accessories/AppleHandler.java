@@ -1,9 +1,11 @@
-package de.x28hd.tool;
+package de.x28hd.tool.accessories;
 
 import javax.swing.JOptionPane;
 
 import com.apple.eawt.*;
 import com.apple.eawt.AppEvent.AppReOpenedEvent;
+
+import de.x28hd.tool.PresentationService;
 
 public class AppleHandler implements com.apple.eawt.OpenFilesHandler, com.apple.eawt.AboutHandler, com.apple.eawt.PreferencesHandler, com.apple.eawt.QuitHandler,
 com.apple.eawt.OpenURIHandler, AppReOpenedListener {

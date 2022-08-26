@@ -1,4 +1,4 @@
-package de.x28hd.tool.importers;
+package de.x28hd.tool.inputs;
 
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -69,13 +69,13 @@ public class NewStuff {
 //
 //	Obtain input in 3 different dataFlavors (file list, HTML, or string)
 	
-//	Then, 4 major ingest classes contribute to the result (preliminary names):
-//	InterceptZips - brute force test if zipped, and known types auto-detected
-//	ExploitFilelist - multiple files of html or plain text or just their names
-//	AnalyzeBlob - brute force test if XML, and known types auto-detected, most notably ready map snippets
-//	Step2b - splitting a string and optionally parsing HTML
+//	Then, 4 major ingest classes contribute to the result :
+//	IngestZip - brute force test if zipped, and known types auto-detected
+//	IngestFilelist - multiple files of html or plain text or just their names
+//	IngestXML - brute force test if XML, and known types auto-detected, most notably ready map snippets
+//	IngestItemlists - splitting a string and optionally parsing HTML
 //
-//	Step3a calls triggerUpdate in the controler which fetches the new nodes & edges from the assembly 
+//	InsertMap calls triggerUpdate in the controler which fetches the new nodes & edges from the assembly 
 	
 // (Previous description involved inputTypes)
 //	Then determine an inputType of the following:
@@ -110,14 +110,14 @@ public class NewStuff {
 				
 				controler.getNSInstance().setAdvisableFilename(dataString);
 				File file = l.get(0);
-				new InterceptZips(file, controler);
+				new IngestZip(file, controler);
 			} else {
 				for (File f : l) {
 					String fn = f.getAbsolutePath();
 					dataString = dataString + "\r\n" + fn;
 				}
 //				System.out.println("NS: was javaFileListFlavor, > 1 files");
-				new ExploitFilelist(dataString, controler, true);
+				new IngestFilelist(dataString, controler, true);
 			}
 			return true;
 		}
@@ -136,7 +136,7 @@ public class NewStuff {
 				return false;
 			}
 			System.out.println("NS: was fragmentHtmlFlavor: \r\n");
-			new Step2b(dataString, controler, true);
+			new IngestItemlists(dataString, controler, true);
 			return true;
 		}
 
@@ -154,7 +154,7 @@ public class NewStuff {
 				return false;
 			}
 
-			new AnalyzeBlob(dataString, controler);
+			new IngestXML(dataString, controler);
 			return true;
 
 		// Nothing ?
@@ -174,19 +174,19 @@ public class NewStuff {
 		if (inputType == 1) {	// e.g. from start parmameter
 
 			controler.getNSInstance().setAdvisableFilename(dataString);
-			new InterceptZips(new File(dataString), controler);
+			new IngestZip(new File(dataString), controler);
 		}
 		else if (inputType == 2) {	// e.g. from importers or copied map fragments
 
-			new AnalyzeBlob(dataString, controler);
+			new IngestXML(dataString, controler);
 		}
 		else {	// e.g. for CompositionWindow, inputType 6
 
-			new Step2b(dataString, controler, false);
+			new IngestItemlists(dataString, controler, false);
 		}
 	}
 	
-//	public Hashtable<Integer, GraphNode> getNodes() {	// now in Step3b !
+//	public Hashtable<Integer, GraphNode> getNodes() {	// now in InsertMap !
 	
 	public void setCompositionMode(boolean toggle) {
 		this.compositionMode = toggle;
@@ -206,7 +206,7 @@ public class NewStuff {
 	
 	public void scoopCompositionWindow(CompositionWindow compositionWindow) {
 		String dataString = compositionWindow.dataString;
-		new AnalyzeBlob(dataString, controler);
+		new IngestXML(dataString, controler);
 	}
 	
 	public void setAdvisableFilename(String a) {

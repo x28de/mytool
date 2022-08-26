@@ -19,8 +19,8 @@ import javax.xml.transform.TransformerConfigurationException;
 import org.xml.sax.SAXException;
 
 import de.x28hd.tool.PresentationService;
-import de.x28hd.tool.MyHTMLEditorKit;
-import de.x28hd.tool.Utilities;
+import de.x28hd.tool.accessories.MyHTMLEditorKit;
+import de.x28hd.tool.accessories.Utilities;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.exporters.TopicMapStorer;

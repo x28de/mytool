@@ -29,8 +29,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
-import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.accessories.BranchInfo;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;

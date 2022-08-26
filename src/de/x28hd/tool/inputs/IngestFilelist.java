@@ -1,4 +1,4 @@
-package de.x28hd.tool.importers;
+package de.x28hd.tool.inputs;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,16 +13,16 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 
 import de.x28hd.tool.PresentationService;
-import de.x28hd.tool.Utilities;
+import de.x28hd.tool.accessories.Utilities;
 
 //
 //	Get the most out of file lists
 
-public class ExploitFilelist {
+public class IngestFilelist {
 	String dataString;
 	PresentationService controler;
 	
-	public ExploitFilelist(String dataString, PresentationService controler, 
+	public IngestFilelist(String dataString, PresentationService controler, 
 			boolean withDates) {
 		this.dataString = dataString;
 		this.controler = controler;
@@ -133,7 +133,7 @@ public class ExploitFilelist {
 			dataString = output;
 		}
 
-		new Step2b(dataString, controler, false);
+		new IngestItemlists(dataString, controler, false);
 		
 	}
 }

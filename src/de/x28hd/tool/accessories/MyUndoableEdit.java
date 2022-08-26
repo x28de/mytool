@@ -1,4 +1,4 @@
-package de.x28hd.tool;
+package de.x28hd.tool.accessories;
 
 import java.awt.Point;
 import java.util.Hashtable;
@@ -7,6 +7,8 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 
+import de.x28hd.tool.GraphPanel;
+import de.x28hd.tool.Gui;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 

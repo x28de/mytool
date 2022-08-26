@@ -31,11 +31,11 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.accessories.BranchInfo;
+import de.x28hd.tool.accessories.MyHTMLEditorKit;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
-import de.x28hd.tool.MyHTMLEditorKit;
 
 public class ZknExport {
 	

@@ -1,4 +1,4 @@
-package de.x28hd.tool.importers;
+package de.x28hd.tool.inputs;
 
 public class Importer {
 	int id;

@@ -1,4 +1,4 @@
-package de.x28hd.tool;
+package de.x28hd.tool.accessories;
 
 public class BranchInfo {
     public Integer branchKey;

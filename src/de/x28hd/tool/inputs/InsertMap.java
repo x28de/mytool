@@ -1,4 +1,4 @@
-package de.x28hd.tool.importers;
+package de.x28hd.tool.inputs;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -9,13 +9,13 @@ import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 
-public class Step3a {
+public class InsertMap {
 	Hashtable<Integer, GraphNode> newNodes;
 	Hashtable<Integer, GraphEdge> newEdges;
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	boolean existingMap;
 	
-	public Step3a(PresentationService controler, Hashtable<Integer, GraphNode> nodes,
+	public InsertMap(PresentationService controler, Hashtable<Integer, GraphNode> nodes,
 			Hashtable<Integer, GraphEdge> edges, Rectangle bounds, boolean existingMap) {
 		this.newNodes = nodes;
 		this.newEdges = edges;

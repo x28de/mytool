@@ -36,6 +36,9 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.tree.DefaultTreeModel;
 
+import de.x28hd.tool.accessories.LimitationMessage;
+import de.x28hd.tool.accessories.Utilities;
+import de.x28hd.tool.accessories.WXR2SQL;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.exporters.BrainExport;
@@ -51,10 +54,10 @@ import de.x28hd.tool.exporters.MetamapsExport;
 import de.x28hd.tool.exporters.TopicMapExporter;
 import de.x28hd.tool.exporters.VueExport;
 import de.x28hd.tool.exporters.ZknExport;
-import de.x28hd.tool.importers.CompositionWindow;
-import de.x28hd.tool.importers.IntegrateNodes;
-import de.x28hd.tool.importers.NewStuff;
-import de.x28hd.tool.importers.Step3a;
+import de.x28hd.tool.inputs.CompositionWindow;
+import de.x28hd.tool.inputs.InsertMap;
+import de.x28hd.tool.inputs.IntegrateNodes;
+import de.x28hd.tool.inputs.NewStuff;
 import de.x28hd.tool.layouts.CentralityColoring;
 import de.x28hd.tool.layouts.CheckOverlaps;
 import de.x28hd.tool.layouts.DAG;
@@ -801,7 +804,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	   }
 	   
 	   public void performUpdate() {
-		   boolean existingMap = ((Step3a) newStuffClass).isExistingMap();
+		   boolean existingMap = ((InsertMap) newStuffClass).isExistingMap();
 		   stopHint();
 		   if (!lifeCycle.isLoaded() && existingMap && nodes.size() < 1) {
 			   //  don't set dirty yet
@@ -810,8 +813,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 		   } else {
 			   lifeCycle.setDirty(true);
 		   }
-		   Hashtable<Integer, GraphNode> newNodes = ((Step3a) newStuffClass).getNodes();
-		   Hashtable<Integer, GraphEdge> newEdges = ((Step3a) newStuffClass).getEdges();
+		   Hashtable<Integer, GraphNode> newNodes = ((InsertMap) newStuffClass).getNodes();
+		   Hashtable<Integer, GraphEdge> newEdges = ((InsertMap) newStuffClass).getEdges();
 		   if (lifeCycle.getFilename().isEmpty()) {
 			   lifeCycle.resetFilename(newStuff.getAdvisableFilename());
 		   }

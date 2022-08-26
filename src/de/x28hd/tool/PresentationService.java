@@ -28,13 +28,16 @@ import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import de.x28hd.tool.accessories.AboutBuild;
+import de.x28hd.tool.accessories.AppleHandler;
+import de.x28hd.tool.accessories.MyUndoableEdit;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.core.PresentationCore;
 import de.x28hd.tool.exporters.TopicMapStorer;
-import de.x28hd.tool.importers.CompositionWindow;
-import de.x28hd.tool.importers.ImportDirector;
-import de.x28hd.tool.importers.NewStuff;
+import de.x28hd.tool.inputs.CompositionWindow;
+import de.x28hd.tool.inputs.ImportDirector;
+import de.x28hd.tool.inputs.NewStuff;
 
 public final class PresentationService extends PresentationCore implements ActionListener, Runnable {
 
