@@ -805,7 +805,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 		   stopHint();
 		   if (!lifeCycle.isLoaded() && existingMap && nodes.size() < 1) {
 			   //  don't set dirty yet
-			   lifeCycle.setConfirmedFilename(((Step3a) newStuffClass).getAdvisableFilename());
+			   lifeCycle.setConfirmedFilename(newStuff.getAdvisableFilename());
 			   lifeCycle.setLoaded(true);
 		   } else {
 			   lifeCycle.setDirty(true);
@@ -813,7 +813,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 		   Hashtable<Integer, GraphNode> newNodes = ((Step3a) newStuffClass).getNodes();
 		   Hashtable<Integer, GraphEdge> newEdges = ((Step3a) newStuffClass).getEdges();
 		   if (lifeCycle.getFilename().isEmpty()) {
-			   lifeCycle.resetFilename(((Step3a) newStuffClass).getAdvisableFilename());
+			   lifeCycle.resetFilename(newStuff.getAdvisableFilename());
 		   }
 		   IntegrateNodes integrateNodes = new IntegrateNodes(nodes, edges, newNodes, newEdges);
 		   translation = graphPanel.getTranslation();

@@ -16,10 +16,10 @@ import de.x28hd.tool.Utilities;
 //Intercept some peculiarities contained in ZIP files, plus folder trees
 
 public class InterceptZips {
+	PresentationService controler;
 	
-	public InterceptZips(Assembly assembly, File file) {
-		String dataString = assembly.dataString;
-		PresentationService controler = assembly.controler;
+	public InterceptZips(File file, PresentationService controler) {
+		this.controler = controler;
 		
 		Utilities utilities = new Utilities();
 		InputStream stream = null;
@@ -79,23 +79,17 @@ public class InterceptZips {
 				return;
 			}
 			if (entryCount == 1) {
-				dataString = utilities.convertStreamToString(stream);
-				assembly.dataString = dataString;
-				assembly.advisableFilename = file.getAbsolutePath();
-				assembly.isFile = false;
-				new AnalyzeBlob(assembly, dataString);
+				String dataString = utilities.convertStreamToString(stream);
+				controler.getNSInstance().setAdvisableFilename(file.getAbsolutePath());
+				new AnalyzeBlob(dataString, controler);
 			} else {
-				dataString = filelist;
-				assembly.dataString = dataString;
-				assembly.advisableFilename = "";
-				assembly.withDates = false;
-				new ExploitFilelist(assembly);
+				String dataString = filelist;
+				new ExploitFilelist(dataString, controler, false);
 			}
 //			zfile.close();
 		} catch (ZipException e1) {
 //			System.out.println("Error NS121 (can be ignored) " + e1);
-			assembly.isFile = true;
-			new AnalyzeBlob(assembly, file);
+			new AnalyzeBlob(file, controler);
 		} catch (IOException err) {
 			System.out.println("Error NS122 " + err);
 			controler.displayPopup("Error NS122 " + err);

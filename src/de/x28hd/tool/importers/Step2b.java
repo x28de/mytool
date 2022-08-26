@@ -19,7 +19,8 @@ public class Step2b {
 	
 	Hashtable<Integer, GraphNode> newNodes = new Hashtable<Integer, GraphNode>();
 	Hashtable<Integer, GraphEdge> newEdges = new Hashtable<Integer, GraphEdge>();
-	PresentationService controler;	
+	String dataString;
+	PresentationService controler;
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	String htmlOut = "";
 	boolean listItem = false;
@@ -31,15 +32,13 @@ public class Step2b {
 	boolean structureFound = false;
 	boolean listStructure = false;
 	
-	public Step2b(Assembly assembly) {
-		String dataString = assembly.dataString;
-		PresentationService controler = assembly.controler;
-		boolean compositionMode = assembly.compositionMode;
-		boolean html = assembly.isHtml;
-
-		if (html) System.out.println("Step2b HTML for " + dataString);
+	public Step2b(String dataString, PresentationService controler, 
+			boolean parseHtml) {
+		this.dataString = dataString;
 		this.controler = controler;
-    	if (html) dataString = filterHTML(dataString);
+		boolean compositionMode = controler.getNSInstance().compositionMode;
+
+    	if (parseHtml) dataString = filterHTML(dataString);
 		if (compositionMode) {
 	    	controler.getControlerExtras().getCWInstance().insertSnippet(dataString);
 	    	return;
@@ -52,10 +51,7 @@ public class Step2b {
 		newNodes = splitIntoNew.getNodes();
 		newEdges = splitIntoNew.getEdges();
 		
-		assembly.nodes = newNodes;
-		assembly.edges = newEdges;
-		assembly.existingMap = false;
-		new Step3a(assembly);
+		new Step3a(controler, newNodes, newEdges, bounds, false);
 	}
 	
 //

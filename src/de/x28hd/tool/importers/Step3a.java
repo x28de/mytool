@@ -18,14 +18,14 @@ public class Step3a {
 	Point dropLocation;
 	boolean existingMap;
 	
-	public Step3a(Assembly assembly) {
-		this.controler = assembly.controler;
-		this.newNodes = assembly.nodes;
-		this.newEdges = assembly.edges;
-		this.advisableFilename = assembly.advisableFilename;
-		this.dropLocation = assembly.dropLocation;
-		this.existingMap = assembly.existingMap;
-		this.bounds = assembly.bounds;
+	public Step3a(PresentationService controler, Hashtable<Integer, GraphNode> nodes,
+			Hashtable<Integer, GraphEdge> edges, Rectangle bounds, boolean existingMap) {
+		this.controler = controler;
+		this.newNodes = nodes;
+		this.newEdges = edges;
+		dropLocation = controler.getNSInstance().dropLocation;
+		this.existingMap = existingMap;
+		this.bounds = bounds;
 		if (existingMap) this.newNodes = fetchToUpperLeft(this.newNodes);
 
 		controler.getControlerExtras().triggerUpdate(this);
@@ -42,9 +42,6 @@ public class Step3a {
 	}
 	public Hashtable<Integer, GraphEdge> getEdges() {
 		return newEdges;
-	}
-	public String getAdvisableFilename() {
-		return advisableFilename;
 	}
 	
 //

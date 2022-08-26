@@ -1,15 +1,19 @@
 package de.x28hd.tool.importers;
 
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Hashtable;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
 
 //
 //Large single object (as opposed to composed lists)
@@ -19,76 +23,70 @@ public class AnalyzeBlob {
 	boolean compositionMode;
 	Utilities utilities = new Utilities();
 	
-	public AnalyzeBlob(Assembly assembly, String dataString) {
-		this.controler = assembly.controler;
-		this.compositionMode = assembly.compositionMode;
+	public AnalyzeBlob(String dataString, PresentationService controler) {
+		this.controler = controler;
+		compositionMode = controler.getNSInstance().compositionMode;
 		Document doc = null;
 		Utilities utilities = new Utilities();
 		doc = utilities.getParsedDocument(dataString);	//	TODO consolidate
 		
-		boolean xml = checkXML(assembly, doc);
+		boolean xml = checkXML(doc);
 		if (!xml) {
-			assembly.dataString = dataString;
-			new Step2b(assembly);
+			new Step2b(dataString, controler, false);
 			return;
 		}
 	}
 	
-	public AnalyzeBlob(Assembly assembly, File file) {
-		String dataString = assembly.dataString;
-		this.controler = assembly.controler;
-		this.compositionMode = assembly.compositionMode;
+	public AnalyzeBlob(File file, PresentationService controler) {
+		this.controler = controler;
+		compositionMode = controler.getNSInstance().compositionMode;
 		
 		InputStream stream = null;
 		boolean xml = true;
 		Document doc = null;
 		try {
-			stream = new FileInputStream(dataString);
+			stream = new FileInputStream(file);
 			doc = utilities.getParsedDocument(stream);
 		} catch (FileNotFoundException e2) {
 			xml = false;
 		}
 		
-		xml = checkXML(assembly, doc);
+		xml = checkXML(doc);
 		
 		if (!xml) {
-			boolean knownExtension = checkExtension(dataString, stream);
+			boolean knownExtension = checkExtension(file, stream);
 			if (knownExtension) return;
 			
 			//	Take flat file
 			String flatFileContent = "";
 			try {
-				stream = new FileInputStream(dataString);
+				stream = new FileInputStream(file);
 			} catch (FileNotFoundException e) {
 				System.out.println("Error NS126 " + e);
 				controler.displayPopup("Error NS126 File not found " + e);
 				return;
 			}
 			flatFileContent = utilities.convertStreamToString(stream);
-			dataString = flatFileContent;
+			String dataString = flatFileContent;
 			
-			assembly.dataString = dataString;
 			System.out.println(dataString);
-			new Step2b(assembly);
+			new Step2b(dataString, controler, false);
 			return;
 		}
 	}
 	
-	public boolean checkXML(Assembly assembly, Document doc) {
+	public boolean checkXML(Document doc) {
 		if (doc.hasChildNodes()) {
-			PresentationService controler = assembly.controler;
-			compositionMode = assembly.compositionMode;
 			Element root = doc.getDocumentElement();
 			
 			//	Try if known XML format
 			if (root.getTagName() == "x28map") {
 				if (compositionMode) controler.getControlerExtras().getCWInstance().cancel();
 				TopicMapLoader loader = new TopicMapLoader(doc, controler, false);
-				assembly.nodes = loader.newNodes;
-				assembly.edges = loader.newEdges;
-				assembly.bounds = loader.getBounds();
-				assembly.existingMap = true;
-				new Step3a(assembly);
+				Hashtable<Integer, GraphNode> nodes = loader.newNodes;
+				Hashtable<Integer, GraphEdge> edges = loader.newEdges;
+				Rectangle bounds = loader.getBounds();
+				new Step3a(controler, nodes, edges, bounds, true);
 				return true;
 			}
 			Importer[] importers = Importer.getImporters();
@@ -109,8 +107,7 @@ public class AnalyzeBlob {
 		} else return false;
 	}
 	
-	public boolean checkExtension(String dataString, InputStream stream) {
-		File file = new File(dataString);
+	public boolean checkExtension(File file, InputStream stream) {
 		String filename = file.getName();
 		String ext = filename.substring(filename.lastIndexOf(".") + 1);
 		ext = ext.toLowerCase();
