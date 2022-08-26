@@ -50,12 +50,13 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.PresentationService;
-import de.x28hd.tool.Utilities;
+import de.x28hd.tool.accessories.BranchInfo;
+import de.x28hd.tool.accessories.Utilities;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.exporters.TopicMapStorer;
+import de.x28hd.tool.inputs.Importer;
 
 public class LuhmannImport implements Comparator<String>, ActionListener {
 	

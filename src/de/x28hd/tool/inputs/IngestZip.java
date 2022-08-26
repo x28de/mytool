@@ -1,4 +1,4 @@
-package de.x28hd.tool.importers;
+package de.x28hd.tool.inputs;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,15 +10,15 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import de.x28hd.tool.PresentationService;
-import de.x28hd.tool.Utilities;
+import de.x28hd.tool.accessories.Utilities;
 
 //
 //	Intercept some peculiarities contained in ZIP files, plus folder trees
 
-public class InterceptZips {
+public class IngestZip {
 	PresentationService controler;
 	
-	public InterceptZips(File file, PresentationService controler) {
+	public IngestZip(File file, PresentationService controler) {
 		this.controler = controler;
 		
 		Utilities utilities = new Utilities();
@@ -76,15 +76,15 @@ public class InterceptZips {
 			if (entryCount == 1) {
 				String dataString = utilities.convertStreamToString(stream);
 				controler.getNSInstance().setAdvisableFilename(file.getAbsolutePath());
-				new AnalyzeBlob(dataString, controler);
+				new IngestXML(dataString, controler);
 			} else {
 				String dataString = filelist;
-				new ExploitFilelist(dataString, controler, false);
+				new IngestFilelist(dataString, controler, false);
 			}
 		} catch (ZipException e1) {
 			
 			// Important normal case, since Zip is autodetected by brute force
-			new AnalyzeBlob(file, controler);
+			new IngestXML(file, controler);
 			
 		} catch (IOException err) {
 			System.out.println("Error NS122 " + err);

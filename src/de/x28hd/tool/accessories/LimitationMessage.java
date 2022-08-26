@@ -1,4 +1,4 @@
-package de.x28hd.tool;
+package de.x28hd.tool.accessories;
 
 import java.awt.Color;
 import java.awt.Desktop;

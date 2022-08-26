@@ -26,7 +26,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
 
-import de.x28hd.tool.MyHTMLEditorKit;
+import de.x28hd.tool.accessories.MyHTMLEditorKit;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 

@@ -49,10 +49,10 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.PresentationService;
-import de.x28hd.tool.MyHTMLEditorKit;
-import de.x28hd.tool.Utilities;
+import de.x28hd.tool.accessories.BranchInfo;
+import de.x28hd.tool.accessories.MyHTMLEditorKit;
+import de.x28hd.tool.accessories.Utilities;
 
 public class RogetImport implements TreeSelectionListener, ActionListener, HyperlinkListener {
 	

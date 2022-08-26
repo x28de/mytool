@@ -29,10 +29,10 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import de.x28hd.tool.BranchInfo;
 import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.accessories.BranchInfo;
+import de.x28hd.tool.accessories.Utilities;
 import de.x28hd.tool.PresentationExtras;
-import de.x28hd.tool.Utilities;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 import edu.uci.ics.jung.algorithms.importance.BetweennessCentrality;

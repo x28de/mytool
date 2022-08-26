@@ -1,4 +1,4 @@
-package de.x28hd.tool.importers;
+package de.x28hd.tool.inputs;
 
 import java.awt.Rectangle;
 import java.io.File;
@@ -11,7 +11,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import de.x28hd.tool.PresentationService;
-import de.x28hd.tool.Utilities;
+import de.x28hd.tool.accessories.Utilities;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 
@@ -24,12 +24,12 @@ import de.x28hd.tool.core.GraphNode;
 //	Brute force test for XML also allows for arbitrary dropped strings 
 //	and many file formats, but causes a SAXParseException that is not suppressible.
 
-public class AnalyzeBlob {
+public class IngestXML {
 	PresentationService controler;
 	boolean compositionMode;
 	Utilities utilities = new Utilities();
 	
-	public AnalyzeBlob(String dataString, PresentationService controler) {
+	public IngestXML(String dataString, PresentationService controler) {
 		this.controler = controler;
 		compositionMode = controler.getNSInstance().compositionMode;
 		Document doc = null;
@@ -38,12 +38,12 @@ public class AnalyzeBlob {
 		
 		boolean xml = checkXML(doc);
 		if (!xml) {
-			new Step2b(dataString, controler, false);
+			new IngestItemlists(dataString, controler, false);
 			return;
 		}
 	}
 	
-	public AnalyzeBlob(File file, PresentationService controler) {
+	public IngestXML(File file, PresentationService controler) {
 		this.controler = controler;
 		compositionMode = controler.getNSInstance().compositionMode;
 		
@@ -75,7 +75,7 @@ public class AnalyzeBlob {
 			flatFileContent = utilities.convertStreamToString(stream);
 			String dataString = flatFileContent;
 			
-			new Step2b(dataString, controler, false);
+			new IngestItemlists(dataString, controler, false);
 			return;
 		}
 	}
@@ -91,7 +91,7 @@ public class AnalyzeBlob {
 				Hashtable<Integer, GraphNode> nodes = loader.newNodes;
 				Hashtable<Integer, GraphEdge> edges = loader.newEdges;
 				Rectangle bounds = loader.getBounds();
-				new Step3a(controler, nodes, edges, bounds, true);
+				new InsertMap(controler, nodes, edges, bounds, true);
 				return true;
 			}
 			Importer[] importers = Importer.getImporters();

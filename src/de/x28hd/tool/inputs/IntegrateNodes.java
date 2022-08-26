@@ -1,4 +1,4 @@
-package de.x28hd.tool.importers;
+package de.x28hd.tool.inputs;
 import java.awt.Point;
 import java.util.Enumeration;
 import java.util.Hashtable;

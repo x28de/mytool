@@ -33,7 +33,7 @@ import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.core.Selection;
 import de.x28hd.tool.exporters.TopicMapStorer;
-import de.x28hd.tool.importers.NewStuff;
+import de.x28hd.tool.inputs.NewStuff;
 
 public class GraphPanel extends GraphCore  {
 

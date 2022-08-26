@@ -1,4 +1,4 @@
-package de.x28hd.tool.importers;
+package de.x28hd.tool.inputs;
 
 import java.awt.Rectangle;
 import java.io.IOException;
@@ -10,12 +10,12 @@ import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLEditorKit;
 
-import de.x28hd.tool.MyHTMLEditorKit;
 import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.accessories.MyHTMLEditorKit;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 
-public class Step2b {
+public class IngestItemlists {
 	
 	Hashtable<Integer, GraphNode> newNodes = new Hashtable<Integer, GraphNode>();
 	Hashtable<Integer, GraphEdge> newEdges = new Hashtable<Integer, GraphEdge>();
@@ -29,7 +29,7 @@ public class Step2b {
 	boolean structureFound = false;
 	boolean listStructure = false;
 	
-	public Step2b(String dataString, PresentationService controler, 
+	public IngestItemlists(String dataString, PresentationService controler, 
 			boolean parseHtml) {
 		this.controler = controler;
 		boolean compositionMode = controler.getNSInstance().compositionMode;
@@ -47,7 +47,7 @@ public class Step2b {
 		newNodes = splitIntoNew.getNodes();
 		newEdges = splitIntoNew.getEdges();
 		
-		new Step3a(controler, newNodes, newEdges, bounds, false);
+		new InsertMap(controler, newNodes, newEdges, bounds, false);
 	}
 	
 //
