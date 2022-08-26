@@ -36,6 +36,7 @@ public class NewStuff {
 	
 	//	Input
 	public static DataFlavor htmlSelectionFlavor;
+	String advisableFilename = "";
 	
 	//	Map loading
 	boolean existingMap = false;
@@ -103,7 +104,7 @@ public class NewStuff {
 //
 //	Obtain input in 3 different dataFlavors (file list, HTML, or string)
 	
-//	Then, 4 major ingest classes contribute to an "assembly", like an assembly line (preliminary names):
+//	Then, 4 major ingest classes contribute to the result (preliminary names):
 //	InterceptZips - brute force test if zipped, and known types auto-detected
 //	ExploitFilelist - multiple files of html or plain text or just their names
 //	AnalyzeBlob - brute force test if XML, and known types auto-detected, most notably ready map snippets
@@ -143,20 +144,16 @@ public class NewStuff {
 				dataString = l.get(0).getAbsolutePath();
 //				System.out.println("NS: was javaFileListFlavor, 1 file");
 				
-				Assembly assembly = new Assembly(dataString, controler);
-				assembly.advisableFilename = dataString;
+				controler.getNSInstance().setAdvisableFilename(dataString);
 				File file = l.get(0);
-				new InterceptZips(assembly, file);
+				new InterceptZips(file, controler);
 			} else {
 				for (File f : l) {
 					String fn = f.getAbsolutePath();
 					dataString = dataString + "\r\n" + fn;
 				}
 //				System.out.println("NS: was javaFileListFlavor, > 1 files");
-				
-				Assembly assembly = new Assembly(dataString, controler);
-				assembly.withDates = true;
-				new ExploitFilelist(assembly);
+				new ExploitFilelist(dataString, controler, true);
 			}
 			return true;
 		}
@@ -175,10 +172,7 @@ public class NewStuff {
 				return false;
 			}
 //			System.out.println("NS: was fragmentHtmlFlavor: \r\n");
-			
-			Assembly assembly = new Assembly(dataString, controler);
-			assembly.isHtml = true;
-			new Step2b(assembly);
+			new Step2b(dataString, controler, true);
 			return true;
 		} else {
 		try {
@@ -206,10 +200,7 @@ public class NewStuff {
 				return false;
 			}
 //			System.out.println("NS: was htmlSelectionFlavor: \r\n");
-			
-			Assembly assembly = new Assembly(dataString, controler);
-			assembly.isHtml = true;
-			new Step2b(assembly);
+			new Step2b(dataString, controler, true);
 			return true;
 		} 
 		}
@@ -219,7 +210,7 @@ public class NewStuff {
 		if (content != null && content.isDataFlavorSupported(DataFlavor.stringFlavor)) {
 			try {
 				dataString = (String) content.getTransferData(DataFlavor.stringFlavor);
-				System.out.println("NS: was stringFlavor: \r\n");
+//				System.out.println("NS: was stringFlavor: \r\n");
 			} catch (UnsupportedFlavorException e) {
 				System.out.println("Error NS114 " + e);
 				return false;
@@ -228,9 +219,7 @@ public class NewStuff {
 				return false;
 			}
 
-			Assembly assembly = new Assembly(dataString, controler);
-			assembly.isFile = false;
-			new AnalyzeBlob(assembly, dataString);
+			new AnalyzeBlob(dataString, controler);
 			return true;
 
 		// Nothing ?
@@ -249,21 +238,16 @@ public class NewStuff {
 		// TODO: fit to just 1, 2 and few 6
 		if (inputType == 1) {
 
-			Assembly assembly = new Assembly(dataString, controler);
-			assembly.advisableFilename = dataString;
-			new InterceptZips(assembly, new File(dataString));
+			controler.getNSInstance().setAdvisableFilename(dataString);
+			new InterceptZips(new File(dataString), controler);
 		}
 		else if (inputType == 2) {
 
-			Assembly assembly = new Assembly(dataString, controler);
-			assembly.isFile = false;
-			new AnalyzeBlob(assembly, dataString);
+			new AnalyzeBlob(dataString, controler);
 		}
 		else {
 
-			Assembly assembly = new Assembly(dataString, controler);
-			assembly.isHtml = false;
-			new Step2b(assembly);
+			new Step2b(dataString, controler, false);
 		}
 	}
 	
@@ -283,10 +267,15 @@ public class NewStuff {
 	
 	public void scoopCompositionWindow(CompositionWindow compositionWindow) {
 		String dataString = compositionWindow.dataString;
+		new AnalyzeBlob(dataString, controler);
+	}
+	
+	public void setAdvisableFilename(String a) {
+		advisableFilename = a;
+	}
 
-		Assembly assembly = new Assembly(dataString, controler);
-		assembly.isFile = false;
-		new AnalyzeBlob(assembly, dataString);
+	public String getAdvisableFilename() {
+		return advisableFilename;
 	}
 	
 	public Point getDropLocation() {
