@@ -777,7 +777,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			   panning = new Point(bottomOfExisting.x - 40 + translation.x, 
 					   bottomOfExisting.y - 100 + translation.y); 
 			   upperGap = new Point(40, 140); 
-			   dropLocation = ((Step3a) newStuffClass).getDropLocation();
+			   dropLocation = newStuff.getDropLocation();
 			   if (dropLocation != null && !gui.menuItem24.isSelected()) dropHere = true; 
 			   if (!dropHere && !pasteHere) {
 				   animationTimer.start();

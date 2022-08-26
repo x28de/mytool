@@ -16,7 +16,13 @@ import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 
 //
-//Large single object (as opposed to composed lists)
+//	Large single object (as opposed to composed lists)
+
+//	Two constructors, because x28map XML can come as file 
+//	or as string (e.g. copied/ pasted fragments).
+
+//	Brute force test for XML also allows for arbitrary dropped strings 
+//	and many file formats, but causes a SAXParseException that is not suppressible.
 
 public class AnalyzeBlob {
 	PresentationService controler;
@@ -69,7 +75,6 @@ public class AnalyzeBlob {
 			flatFileContent = utilities.convertStreamToString(stream);
 			String dataString = flatFileContent;
 			
-			System.out.println(dataString);
 			new Step2b(dataString, controler, false);
 			return;
 		}

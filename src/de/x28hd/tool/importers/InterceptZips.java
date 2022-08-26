@@ -13,7 +13,7 @@ import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.Utilities;
 
 //
-//Intercept some peculiarities contained in ZIP files, plus folder trees
+//	Intercept some peculiarities contained in ZIP files, plus folder trees
 
 public class InterceptZips {
 	PresentationService controler;
@@ -49,7 +49,6 @@ public class InterceptZips {
 					done = true;
 					break;
 				} else if (filename.endsWith("zknFile.xml")) {
-//					new ImportDirector(13, stream, controler); 
 					new ImportDirector(Importer.Zettelkasten, file, controler); 
 					done = true;
 					break;
@@ -66,11 +65,7 @@ public class InterceptZips {
 					done = true;
 					break;
 				} else	{
-//					if (entryCount == 0) {
-//						filelist = filename + "\r\n";	// to avoid leading newline
-//					} else {
 					filelist = filelist + filename + "\r\n";
-//					}
 					entryCount++;
 				}
 			}
@@ -86,10 +81,11 @@ public class InterceptZips {
 				String dataString = filelist;
 				new ExploitFilelist(dataString, controler, false);
 			}
-//			zfile.close();
 		} catch (ZipException e1) {
-//			System.out.println("Error NS121 (can be ignored) " + e1);
+			
+			// Important normal case, since Zip is autodetected by brute force
 			new AnalyzeBlob(file, controler);
+			
 		} catch (IOException err) {
 			System.out.println("Error NS122 " + err);
 			controler.displayPopup("Error NS122 " + err);

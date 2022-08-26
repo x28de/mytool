@@ -10,20 +10,15 @@ import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 
 public class Step3a {
-	PresentationService controler;
 	Hashtable<Integer, GraphNode> newNodes;
 	Hashtable<Integer, GraphEdge> newEdges;
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
-	String advisableFilename = "";
-	Point dropLocation;
 	boolean existingMap;
 	
 	public Step3a(PresentationService controler, Hashtable<Integer, GraphNode> nodes,
 			Hashtable<Integer, GraphEdge> edges, Rectangle bounds, boolean existingMap) {
-		this.controler = controler;
 		this.newNodes = nodes;
 		this.newEdges = edges;
-		dropLocation = controler.getNSInstance().dropLocation;
 		this.existingMap = existingMap;
 		this.bounds = bounds;
 		if (existingMap) this.newNodes = fetchToUpperLeft(this.newNodes);
@@ -31,9 +26,6 @@ public class Step3a {
 		controler.getControlerExtras().triggerUpdate(this);
 	}
 	
-	public Point getDropLocation() {
-		return dropLocation;
-	}
 	public boolean isExistingMap() {
 		return existingMap;
 	}

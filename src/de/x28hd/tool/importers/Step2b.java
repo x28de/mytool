@@ -19,13 +19,10 @@ public class Step2b {
 	
 	Hashtable<Integer, GraphNode> newNodes = new Hashtable<Integer, GraphNode>();
 	Hashtable<Integer, GraphEdge> newEdges = new Hashtable<Integer, GraphEdge>();
-	String dataString;
 	PresentationService controler;
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	String htmlOut = "";
 	boolean listItem = false;
-	boolean firstColumn = true;
-	String dataStringResort = "";
 	boolean silentlyResort = false;
 	boolean belowHeading = false;
 	boolean htmlNoise = false;
@@ -34,7 +31,6 @@ public class Step2b {
 	
 	public Step2b(String dataString, PresentationService controler, 
 			boolean parseHtml) {
-		this.dataString = dataString;
 		this.controler = controler;
 		boolean compositionMode = controler.getNSInstance().compositionMode;
 
@@ -158,8 +154,7 @@ public class Step2b {
 				controler.displayPopup("No items oder headings identified in HTML snippet,\r\n"
 						+ "using raw input string instead.");
 			}
-			htmlOut = dataStringResort;
-			dataStringResort = "";
+			htmlOut = controler.getNSInstance().getDataStringResort();
 		}
 		return htmlOut;
 	}
