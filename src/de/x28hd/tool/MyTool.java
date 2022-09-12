@@ -1,10 +1,10 @@
 package de.x28hd.tool;
 
-import javax.swing.JApplet;
+import java.awt.Panel;
 
 // using components of de.deepamehta under GPL
 
-public class MyTool extends JApplet {
+public class MyTool extends Panel {
 	private static final long serialVersionUID = 1L;
 
 	public static void main(String[] args) {

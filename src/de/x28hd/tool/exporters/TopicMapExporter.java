@@ -95,14 +95,14 @@ public class TopicMapExporter {
 	attribs.put("visible", "yes");
 
 	Color color = topic.getColor();
-	attribs.put("r", new Integer(color.getRed()) + "");
-	attribs.put("g", new Integer(color.getGreen()) + "");
-	attribs.put("b", new Integer(color.getBlue()) + "");
+	attribs.put("r", color.getRed() + "");
+	attribs.put("g", color.getGreen() + "");
+	attribs.put("b", color.getBlue() + "");
 
 	// geometry 
 	Point p = topic.getXY();
-	attribs.put("x", new Integer(p.x) + "");
-	attribs.put("y", new Integer(p.y) + "");
+	attribs.put("x", p.x + "");
+	attribs.put("y", p.y + "");
 
 	// --- generate topic element ---
 	startElement(handler, "topic", attribs);
@@ -122,9 +122,9 @@ public class TopicMapExporter {
 		attribs.put("ID", assoc.getID() + "");
 		attribs.put("visible", "yes");
 		Color color = assoc.getColor();
-		attribs.put("r", new Integer(color.getRed()) + "");
-		attribs.put("g", new Integer(color.getGreen()) + "");
-		attribs.put("b", new Integer(color.getBlue()) + "");
+		attribs.put("r", color.getRed() + "");
+		attribs.put("g", color.getGreen() + "");
+		attribs.put("b", color.getBlue() + "");
 		int n1 = assoc.getN1();
 		int n2 = assoc.getN2();
 		attribs.put("n1", "" + n1);

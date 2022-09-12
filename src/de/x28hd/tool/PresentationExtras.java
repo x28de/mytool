@@ -329,7 +329,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			
 			} else if (command == "toggleParse") {
 				String javav = System.getProperty("java.version");
-				if (javav.contains("1.8")) {
+				String [] parts = javav.split("\\.");	// TODO use Runtime.Version
+				if (Integer.parseInt(parts[0]) > 1 || Integer.parseInt(parts[1]) >= 8) {
 					newStuff.setParseMode(gui.menuItem25.isSelected());
 				} else {
 					controler.displayPopup("Your Java Runtime " + javav + " is too old, 1.8 needed.");
@@ -1007,16 +1008,16 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 //		Accessories intended for right-click (paste) in label field
 	    
 		public void mouseClicked(MouseEvent arg0) {
-			if ((arg0.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
-				JPopupMenu menu = Utilities.showContextMenu();
-				menu.show(controler.getLabelField(), arg0.getX(), arg0.getY());
-			}
 		}
 		public void mouseEntered(MouseEvent arg0) {
 		}
 		public void mouseExited(MouseEvent arg0) {
 		}
 		public void mousePressed(MouseEvent arg0) {
+			if ((arg0.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) != 0) {
+				JPopupMenu menu = Utilities.showContextMenu();
+				menu.show(controler.getLabelField(), arg0.getX(), arg0.getY());
+			}
 		}
 		public void mouseReleased(MouseEvent arg0) {
 		}

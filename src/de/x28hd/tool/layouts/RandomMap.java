@@ -97,7 +97,7 @@ public class RandomMap implements ActionListener {
 		Hashtable<Integer,JComponent> labelDict = new Hashtable<Integer,JComponent>();
 		slider.createStandardLabels(125);
 		for (int i = 12; i > 1; i--) {
-			labelDict.put(new Integer(i * 10), (JComponent) new JLabel((int) Math.pow(i, 2.5) + " items"));
+			labelDict.put(i * 10, (JComponent) new JLabel((int) Math.pow(i, 2.5) + " items"));
 		}
 		panel = new JDialog(controler.getMainWindow(), "How many items?", true);
 		panel.setMinimumSize(new Dimension(200, 500));

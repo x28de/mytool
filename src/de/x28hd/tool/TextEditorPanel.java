@@ -157,7 +157,7 @@ public class TextEditorPanel extends TextEditorCore implements ActionListener, U
 		
 		editorPane.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
-				if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+				if ((e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) != 0) {
 					int x = e.getX();
 					int y = e.getY();
 					showContextMenu(x, y);

@@ -189,9 +189,9 @@ public class GraphPanelZoom extends JComponent implements ChangeListener, ItemLi
 		Hashtable<Integer,JComponent> labelDict = new Hashtable<Integer,JComponent>();
 		slider.createStandardLabels(125);
 		for (int i = 1; i < 13; i++) {
-			labelDict.put(new Integer(i * 10), (JComponent) new JLabel(i * 10 + " %"));
+			labelDict.put(i * 10, (JComponent) new JLabel(i * 10 + " %"));
 		}
-		labelDict.put(new Integer(100), (JComponent) new JLabel("<html><b>100 %</b></html>"));
+		labelDict.put(100, (JComponent) new JLabel("<html><b>100 %</b></html>"));
 		slider.setLabelTable((Dictionary<Integer,JComponent>) labelDict);
 		slider.addChangeListener(this);
 		slider.updateUI();

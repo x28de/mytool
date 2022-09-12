@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.xml.transform.TransformerConfigurationException;
 
@@ -499,7 +500,7 @@ public class GraphPanel extends GraphCore  {
 					return;
 				}
 			}
-			if (e.isAltDown() || simulatedAltDown) {	// alt modifier is pressed -- start creating an edge
+			if (e.isAltDown() || SwingUtilities.isMiddleMouseButton(e) || simulatedAltDown) {
 				edgeInProgress = true;
 				targetNode = null;
 				ex = x;

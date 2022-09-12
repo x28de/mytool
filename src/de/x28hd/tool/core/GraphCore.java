@@ -19,6 +19,7 @@ import java.util.Vector;
 
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
+import javax.swing.SwingUtilities;
 
 /** The visual map container in the left pane */
 public class GraphCore extends JDesktopPane {
@@ -274,7 +275,7 @@ public class GraphCore extends JDesktopPane {
 		nodeSelected(node);	
 		int x = e.getX();
 		int y = e.getY();
-		if (e.isAltDown()) {	// alt modifier is pressed -- start creating an edge
+		if (e.isAltDown() || SwingUtilities.isMiddleMouseButton(e)) {
 			edgeInProgress = true;
 			targetNode = null;
 			ex = x;
@@ -459,12 +460,13 @@ public class GraphCore extends JDesktopPane {
 //	Right-clicking etc.
 	
 	protected boolean isSpecial(MouseEvent e) {
-		return e.getClickCount() == 2 || e.isAltDown() || isPopupTrigger(e);
+		return e.getClickCount() == 2 || e.isAltDown() || isPopupTrigger(e) || 
+				SwingUtilities.isMiddleMouseButton(e);
 	}
 	protected boolean isPopupTrigger(MouseEvent e) {
 		if (e.isPopupTrigger()) {
 			return true;
-		} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+		} else if ((e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) != 0) {
 			return true;
 		}
 		return false;
