@@ -134,7 +134,7 @@ public class Importer {
 	new Importer(Importer.EdgeList, "EdgeList", "(not relavant)", "txt", "txt (tab separated)",
 			"If you have a TXT file listing the edges in the format: Source Label TAB Target Label"),
 	new Importer(Importer.DemoJSON, "DemoJSON", "(not relavant)", "json", "json (Demo export)",
-			"If you have a JSON file exported from the web-based Condensr demo"),
+			"If you have a JSON file exported from a certain experimental demo"),
 	new Importer(Importer.Grsshopper, "Grsshopper", "(not relavant)", "json", "json (from gRSShopper)",
 			"If you have a JSON file from gRSShopper"),
 	new Importer(Importer.Zotero, "Zotero", "(not relavant)", "html", "html (Zotero Report)",

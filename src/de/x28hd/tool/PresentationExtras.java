@@ -358,7 +358,9 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 						+ "print, zoom or screenshot from your browser.<br /><br />"
 						+ "Instead of a <i>static</i> snapshot, you may also consider<br />"
 						+ "an <i>interactive</i> HTML page that allows panning<br /> "
-						+ "and selecting.</html>");
+						+ "and selecting.<br /><br />"
+						+ "You could also make a screenshot of the <b>zoomed</b> map <br />"
+						+ "(see Advanced), and hide the targeted area mark.</html>");
 			} else if (command == "loadhelp") {
 				newStuff.setInput(gui.getSample(true), 2);
 				dragFake = true;

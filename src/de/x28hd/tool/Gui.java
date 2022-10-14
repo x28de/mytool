@@ -166,6 +166,7 @@ public class Gui {
 		menuItem17.setActionCommand("quit");
 		if (!System.getProperty("os.name").equals("Mac OS X"))
 			menuItem17.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, shortcutMask));
+		menuItem17.setToolTipText("Exit the program");
 		menuItem17.addActionListener(controler);
 		menu1.add(menuItem17);
 
@@ -614,7 +615,7 @@ public class Gui {
 
 		menuItem52 = new JCheckBoxMenuItem("Power User Mode", false);
 		menuItem52.setActionCommand("power");
-		menuItem52.setToolTipText("Acceleration, Lurid Colors and Borders");
+		menuItem52.setToolTipText("Acceleration, Lurid Colors, and Borders");
 		menuItem52.addActionListener(controlerExtras);
 		sub6.add(menuItem52);
 
@@ -727,7 +728,7 @@ public class Gui {
 		}
 
 		JMenuItem item3 = new JMenuItem();
-		item3.addActionListener(controler);
+		item3.addActionListener(controlerExtras);
 		item3.setActionCommand("?");
 		item3.setText("Help");
 		menu.add(item3);
