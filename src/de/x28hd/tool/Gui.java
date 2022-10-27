@@ -366,6 +366,12 @@ public class Gui {
 		menuItem83.addActionListener(controlerExtras);
 		menu7.add(menuItem83);
 
+		JMenuItem menuItem86 = new JMenuItem("to HTML with arcs (beta)");
+		menuItem86.setActionCommand("arcs");
+		menuItem86.setToolTipText("(Connections linearized like @denizcemonduygu's format)");
+		menuItem86.addActionListener(controlerExtras);
+		menu7.add(menuItem86);
+
 		menu7.addSeparator();
 
 		JMenuItem menuItem71 = new JMenuItem("to interactive HTML page");
@@ -588,6 +594,12 @@ public class Gui {
 		menuItem55.setToolTipText("Doubleclick improvement, Alt-Key for Pen and Touch");
 		menuItem55.addActionListener(controlerExtras);
 		sub6.add(menuItem55);
+
+		JMenuItem menuItem65 = new JMenuItem("Link from List (Beta)");
+		menuItem65.setActionCommand("quickpick");
+		menuItem65.setToolTipText("Easier connecting distant, tagged items");
+		menuItem65.addActionListener(controlerExtras);
+		sub6.add(menuItem65);
 
 		JMenuItem menuItem54 = new JMenuItem("Preferences");
 		menuItem54.setActionCommand("prefs");

@@ -37,10 +37,12 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.tree.DefaultTreeModel;
 
 import de.x28hd.tool.accessories.LimitationMessage;
+import de.x28hd.tool.accessories.QuickPick;
 import de.x28hd.tool.accessories.Utilities;
 import de.x28hd.tool.accessories.WXR2SQL;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
+import de.x28hd.tool.exporters.ArcsHtml;
 import de.x28hd.tool.exporters.BrainExport;
 import de.x28hd.tool.exporters.CmapExport;
 import de.x28hd.tool.exporters.CsvExport;
@@ -367,6 +369,9 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			} else if (command == "introgame") {
 				newStuff.setInput(gui.getSample(false), 2);
 				
+			} else if (command == "quickpick") {
+				new QuickPick(nodes, edges, controler);
+				
 			} else if (command == "zoomin") {
 				zoomedSize += 4;
 				edi.setSize(zoomedSize);
@@ -465,6 +470,9 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 				String s = lifeCycle.askForLocation("experimental.json");
 				new DemoJsonExporter(nodes, edges, s);
 					
+			} else if (command == "arcs") {
+				new ArcsHtml(nodes, edges, controler);
+
 			} else if (command == "Anonymize") { 
 				String s = lifeCycle.askForLocation("anonymized.xml");
 				if (controler.startStoring(s, true)) controler.displayPopup(s + " saved.\n" +
