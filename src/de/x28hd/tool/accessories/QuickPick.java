@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.SortedSet;
@@ -21,6 +22,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
@@ -42,7 +44,7 @@ public class QuickPick implements TreeSelectionListener, ActionListener {
 	Hashtable<Integer,GraphEdge> edges;
 	PresentationService controler;
 	
-	TreeMap<Integer,String> inputMap = new TreeMap<Integer,String>();
+	TreeMap<Double,Integer> inputMap = new TreeMap<Double,Integer>();
 	Hashtable<Integer,String> ids2name = new Hashtable<Integer,String>();
 	
 	TreeSet<String> namesList = new TreeSet<String>();
@@ -53,6 +55,7 @@ public class QuickPick implements TreeSelectionListener, ActionListener {
 
 	Hashtable<String,DefaultMutableTreeNode> tops = new Hashtable<String,DefaultMutableTreeNode>();
 	Hashtable<String,DefaultMutableTreeNode> authorNodes = new Hashtable<String,DefaultMutableTreeNode>();
+	HashSet<String> edgeStrings = new HashSet<String>();
 
 	public static String[][] extraNames = {
 			{"Leucippus & Democritus", "Leucippus & Democritus"},
@@ -87,15 +90,27 @@ public class QuickPick implements TreeSelectionListener, ActionListener {
 			String [] fields = label.split(": ");
 			String prefix = label;
 			if (fields.length > 0) prefix = fields[0];
+			if (prefix.isEmpty()) prefix = label;
 			
-			String shortStmt = node.getDetail();
-			shortStmt = filterHTML(shortStmt);
 			int id = node.getID();
-			inputMap.put(id, shortStmt);
+			double y = node.getXY().y;
+			while (inputMap.containsKey(y)) y += .1;
+			inputMap.put(y, id);
 			ids2name.put(id, prefix);
 			namesList.add(prefix);
 		}
 		
+		// Avoid duplicate edges later
+		Enumeration<GraphEdge> edgeList = edges.elements();
+		while (edgeList.hasMoreElements()) {
+			GraphEdge edge = edgeList.nextElement();
+			int n1 = edge.getN1();
+			int n2 = edge.getN2();
+			String uniq = (n1 < n2) ? n1 + " " + n2 : n2 + " " + n1;
+			if (edgeStrings.contains(uniq)) System.out.println("Duplicate edge: " + n1 + " <-> " + n2);
+			edgeStrings.add(uniq);
+		}
+
 		// Author navigation	// TODO rename author to prefix
 		Iterator<String> authors = namesList.iterator();
 		while (authors.hasNext()) {
@@ -115,13 +130,16 @@ public class QuickPick implements TreeSelectionListener, ActionListener {
 			}
 		}
 		
-		// Items (in getID() order)
-		SortedSet<Integer> inputSet = (SortedSet<Integer>) inputMap.keySet();
-		Iterator<Integer> iter = inputSet.iterator();
+		// Items (in y order)
+		SortedSet<Double> inputSet = (SortedSet<Double>) inputMap.keySet();
+		Iterator<Double> iter = inputSet.iterator();
 		
 		while(iter.hasNext()) {
-			int id = iter.next();
-			String label = inputMap.get(id);
+			double y = iter.next();
+			int id = inputMap.get(y);
+			String shortStmt = nodes.get(id).getDetail();
+			shortStmt = filterHTML(shortStmt);
+			String label = shortStmt;
 			if (label.length() > 70) label = label.substring(0, 70);
 			String author = ids2name.get(id);
 			DefaultMutableTreeNode authorNode = authorNodes.get(author);
@@ -145,15 +163,12 @@ public class QuickPick implements TreeSelectionListener, ActionListener {
 		frame.add(alphabet);
 		
 		// Switches
-		JPanel bottom = new JPanel();	// TODO rename
+		JPanel topPanel = new JPanel();
 		sourceButton = new JCheckBox("New Source?");
 		sourceButton.setSelected(source);
 		sourceButton.addActionListener(this);
-		bottom.add(sourceButton);
-		rejectButton = new JCheckBox("Rejecting?");
-		rejectButton.setSelected(false);
-		bottom.add(rejectButton);
-		frame.add(bottom, BorderLayout.NORTH);
+		topPanel.add(sourceButton);
+		frame.add(topPanel, BorderLayout.NORTH);
 		
 		frame.setVisible(true);
 	}
@@ -181,32 +196,49 @@ public class QuickPick implements TreeSelectionListener, ActionListener {
 			int nodeID = info.getKey();
 			
 			// prepare output
-			String detail = inputMap.get(nodeID);
+			GraphNode node = nodes.get(nodeID);
+			String detail = node.getDetail();
 			String shortStmt = detail;
+			shortStmt = filterHTML(shortStmt);
 			if (shortStmt.length() > 20) shortStmt = shortStmt.substring(0, 20);
 			String author = ids2name.get(nodeID);
 			String label = lastName(author) + ": " + shortStmt;
+			reject = rejectButton.isSelected();
 			String rejectMarker = reject ? "n" : "";
-			String colorString = reject ? "#ff0000" : "#bbffbb";
+			String colorString = reject ? "#ffbbbb" : "#bbffbb";
 			if (source) {
 				sourceID = nodeID;
 				sourceLabel = label;
 				sourceButton.setSelected(false);
 				source = false;
 			} else {
-				outList += nodeID + "\t" + rejectMarker + "\t" + sourceID + 
-						"\t(" + label + " <- " + sourceLabel + ")\r\n";
 				sourceButton.setSelected(true);
 				source = true;
-				treeFrame.dispose();
 				GraphNode sourceNode = nodes.get(sourceID);
 				GraphNode targetNode = nodes.get(nodeID);
-				int edgeNum = edges.size();
-				while (edges.containsKey(edgeNum)) edgeNum++;
-				GraphEdge edge = new GraphEdge(edgeNum, sourceNode, targetNode, Color.decode(colorString), "");
-				edges.put(edgeNum,  edge);
-				sourceNode.addEdge(edge);
-				targetNode.addEdge(edge);
+				if (targetNode.equals(sourceNode)) {
+					controler.displayPopup("Target item equals source item; try again");
+				} else {
+					int n1 = sourceID;
+					int n2 = nodeID;
+					String uniq = (n1 < n2) ? n1 + " " + n2 : n2 + " " + n1;
+					if (edgeStrings.contains(uniq) || n1 == n2) {
+						controler.displayPopup("Line already exists; try again");
+					} else {
+						edgeStrings.add(uniq);
+						outList += nodeID + "\t" + rejectMarker + "\t" + sourceID + 
+								"\t(" + label + " <- " + sourceLabel + ")\r\n";
+						int edgeNum = edges.size();
+						while (edges.containsKey(edgeNum)) edgeNum++;
+						GraphEdge edge = new GraphEdge(edgeNum, sourceNode, targetNode, Color.decode(colorString), "");
+						edges.put(edgeNum,  edge);
+						sourceNode.addEdge(edge);
+						targetNode.addEdge(edge);
+						treeFrame.dispose();
+					}
+				}
+				treeFrame.dispose();
+
 			}
 			out();
 			rejectButton.setSelected(false);
@@ -273,7 +305,6 @@ public class QuickPick implements TreeSelectionListener, ActionListener {
 			source = sourceButton.isSelected();
 			return;
 		}
-		reject = rejectButton.isSelected();
 		
 		DefaultTreeModel model = new DefaultTreeModel(tops.get(command));
 	    JTree tree = new JTree(model);
@@ -291,7 +322,17 @@ public class QuickPick implements TreeSelectionListener, ActionListener {
 	    JPanel innerPanel = new JPanel();
 	    innerPanel.setBackground(Color.WHITE);
 	    innerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-	    innerPanel.add(tree);
+	    innerPanel.setLayout(new BorderLayout());
+	    
+	    JPanel negatePanel = new JPanel();
+	    negatePanel.setMaximumSize(new Dimension(450, 50));
+		rejectButton = new JCheckBox("Negating?");
+		rejectButton.setSelected(false);
+		negatePanel.add(rejectButton);
+		if (!source) innerPanel.add(negatePanel, "North");
+		
+		JScrollPane scrollPane = new JScrollPane(tree);
+	    innerPanel.add(scrollPane, "South");
 	    treeFrame.add(innerPanel);
 	    treeFrame.setVisible(true);
 	}

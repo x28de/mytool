@@ -37,6 +37,7 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.tree.DefaultTreeModel;
 
 import de.x28hd.tool.accessories.LimitationMessage;
+import de.x28hd.tool.accessories.ListNeighbors;
 import de.x28hd.tool.accessories.QuickPick;
 import de.x28hd.tool.accessories.Utilities;
 import de.x28hd.tool.accessories.WXR2SQL;
@@ -501,9 +502,11 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 				graphPanel.repaint();
 				gui.menuItem51.setSelected(true);
 				
-				} else if (command == "subtree") {
+			} else if (command == "subtree") {
 				new SubtreeLayout(controler.getSelectedNode(), nodes, edges, 
 						controler, true, controler.getTranslation());
+			} else if (command == "listneighbors") {
+				new ListNeighbors(controler);
 				
 			} else if (command == "random") {
 				RandomMap randomMap = new RandomMap(controler);

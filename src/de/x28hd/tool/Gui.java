@@ -643,6 +643,12 @@ public class Gui {
 		menuItem57.addActionListener(controlerExtras);
 		sub6.add(menuItem57);
 		
+		JMenuItem menuItem66 = new JMenuItem("Test");
+		menuItem66.setActionCommand("tst");
+		menuItem66.setToolTipText("experimental");
+		menuItem66.addActionListener(controlerExtras);
+		sub6.add(menuItem66);
+		
 		menu5.add(sub6);
 
 		menuBar.add(menu5);
@@ -767,17 +773,28 @@ public class Gui {
 
 		menu.addSeparator();
 
-		JMenuItem subtree = new JMenuItem();
-		subtree.addActionListener(controlerExtras);
-		subtree.setActionCommand("subtree");
-		subtree.setText("Tree layout");
-		menu.add(subtree);
-		
 		JMenuItem delTopic = new JMenuItem();
 		delTopic.addActionListener(controler);
 		delTopic.setActionCommand("delTopic");
 		delTopic.setText("Delete");
 		menu.add(delTopic);
+		
+		JMenu sub7 = new JMenu("Advanced");
+		if (controler.rectangle) sub7.setEnabled(false);
+
+		JMenuItem listneighbors = new JMenuItem();
+		listneighbors.addActionListener(controlerExtras);
+		listneighbors.setActionCommand("listneighbors");
+		listneighbors.setText("List neighbors");
+		sub7.add(listneighbors);
+		
+		JMenuItem subtree = new JMenuItem();
+		subtree.addActionListener(controlerExtras);
+		subtree.setActionCommand("subtree");
+		subtree.setText("Tree layout");
+		sub7.add(subtree);
+		
+		menu.add(sub7);
 	}
 	
 	public void createEdgeMenu(JPopupMenu menu, int paletteID) {
