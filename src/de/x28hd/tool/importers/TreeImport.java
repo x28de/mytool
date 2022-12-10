@@ -137,6 +137,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	boolean windows = false;
 	boolean showJTree = true;
 	boolean silent = false;
+	boolean silent2 = false;	// no progress bar
 	int monitor = 0;
 	int myProgress = 0;
 	int alternate = -1;
@@ -168,6 +169,11 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	JProgressBar progressBar;
 	
 	public TreeImport(File file, PresentationService controler, int knownFormat) {
+		new TreeImport(file, controler, knownFormat, false);
+	}
+	public TreeImport(File file, PresentationService controler, int knownFormat, boolean silent) {
+		this.silent = silent;
+		this.silent2 = silent;
 		this.file = file;
 		this.controler = controler;
 		this.knownFormat = knownFormat;
@@ -192,7 +198,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		progressFrame.setLocation(dim.width/2 - 298, dim.height/2 - 209);		
 		progressFrame.setMinimumSize(new Dimension(596, 418));
 
-		progressFrame.setVisible(true);
+		if (!silent2) progressFrame.setVisible(true);
 		controler.getControlerExtras().stopHint();
 
 		addPropertyChangeListener(this);	//	updates progress bar when setProgress()

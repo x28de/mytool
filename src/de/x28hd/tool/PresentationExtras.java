@@ -39,6 +39,7 @@ import javax.swing.tree.DefaultTreeModel;
 import de.x28hd.tool.accessories.LimitationMessage;
 import de.x28hd.tool.accessories.ListNeighbors;
 import de.x28hd.tool.accessories.QuickPick;
+import de.x28hd.tool.accessories.UrlCare;
 import de.x28hd.tool.accessories.Utilities;
 import de.x28hd.tool.accessories.WXR2SQL;
 import de.x28hd.tool.core.GraphEdge;
@@ -390,6 +391,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 				launchSibling();
 			} else if (command == "wxr2sql") {
 				new WXR2SQL(controler.getMainWindow());
+			} else if (command == "twexit") {
+				new UrlCare(controler);
 				
 				
 			//	Exports 
@@ -525,7 +528,6 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			} else if (command == "flipVerti") {
 				flipCluster(controler.getSelectedEdge(), false);
 				controler.graphSelected();
-
 			}
 	}
 	

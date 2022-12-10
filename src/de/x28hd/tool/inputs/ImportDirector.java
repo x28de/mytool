@@ -53,6 +53,7 @@ import de.x28hd.tool.importers.H5pTextImport;
 import de.x28hd.tool.importers.ImappingImport;
 import de.x28hd.tool.importers.ImportGraphXML;
 import de.x28hd.tool.importers.ImportRoam;
+import de.x28hd.tool.importers.ImportTSV;
 import de.x28hd.tool.importers.LuhmannImport;
 import de.x28hd.tool.importers.MetamapsImport;
 import de.x28hd.tool.importers.PowerPointImport;
@@ -266,6 +267,10 @@ public class ImportDirector implements ActionListener {
 			} else if (i == Importer.Roget) {
 				frame.dispose();
 				new RogetImport(controler);
+				return;
+			} else if (i == Importer.MapTSV) {
+				frame.dispose();
+				new ImportTSV(controler);
 				return;
 			}
 //	    		System.out.println("Type: " + i);

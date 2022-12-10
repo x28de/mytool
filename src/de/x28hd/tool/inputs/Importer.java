@@ -67,14 +67,15 @@ public class Importer {
 	public static final int Roam = 23;
 	public static final int H5p = 24;
 	public static final int EdgeList = 25;
-	public static final int DemoJSON = 26;
-	public static final int Grsshopper = 27;
-	public static final int Zotero = 28;
-	public static final int PPTX = 29;
-	public static final int OldFormat = 30;
-	public static final int Filetree = 31;
-	public static final int Sitemap = 32;
-	public static final int x28tree = 33;
+	public static final int MapTSV = 26;
+	public static final int DemoJSON = 27;
+	public static final int Grsshopper = 28;
+	public static final int Zotero = 29;
+	public static final int PPTX = 30;
+	public static final int OldFormat = 31;
+	public static final int Filetree = 32;
+	public static final int Sitemap = 33;
+	public static final int x28tree = 34;
 	
 	static final Importer[] importers = {
 	new Importer(Importer.Evernote, "Evernote", "en-export", "enex", "enex (Evernote Export file)", 
@@ -133,6 +134,8 @@ public class Importer {
 			"If you have an H5P file containing Image Hotspots, Accordion, or Timeline"),
 	new Importer(Importer.EdgeList, "EdgeList", "(not relavant)", "txt", "txt (tab separated)",
 			"If you have a TXT file listing the edges in the format: Source Label TAB Target Label"),
+	new Importer(Importer.MapTSV, "MapTSV", "(not relavant)", "txt", "txt (tab separated)",
+			"For specifying nodes and edges, each in 3 columns. Starts with instructions"),
 	new Importer(Importer.DemoJSON, "DemoJSON", "(not relavant)", "json", "json (Demo export)",
 			"If you have a JSON file exported from a certain experimental demo"),
 	new Importer(Importer.Grsshopper, "Grsshopper", "(not relavant)", "json", "json (from gRSShopper)",

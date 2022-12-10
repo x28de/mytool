@@ -643,9 +643,9 @@ public class Gui {
 		menuItem57.addActionListener(controlerExtras);
 		sub6.add(menuItem57);
 		
-		JMenuItem menuItem66 = new JMenuItem("Test");
-		menuItem66.setActionCommand("tst");
-		menuItem66.setToolTipText("experimental");
+		JMenuItem menuItem66 = new JMenuItem("Utility for Twitter Exit");
+		menuItem66.setActionCommand("twexit");
+		menuItem66.setToolTipText("Facilitates bookmark salvage");
 		menuItem66.addActionListener(controlerExtras);
 		sub6.add(menuItem66);
 		
