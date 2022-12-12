@@ -134,7 +134,7 @@ public class Importer {
 			"If you have an H5P file containing Image Hotspots, Accordion, or Timeline"),
 	new Importer(Importer.EdgeList, "EdgeList", "(not relavant)", "txt", "txt (tab separated)",
 			"If you have a TXT file listing the edges in the format: Source Label TAB Target Label"),
-	new Importer(Importer.MapTSV, "MapTSV", "(not relavant)", "txt", "txt (tab separated)",
+	new Importer(Importer.MapTSV, "MapTSV", "(not relavant)", "none", "none (invisible)",
 			"For specifying nodes and edges, each in 3 columns. Starts with instructions"),
 	new Importer(Importer.DemoJSON, "DemoJSON", "(not relavant)", "json", "json (Demo export)",
 			"If you have a JSON file exported from a certain experimental demo"),
