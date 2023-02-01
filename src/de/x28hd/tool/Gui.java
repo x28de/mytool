@@ -666,6 +666,12 @@ public class Gui {
 		menuItem61.addActionListener(controlerExtras);
 		menu6.add(menuItem61);
 
+		JMenuItem menuItem68 = new JMenuItem("Counters");
+		menuItem68.setToolTipText("Counts icons, lines, overlaps, and distances");
+		menuItem68.setActionCommand("stats");
+		menuItem68.addActionListener(controlerExtras);
+		menu6.add(menuItem68);
+
 		JMenuItem menuItem62 = new JMenuItem("About");
 		menuItem62.setActionCommand("about");
 		menuItem62.setToolTipText("Shows version number etc.");

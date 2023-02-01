@@ -39,6 +39,7 @@ import javax.swing.tree.DefaultTreeModel;
 import de.x28hd.tool.accessories.LimitationMessage;
 import de.x28hd.tool.accessories.ListNeighbors;
 import de.x28hd.tool.accessories.QuickPick;
+import de.x28hd.tool.accessories.StatsWindow;
 import de.x28hd.tool.accessories.UrlCare;
 import de.x28hd.tool.accessories.Utilities;
 import de.x28hd.tool.accessories.WXR2SQL;
@@ -349,6 +350,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 				gui.displayHelp();
 			} else if (command == "extmsg") {
 				new LimitationMessage();
+			} else if (command == "stats") {
+				new StatsWindow(nodes, edges, controler).update();;
 			} else if (command == "select") {
 				controler.displayPopup("<html><h3>How to Select</h3>" 
 						+ "Select a cluster of connected items by clicking any line;<br />" 
