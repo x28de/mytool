@@ -60,6 +60,7 @@ public class Gui {
 	JCheckBoxMenuItem menuItem47 = null;
 	JCheckBoxMenuItem menuItem51 = null;
 	JCheckBoxMenuItem menuItem52 = null;
+	JCheckBoxMenuItem menuItem67 = null;
 	JCheckBoxMenuItem menuItem55 = null;
 	JCheckBoxMenuItem menuItem58 = null;
 	JCheckBoxMenuItem menuItem63 = null;
@@ -492,6 +493,12 @@ public class Gui {
 		menuItem51.addActionListener(controlerExtras);
 		sub2.add(menuItem51);
 
+		menuItem67 = new JCheckBoxMenuItem("Similarity Coloring", false);
+		menuItem67.setActionCommand("simcol");
+		menuItem67.setToolTipText("Colors by edge betweenness clustering");
+		menuItem67.addActionListener(controlerExtras);
+		sub2.add(menuItem67);
+
 		menuItem38 = new JMenuItem("Flip rectangle horizontal");
 		menuItem38.setActionCommand("flipHori");
 		menuItem38.setEnabled(false);
@@ -600,6 +607,12 @@ public class Gui {
 		menuItem65.setToolTipText("Easier connecting distant, tagged items");
 		menuItem65.addActionListener(controlerExtras);
 		sub6.add(menuItem65);
+
+		JMenuItem menuItem69 = new JMenuItem("Lines to hashes");
+		menuItem69.setActionCommand("addhashes");
+		menuItem69.setToolTipText("Prepare hyperhopping #links");
+		menuItem69.addActionListener(controlerExtras);
+		sub6.add(menuItem69);
 
 		JMenuItem menuItem54 = new JMenuItem("Preferences");
 		menuItem54.setActionCommand("prefs");

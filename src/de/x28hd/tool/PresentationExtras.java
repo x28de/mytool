@@ -36,6 +36,7 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.tree.DefaultTreeModel;
 
+import de.x28hd.tool.accessories.AddHashes;
 import de.x28hd.tool.accessories.LimitationMessage;
 import de.x28hd.tool.accessories.ListNeighbors;
 import de.x28hd.tool.accessories.QuickPick;
@@ -69,6 +70,7 @@ import de.x28hd.tool.layouts.DAG;
 import de.x28hd.tool.layouts.GraphPanelZoom;
 import de.x28hd.tool.layouts.MakeCircle;
 import de.x28hd.tool.layouts.RandomMap;
+import de.x28hd.tool.layouts.SimilarityColoring;
 import de.x28hd.tool.layouts.SubtreeLayout;
 
 public class PresentationExtras implements ActionListener, MouseListener, KeyListener, PopupMenuListener{
@@ -115,6 +117,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	boolean pasteHere = false;
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	CentralityColoring centralityColoring;
+	SimilarityColoring similarityColoring;
 	JSplitPane splitPane = null;
 	JPanel rightPanel = null;
 	int dividerPos = 0;
@@ -376,6 +379,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 				
 			} else if (command == "quickpick") {
 				new QuickPick(nodes, edges, controler);
+			} else if (command == "addhashes") {
+				new AddHashes(nodes, edges, controler);
 				
 			} else if (command == "zoomin") {
 				zoomedSize += 4;
@@ -499,6 +504,13 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 					centralityColoring.changeColors();
 				} else {
 					centralityColoring.revertColors();
+				}
+				graphPanel.repaint();
+			} else if (command == "simcol") {
+				if (gui.menuItem67.isSelected()) {
+					similarityColoring = new SimilarityColoring(nodes, edges, controler);
+				} else {
+					similarityColoring.revertColors();
 				}
 				graphPanel.repaint();
 				
