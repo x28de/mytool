@@ -6,11 +6,15 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -20,6 +24,8 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.core.GraphEdge;
@@ -27,15 +33,17 @@ import de.x28hd.tool.core.GraphNode;
 import edu.uci.ics.jung.algorithms.cluster.EdgeBetweennessClusterer;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
+import edu.uci.ics.jung.graph.util.Pair;  
 
 public class SimilarityColoring implements ActionListener {
 	Hashtable<Integer,GraphNode> nodes = new Hashtable<Integer,GraphNode>();
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
 	PresentationService controler;
 	Hashtable<Integer, Color> nodesSavedColors = new Hashtable<Integer, Color>();
-
-	Hashtable<Integer,String> dic = new Hashtable<Integer,String>();
-	Hashtable<Integer,GraphEdge> edgeLookup = new Hashtable<Integer,GraphEdge>();
+	
+	Hashtable<GraphNode,Integer> nodesNewColors = new Hashtable<GraphNode,Integer>();
+	HashSet<Pair<Integer>> colorCombis = new HashSet<Pair<Integer>>();
+	Hashtable<Integer,Integer> positions = new Hashtable<Integer,Integer>();
 	
 	JSlider slider;
 	JDialog panel;
@@ -44,6 +52,9 @@ public class SimilarityColoring implements ActionListener {
 	HashSet<GraphNode> paletteNodes = new HashSet<GraphNode>();
 	JTextField numEdgesToRemoveBox;
 	int numEdgesToRemove = -1;
+	JCheckBox xByColor;
+	int oldsum = 0;
+	int newsum = 0;
 
 	public SimilarityColoring(Hashtable<Integer,GraphNode> nodes,
 			Hashtable<Integer,GraphEdge> edges, PresentationService controler) {
@@ -78,13 +89,20 @@ public class SimilarityColoring implements ActionListener {
 			GraphEdge edge = edgesEnum.nextElement();	
 			int n1 = edge.getN1();
 			if (!nodes.containsKey(n1)) continue;
-//			dic.put(n1, nodes.get(n1).getLabel());
 			int n2 = edge.getN2();
 			if (!nodes.containsKey(n2)) continue;
-//			dic.put(n2, nodes.get(n2).getLabel());
 			g.addEdge(edgeID, n1, n2, edgeType);
-//			edgeLookup.put(edgeID, edge);
 		}
+		
+		// Record nodesSavedColors for reverting
+		Enumeration<GraphNode> nodeList  = nodes.elements();
+		while (nodeList.hasMoreElements()) {
+			GraphNode node = nodeList.nextElement();
+			Color oldColor = node.getColor();
+			int id = node.getID();
+			nodesSavedColors.put(id,oldColor);
+		}
+		
 		Set<Set<Integer>> clusterSet = clusterer.transform(g);
 		
 		String colorString = "#ccdddd";
@@ -95,6 +113,9 @@ public class SimilarityColoring implements ActionListener {
 			Set<Integer> set = outerPreview.next();
 			if (set.size() > 1) colorCount++;
 		}
+		
+		// Outer loop, colors
+		
 		Iterator<Set<Integer>> outer = clusterSet.iterator();
 		boolean odd = false;
 		while (outer.hasNext()) {
@@ -120,17 +141,43 @@ public class SimilarityColoring implements ActionListener {
 			} else {
 				colorString = "#ccdddd";
 			}
+			
+			// Inner loop, plus optional sorting
+			
 			Iterator<Integer> inner = set.iterator();
+			TreeMap<Integer,GraphNode> verticalMap = new TreeMap<Integer,GraphNode>(); 
 			while (inner.hasNext()) {
 				int n = inner.next();
 				GraphNode node = nodes.get(n);
-				Color originalColor = node.getColor();
-				nodesSavedColors.put(node.getID(), originalColor);
-
 				node.setColor(colorString);
+				nodesNewColors.put(node, colorId);
+				if (!xByColor.isSelected()) continue;
 
+				Point xy = node.getXY();
+				verticalMap.put(xy.y, node);
+			}
+
+			// Create columns by color
+			if (!xByColor.isSelected()) continue;
+			SortedMap<Integer,GraphNode> verticalList = (SortedMap<Integer,GraphNode>) verticalMap;
+			SortedSet<Integer> verticalSet = (SortedSet<Integer>) verticalList.keySet();
+			Iterator<Integer> iter = verticalSet.iterator();
+			int y = 40;
+			boolean first = true;
+			while (iter.hasNext()) {
+				int verticalRank = iter.next();
+				GraphNode node = verticalMap.get(verticalRank);
+				Point xy = node.getXY();
+				if (first) {								// anchor column by top item
+					y = xy.y * colorCount/nodes.size();		// scaled by average column size
+					first  = false;
+				}
+				xy = new Point(150 * colorId, y);
+				node.setXY(xy);
+				y += 40;
 			}
 		}
+		if (xByColor.isSelected()) arrangeColumns(colorCount);
 	}
 
 	public void createSlider() {
@@ -152,10 +199,14 @@ public class SimilarityColoring implements ActionListener {
 		bottom.setLayout(new BorderLayout());
 		bottom.setBorder(new EmptyBorder(10, 10, 10, 10));
 		JPanel advanced = new JPanel();
-		advanced.add(new JLabel("Advanced"));
+		advanced.add(new JLabel("Advanced: R"));
 		numEdgesToRemoveBox = new JTextField(4); 	// numEdgesToRemove 
 		numEdgesToRemoveBox.setToolTipText("Set 'numEdgesToRemove' variable directly");
 		advanced.add(numEdgesToRemoveBox);
+		xByColor = new JCheckBox("H");
+		xByColor.setToolTipText("Arrange horizontally by Color");
+		xByColor.addActionListener(this);
+		advanced.add(xByColor);
 		bottom.add(advanced, "North");
 		paletteBox = new JCheckBox("Show palette");
 		paletteBox.setSelected(true);
@@ -166,6 +217,101 @@ public class SimilarityColoring implements ActionListener {
 		bottom.add(continueButton, "East");
 		panel.add(bottom, "South");
 		panel.setVisible(true);
+	}
+	
+	public void arrangeColumns(int colorCount) {
+
+		// Find edges between two different colors
+		
+		if (!xByColor.isSelected()) return;
+		Enumeration<GraphEdge> edgeList = edges.elements();
+		while (edgeList.hasMoreElements()) {
+			GraphEdge edge = edgeList.nextElement();
+			GraphNode node1 = edge.getNode1();
+			GraphNode node2 = edge.getNode2();
+			int color1 = nodesNewColors.get(node1);
+			int color2 = nodesNewColors.get(node2);
+			Pair<Integer> pair = null;
+			if (color1 < color2) {
+				pair = new Pair<Integer>(color1, color2);
+			} else if (color1 > color2) {
+				pair = new Pair<Integer>(color2, color1);
+			}
+			if (pair == null) continue;
+			colorCombis.add(pair);
+		}
+		
+		// Initialize column positions
+		
+		for (int i = 1; i <= colorCount; i++) {
+			positions.put(i, i);
+		}
+		
+		// Minimize sum of distances by swapping neighbors
+		
+		oldsum = calculateDistance();
+		int success = 1;
+		int iteration = 0;
+		while (success > 0 && iteration < 50) {
+			success = 0;
+			
+			Collection<Integer> sourceIDs = positions.keySet();
+			Iterator<Integer> sources = sourceIDs.iterator();
+			while (sources.hasNext()) {
+				int source = sources.next();
+
+				Collection<Integer> targetIDs = positions.keySet();
+				Iterator<Integer> targets = targetIDs.iterator();
+				while (targets.hasNext()) {
+					int target = targets.next();
+					if (source == target) continue;
+					if (Math.abs(positions.get(source) - positions.get(target)) > 1) continue;
+					if (swapColumns(source, target)) {
+//						System.out.println("Swapping " + positions.get(source) + " and " + positions.get(target));
+						success++;
+					}
+				}
+			}
+			System.out.println("Iteration number " + iteration++ + " ...");
+		}
+	}
+
+	public boolean swapColumns(int first, int second) {
+		int third = positions.get(first);
+		positions.put(first, positions.get(second));
+		positions.put(second, third);
+		newsum = calculateDistance();
+		if (oldsum - newsum >= 0) {
+			horizontalRearrange();
+			oldsum = newsum;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public int calculateDistance() {
+		// Calculate sum of edges lengths between columns
+		int sum = 0;
+		Iterator<Pair<Integer>> pairList2 = colorCombis.iterator();
+		while (pairList2.hasNext()) {
+			Pair<Integer> pair = pairList2.next();
+			int diff = positions.get(pair.getSecond()) - positions.get(pair.getFirst());
+			sum += Math.abs(diff);
+		}
+		return sum;
+	}
+	
+	public void horizontalRearrange() {
+		Enumeration<GraphNode> nodesList = nodesNewColors.keys();
+		while (nodesList.hasMoreElements()) {
+			GraphNode node = nodesList.nextElement();
+			int column = nodesNewColors.get(node);
+			int xOrder = positions.get(column);
+			Point xy = node.getXY();
+			xy = new Point(xOrder * 150, xy.y);
+			node.setXY(xy);
+		}
 	}
 	
 	public void revertColors() {
@@ -184,6 +330,10 @@ public class SimilarityColoring implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent arg0) {
+		if (arg0.getActionCommand() == "H") {
+			paletteBox.setSelected(!xByColor.isSelected());
+			return;
+		}
 		palette = paletteBox.isSelected();
 		if (!numEdgesToRemoveBox.getText().isEmpty()) try {
 			numEdgesToRemove = Integer.parseInt(numEdgesToRemoveBox.getText());

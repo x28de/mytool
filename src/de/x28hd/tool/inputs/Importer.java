@@ -72,10 +72,11 @@ public class Importer {
 	public static final int Grsshopper = 28;
 	public static final int Zotero = 29;
 	public static final int PPTX = 30;
-	public static final int OldFormat = 31;
-	public static final int Filetree = 32;
-	public static final int Sitemap = 33;
-	public static final int x28tree = 34;
+	public static final int WXR = 31;
+	public static final int OldFormat = 32;
+	public static final int Filetree = 33;
+	public static final int Sitemap = 34;
+	public static final int x28tree = 35;
 	
 	static final Importer[] importers = {
 	new Importer(Importer.Evernote, "Evernote", "en-export", "enex", "enex (Evernote Export file)", 
@@ -144,6 +145,8 @@ public class Importer {
 			"If you have a Zotero Report file, after extracting notes with the ZotFile plugin"),
 	new Importer(Importer.PPTX, "PowerPoint", "(not relavant)", "pptx", "pptx (PowerPoint presentation)",
 			"A PowerPoint presentation (drop several presentations to get an overview)"),
+	new Importer(Importer.WXR, "WXR", "rss", "xml", "xml (WXR export file)",
+			"WordPress export of blog posts"),
 	new Importer(Importer.OldFormat, "(Old Format)", "topicmap", "zip", "zip (Zipped XML Document)", 
 			"Old versions of this tool and its precursor DeepaMehta"),
 	new Importer(Importer.Filetree, "(Filetree)", "(not relevant)", "none", "none (invisible)", 
