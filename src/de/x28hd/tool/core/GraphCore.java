@@ -303,9 +303,9 @@ public class GraphCore extends JDesktopPane {
 		if (node != selection.topic) {
 			selection.mode = Selection.SELECTED_TOPIC;
 			controlerCore.nodeSelected(node);
-			repaint();
 			selection.topic = node;
 			selection.assoc = null;
+			repaint();
 		}
 	}
 
@@ -313,20 +313,20 @@ public class GraphCore extends JDesktopPane {
 		if (edge != selection.assoc) {
 			selection.mode = Selection.SELECTED_ASSOCIATION;
 			controlerCore.edgeSelected(edge);
-			repaint();
 			selection.assoc = edge;
 			selection.topic = null;
+			repaint();
 		}
 	}
 	
 	/** Triggered via graphClicked() and thisPanelPressed() from MouseAdapter */
 	public void graphSelected() {
 		if (selection.mode != Selection.SELECTED_TOPICMAP) {
-			repaint();
 			selection.mode = Selection.SELECTED_TOPICMAP;
 			selection.topic = null;
 			selection.assoc = null;
 			controlerCore.graphSelected();
+			repaint();
 		}
 	}
 

@@ -128,7 +128,7 @@ public class LifeCycle {
 	}
 	
 	public void save() {
-		if (confirmedFilename.isEmpty()) {
+		if (!confirmedFilename.endsWith(".xml")) {
 			if (askForFilename("xml")) {
 				if (controler.startStoring(confirmedFilename, false)) {
 					setDirty(false);
