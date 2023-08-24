@@ -73,10 +73,11 @@ public class Importer {
 	public static final int Zotero = 29;
 	public static final int PPTX = 30;
 	public static final int WXR = 31;
-	public static final int OldFormat = 32;
-	public static final int Filetree = 33;
-	public static final int Sitemap = 34;
-	public static final int x28tree = 35;
+	public static final int Onto = 32;
+	public static final int OldFormat = 33;
+	public static final int Filetree = 34;
+	public static final int Sitemap = 35;
+	public static final int x28tree = 36;
 	
 	static final Importer[] importers = {
 	new Importer(Importer.Evernote, "Evernote", "en-export", "enex", "enex (Evernote Export file)", 
@@ -147,6 +148,8 @@ public class Importer {
 			"A PowerPoint presentation (drop several presentations to get an overview)"),
 	new Importer(Importer.WXR, "WXR", "rss", "xml", "xml (WXR export file)",
 			"WordPress export of blog posts"),
+	new Importer(Importer.Onto, "Ontology", "rdf:RDF", "owl", "owl (Ontology file)",
+			"If you have a fairly simple ontology OWL file"),
 	new Importer(Importer.OldFormat, "(Old Format)", "topicmap", "zip", "zip (Zipped XML Document)", 
 			"Old versions of this tool and its precursor DeepaMehta"),
 	new Importer(Importer.Filetree, "(Filetree)", "(not relevant)", "none", "none (invisible)", 

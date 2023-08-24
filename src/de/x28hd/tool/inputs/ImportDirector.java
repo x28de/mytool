@@ -57,6 +57,7 @@ import de.x28hd.tool.importers.ImportTSV;
 import de.x28hd.tool.importers.ImportWXR;
 import de.x28hd.tool.importers.LuhmannImport;
 import de.x28hd.tool.importers.MetamapsImport;
+import de.x28hd.tool.importers.OntoImport;
 import de.x28hd.tool.importers.PowerPointImport;
 import de.x28hd.tool.importers.RogetImport;
 import de.x28hd.tool.importers.TaggedImport;
@@ -138,6 +139,8 @@ public class ImportDirector implements ActionListener {
 			new ImportGraphXML(doc, controler);
 		} else if (this.knownFormat == Importer.WXR) {
 			new ImportWXR(doc, controler, false);
+		} else if (this.knownFormat == Importer.Onto) {
+			new OntoImport(doc, controler);
 		}
 	}
 
@@ -420,6 +423,8 @@ public class ImportDirector implements ActionListener {
 			new ImportGraphXML(inputXml, controler);
 		} else if (this.knownFormat == Importer.WXR) {
 			new ImportWXR(inputXml, controler, false);
+		} else if (this.knownFormat == Importer.Onto) {
+			new OntoImport(inputXml, controler);
 		} else if (knownFormat == Importer.OldFormat) {
 			new TopicMapImporter(inputXml, controler);
 		} else if (knownFormat == Importer.Sitemap) {
