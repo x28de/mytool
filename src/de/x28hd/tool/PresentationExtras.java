@@ -129,7 +129,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	public Timer hintTimer = new Timer(25, new ActionListener() { 
 	    public void actionPerformed (ActionEvent e) { 
 			graphPanel.jumpingArrow(true);
-			graphPanel.grabFocus();
+			graphPanel.requestFocusInWindow();
 	    } 
 	});
 	

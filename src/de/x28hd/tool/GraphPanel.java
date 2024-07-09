@@ -148,6 +148,7 @@ public class GraphPanel extends GraphCore  {
 //	Paint methods
 
 	public void paintNodes(Graphics g) {
+		graphExtras.paintHints(g);	// borders and jumping arrows, if set
 		super.paintNodes(g);
 		if (rectangleInProgress) paintRect(g);
 	}
