@@ -71,6 +71,8 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 	Hashtable<Integer,String> num2inputID = new  Hashtable<Integer,String>();
 	int j = -1;
 	int edgesNum = 0;
+	HashSet<String> uniqEdges = new HashSet<String>();
+	boolean notUniq = false;
 	
 	// For topology
 	Hashtable<String,String> nextUp = new Hashtable<String,String>();
@@ -333,7 +335,12 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 				if (!nextDown.containsKey(toItem)) nextDown.put(toItem, itemID);
 			}
 		}
-		
+		if (notUniq) {
+			controler.displayPopup("There are inconsistencies in the input\n"
+					+ "(perhaps from merging?\n"
+					+ "Exiting.");
+			return;
+		}
 		SortedMap<String,String> nameSorter = (SortedMap<String,String>) namePicker;
 		SortedSet<String> nameSet = (SortedSet<String>) nameSorter.keySet();
 		Iterator<String> it = nameSet.iterator();
@@ -602,8 +609,18 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 			return;
 		}
 		edgesNum++;
-		GraphNode sourceNode = nodes.get(inputID2num.get(fromRef));
-		GraphNode targetNode = nodes.get(inputID2num.get(toRef));
+		int n1 = inputID2num.get(fromRef);
+		int n2 = inputID2num.get(toRef);
+		GraphNode sourceNode = nodes.get(n1);
+		GraphNode targetNode = nodes.get(n2);
+		// As of 2.99o of Ahnblatt.exe, there are duplicate links possible; ignore them
+		String uniq = (n1 < n2) ? n1 + "-" + n2 : n2 + "-" + n1;
+		if (uniqEdges.contains(uniq)) {
+			System.out.println("Duplicate " + fromRef + " -> " + toRef);
+			notUniq = true;
+			return;
+		}
+		uniqEdges.add(uniq);
 		edge = new GraphEdge(edgesNum, sourceNode, targetNode, Color.decode(newEdgeColor), "");
 		edges.put(edgesNum, edge);
 		sourceNode.addEdge(edge);
@@ -879,6 +896,7 @@ public class GedcomImport implements ListSelectionListener, ActionListener {
 		String command = arg0.getActionCommand();
 		if (command == "Cancel") {
 			transit = false;
+	        frame.dispose();
 		} else if (command == "Continue") {
 			shift = shiftBox.isSelected();
 	        frame.setVisible(false);
