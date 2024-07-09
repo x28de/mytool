@@ -215,6 +215,8 @@ public class GraphExtras {
 	public BufferedImage snapShot() {
 		graphPanel.graphSelected();
 		graphPanel.normalize();
+		Dimension s = graphPanel.getSize();		// Fix for H5P export
+		setDimension(s);
 		int imgWidth = Math.min(bounds.width + 200, width);
 		int imgHeight = Math.min(bounds.height + 200, height);
 		BufferedImage bufferedImage = new BufferedImage(imgWidth, 

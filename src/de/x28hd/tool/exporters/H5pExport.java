@@ -346,7 +346,7 @@ public class H5pExport implements HyperlinkListener, ActionListener {
 				      w.key("params");
 				      w.object();
 				        w.key("text");
-				        w.value(node.getDetail());
+				        w.value(node.getDetail().replaceAll("h1>", "h2>"));
 				      w.endObject(); // end params
 				      w.key("library");
 				      w.value("H5P.Text 1.1");
