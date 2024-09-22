@@ -65,6 +65,7 @@ import de.x28hd.tool.inputs.InsertMap;
 import de.x28hd.tool.inputs.IntegrateNodes;
 import de.x28hd.tool.inputs.NewStuff;
 import de.x28hd.tool.layouts.CentralityColoring;
+import de.x28hd.tool.layouts.CentralityColoring2;
 import de.x28hd.tool.layouts.CheckOverlaps;
 import de.x28hd.tool.layouts.DAG;
 import de.x28hd.tool.layouts.GraphPanelZoom;
@@ -117,6 +118,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	boolean pasteHere = false;
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	CentralityColoring centralityColoring;
+	CentralityColoring2 centralityColoring2;
 	SimilarityColoring similarityColoring;
 	JSplitPane splitPane = null;
 	JPanel rightPanel = null;
@@ -529,8 +531,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			} else if (command == "random") {
 				RandomMap randomMap = new RandomMap(controler);
 				if (randomMap.triggerColoring()) {
-					centralityColoring = new CentralityColoring(nodes, edges);
-					centralityColoring.changeColors();
+					centralityColoring2 = new CentralityColoring2(nodes, edges);
+					centralityColoring2.changeColors();
 				}
 				
 			} else if (command == "zoom") {
