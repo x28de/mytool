@@ -10,8 +10,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -29,13 +27,12 @@ import java.util.TreeMap;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -60,7 +57,7 @@ import de.x28hd.tool.inputs.Importer;
 import de.x28hd.tool.inputs.TopicMapLoader;
 import de.x28hd.tool.layouts.CentralityColoring;
 
-public class TreeImport extends SwingWorker<Void, Void> implements ActionListener, PropertyChangeListener {
+public class TreeImport implements ActionListener {
 	
 	// Main fields
 	String dataString = "";
@@ -90,7 +87,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	String[] legend = new String[6];
 	
 	JTree tree;
-	JFrame frame;
+	JDialog frame;
 	JFrame progressFrame;
 	File file;
 	private WindowAdapter myWindowAdapter = new WindowAdapter() {
@@ -98,23 +95,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			finish();
 		}
 	};
-	
-	// Accessories for progress bar
-	public Void doInBackground() {
-		setProgress(0);
-		try {
-		loadStuff(file, controler, knownFormat);
-		} catch (Exception ex)  {
-			System.out.println("Error TI113 ");
-			ex.printStackTrace();
-		}
-
-		return null;
-	}
-	public void done() {
-		progressFrame.dispose();
-		commonPart();
-	}
 	
 	int j = -1;
 	int readCount = 0;
@@ -166,7 +146,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	String nestNode = "outline";
 	String labelAttr = "text";
 	String idAttr = "";
-	JProgressBar progressBar;
 	
 	public TreeImport(File file, PresentationService controler, int knownFormat) {
 		new TreeImport(file, controler, knownFormat, false);
@@ -180,18 +159,11 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		showJTree = false;
 		layoutOpt = true;
 
-		progressBar = new JProgressBar(0, 100);
-		progressBar.setValue(0);
-		progressBar.setStringPainted(true);
-		JPanel panel = new JPanel();
-		panel.add(progressBar);
-
 		progressFrame = new JFrame("Loading ...");
 		progressFrame.setLocation(100, 170);
 		progressFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		progressFrame.addWindowListener(myWindowAdapter);
 		progressFrame.setLayout(new BorderLayout());
-		progressFrame.add(panel, BorderLayout.PAGE_START);
 
 		progressFrame.pack();
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -201,8 +173,9 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 		if (!silent2) progressFrame.setVisible(true);
 		controler.getControlerExtras().stopHint();
 
-		addPropertyChangeListener(this);	//	updates progress bar when setProgress()
-		execute();							//	calls loadStuff() via doInBackground()
+		loadStuff(file, controler, knownFormat);
+		progressFrame.dispose();
+		commonPart();	
 	}
 	
 	public void loadStuff(File file, PresentationService controler, int knownFormat) {
@@ -218,7 +191,6 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			int topNum = inputID2num.get(topNode);
 			top = new DefaultMutableTreeNode(new BranchInfo(topNum, file.getName()));
 			myProgress = 5;
-			setProgress(myProgress);
 			SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
 			
 		    fileTree(file, topNode, top, 0);
@@ -287,17 +259,9 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 			if (f.isHidden()) continue;
 			content = content + "<br /><a href=\"" + f.toURI().toString() + "\">" + f.getName() + "</a>";
 			
-			//	For progress bar (slow shortcut lookup)
+			//	For progress monitoring (slow shortcut lookup)
 			monitor++;
-			if (monitor % 250 > 248) {
-				if (myProgress < 97) {
-					myProgress = myProgress + (int) (.3 * (100 - myProgress));
-				} else {	// keep the propertyChange firing
-					myProgress = 98 + alternate;
-					alternate = -alternate;
-				}
-				setProgress(myProgress);
-			}
+			if (monitor % 250 == 0) progressFrame.setTitle("Loading: " + monitor + " files");
 			
 			String id = readCount++ + "";
 			String desti = "";
@@ -594,7 +558,7 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
 	    
 	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 	    
-        frame = new JFrame("Options");
+        frame = new JDialog(controler.getMainWindow(), "Options", true);
         frame.setLocation(100, 170);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.addWindowListener(myWindowAdapter);
@@ -954,14 +918,5 @@ public class TreeImport extends SwingWorker<Void, Void> implements ActionListene
         frame.dispose();
         finish();
 		if (hypOpt) controler.getControlerExtras().toggleHyp(1, true);
-	}
-
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-        if ("progress" == evt.getPropertyName()) {
-            int progress = (Integer) evt.getNewValue();
-            progressBar.setValue(progress);
-            progressBar.setString(monitor + "");
-        } 
 	}
 }
