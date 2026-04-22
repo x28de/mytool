@@ -413,6 +413,10 @@ public class CentralityColoring implements TreeSelectionListener {
 		
 		// Trees
 		DelegateForest<Integer,Integer> forest = new DelegateForest<Integer,Integer>(g2);
+		if (forest.getTrees().size() <= 0) {
+			System.out.println("Map seems inappropriate (no trees in forest.)");
+			return;
+		}
 //		TreeLayout<Integer,Integer> layout = new TreeLayout<Integer,Integer>(forest);
 //		BalloonLayout<Integer,Integer> layout = new BalloonLayout<Integer,Integer>(forest);
 		RadialTreeLayout<Integer,Integer> layout = new RadialTreeLayout<Integer,Integer>(forest);
@@ -437,7 +441,12 @@ public class CentralityColoring implements TreeSelectionListener {
 //			double y = layout.getY(id);
 			
 			//	For Trees
-			Point2D p = PolarPoint.polarToCartesian(map.get(id));
+			Point2D p = null;
+			try {
+				p = PolarPoint.polarToCartesian(map.get(id));
+			} catch(Throwable e) {
+				e.printStackTrace();
+			}
 //			Point2D p = layout.transform(id);
 			double x = p.getX();
 			double y = p.getY();
