@@ -64,6 +64,7 @@ import de.x28hd.tool.importers.TaggedImport;
 import de.x28hd.tool.importers.TinderImport;
 import de.x28hd.tool.importers.TopicMapImporter;
 import de.x28hd.tool.importers.TreeImport;
+import de.x28hd.tool.importers.TreeImport2;
 import de.x28hd.tool.importers.VueImport;
 import de.x28hd.tool.importers.WordImport;
 import de.x28hd.tool.importers.ZknImport;
@@ -165,7 +166,7 @@ public class ImportDirector implements ActionListener {
 		} else if (this.knownFormat == Importer.Metamaps) {	//	needs different method
 			new MetamapsImport(file, controler);
 		} else if (this.knownFormat == Importer.Filetree) { 
-			new TreeImport(file, controler, Importer.Filetree);
+			new TreeImport2(file, controler, Importer.Filetree);
 		} else if (this.knownFormat == Importer.H5p) { 
 			new H5pTextImport(file, controler);
 		} else if (this.knownFormat == Importer.Zotero) { 
