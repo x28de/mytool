@@ -10,13 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -40,7 +36,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import javax.xml.transform.TransformerConfigurationException;
 
-import org.stackoverflowusers.file.WindowsShortcut;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -68,8 +63,6 @@ public class TreeImport implements ActionListener {
 	Hashtable<String,String> byPaths = new Hashtable<String,String>();;
 	TreeMap<String,String> pathsMap = new TreeMap<String,String>();
 	SortedMap<String,String> pathsList = (SortedMap<String,String>) pathsMap;
-	TreeMap<Long,Integer> datesMap = new TreeMap<Long,Integer>();
-	SortedMap<Long,Integer> datesList = (SortedMap<Long,Integer>) datesMap;
 	
 	// Auxiliary stuff
 	Hashtable<String,String> inputItems = new Hashtable<String,String>();
@@ -81,15 +74,10 @@ public class TreeImport implements ActionListener {
 	HashSet<GraphNode> xrefTreeNodes = new HashSet<GraphNode>();
 	PresentationService controler;
 	Hashtable<Integer,String> nodeColors = new Hashtable<Integer,String>();
-	Hashtable<Integer,String> nodeDetails = new Hashtable<Integer,String>();
-	Hashtable<Integer,Long> nodeDates = new Hashtable<Integer,Long>();
 	Hashtable<Integer,String> edgeColors = new Hashtable<Integer,String>();
-	String[] legend = new String[6];
 	
 	JTree tree;
 	JDialog frame;
-	JFrame progressFrame;
-	File file;
 	private WindowAdapter myWindowAdapter = new WindowAdapter() {
 		public void windowClosing(WindowEvent e) {
 			finish();
@@ -101,26 +89,13 @@ public class TreeImport implements ActionListener {
 	int edgesNum = 0;
     DefaultMutableTreeNode top;
     String htmlOut = "";
-	JPanel radioPanel = null;
 	boolean transit = false;
 	JCheckBox transitBox = null;
 	boolean layoutOpt = false;
 	JCheckBox layoutBox = null;
-	boolean colorOpt = false;
-	JCheckBox colorBox = null;
-	boolean legendOpt = false;
-	JCheckBox legendBox = null;
-	boolean hypOpt = true;
-	JCheckBox hypBox = null;
 	int relID = -1;
-	boolean extended = false;
-	boolean windows = false;
 	boolean showJTree = true;
 	boolean silent = false;
-	boolean silent2 = false;	// no progress bar
-	int monitor = 0;
-	int myProgress = 0;
-	int alternate = -1;
 	
 	//	Constants
 	int maxVert = 10;
@@ -147,259 +122,6 @@ public class TreeImport implements ActionListener {
 	String labelAttr = "text";
 	String idAttr = "";
 	
-	public TreeImport(File file, PresentationService controler, int knownFormat) {
-		new TreeImport(file, controler, knownFormat, false);
-	}
-	public TreeImport(File file, PresentationService controler, int knownFormat, boolean silent) {
-		this.silent = silent;
-		this.silent2 = silent;
-		this.file = file;
-		this.controler = controler;
-		this.knownFormat = knownFormat;
-		showJTree = false;
-		layoutOpt = true;
-
-		progressFrame = new JFrame("Loading ...");
-		progressFrame.setLocation(100, 170);
-		progressFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		progressFrame.addWindowListener(myWindowAdapter);
-		progressFrame.setLayout(new BorderLayout());
-
-		progressFrame.pack();
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		progressFrame.setLocation(dim.width/2 - 298, dim.height/2 - 209);		
-		progressFrame.setMinimumSize(new Dimension(596, 418));
-
-		if (!silent2) progressFrame.setVisible(true);
-		controler.getControlerExtras().stopHint();
-
-		loadStuff(file, controler, knownFormat);
-		progressFrame.dispose();
-		commonPart();	
-	}
-	
-	public void loadStuff(File file, PresentationService controler, int knownFormat) {
-        
-		extended = controler.getExtended();
-		windows = (System.getProperty("os.name").startsWith("Windows"));
-		
-		if (knownFormat == Importer.Filetree) {	//	Filepaths list
-			colorOpt = true;
-			fs = System.getProperty("file.separator");
-			topNode = file.getAbsolutePath();
-			topNode = createRelatedNode(topNode, false);
-			int topNum = inputID2num.get(topNode);
-			top = new DefaultMutableTreeNode(new BranchInfo(topNum, file.getName()));
-			myProgress = 5;
-			SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
-			
-		    fileTree(file, topNode, top, 0);
-		    
-		    String content2 = nodeDetails.get(topNum);
-		    String moreDetail = "<html><body>Open folder <a href=\"" + file.toURI().toString()  + "\">" + file.getName() + 
-		    		"</a>" + "<br />" + content2 + "<br /></body></html>";
-		    GraphNode node = nodes.get(topNum);
-		    node.setDetail(moreDetail);
-		    
-		    // Prepare coloring the folders by age 
-		    // (by hierarchy is done via addEdge) 			TODO make more transparent
-		    
- 			SortedSet<Long> datesSet = (SortedSet<Long>) datesList.keySet();
- 			Iterator<Long> ixit = datesSet.iterator(); 
- 			if (datesSet.size() > 0) {
- 				int rangeSize = (datesSet.size() / 6) + 1;
-				int counter = datesSet.size() - 1;
- 				int previousCol = -1;
- 				
- 				while (ixit.hasNext()) {
-  					int colID = counter / rangeSize;
-					counter--;
- 					Long modDate = ixit.next();
- 					int nodeNum = datesList.get(modDate);
- 					
- 					nodeColors.put(nodeNum, colors[colID]);
- 					
- 					//	Legend item
- 					Date date = new Date(modDate);
- 					String dateText = df2.format(date);
- 					if (colID != previousCol) {
- 						String label = dateText + " +";
- 						if (colID == 0) label = label + " (newest)";
- 						if (colID == 5) label = label + " (oldest)";
- 						legend[colID] = label;
- 						previousCol = colID;
- 					}
- 				}
- 			}
-		}
-		
-		//	Collect relationships
-		Enumeration<Integer> relEnum = relationshipFrom.keys();
-		while (relEnum.hasMoreElements()) {
-			Integer relID = relEnum.nextElement();
-			String fromRef = relationshipFrom.get(relID);
-			String toPath = relationshipTo.get(relID);
-			String toRef = createRelatedNode(toPath, false);
-			addEdge(fromRef, toRef, true, true, "");
-		}
-	}
-	
-	public void fileTree(File file, String parentID, DefaultMutableTreeNode parentInTree,
-			int level) {
-	
-		File[] dirList = file.listFiles();
-		String content = "";
-		Long modDate = 0L;
-		Long maxModDate = 0L;
-		SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
-
-		if (dirList != null) {
-		for (File f : dirList) {
-	        
-			if (f.isHidden()) continue;
-			content = content + "<br /><a href=\"" + f.toURI().toString() + "\">" + f.getName() + "</a>";
-			
-			//	For progress monitoring (slow shortcut lookup)
-			monitor++;
-			if (monitor % 250 == 0) progressFrame.setTitle("Loading: " + monitor + " files");
-			
-			String id = readCount++ + "";
-			String desti = "";
-
-			if (f.isDirectory()) {
-				if (!windows) {	// Maybe symlink
-					try {
-						desti = f.getCanonicalPath();
-					} catch (IOException e) {
-						System.out.println("Error TI111 " + e.getMessage());
-						continue;
-					}
-					if (!desti.equals(f.getAbsolutePath())) {
-						
-						relID++;
-						relationshipFrom.put(relID, parentID);
-						relationshipTo.put(relID, desti);
-						continue;
-					}
-				} 
-				
-				//	add folder node
-				String label = f.getName();
-				inputItems.put(id, label);
-				byPaths.put(id, f.getAbsolutePath());
-				String detail = "<html><body>Open folder <a href=\"" + f.toURI().toString()  + "\">" + f.getName() + "</a></body></html>";
-				addNode(id, detail);
-				int nodeNum= inputID2num.get(id);
-				
-				DefaultMutableTreeNode branch = 
-						new DefaultMutableTreeNode(new BranchInfo(nodeNum, label));
-				parentInTree.add(branch);
-
-				// recurse
-				fileTree(f, id, branch, level + 1);
-				
-				// specify folder details (leaf entries and their newest date)
-		        String content2 = nodeDetails.get(nodeNum);
-		        Long modDate2 = nodeDates.get(nodeNum);
-		        Date date = new Date(modDate2);
-		        String dateText = df2.format(date);
-				String moreDetail = "<html><body>Open folder <a href=\"" + f.toURI().toString()  + "\">" + f.getName() + 
-						"</a> (" + dateText + ") <br />" + content2 + "<br /></body></html>";
-				GraphNode node = nodes.get(nodeNum);
-				node.setDetail(moreDetail);
-
-				// add color and edge
-				String edgeColor = "";
-					nodeColors.put(nodeNum, colors[level % 6]);
-					edgeColor = colors2[level % 6];
-				addEdge(parentID, id, false, edgeColor);
-
-			} else { // not a directory
-				
-				modDate = f.lastModified();
-				if (modDate > maxModDate) maxModDate = modDate;
-				
-				if (windows) {	// maybe shortcut
-					if (!f.getName().endsWith(".lnk")) continue;
-					try {
-						WindowsShortcut ws = new WindowsShortcut(f);
-
-						// record shortcut, skip leaf nodes
-						if (!ws.isPotentialValidLink(f)) continue;
-						if (!ws.isDirectory()) continue;
-						desti = ws.getRealFilename();
-
-						relID++;
-						relationshipFrom.put(relID, parentID);
-						relationshipTo.put(relID, desti);
-					} catch (IOException e) {
-						System.out.println("Error TI104 " + e.getMessage());
-						continue;
-					} catch (ParseException e) {
-						if (!e.toString().endsWith("magic is missing")) {
-							System.out.println("Error TI105 " + f.getAbsolutePath() + " " + e.getMessage());
-						}
-						continue;
-					}
-				}
-			}
-		}
-		}
-		
-		// details for parent
-		int parentNum = inputID2num.get(parentID);
-		nodeDetails.put(parentNum, content);
-		if (!file.isDirectory()) return;
-		if (maxModDate <= 0L) maxModDate = file.lastModified(); // only last resort
-		
-		while (datesMap.containsKey(maxModDate)) maxModDate++;
-		datesMap.put(maxModDate, parentNum);
-		nodeDates.put(parentNum, maxModDate);
-	}
-	
-	public String createRelatedNode(String desti, boolean siteMap) {
-		String fromRef = "";
-		if (byPaths.containsValue(desti) && !siteMap) {
-			// Find key
-			Enumeration<String> pathsEnum = byPaths.keys();
-			while (pathsEnum.hasMoreElements()) {
-				String testKey = pathsEnum.nextElement();
-				String testPath = byPaths.get(testKey);
-				if (testPath.equals(desti)) {
-					fromRef = testKey;
-					break;
-				}
-			}
-			return fromRef;
-		} else {
-			String destID = readCount++ + "";
-			int slashPos = desti.lastIndexOf(fs);
-			if (slashPos <= 1) {
-				inputItems.put(destID, desti);
-				byPaths.put(destID, desti);
-				addNode(destID, desti, true);
-				return destID;
-			}
-			String ancestors = desti.substring(0, slashPos);
-			String leaf = desti.substring(slashPos + 1);
-			inputItems.put(destID, leaf);
-			byPaths.put(destID, desti);
-			File f = new File(desti);
-			String detail = "<html><body>Open folder <a href=\"" + f.toURI().toString()  + "\">" + desti + "</a></body></html>";
-			addNode(destID, detail, desti != topNode);
-			
-			fromRef = createRelatedNode(ancestors, false);	// recurse
-			
-			addEdge(fromRef, destID, false, true, "");
-			if (!f.exists()) {
-				int num = inputID2num.get(destID);
-				GraphNode node = nodes.get(num);
-				node.setColor("#000000");
-				nodeColors.put(num, "#000000");
-			}
-			return destID;
-		}
-	}
 	
 	public TreeImport(Document inputXml, PresentationService controler, int knownFormat) {
 		new TreeImport(inputXml, controler, knownFormat, false);
@@ -411,7 +133,6 @@ public class TreeImport implements ActionListener {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
 		this.silent = silent;
-		extended = controler.getExtended();
 		if (knownFormat == Importer.FreeMind) {	
 			topNode = "map";
 			nestNode = "node";
@@ -594,10 +315,6 @@ public class TreeImport implements ActionListener {
 			toolbar.add(sorry, "Center");
 		}
 		toolbar.add(transitBox, "West");
-		hypBox = new JCheckBox ("Turns hyperlinks on but text editing off", true);
-		hypBox.setActionCommand("hyp");
-		hypBox.addActionListener(this);
-		if (!showJTree) toolbar.add(hypBox, "East");
 		JPanel toolbar2 = new JPanel();
 		toolbar2.setLayout(new BorderLayout());
 		JPanel optics = new JPanel();
@@ -605,17 +322,6 @@ public class TreeImport implements ActionListener {
 		layoutBox = new JCheckBox ("Tree layout", layoutOpt);
 		layoutBox.addActionListener(this);
 		optics.add(layoutBox);
-		colorBox = new JCheckBox ("Node color by change date", true);
-		colorBox.setActionCommand("colorDate");
-		colorBox.addActionListener(this);
-		optics.add(colorBox);
-		legendBox = new JCheckBox ("Show legend", false);
-		legendBox.addActionListener(this);
-		optics.add(legendBox);
-		if (knownFormat != Importer.Filetree) {	// folder tree
-			colorBox.setVisible(false);
-			legendBox.setVisible(false);
-		}
 		toolbar2.add(buttons,"East");
 		toolbar2.add(optics, "West");
 		toolbar.add(toolbar2, "South");
@@ -638,26 +344,6 @@ public class TreeImport implements ActionListener {
 //		Pass on the new map
 
 	public void finish() {
-		if (legendOpt) {
-			String legendID = readCount++ + "";
-			inputItems.put(legendID, "Legend");
-			addNode(legendID, "Look at the colored nodes connected to this one, "
-					+ "<br />from red (newest) to purple (oldest). "
-					+ "<br /><br />Black icons are dead shortcuts (maybe just character variations)."
-					+ "<br />Grey icons are parents."
-					+ "<br /><br />(Note that edge colors don't reflect change dates "
-					+ "but just hierarchy levels.)", true);
-			for (int colID = 0; colID < 6; colID++) {
-				String id2 = readCount++ + "";
-				String label = legend[colID];
-				if (label == null) break;
-				inputItems.put(id2, label);
-				addNode(id2, "Folders modified from " + legend[colID] + " are shown in this color", true);
-				addEdge(legendID, id2, false, true, "");
-				int nodeNumL = inputID2num.get(id2);
-				nodeColors.put(nodeNumL, colors[colID]);
-			}
-		}
 		if (transit) { 
 			if (knownFormat == Importer.Filetree) {
 				Iterator<GraphEdge> xrefTreeIter = xrefTreeEdges.iterator();
@@ -695,7 +381,6 @@ public class TreeImport implements ActionListener {
 					GraphNode node = nodes.get(key);
 					node.setColor(treeColor);
 				}
-				if (!colorOpt) {
 					//	Color nodes like edges end
 					Enumeration<Integer> edgesEnum = edges.keys();
 					while (edgesEnum.hasMoreElements()) {
@@ -709,7 +394,6 @@ public class TreeImport implements ActionListener {
 							node2.setColor(colString);
 						}
 					}
-				}
 			}
         	try {
         		dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
@@ -894,29 +578,14 @@ public class TreeImport implements ActionListener {
 		} else if (command == "transit"){
 			transit = transitBox.isSelected();
 			layoutBox.setEnabled(!transit);
-			colorBox.setEnabled(!transit);
-			legendBox.setEnabled(!transit);
 			frame.repaint();
 			return;
 		} else if (command == "Tree layout"){
 			layoutOpt = layoutBox.isSelected();
-			colorBox.setEnabled(layoutOpt);
-			legendBox.setEnabled(layoutOpt);
-			return;
-		} else if (command == "colorDate"){
-			colorOpt = colorBox.isSelected();
-			legendBox.setEnabled(colorOpt);
-			return;
-		} else if (command == "Show legend"){
-			legendOpt = legendBox.isSelected();
-			return;
-		} else if (command == "hyp"){
-			hypOpt = hypBox.isSelected();
 			return;
 		}
         frame.setVisible(false);
         frame.dispose();
         finish();
-		if (hypOpt) controler.getControlerExtras().toggleHyp(1, true);
 	}
 }

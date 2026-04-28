@@ -12,8 +12,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,30 +29,20 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeSelectionModel;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.stackoverflowusers.file.WindowsShortcut;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.accessories.BranchInfo;
-import de.x28hd.tool.accessories.MyHTMLEditorKit;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.exporters.TopicMapStorer;
 import de.x28hd.tool.inputs.Importer;
-import de.x28hd.tool.inputs.TopicMapLoader;
 import de.x28hd.tool.layouts.CentralityColoring;
 
 public class TreeImport2 implements ActionListener {
@@ -66,8 +54,6 @@ public class TreeImport2 implements ActionListener {
 	
 	//	Input file list sorting 
 	Hashtable<String,String> byPaths = new Hashtable<String,String>();;
-	TreeMap<String,String> pathsMap = new TreeMap<String,String>();
-	SortedMap<String,String> pathsList = (SortedMap<String,String>) pathsMap;
 	TreeMap<Long,Integer> datesMap = new TreeMap<Long,Integer>();
 	SortedMap<Long,Integer> datesList = (SortedMap<Long,Integer>) datesMap;
 	
@@ -86,7 +72,6 @@ public class TreeImport2 implements ActionListener {
 	Hashtable<Integer,String> edgeColors = new Hashtable<Integer,String>();
 	String[] legend = new String[6];
 	
-	JTree tree;
 	JDialog frame;
 	JFrame progressFrame;
 	File file;
@@ -100,8 +85,6 @@ public class TreeImport2 implements ActionListener {
 	int readCount = 0;
 	int edgesNum = 0;
     DefaultMutableTreeNode top;
-    String htmlOut = "";
-	JPanel radioPanel = null;
 	boolean transit = false;
 	JCheckBox transitBox = null;
 	boolean layoutOpt = false;
@@ -113,14 +96,11 @@ public class TreeImport2 implements ActionListener {
 	boolean hypOpt = true;
 	JCheckBox hypBox = null;
 	int relID = -1;
-	boolean extended = false;
 	boolean windows = false;
-	boolean showJTree = true;
 	boolean silent = false;
 	boolean silent2 = false;	// no progress bar
 	int monitor = 0;
 	int myProgress = 0;
-	int alternate = -1;
 	
 	//	Constants
 	int maxVert = 10;
@@ -143,9 +123,6 @@ public class TreeImport2 implements ActionListener {
 	//	Overriden later
 	int knownFormat = Importer.OPML;	
 	String topNode = "body";
-	String nestNode = "outline";
-	String labelAttr = "text";
-	String idAttr = "";
 	
 	public TreeImport2(File file, PresentationService controler, int knownFormat) {
 		new TreeImport2(file, controler, knownFormat, false);
@@ -156,7 +133,6 @@ public class TreeImport2 implements ActionListener {
 		this.file = file;
 		this.controler = controler;
 		this.knownFormat = knownFormat;
-		showJTree = false;
 		layoutOpt = true;
 
 		progressFrame = new JFrame("Loading ...");
@@ -180,7 +156,6 @@ public class TreeImport2 implements ActionListener {
 	
 	public void loadStuff(File file, PresentationService controler, int knownFormat) {
         
-		extended = controler.getExtended();
 		windows = (System.getProperty("os.name").startsWith("Windows"));
 		
 		if (knownFormat == Importer.Filetree) {	//	Filepaths list
@@ -401,172 +376,21 @@ public class TreeImport2 implements ActionListener {
 		}
 	}
 	
-	public TreeImport2(Document inputXml, PresentationService controler, int knownFormat) {
-		new TreeImport2(inputXml, controler, knownFormat, false);
-	}
-
-	public TreeImport2(Document inputXml, PresentationService controler, int knownFormat, 
-			boolean silent) {
-
-		this.controler = controler;
-		this.knownFormat = knownFormat;
-		this.silent = silent;
-		extended = controler.getExtended();
-		if (knownFormat == Importer.FreeMind) {	
-			topNode = "map";
-			nestNode = "node";
-			labelAttr = "TEXT";
-			idAttr = "ID";
-		}
-		if (knownFormat == Importer.x28tree) {
-			TopicMapLoader loader = new TopicMapLoader(inputXml, controler, true);
-			nodes = loader.newNodes;
-			edges = loader.newEdges;
-			nonTreeEdges = loader.nonTreeEdges;
-			System.out.println(nodes.size() + " " + edges.size() + " " + nonTreeEdges.size());
-			layoutOpt = true;
-			finish();
-			return;
-			
-		} else if (knownFormat != Importer.Sitemap) {
-			NodeList graphContainer = inputXml.getElementsByTagName(topNode);
-			inputItems.put(topNode, "ROOT");
-			addNode(topNode, "");
-			Element graph = (Element) graphContainer.item(0);
-
-			int idForJTree = inputID2num.get(topNode);
-			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, " "));
-
-			//	Collect nested nodes
-			nest(graph, topNode, top, 0);
-
-			//	Collect relationships
-			Enumeration<Integer> relEnum = relationshipFrom.keys();
-			while (relEnum.hasMoreElements()) {
-				Integer relID = relEnum.nextElement();
-				String fromRef = relationshipFrom.get(relID);
-				String toRef = relationshipTo.get(relID);
-				addEdge(fromRef, toRef, true, "");
-			}
-
-		} else {	
-
-			// Sitemap
-
-			topNode = "urlset";
-			nestNode = "url";
-			NodeList graphContainer = inputXml.getElementsByTagName(topNode);
-			inputItems.put(topNode, "ROOT");
-			addNode(topNode, "");
-			int idForJTree = inputID2num.get(topNode);
-			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, " "));
-
-			if (graphContainer.getLength() <= 0) return;
-			for (int i = 0; i < graphContainer.getLength(); i++) {
-				Element url = (Element) graphContainer.item(i);
-				NodeList locContainer = url.getElementsByTagName("loc");
-				if (locContainer.getLength() <= 0) continue;
-				for (int j = 0; j < locContainer.getLength(); j++) {
-					Node child = locContainer.item(j);
-					String name = child.getNodeName();
-					if (!name.equals("loc")) continue;
-
-					//	Extract stuff 
-					String path = ((Element) child).getTextContent();
-					String id = readCount++ + "";
-					if (path.endsWith("/")) path = path.substring(0, path.length() - 1);
-					if (path.indexOf("/") < 0) continue;
-					inputItems.put(id, path.substring(path.lastIndexOf("/") + 1));
-					byPaths.put(id, path);
-					pathsMap.put(path, id);
-				}
-			}
-			fs = "/";
-			SortedSet<String> pathsSet = (SortedSet<String>) pathsList.keySet();
-			Iterator<String> ixit = pathsSet.iterator(); 
-			if (pathsSet.size() > 0) {
-				while (ixit.hasNext()) {
-					String alphaPos = ixit.next();
-					String key = pathsList.get(alphaPos);
-					String path = byPaths.get(key);
-					int slashPos = path.lastIndexOf(fs) + 1;
-					String detail = "<html><body><a href=\"" + path + "\">" + path.substring(slashPos) + "</a></body></html>";
-					addNode(key, detail);
-					String path2 = path.replace(fs, "/");
-					String levels[] = path2.split("/");
-					int level = levels.length;
-					linkToParent(path, "", key, level);
-				}
-			}
-		}
-		
-		commonPart();
-	}
-	
-	public void linkToParent(String ancestorsAndMe, String descendants, String myKey,
-			int level) {	// TODO integrate with new file tree import
-		int slashPos = ancestorsAndMe.lastIndexOf(fs);
-		if (slashPos <= 7) return;	// TODO very short labels
-		String ancestors = ancestorsAndMe.substring(0, slashPos);
-		String meAndDescendants = ancestorsAndMe.substring(slashPos) + descendants;
-		
-		String fromRef = "";
-		String treeColor = "";
-		if (byPaths.containsValue(ancestors)) {
-			// Find key
-			Enumeration<String> pathsEnum = byPaths.keys();
-			while (pathsEnum.hasMoreElements()) {
-				String testKey = pathsEnum.nextElement();
-				String testPath = byPaths.get(testKey);
-				if (testPath.equals(ancestors)) {
-					fromRef = testKey;
-					break;
-				}
-			}
-		} else {
-			String id = readCount++ + "";
-			String label = ancestors.substring(ancestors.lastIndexOf("/") + 1);
-			inputItems.put(id, label);
-			String detail = "<html><bodyy><a href=\"" + ancestors + "\">" + ancestors + "</a></body></html>";
-			addNode(id, detail);
-			byPaths.put(id, ancestors);
-			fromRef = id;
-			linkToParent(ancestors, meAndDescendants, fromRef, level - 1);	// recurse 
-		}
-		String toRef = myKey;
-			treeColor = colors[level % 6];
-			int nodeNum = inputID2num.get(toRef);
-			nodeColors.put(nodeNum, treeColor);
-		
-		addEdge(fromRef, toRef, false, treeColor);
-	}
-	
 	public void commonPart() {
 		
-		if (knownFormat == Importer.Sitemap) { // not available for sitemap 
-			showJTree = false;
-		}
-		layoutOpt = !showJTree;
+		layoutOpt = true;
 		
 //
 //		Create a JTree 
 	    
 	    DefaultTreeModel model = new DefaultTreeModel(top);
 	    controler.getControlerExtras().setTreeModel(model);
-		
-	    tree = new JTree(model);
-	    
-	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 	    
         frame = new JDialog(controler.getMainWindow(), "Options", true);
         frame.setLocation(100, 170);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.addWindowListener(myWindowAdapter);
 		frame.setLayout(new BorderLayout());
-		if (showJTree) {
-			frame.add(new JScrollPane(tree));
-			frame.setTitle("Found this tree structure:");
-		}
 
         JPanel toolbar = new JPanel();
         toolbar.setLayout(new BorderLayout());
@@ -597,7 +421,7 @@ public class TreeImport2 implements ActionListener {
 		hypBox = new JCheckBox ("Turns hyperlinks on but text editing off", true);
 		hypBox.setActionCommand("hyp");
 		hypBox.addActionListener(this);
-		if (!showJTree) toolbar.add(hypBox, "East");
+		toolbar.add(hypBox, "East");
 		JPanel toolbar2 = new JPanel();
 		toolbar2.setLayout(new BorderLayout());
 		JPanel optics = new JPanel();
@@ -726,77 +550,6 @@ public class TreeImport2 implements ActionListener {
         } 
 	}
 	
-	public int nest(Node parent, String parentID, DefaultMutableTreeNode parentInTree,
-			int level) {
-		
-		NodeList children = parent.getChildNodes();
-		Node child;
-		int count = 0; 
-		for (int i = 0; i < children.getLength(); i++) {
-			child = children.item(i);
-			String name = child.getNodeName();
-			if (!name.equals(nestNode)) {
-				continue;
-			}
-			count++;
-			
-			//	Extract stuff 
-			String label = ((Element) child).getAttribute(labelAttr);
-			String detail = "";
-			String id = "";
-			if (knownFormat == Importer.FreeMind) {	
-				id = ((Element) child).getAttribute(idAttr);
-
-				//	Notes
-				NodeList richContainer = ((Element) child).getElementsByTagName("richcontent");
-				if (richContainer.getLength() > 0) detail = richContainer.item(0).getTextContent();
-				if (label.isEmpty()) {
-					label = filterHTML(detail);
-					int len = label.length();
-					if (len > 30) label = label.substring(0, 29) + "...";
-				}
-				
-				//	Arrows 
-				NodeList arrowCandidates = child.getChildNodes();
-				for (int k = 0; k < arrowCandidates.getLength(); k++) {
-					Node arrowCandidate = arrowCandidates.item(k);
-					String nodeName = arrowCandidate.getNodeName();
-					if (nodeName.equals("arrowlink")) {
-						String relDesti = ((Element) arrowCandidate).getAttribute("DESTINATION");
-						relID++;
-						relationshipFrom.put(relID, id);
-						relationshipTo.put(relID, relDesti);
-					}
-				}
-			} else {
-				if (label.isEmpty()) label = " ";
-				id = readCount++ + "";
-				detail = ((Element) child).getAttribute("_note");
-				detail = detail.replace("\n", " X<br />");
-			}
-			
-			//	add node
-			inputItems.put(id, label);
-			addNode(id, detail);
-			DefaultMutableTreeNode branch = 
-					new DefaultMutableTreeNode(new BranchInfo(inputID2num.get(id), label));
-            parentInTree.add(branch);
-			
-			//	recurse
-			int childcount = nest(child, id, branch, level + 1);
-			
-			int nodeNum = inputID2num.get(id);
-			String treeColor = "";
-			if (childcount > 0) {
-				treeColor = colors[level % 6];
-				nodeColors.put(nodeNum, treeColor);
-			}
-			
-			//	add link
-			addEdge(parentID, id, false, treeColor);
-		}
-		return count;
-	}
 		
 	public void addNode(String nodeRef, String detail) { 
 		addNode(nodeRef, detail, false);
@@ -853,36 +606,6 @@ public class TreeImport2 implements ActionListener {
 		if (removeBeforeReexport) xrefTreeEdges.add(edge);
 	}
 	
-//
-//	Accessories to eliminate HTML tags 
-//	Duplicate of NewStuff TODO reuse
-
-	private String filterHTML(String html) {
-		htmlOut = "";
-		MyHTMLEditorKit htmlKit = new MyHTMLEditorKit();
-		HTMLEditorKit.Parser parser = null;
-		HTMLEditorKit.ParserCallback cb = new HTMLEditorKit.ParserCallback() {
-			public void handleText(char[] data, int pos) {
-				String dataString = new String(data);
-				htmlOut = htmlOut + dataString + " ";
-			}
-		};
-		parser = htmlKit.getParser();
-		Reader reader; 
-		reader = (Reader) new StringReader(html);
-		try {
-			parser.parse(reader, cb, true);
-		} catch (IOException e2) {
-			System.out.println("Error TI109 " + e2);
-		}
-		try {
-			reader.close();
-		} catch (IOException e3) {
-			System.out.println("Error TI110 " + e3.toString());
-		}
-		return htmlOut;
-	}
-
 	public void actionPerformed(ActionEvent arg0) {
 		String command = arg0.getActionCommand();
 		if (command == "Cancel") {
