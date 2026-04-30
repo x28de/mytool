@@ -42,7 +42,6 @@ import de.x28hd.tool.accessories.BranchInfo;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.exporters.TopicMapStorer;
-import de.x28hd.tool.inputs.Importer;
 import de.x28hd.tool.layouts.CentralityColoring;
 
 public class TreeImport2 implements ActionListener {
@@ -119,10 +118,7 @@ public class TreeImport2 implements ActionListener {
 			"#bbbbff", 
 			"#d2bbd2"};
 	String fs = "";
-	
-	//	Overriden later
-	int knownFormat = Importer.OPML;	
-	String topNode = "body";
+	String topNode = "";
 	
 	public TreeImport2(File file, PresentationService controler, int knownFormat) {
 		new TreeImport2(file, controler, knownFormat, false);
@@ -132,7 +128,6 @@ public class TreeImport2 implements ActionListener {
 		this.silent2 = silent;
 		this.file = file;
 		this.controler = controler;
-		this.knownFormat = knownFormat;
 		layoutOpt = true;
 
 		progressFrame = new JFrame("Loading ...");
@@ -148,64 +143,57 @@ public class TreeImport2 implements ActionListener {
 
 		if (!silent2) progressFrame.setVisible(true);
 		controler.getControlerExtras().stopHint();
-
-		loadStuff(file, controler, knownFormat);
-		progressFrame.dispose();
-		commonPart();	
-	}
-	
-	public void loadStuff(File file, PresentationService controler, int knownFormat) {
+		
+		// Load stuff
         
 		windows = (System.getProperty("os.name").startsWith("Windows"));
-		
-		if (knownFormat == Importer.Filetree) {	//	Filepaths list
-			colorOpt = true;
-			fs = System.getProperty("file.separator");
-			topNode = file.getAbsolutePath();
-			topNode = createRelatedNode(topNode, false);
-			int topNum = inputID2num.get(topNode);
-			top = new DefaultMutableTreeNode(new BranchInfo(topNum, file.getName()));
-			myProgress = 5;
-			SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
-			
-		    fileTree(file, topNode, top, 0);
-		    
-		    String content2 = nodeDetails.get(topNum);
-		    String moreDetail = "<html><body>Open folder <a href=\"" + file.toURI().toString()  + "\">" + file.getName() + 
-		    		"</a>" + "<br />" + content2 + "<br /></body></html>";
-		    GraphNode node = nodes.get(topNum);
-		    node.setDetail(moreDetail);
-		    
-		    // Prepare coloring the folders by age 
-		    // (by hierarchy is done via addEdge) 			TODO make more transparent
-		    
- 			SortedSet<Long> datesSet = (SortedSet<Long>) datesList.keySet();
- 			Iterator<Long> ixit = datesSet.iterator(); 
- 			if (datesSet.size() > 0) {
- 				int rangeSize = (datesSet.size() / 6) + 1;
-				int counter = datesSet.size() - 1;
- 				int previousCol = -1;
- 				
- 				while (ixit.hasNext()) {
-  					int colID = counter / rangeSize;
-					counter--;
- 					Long modDate = ixit.next();
- 					int nodeNum = datesList.get(modDate);
- 					
- 					nodeColors.put(nodeNum, colors[colID]);
- 					
- 					//	Legend item
- 					Date date = new Date(modDate);
- 					String dateText = df2.format(date);
- 					if (colID != previousCol) {
- 						String label = dateText + " +";
- 						if (colID == 0) label = label + " (newest)";
- 						if (colID == 5) label = label + " (oldest)";
- 						legend[colID] = label;
- 						previousCol = colID;
- 					}
- 				}
- 			}
+		colorOpt = true;
+		fs = System.getProperty("file.separator");
+		topNode = file.getAbsolutePath();
+		topNode = createRelatedNode(topNode, false);
+		int topNum = inputID2num.get(topNode);
+		top = new DefaultMutableTreeNode(new BranchInfo(topNum, file.getName()));
+		myProgress = 5;
+		SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
+
+		// Drill down
+		fileTree(file, topNode, top, 0);
+
+		String content2 = nodeDetails.get(topNum);
+		String moreDetail = "<html><body>Open folder <a href=\"" + file.toURI().toString()  + "\">" + file.getName() + 
+				"</a>" + "<br />" + content2 + "<br /></body></html>";
+		GraphNode node = nodes.get(topNum);
+		node.setDetail(moreDetail);
+
+		// Prepare coloring the folders by age 
+		// (by hierarchy is done via addEdge) 			TODO make more transparent
+
+		SortedSet<Long> datesSet = (SortedSet<Long>) datesList.keySet();
+		Iterator<Long> ixit = datesSet.iterator(); 
+		if (datesSet.size() > 0) {
+			int rangeSize = (datesSet.size() / 6) + 1;
+			int counter = datesSet.size() - 1;
+			int previousCol = -1;
+
+			while (ixit.hasNext()) {
+				int colID = counter / rangeSize;
+				counter--;
+				Long modDate = ixit.next();
+				int nodeNum = datesList.get(modDate);
+
+				nodeColors.put(nodeNum, colors[colID]);
+
+				//	Legend item
+				Date date = new Date(modDate);
+				String dateText = df2.format(date);
+				if (colID != previousCol) {
+					String label = dateText + " +";
+					if (colID == 0) label = label + " (newest)";
+					if (colID == 5) label = label + " (oldest)";
+					legend[colID] = label;
+					previousCol = colID;
+				}
+			}
 		}
 		
 		//	Collect relationships
@@ -217,6 +205,9 @@ public class TreeImport2 implements ActionListener {
 			String toRef = createRelatedNode(toPath, false);
 			addEdge(fromRef, toRef, true, true, "");
 		}
+		
+		progressFrame.dispose();
+		commonPart();	
 	}
 	
 	public void fileTree(File file, String parentID, DefaultMutableTreeNode parentInTree,
@@ -411,12 +402,6 @@ public class TreeImport2 implements ActionListener {
 		transitBox = new JCheckBox ("Just for re-export", false);
 		transitBox.setActionCommand("transit");
 		transitBox.addActionListener(this);
-		if (knownFormat == Importer.Sitemap) { 
-			instruction.setEnabled(false);
-			transitBox.setEnabled(false);
-			JLabel sorry = new JLabel("<html><em> (Sorry, currently unavailable)</em></html>");
-			toolbar.add(sorry, "Center");
-		}
 		toolbar.add(transitBox, "West");
 		hypBox = new JCheckBox ("Turns hyperlinks on but text editing off", true);
 		hypBox.setActionCommand("hyp");
@@ -436,10 +421,6 @@ public class TreeImport2 implements ActionListener {
 		legendBox = new JCheckBox ("Show legend", false);
 		legendBox.addActionListener(this);
 		optics.add(legendBox);
-		if (knownFormat != Importer.Filetree) {	// folder tree
-			colorBox.setVisible(false);
-			legendBox.setVisible(false);
-		}
 		toolbar2.add(buttons,"East");
 		toolbar2.add(optics, "West");
 		toolbar.add(toolbar2, "South");
@@ -483,19 +464,17 @@ public class TreeImport2 implements ActionListener {
 			}
 		}
 		if (transit) { 
-			if (knownFormat == Importer.Filetree) {
-				Iterator<GraphEdge> xrefTreeIter = xrefTreeEdges.iterator();
-				while (xrefTreeIter.hasNext()) {
-					GraphEdge edge = xrefTreeIter.next();
-					int id = edge.getID();
-					edges.remove(id);
-				}
-				Iterator<GraphNode> xrefTreeIter2 = xrefTreeNodes.iterator();
-				while (xrefTreeIter2.hasNext()) {
-					GraphNode node = xrefTreeIter2.next();
-					int id = node.getID();
-					nodes.remove(id);
-				}
+			Iterator<GraphEdge> xrefTreeIter = xrefTreeEdges.iterator();
+			while (xrefTreeIter.hasNext()) {
+				GraphEdge edge = xrefTreeIter.next();
+				int id = edge.getID();
+				edges.remove(id);
+			}
+			Iterator<GraphNode> xrefTreeIter2 = xrefTreeNodes.iterator();
+			while (xrefTreeIter2.hasNext()) {
+				GraphNode node = xrefTreeIter2.next();
+				int id = node.getID();
+				nodes.remove(id);
 			}
 			controler.getControlerExtras().setNonTreeEdges(nonTreeEdges);
 			controler.getControlerExtras().replaceByTree(nodes, edges);
@@ -503,7 +482,7 @@ public class TreeImport2 implements ActionListener {
 			if (layoutOpt) {
 
 				CentralityColoring centralityColoring = new CentralityColoring(nodes, edges);
-				centralityColoring.treeLayout(nonTreeEdges, this.knownFormat == Importer.x28tree);
+				centralityColoring.treeLayout(nonTreeEdges);
 				//	Recolor 
 				Enumeration<Integer> edgeColEnum = edgeColors.keys();
 				while (edgeColEnum.hasMoreElements()) {

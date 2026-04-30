@@ -115,13 +115,11 @@ public class TreeImport implements ActionListener {
 			"#d2bbd2"};
 	String fs = "";
 	
-	//	Overriden later
-	int knownFormat = Importer.OPML;	
-	String topNode = "body";
-	String nestNode = "outline";
-	String labelAttr = "text";
-	String idAttr = "";
-	
+	int knownFormat;	
+	String topNode;
+	String nestNode;
+	String labelAttr;
+	String idAttr;
 	
 	public TreeImport(Document inputXml, PresentationService controler, int knownFormat) {
 		new TreeImport(inputXml, controler, knownFormat, false);
@@ -133,12 +131,9 @@ public class TreeImport implements ActionListener {
 		this.controler = controler;
 		this.knownFormat = knownFormat;
 		this.silent = silent;
-		if (knownFormat == Importer.FreeMind) {	
-			topNode = "map";
-			nestNode = "node";
-			labelAttr = "TEXT";
-			idAttr = "ID";
-		}
+
+		// Exotic cases x28tree and Sitemap out of the way first 
+
 		if (knownFormat == Importer.x28tree) {
 			TopicMapLoader loader = new TopicMapLoader(inputXml, controler, true);
 			nodes = loader.newNodes;
@@ -148,32 +143,9 @@ public class TreeImport implements ActionListener {
 			layoutOpt = true;
 			finish();
 			return;
-			
-		} else if (knownFormat != Importer.Sitemap) {
-			NodeList graphContainer = inputXml.getElementsByTagName(topNode);
-			inputItems.put(topNode, "ROOT");
-			addNode(topNode, "");
-			Element graph = (Element) graphContainer.item(0);
-
-			int idForJTree = inputID2num.get(topNode);
-			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, " "));
-
-			//	Collect nested nodes
-			nest(graph, topNode, top, 0);
-
-			//	Collect relationships
-			Enumeration<Integer> relEnum = relationshipFrom.keys();
-			while (relEnum.hasMoreElements()) {
-				Integer relID = relEnum.nextElement();
-				String fromRef = relationshipFrom.get(relID);
-				String toRef = relationshipTo.get(relID);
-				addEdge(fromRef, toRef, true, "");
-			}
-
-		} else {	
-
-			// Sitemap
-
+		}
+		
+		if (knownFormat == Importer.Sitemap) {
 			topNode = "urlset";
 			nestNode = "url";
 			NodeList graphContainer = inputXml.getElementsByTagName(topNode);
@@ -219,11 +191,43 @@ public class TreeImport implements ActionListener {
 					linkToParent(path, "", key, level);
 				}
 			}
+		} else {	// not site map
+			if (knownFormat == Importer.OPML) {	
+				topNode = "body";
+				nestNode = "outline";
+				labelAttr = "text";
+				idAttr = "";
+			}
+			if (knownFormat == Importer.FreeMind) {	
+				topNode = "map";
+				nestNode = "node";
+				labelAttr = "TEXT";
+				idAttr = "ID";
+			}
+			NodeList graphContainer = inputXml.getElementsByTagName(topNode);
+			inputItems.put(topNode, "ROOT");
+			addNode(topNode, "");
+			Element graph = (Element) graphContainer.item(0);
+
+			int idForJTree = inputID2num.get(topNode);
+			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, " "));
+
+			//	Collect nested nodes
+			nest(graph, topNode, top, 0);
+
+			//	Collect relationships
+			Enumeration<Integer> relEnum = relationshipFrom.keys();
+			while (relEnum.hasMoreElements()) {
+				Integer relID = relEnum.nextElement();
+				String fromRef = relationshipFrom.get(relID);
+				String toRef = relationshipTo.get(relID);
+				addEdge(fromRef, toRef, true, "");
+			}
 		}
-		
 		commonPart();
 	}
 	
+	// Accessory for site map
 	public void linkToParent(String ancestorsAndMe, String descendants, String myKey,
 			int level) {	// TODO integrate with new file tree import
 		int slashPos = ancestorsAndMe.lastIndexOf(fs);
@@ -587,5 +591,6 @@ public class TreeImport implements ActionListener {
         frame.setVisible(false);
         frame.dispose();
         finish();
+		if (knownFormat == Importer.Sitemap) controler.getControlerExtras().toggleHyp(1, true);
 	}
 }
