@@ -15,6 +15,7 @@ import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.w3c.dom.Document;
@@ -402,10 +403,10 @@ public class OntoImport {
 		int newY = maxY;
 		TreeMap<String,DefaultMutableTreeNode> levelMap = 
 			new TreeMap<String,DefaultMutableTreeNode>(); 
-		Enumeration<DefaultMutableTreeNode> children = parent.children();
+		Enumeration<TreeNode> children = parent.children();
 		boolean onlyLeaves = true;
 		while (children.hasMoreElements()) {
-			DefaultMutableTreeNode child = children.nextElement();
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) children.nextElement();
 			BranchInfo info = (BranchInfo) child.getUserObject();
 			levelMap.put(info.toString(), child);
 			if (!child.isLeaf()) onlyLeaves = false;
