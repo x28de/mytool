@@ -37,7 +37,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import de.x28hd.tool.PresentationService;
-import de.x28hd.tool.importers.TreeImport2;
+import de.x28hd.tool.importers.FileTreeImport;
 import de.x28hd.tool.inputs.Importer;
 
 public class UrlCare extends SwingWorker<Void, Void> implements PropertyChangeListener, ActionListener {
@@ -312,7 +312,7 @@ public class UrlCare extends SwingWorker<Void, Void> implements PropertyChangeLi
 	public void secondPart() {
 		resultsTree(top, resultDir);
 		// Show on map
-		new TreeImport2(new File(resultDir), controler, Importer.Filetree, true);
+		new FileTreeImport(new File(resultDir), controler, Importer.Filetree, true);
 		controler.getControlerExtras().toggleHyp(1, true);
 	}
 

@@ -53,17 +53,17 @@ import de.x28hd.tool.inputs.TopicMapLoader;
 import de.x28hd.tool.layouts.CentralityColoring;
 
 public class TreeImport implements ActionListener {
-	
+
 	// Main fields
 	String dataString = "";
 	Hashtable<Integer,GraphNode> nodes = new Hashtable<Integer,GraphNode>();
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
-	
+
 	//	Input file list sorting 
 	Hashtable<String,String> byPaths = new Hashtable<String,String>();;
 	TreeMap<String,String> pathsMap = new TreeMap<String,String>();
 	SortedMap<String,String> pathsList = (SortedMap<String,String>) pathsMap;
-	
+
 	// Auxiliary stuff
 	Hashtable<String,String> inputItems = new Hashtable<String,String>();
 	Hashtable<Integer,String> relationshipFrom = new Hashtable<Integer,String>();
@@ -75,7 +75,7 @@ public class TreeImport implements ActionListener {
 	PresentationService controler;
 	Hashtable<Integer,String> nodeColors = new Hashtable<Integer,String>();
 	Hashtable<Integer,String> edgeColors = new Hashtable<Integer,String>();
-	
+
 	JTree tree;
 	JDialog frame;
 	private WindowAdapter myWindowAdapter = new WindowAdapter() {
@@ -83,12 +83,12 @@ public class TreeImport implements ActionListener {
 			finish();
 		}
 	};
-	
+
 	int j = -1;
 	int readCount = 0;
 	int edgesNum = 0;
-    DefaultMutableTreeNode top;
-    String htmlOut = "";
+	DefaultMutableTreeNode top;
+	String htmlOut = "";
 	boolean transit = false;
 	JCheckBox transitBox = null;
 	boolean layoutOpt = false;
@@ -96,7 +96,7 @@ public class TreeImport implements ActionListener {
 	int relID = -1;
 	boolean showJTree = true;
 	boolean silent = false;
-	
+
 	//	Constants
 	int maxVert = 10;
 	String[] colors = {
@@ -114,7 +114,7 @@ public class TreeImport implements ActionListener {
 			"#bbbbff", 
 			"#d2bbd2"};
 	String fs = "";
-	
+
 	int knownFormat;	
 	String topNode;
 	String nestNode;
@@ -144,7 +144,7 @@ public class TreeImport implements ActionListener {
 			finish();
 			return;
 		}
-		
+
 		if (knownFormat == Importer.Sitemap) {
 			topNode = "urlset";
 			nestNode = "url";
@@ -234,7 +234,7 @@ public class TreeImport implements ActionListener {
 		if (slashPos <= 7) return;	// TODO very short labels
 		String ancestors = ancestorsAndMe.substring(0, slashPos);
 		String meAndDescendants = ancestorsAndMe.substring(slashPos) + descendants;
-		
+
 		String fromRef = "";
 		String treeColor = "";
 		if (byPaths.containsValue(ancestors)) {
@@ -259,33 +259,33 @@ public class TreeImport implements ActionListener {
 			linkToParent(ancestors, meAndDescendants, fromRef, level - 1);	// recurse 
 		}
 		String toRef = myKey;
-			treeColor = colors[level % 6];
-			int nodeNum = inputID2num.get(toRef);
-			nodeColors.put(nodeNum, treeColor);
-		
+		treeColor = colors[level % 6];
+		int nodeNum = inputID2num.get(toRef);
+		nodeColors.put(nodeNum, treeColor);
+
 		addEdge(fromRef, toRef, false, treeColor);
 	}
 	
 	public void commonPart() {
-		
+
 		if (knownFormat == Importer.Sitemap) { // not available for sitemap 
 			showJTree = false;
 		}
 		layoutOpt = !showJTree;
-		
+
 //
 //		Create a JTree 
-	    
-	    DefaultTreeModel model = new DefaultTreeModel(top);
-	    controler.getControlerExtras().setTreeModel(model);
-		
-	    tree = new JTree(model);
-	    
-	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
-	    
-        frame = new JDialog(controler.getMainWindow(), "Options", true);
-        frame.setLocation(100, 170);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+		DefaultTreeModel model = new DefaultTreeModel(top);
+		controler.getControlerExtras().setTreeModel(model);
+
+		tree = new JTree(model);
+
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+
+		frame = new JDialog(controler.getMainWindow(), "Options", true);
+		frame.setLocation(100, 170);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.addWindowListener(myWindowAdapter);
 		frame.setLayout(new BorderLayout());
 		if (showJTree) {
@@ -293,21 +293,21 @@ public class TreeImport implements ActionListener {
 			frame.setTitle("Found this tree structure:");
 		}
 
-        JPanel toolbar = new JPanel();
-        toolbar.setLayout(new BorderLayout());
+		JPanel toolbar = new JPanel();
+		toolbar.setLayout(new BorderLayout());
 		toolbar.setBorder(new EmptyBorder(10, 10, 10, 10));
 		JLabel instruction = new JLabel("<html><body>" +
-	    "You may use this tree structure for re-exporting \n"
+				"You may use this tree structure for re-exporting \n"
 				+ "if you use the map for nothing else:</body></html>");
 		toolbar.add(instruction, "North");
-        JPanel buttons = new JPanel();
-        buttons.setLayout(new BorderLayout());
-        JButton continueButton = new JButton("Continue");
-        continueButton.addActionListener(this);
-        continueButton.setSelected(true);
+		JPanel buttons = new JPanel();
+		buttons.setLayout(new BorderLayout());
+		JButton continueButton = new JButton("Continue");
+		continueButton.addActionListener(this);
+		continueButton.setSelected(true);
 		JButton cancelButton = new JButton("Cancel");
-	    cancelButton.addActionListener(this);
-        buttons.add(continueButton, "East");
+		cancelButton.addActionListener(this);
+		buttons.add(continueButton, "East");
 		buttons.add(cancelButton, "West");
 		transitBox = new JCheckBox ("Just for re-export", false);
 		transitBox.setActionCommand("transit");
@@ -331,21 +331,19 @@ public class TreeImport implements ActionListener {
 		toolbar.add(toolbar2, "South");
 
 		frame.add(toolbar,"South");
-        frame.pack();
+		frame.pack();
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(dim.width/2 - 298, dim.height/2 - 209);		
-        frame.setMinimumSize(new Dimension(596, 418));
+		frame.setMinimumSize(new Dimension(596, 418));
 
-        if (!silent) {
-        	frame.setVisible(true);
-        } else {
-        	layoutOpt = true;
-        	finish();
-        }
-        controler.getControlerExtras().stopHint();
+		if (!silent) {
+			frame.setVisible(true);
+		} else {
+			layoutOpt = true;
+			finish();
+		}
+		controler.getControlerExtras().stopHint();
 	}
-//		
-//		Pass on the new map
 
 	public void finish() {
 		if (transit) { 
@@ -385,38 +383,38 @@ public class TreeImport implements ActionListener {
 					GraphNode node = nodes.get(key);
 					node.setColor(treeColor);
 				}
-					//	Color nodes like edges end
-					Enumeration<Integer> edgesEnum = edges.keys();
-					while (edgesEnum.hasMoreElements()) {
-						int edgeNum = edgesEnum.nextElement();
-						GraphEdge edge = edges.get(edgeNum);
-						if (nonTreeEdges.contains(edge)) continue;
-						if (xrefTreeEdges.contains(edge)) continue;
-						GraphNode node2 = edge.getNode2();
-						if (edgeColors.containsKey(edgeNum)) {
-							String colString = edgeColors.get(edgeNum);
-							node2.setColor(colString);
-						}
+				//	Color nodes like edges end
+				Enumeration<Integer> edgesEnum = edges.keys();
+				while (edgesEnum.hasMoreElements()) {
+					int edgeNum = edgesEnum.nextElement();
+					GraphEdge edge = edges.get(edgeNum);
+					if (nonTreeEdges.contains(edge)) continue;
+					if (xrefTreeEdges.contains(edge)) continue;
+					GraphNode node2 = edge.getNode2();
+					if (edgeColors.containsKey(edgeNum)) {
+						String colString = edgeColors.get(edgeNum);
+						node2.setColor(colString);
 					}
+				}
 			}
-        	try {
-        		dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
-        	} catch (TransformerConfigurationException e1) {
-        		System.out.println("Error TI108 " + e1);
-        	} catch (IOException e1) {
-        		System.out.println("Error TI109 " + e1);
-        	} catch (SAXException e1) {
-        		System.out.println("Error TI110 " + e1);
-        	}
-        	controler.getNSInstance().setInput(dataString, 2);
-        	controler.getControlerExtras().setTreeModel(null);
-        	controler.getControlerExtras().setNonTreeEdges(null);
-        } 
+			try {
+				dataString = new TopicMapStorer(nodes, edges).createTopicmapString();
+			} catch (TransformerConfigurationException e1) {
+				System.out.println("Error TI108 " + e1);
+			} catch (IOException e1) {
+				System.out.println("Error TI109 " + e1);
+			} catch (SAXException e1) {
+				System.out.println("Error TI110 " + e1);
+			}
+			controler.getNSInstance().setInput(dataString, 2);
+			controler.getControlerExtras().setTreeModel(null);
+			controler.getControlerExtras().setNonTreeEdges(null);
+		} 
 	}
 	
 	public int nest(Node parent, String parentID, DefaultMutableTreeNode parentInTree,
 			int level) {
-		
+
 		NodeList children = parent.getChildNodes();
 		Node child;
 		int count = 0; 
@@ -427,7 +425,7 @@ public class TreeImport implements ActionListener {
 				continue;
 			}
 			count++;
-			
+
 			//	Extract stuff 
 			String label = ((Element) child).getAttribute(labelAttr);
 			String detail = "";
@@ -443,7 +441,7 @@ public class TreeImport implements ActionListener {
 					int len = label.length();
 					if (len > 30) label = label.substring(0, 29) + "...";
 				}
-				
+
 				//	Arrows 
 				NodeList arrowCandidates = child.getChildNodes();
 				for (int k = 0; k < arrowCandidates.getLength(); k++) {
@@ -462,30 +460,30 @@ public class TreeImport implements ActionListener {
 				detail = ((Element) child).getAttribute("_note");
 				detail = detail.replace("\n", " X<br />");
 			}
-			
+
 			//	add node
 			inputItems.put(id, label);
 			addNode(id, detail);
 			DefaultMutableTreeNode branch = 
 					new DefaultMutableTreeNode(new BranchInfo(inputID2num.get(id), label));
-            parentInTree.add(branch);
-			
+			parentInTree.add(branch);
+
 			//	recurse
 			int childcount = nest(child, id, branch, level + 1);
-			
+
 			int nodeNum = inputID2num.get(id);
 			String treeColor = "";
 			if (childcount > 0) {
 				treeColor = colors[level % 6];
 				nodeColors.put(nodeNum, treeColor);
 			}
-			
+
 			//	add link
 			addEdge(parentID, id, false, treeColor);
 		}
 		return count;
 	}
-		
+
 	public void addNode(String nodeRef, String detail) { 
 		addNode(nodeRef, detail, false);
 	}
@@ -540,10 +538,10 @@ public class TreeImport implements ActionListener {
 		if (xref) nonTreeEdges.add(edge);
 		if (removeBeforeReexport) xrefTreeEdges.add(edge);
 	}
-	
-//
-//	Accessories to eliminate HTML tags 
-//	Duplicate of NewStuff TODO reuse
+
+	//
+	//	Accessories to eliminate HTML tags 
+	//	Duplicate of NewStuff TODO reuse
 
 	private String filterHTML(String html) {
 		htmlOut = "";
@@ -577,8 +575,8 @@ public class TreeImport implements ActionListener {
 			transit = false;
 		} else if (command == "Continue") {
 			transit = transitBox.isSelected();
-			
-		// Options interdependent
+
+			// Options interdependent
 		} else if (command == "transit"){
 			transit = transitBox.isSelected();
 			layoutBox.setEnabled(!transit);
@@ -588,9 +586,9 @@ public class TreeImport implements ActionListener {
 			layoutOpt = layoutBox.isSelected();
 			return;
 		}
-        frame.setVisible(false);
-        frame.dispose();
-        finish();
+		frame.setVisible(false);
+		frame.dispose();
+		finish();
 		if (knownFormat == Importer.Sitemap) controler.getControlerExtras().toggleHyp(1, true);
 	}
 }
