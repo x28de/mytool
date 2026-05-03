@@ -13,6 +13,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -121,6 +122,13 @@ public class TextEditorPanel extends TextEditorCore implements ActionListener, U
 				}
 				try {
 					if (url != null) {
+						if (urlString.startsWith("file:/")) {
+							File file = new File(urlString.substring(6));
+							if (file.isDirectory()) {
+								Desktop.getDesktop().open(file);
+								return;
+							}
+						}
 						Desktop.getDesktop().browse(new URI(url.toString()));
 					} else {
 						Desktop.getDesktop().browse(new URI(urlString));

@@ -260,7 +260,9 @@ public class FileTreeImport implements ActionListener {
 
 					leafCounter++;
 					modDate = f.lastModified();
-					if (modDate > maxModDate) maxModDate = modDate;
+					if (!f.getName().endsWith(".eml")) {
+						if (modDate > maxModDate) maxModDate = modDate;
+					}
 
 					if (windows) {	// maybe shortcut
 						if (!f.getName().endsWith(".lnk")) continue;
