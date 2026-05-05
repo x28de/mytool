@@ -216,7 +216,6 @@ public final class PresentationService extends PresentationCore implements Actio
 	public synchronized void run() {
 		initialize();
 		graphClass.setSize(initialSize);
-		mainWindow.setVisible(true);
 		((TextEditorPanel) editorClass).setSize(initialSize);
 		controlerExtras.setInitialSize(initialSize);
 		if (lifeCycle.getFilename().isEmpty() 
@@ -276,6 +275,7 @@ public final class PresentationService extends PresentationCore implements Actio
 		System.out.println("PS: Initialized");
 		System.out.println("\n\n**** This console window may be ignored ****\n");
 		
+		mainWindow.setVisible(true);
 		String filename = lifeCycle.getFilename();
 		if (!filename.isEmpty()) newStuff.setInput(filename, 1);
 	}

@@ -123,6 +123,7 @@ public class TextEditorPanel extends TextEditorCore implements ActionListener, U
 				try {
 					if (url != null) {
 						if (urlString.startsWith("file:/")) {
+							urlString = urlString.replaceAll("%20", " ");
 							File file = new File(urlString.substring(6));
 							if (file.isDirectory()) {
 								Desktop.getDesktop().open(file);
