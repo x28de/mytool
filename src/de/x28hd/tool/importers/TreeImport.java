@@ -70,8 +70,6 @@ public class TreeImport implements ActionListener {
 	Hashtable<Integer,String> relationshipTo = new Hashtable<Integer,String>();
 	Hashtable<String,Integer> inputID2num = new  Hashtable<String,Integer>();
 	HashSet<GraphEdge> nonTreeEdges = new HashSet<GraphEdge>();
-	HashSet<GraphEdge> xrefTreeEdges = new HashSet<GraphEdge>();
-	HashSet<GraphNode> xrefTreeNodes = new HashSet<GraphNode>();
 	PresentationService controler;
 	Hashtable<Integer,String> nodeColors = new Hashtable<Integer,String>();
 	Hashtable<Integer,String> edgeColors = new Hashtable<Integer,String>();
@@ -347,20 +345,6 @@ public class TreeImport implements ActionListener {
 
 	public void finish() {
 		if (transit) { 
-			if (knownFormat == Importer.Filetree) {
-				Iterator<GraphEdge> xrefTreeIter = xrefTreeEdges.iterator();
-				while (xrefTreeIter.hasNext()) {
-					GraphEdge edge = xrefTreeIter.next();
-					int id = edge.getID();
-					edges.remove(id);
-				}
-				Iterator<GraphNode> xrefTreeIter2 = xrefTreeNodes.iterator();
-				while (xrefTreeIter2.hasNext()) {
-					GraphNode node = xrefTreeIter2.next();
-					int id = node.getID();
-					nodes.remove(id);
-				}
-			}
 			controler.getControlerExtras().setNonTreeEdges(nonTreeEdges);
 			controler.getControlerExtras().replaceByTree(nodes, edges);
 		} else {
@@ -389,7 +373,6 @@ public class TreeImport implements ActionListener {
 					int edgeNum = edgesEnum.nextElement();
 					GraphEdge edge = edges.get(edgeNum);
 					if (nonTreeEdges.contains(edge)) continue;
-					if (xrefTreeEdges.contains(edge)) continue;
 					GraphNode node2 = edge.getNode2();
 					if (edgeColors.containsKey(edgeNum)) {
 						String colString = edgeColors.get(edgeNum);
@@ -485,9 +468,6 @@ public class TreeImport implements ActionListener {
 	}
 
 	public void addNode(String nodeRef, String detail) { 
-		addNode(nodeRef, detail, false);
-	}
-	public void addNode(String nodeRef, String detail, boolean removeBeforeReexport) { 
 		j++;
 		String newNodeColor;
 		String newLine = "\r";
@@ -507,14 +487,10 @@ public class TreeImport implements ActionListener {
 		GraphNode topic = new GraphNode (id, p, Color.decode(newNodeColor), topicName, verbal);	
 
 		nodes.put(id, topic);
-		if (removeBeforeReexport) xrefTreeNodes.add(topic);
 		inputID2num.put(nodeRef, id);
 	}
 
 	public void addEdge(String fromRef, String toRef, boolean xref, String treeColor) {
-		addEdge(fromRef, toRef, xref, false, treeColor);
-	}
-	public void addEdge(String fromRef, String toRef, boolean xref, boolean removeBeforeReexport, String treeColor) {
 		GraphEdge edge = null;
 		String newEdgeColor = "#c0c0c0";
 		if (xref) {
@@ -536,7 +512,6 @@ public class TreeImport implements ActionListener {
 		edges.put(edgesNum, edge);
 		if (!treeColor.isEmpty()) edgeColors.put(edgesNum, treeColor);
 		if (xref) nonTreeEdges.add(edge);
-		if (removeBeforeReexport) xrefTreeEdges.add(edge);
 	}
 
 	//

@@ -134,6 +134,7 @@ public class FileTreeImport implements ActionListener {
 			"#bbbbff", 
 			"#d2bbd2"};
 	String fs = "";
+	String topFile = "";
 	String topNode = "";
 
 	public FileTreeImport(File file, PresentationService controler, int knownFormat) {
@@ -164,8 +165,8 @@ public class FileTreeImport implements ActionListener {
 
 		windows = (System.getProperty("os.name").startsWith("Windows"));
 		fs = System.getProperty("file.separator");
-		topNode = file.getName();
-		topNode = createRelatedNode(topNode);
+		topFile = file.getAbsolutePath();
+		topNode = createRelatedNode(topFile);
 		int topNum = inputID2num.get(topNode);
 		top = new DefaultMutableTreeNode(new BranchInfo(topNum, file.getName()));
 		myProgress = 5;
@@ -342,7 +343,7 @@ public class FileTreeImport implements ActionListener {
 			byPaths.put(destID, desti);
 			File f = new File(desti);
 			String detail = "<html><body>Open folder <a href=\"" + f.toURI().toString()  + "\">" + desti + "</a></body></html>";
-			addNode(destID, detail, desti != topNode);
+			addNode(destID, detail, desti != topFile);
 
 			fromRef = createRelatedNode(ancestors);	// recurse
 

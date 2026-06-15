@@ -62,6 +62,7 @@ public class TextEditorPanel extends TextEditorCore implements ActionListener, U
 	boolean dragFake = false;
 	String myTransferable = "";
 	String htmlOut = "";
+	int textPos = -1;
 	
 //
 //  Accessories
@@ -332,6 +333,7 @@ public class TextEditorPanel extends TextEditorCore implements ActionListener, U
 			public void handleText(char[] data, int pos) {
 				String dataString = new String(data);
 				htmlOut = htmlOut + dataString;
+				textPos = pos;
 			}
 			public void handleSimpleTag(HTML.Tag t, MutableAttributeSet a, int pos) {
 				if (t == HTML.Tag.BR ) {
@@ -398,13 +400,24 @@ public class TextEditorPanel extends TextEditorCore implements ActionListener, U
 	public void linkTo() {
 		String clickText = textToAdd;
 		String before = editorPane.getText();
-		String after = before.replace(clickText, "<a href=\"#" + clickText + "\"><u>" + clickText + "</u></a>");
-		if (after.contentEquals(before)) {
-			controler.displayPopup("Hyperlink to '" + clickText + "' was not created;\n"
-					+ "special characters don't work yet; sorry.");
-		}	// no idea how to tame JEditorPane's strange HTML storing
+		String after = before.replace(encoded(clickText), "<a href=\"#" + clickText + "\"><u>" + clickText + "</u></a>");
 		editorPane.setText(after);
 		controler.getControlerExtras().linkTo(clickText);
+	}
+	
+	public String encoded(String in) {		// clumsy but how else?
+		String out = in;
+		JEditorPane buffer = new JEditorPane();
+		buffer.setContentType("text/html");
+		buffer.setText(in);
+		out = buffer.getText();		// &# notation 
+		// strip html wrapping
+		filterHTML(out);			
+		out = out.substring(textPos);
+		int tailPos = out.indexOf("<");
+		out = out.substring(0, tailPos - 1).trim();
+		System.out.println(">" + out + "<");
+		return out;
 	}
 	
 	public void tracking(boolean onOff) {
