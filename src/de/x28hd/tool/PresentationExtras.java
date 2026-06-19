@@ -70,6 +70,7 @@ import de.x28hd.tool.layouts.CheckOverlaps;
 import de.x28hd.tool.layouts.DAG;
 import de.x28hd.tool.layouts.GraphPanelZoom;
 import de.x28hd.tool.layouts.MakeCircle;
+import de.x28hd.tool.layouts.MakeTree;
 import de.x28hd.tool.layouts.RandomMap;
 import de.x28hd.tool.layouts.SimilarityColoring;
 import de.x28hd.tool.layouts.SubtreeLayout;
@@ -119,6 +120,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	Rectangle bounds = new Rectangle(2, 2, 2, 2);
 	CentralityColoring centralityColoring;
 	CentralityColoring2 centralityColoring2;
+	MakeTree makeTree;
 	SimilarityColoring similarityColoring;
 	JSplitPane splitPane = null;
 	JPanel rightPanel = null;
@@ -505,7 +507,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 				centralityColoring = new CentralityColoring(nodes, edges);
 					centralityColoring.changeColors();
 				} else {
-					centralityColoring.revertColors();
+					if (centralityColoring != null) centralityColoring.revertColors();
+					if (makeTree != null) makeTree.revertColors();
 				}
 				graphPanel.repaint();
 			} else if (command == "simcol") {
@@ -517,8 +520,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 				graphPanel.repaint();
 				
 			} else if (command == "layout") {
-				centralityColoring = new CentralityColoring(nodes, edges);
-					centralityColoring.changeColors(true, controler);
+				makeTree = new MakeTree(nodes, edges);
+				makeTree.changeColors(true, controler);
 				graphPanel.repaint();
 				gui.menuItem51.setSelected(true);
 				
