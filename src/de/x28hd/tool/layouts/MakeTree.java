@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -35,13 +34,10 @@ import de.x28hd.tool.accessories.Utilities;
 import de.x28hd.tool.PresentationExtras;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
-import edu.uci.ics.jung.algorithms.importance.BetweennessCentrality;
-import edu.uci.ics.jung.algorithms.importance.Ranking;
 import edu.uci.ics.jung.algorithms.layout.PolarPoint;
 import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
 import edu.uci.ics.jung.graph.DelegateForest;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
 public class MakeTree implements TreeSelectionListener {
@@ -71,12 +67,11 @@ public class MakeTree implements TreeSelectionListener {
 	Hashtable<Integer,Integer> parents = new Hashtable<Integer,Integer>();
 	TreeMap<Integer,Integer> rankedNodes = new TreeMap<Integer,Integer>();
 	int ranksSorted[] = new int[5000];	// TODO get rid of array
-	//	For Networks
-	UndirectedSparseGraph<Integer, Integer> g = new UndirectedSparseGraph<Integer,Integer>();
-	//	For Trees
 	DirectedSparseGraph<Integer, Integer> g2 = new DirectedSparseGraph<Integer,Integer>();
 
 	Hashtable<Integer, GraphEdge> neighborIDs = new Hashtable<Integer, GraphEdge>();
+	Hashtable<GraphNode,Integer> nodesPos = new Hashtable<GraphNode,Integer>(); 
+	HashSet<GraphNode> leaves = new HashSet<GraphNode>();
 	
 	
 	public MakeTree(Hashtable<Integer, GraphNode> nodes, 
@@ -84,21 +79,20 @@ public class MakeTree implements TreeSelectionListener {
 		this.nodes = nodes;
 		this.edges = edges;
 
-//
-//		Read GraphNode's from Hashtable nodes 
-		
+		// Save node colors and find leaves 
 		Enumeration<GraphNode> nodesEnum = nodes.elements();
-		
-//
-//		Write vertices into the Graph
-
 		while (nodesEnum.hasMoreElements()) {
 			GraphNode node = nodesEnum.nextElement();
 			Color originalColor = node.getColor();
 			nodesSavedColors.put(node.getID(), originalColor);
 			if (!layout) node.setColor("#c0c0c0");
-			int nodeID = node.getID();
-			g.addVertex(nodeID);
+			Enumeration<GraphEdge> neighbors = node.getEdges();
+			int neighborCount = 0;
+			while (neighbors.hasMoreElements()) {
+				neighbors.nextElement();
+				neighborCount++;
+			}
+			if (neighborCount < 2) leaves.add(node);
 		}
 	}
 
@@ -110,96 +104,57 @@ public class MakeTree implements TreeSelectionListener {
 
 	public void changeColors() {
 		HashSet<GraphEdge> nonTreeEdges = new HashSet<GraphEdge>();
-		
-//		
-//		Write Edges into the Graph		
-		
+
+		// Save edge colors
 		Enumeration<GraphEdge> edgesEnum = edges.elements();
-		
-		int edgeID = 0;
-		HashSet<String> uniqEdges = new HashSet<String>();
 		while (edgesEnum.hasMoreElements()) {
-			edgeID++;
 			GraphEdge edge = edgesEnum.nextElement();	
 			Color originalColor = edge.getColor();
 			edgesSavedColors.put(edge.getID(), originalColor);
-			edge.setColor("#d8d8d8");
-			int n1 = edge.getN1();
-			int n2 = edge.getN2();
-			
-			//	Avoid duplicate edges with uci.jung
-			String uniqID = null;
-			if (n1 < n2) {
-				uniqID = n1 + "-" + n2;
-			} else {
-				uniqID = n2 + "-" + n1;
-			}
-			if (uniqEdges.contains(uniqID)) {
-				continue;
-			} else {
-				uniqEdges.add(uniqID);
-			}
-			
-			GraphNode node1 = nodes.get(n1);
-			GraphNode node2 = nodes.get(n2);
-			
-//			node1.addEdge(edge);
-//			node2.addEdge(edge);
-			EdgeType edgeType = EdgeType.UNDIRECTED; 	//	For trees
-//			EdgeType edgeType = EdgeType.DIRECTED; 		//	For Networks
-			g.addEdge(edgeID, n1, n2, edgeType);
-			nonTreeEdges.add(edge);
 		}
 
 //		
 //		Call the Ranker program	
 		
-		BetweennessCentrality<Integer,Integer> ranker = 
-				new BetweennessCentrality<Integer,Integer>(g, true, false);
-		ranker.setRemoveRankScoresOnFinalize(false);
-		ranker.evaluate();
-
-		int nonLeaves = 0;
+		Brandes brandes = new Brandes(nodes, edges);
+		GraphNode [] array = brandes.getArray();
+		for (int i = 0; i < array.length; i++) {
+			// record nodes' ranks for edge coloring
+			nodesPos.put(array[i], i + 1);
+		}
+		
+		int nonLeaves = array.length - leaves.size();
 		int rankpos = 0;
 		
-		// Remember for lookup
-//		int ranksSorted[] = new int[900];
+		// Reconstruct old ID structures -- cleanup later
+
 		int nodesSorted[] = new int[5000];
 		Double scoresSorted[] = new Double[5000];
 		
-//		TreeMap<Integer,Integer> rankedNodes = new TreeMap<Integer,Integer>();
-
-//		List<Ranking<Integer>> list = ranker.getRankings();
-		List<Ranking<?>> list = ranker.getRankings();
-//		for (Iterator rIt=ranks.iterator(); rIt.hasNext();) {
-		for (int rIt = 0; rIt < list.size(); rIt++) {	//	ranks Iterator
+		for (int i = 0; i < array.length; i++) {
 			rankpos++;
-//			NodeRanking currentRanking = (NodeRanking) rIt.next();
-			Ranking<?> currentRanking = list.get(rIt);
-//			Vertex vIt = ((NodeRanking) currentRanking).vertex;
-			@SuppressWarnings("unchecked")
-			int vIt = ((Ranking<Integer>) currentRanking).getRanked();	//	vertex of iterator
-
-//			int nodeID = verticeIDs.get(vIt);
-			int nodeID = vIt;
+			GraphNode v = array[i];		// was ranking.getRanked();
+			int nodeID = v.getID();
 			nodesSorted[rankpos] = nodeID;
-			scoresSorted[rankpos] = currentRanking.rankScore;
+			double rankScore = nonLeaves - i + .0;
+			if (i >= nonLeaves) rankScore = (i - nonLeaves - .0) / (array.length - nonLeaves - .0); 
+//			System.out.println(rankpos + " " + rankScore + " " + nodes.get(nodeID).getLabel());
+			scoresSorted[rankpos] = rankScore;
 			ranksSorted[nodeID] = rankpos;
 			rankedNodes.put(rankpos, nodeID);		//	TODO replace old arrays
-			if (currentRanking.rankScore > 0) nonLeaves++;
 		}
 		
 		int numPerColor = nonLeaves/6;
 		int treeEdgeID = 0;
 		
+		HashSet<String> uniqEdges = new HashSet<String>();
 		uniqEdges.clear();
 		HashSet<Integer> done = new HashSet<Integer>();
 		
 		// Color Nodes by Rank
 		
 		for (int pos = 1; pos <= nonLeaves; pos++) {
-			int nodeID = nodesSorted[pos]; 
-			GraphNode node = nodes.get(nodeID);
+			GraphNode node = array[pos - 1];
 			
 			String colorString = "#d8d8d8";
 			if (!layout) {
@@ -212,6 +167,7 @@ public class MakeTree implements TreeSelectionListener {
 			node.setColor(colorString);
 			}
 			
+			// Color the Edges
 			Enumeration<GraphEdge> neighbors = node.getEdges();
 			neighborIDs.clear();
 			Double maxRank = .0;
@@ -322,18 +278,6 @@ public class MakeTree implements TreeSelectionListener {
 			done.add(centerCandidate);
 		}
 		
-		// Or Networks
-//		KKLayout<Integer,Integer> layout = new KKLayout<Integer,Integer>(forest);
-//		FRLayout<Integer,Integer> layout = new FRLayout<Integer,Integer>(forest);
-//		ISOMLayout<Integer,Integer> layout = new ISOMLayout<Integer,Integer>(forest);
-
-//		layout.setRepulsionMultiplier(0.1);
-//		layout.setMaxIterations(4000);
-		// For networks
-		for (int i = 0; i < 4400; i++) {
-//			layout.step();
-		}
-		
 //
 //		Temporarily show a JTree here
 
@@ -411,14 +355,11 @@ public class MakeTree implements TreeSelectionListener {
 		Collection<Integer> nodeIDs = g2.getVertices();
 		Iterator<Integer> nodeIt = nodeIDs.iterator();
 		
-		// Trees
 		DelegateForest<Integer,Integer> forest = new DelegateForest<Integer,Integer>(g2);
 		if (forest.getTrees().size() <= 0) {
 			System.out.println("Map seems inappropriate (no trees in forest.)");
 			return;
 		}
-//		TreeLayout<Integer,Integer> layout = new TreeLayout<Integer,Integer>(forest);
-//		BalloonLayout<Integer,Integer> layout = new BalloonLayout<Integer,Integer>(forest);
 		RadialTreeLayout<Integer,Integer> layout = new RadialTreeLayout<Integer,Integer>(forest);
 
 		layout.initialize();
@@ -426,7 +367,6 @@ public class MakeTree implements TreeSelectionListener {
 		layout.setSize(new Dimension(400 + (200 * ((int) Math.sqrt(size))), 
 				300 + (150 * ((int) Math.sqrt(size)))));
 
-		//	For Trees
 		HashMap<Integer,PolarPoint> map = new HashMap<Integer,PolarPoint>();
 		map = (HashMap<Integer,PolarPoint>) layout.getPolarLocations();
 		
@@ -435,19 +375,12 @@ public class MakeTree implements TreeSelectionListener {
 		
 		while (nodeIt.hasNext()) {
 			int id = nodeIt.next();
-			
-			//	For Networks
-//			double x = layout.getX(id);
-//			double y = layout.getY(id);
-			
-			//	For Trees
 			Point2D p = null;
 			try {
 				p = PolarPoint.polarToCartesian(map.get(id));
 			} catch(Throwable e) {
 				e.printStackTrace();
 			}
-//			Point2D p = layout.transform(id);
 			double x = p.getX();
 			double y = p.getY();
 			
@@ -557,4 +490,3 @@ public class MakeTree implements TreeSelectionListener {
 	}
 }
 
-    
