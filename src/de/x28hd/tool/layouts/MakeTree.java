@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Point2D;
@@ -18,9 +20,13 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -34,13 +40,14 @@ import de.x28hd.tool.accessories.Utilities;
 import de.x28hd.tool.PresentationExtras;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
+import de.x28hd.tool.importers.TreeMapCounting;
 import edu.uci.ics.jung.algorithms.layout.PolarPoint;
 import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
 import edu.uci.ics.jung.graph.DelegateForest;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
-public class MakeTree implements TreeSelectionListener {
+public class MakeTree implements TreeSelectionListener, ActionListener {
 	Hashtable<Integer, GraphNode> nodes; 
 	Hashtable<Integer, GraphEdge> edges;	
 	Hashtable<Integer, Color> nodesSavedColors = new Hashtable<Integer, Color>();
@@ -58,6 +65,8 @@ public class MakeTree implements TreeSelectionListener {
 	int level = -1;
 	JFrame frame;
 	PresentationService controler;
+	JCheckBox treeMapBox = new JCheckBox("Show treemap?");
+	DefaultMutableTreeNode topTop;
 	
 	private WindowAdapter myWindowAdapter = new WindowAdapter() {
 		public void windowClosing(WindowEvent e) {
@@ -138,7 +147,6 @@ public class MakeTree implements TreeSelectionListener {
 			nodesSorted[rankpos] = nodeID;
 			double rankScore = nonLeaves - i + .0;
 			if (i >= nonLeaves) rankScore = (i - nonLeaves - .0) / (array.length - nonLeaves - .0); 
-//			System.out.println(rankpos + " " + rankScore + " " + nodes.get(nodeID).getLabel());
 			scoresSorted[rankpos] = rankScore;
 			ranksSorted[nodeID] = rankpos;
 			rankedNodes.put(rankpos, nodeID);		//	TODO replace old arrays
@@ -201,9 +209,6 @@ public class MakeTree implements TreeSelectionListener {
 		SortedSet<Integer> todoSet = (SortedSet<Integer>) todoMap.keySet();
 
 		boolean annex = false;
-//		if (!annex) {
-//			parentEdge.setColor("#00ffff"); 
-//		}
 
 		int pos = 0;
 		TreeMap<Integer,Integer> treeTops = new TreeMap<Integer,Integer>();
@@ -258,10 +263,6 @@ public class MakeTree implements TreeSelectionListener {
 
 					parentUniq = uniqID;
 
-//					if (annex) {
-//						edge.setColor("#00ffff"); 
-//					}
-
 					int otherEnd = rel;
 					eligible.put(ranksSorted[otherEnd], otherEnd);
 
@@ -284,7 +285,7 @@ public class MakeTree implements TreeSelectionListener {
 		SortedMap<Integer,Integer> treeTopsSorted = (SortedMap<Integer,Integer>) treeTops;
 		SortedSet<Integer> treeTopsSet = (SortedSet<Integer>) treeTopsSorted.keySet();
 		Iterator<Integer> ttix = treeTopsSet.iterator();
-	    DefaultMutableTreeNode topTop = new DefaultMutableTreeNode(new BranchInfo(-1, " "));
+	    topTop = new DefaultMutableTreeNode(new BranchInfo(-1, " "));
 	    
 		while (ttix.hasNext()) {
 		int treeTopIndex = ttix.next();
@@ -316,6 +317,16 @@ public class MakeTree implements TreeSelectionListener {
 		frame.setLayout(new BorderLayout());
         frame.add(new JScrollPane(tree));
 
+		JPanel toolbar = new JPanel();
+		toolbar.setLayout(new BorderLayout());
+		toolbar.setBorder(new EmptyBorder(10, 10, 10, 10));
+		treeMapBox.setToolTipText("for node counts, like WinDirStat but without cushion shading and tiling algorithm)");
+		toolbar.add(treeMapBox, "West");
+		JButton continueButton = new JButton("Continue");
+		continueButton.addActionListener(this);
+		toolbar.add(continueButton, "East");
+		frame.add(toolbar,"South");
+        
         frame.pack();
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(dim.width/2 - 298, dim.height/2 - 209);		
@@ -487,6 +498,12 @@ public class MakeTree implements TreeSelectionListener {
 			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) o;
 //			toggleSelection(selectedNode, arg0.isAddedPath(i));
 		}
+	}
+
+	public void actionPerformed(ActionEvent arg0) {
+		frame.dispose();
+		if (treeMapBox.isSelected()) new TreeMapCounting(topTop);
+		Utilities.displayLayoutWarning(controler, true);
 	}
 }
 

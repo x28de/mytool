@@ -91,6 +91,7 @@ public class TreeImport implements ActionListener {
 	JCheckBox transitBox = null;
 	boolean layoutOpt = false;
 	JCheckBox layoutBox = null;
+	JCheckBox treeMapBox = new JCheckBox("Show treemap?");
 	int relID = -1;
 	boolean showJTree = true;
 	boolean silent = false;
@@ -324,6 +325,10 @@ public class TreeImport implements ActionListener {
 		layoutBox = new JCheckBox ("Tree layout", layoutOpt);
 		layoutBox.addActionListener(this);
 		optics.add(layoutBox);
+		if (showJTree) {
+			treeMapBox.setToolTipText("for node counts, like WinDirStat but without cushion shading and tiling algorithm)");
+			optics.add(treeMapBox);
+		}
 		toolbar2.add(buttons,"East");
 		toolbar2.add(optics, "West");
 		toolbar.add(toolbar2, "South");
@@ -550,6 +555,7 @@ public class TreeImport implements ActionListener {
 			transit = false;
 		} else if (command == "Continue") {
 			transit = transitBox.isSelected();
+			if (treeMapBox.isSelected()) new TreeMapCounting(top);
 
 			// Options interdependent
 		} else if (command == "transit"){

@@ -101,7 +101,8 @@ public class FileTreeImport implements ActionListener {
 	JCheckBox transitBox = null;
 	boolean layoutOpt = false;
 	JCheckBox layoutBox = null;
-	boolean colorOpt = false;
+	JCheckBox treeMapBox = new JCheckBox("Show treemap?");
+	boolean colorOpt = true;
 	JCheckBox colorBox = null;
 	boolean messOpt = false;
 	JCheckBox messBox = null;
@@ -306,7 +307,6 @@ public class FileTreeImport implements ActionListener {
 		double uniq = 0.;
 		uniq = ((double) leafCounter);
 		if (leafCounter > 20 && similarExtensions(file)) {
-			System.out.println("  " + file.getName() + " not marked as mess");
 			uniq = 1;
 		}
 		while (messMap.containsKey(uniq)) uniq += disambig;
@@ -411,7 +411,9 @@ public class FileTreeImport implements ActionListener {
 		layoutBox = new JCheckBox ("Tree layout", layoutOpt);
 		layoutBox.addActionListener(this);
 		optics.add(layoutBox);
-		colorBox = new JCheckBox ("Node color by change date", false);
+		treeMapBox.setToolTipText("for node counts, like WinDirStat but without cushion shading and tiling algorithm)");
+		optics.add(treeMapBox);
+		colorBox = new JCheckBox ("Node color by change date", true);
 		colorBox.setActionCommand("colorDate");
 		colorBox.addActionListener(this);
 		optics.add(colorBox);
@@ -707,7 +709,6 @@ public class FileTreeImport implements ActionListener {
 			}
 		}
 		if (extensions.size() <= 2) {
-			System.out.println(file.getName() + " " + leafCounter + ": " + extensions);
 			return true;
 		}
 		return false;
@@ -734,6 +735,7 @@ public class FileTreeImport implements ActionListener {
 		} else if (command == "Continue") {
 			transit = transitBox.isSelected();
 			System.out.println("ColorOpt: " + colorOpt + ", MessOpt: " + messOpt);
+			if (treeMapBox.isSelected()) new TreeMapCounting(top);
 
 			// Options interdependent
 		} else if (command == "transit"){
