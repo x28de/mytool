@@ -1,5 +1,6 @@
 package de.x28hd.tool.importers;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -26,6 +27,13 @@ public class TreeMapCounting {
 	public TreeMapCounting(DefaultMutableTreeNode jsonTop) {
 		treeMapLayout = new TreeMapLayout();
 		JSONArray dirList = jsonStruc(jsonTop, "");
+		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");
+		treeMapLayout.setTop(countersTop);
+	}
+	
+	public TreeMapCounting(File file) {
+		treeMapLayout = new TreeMapLayout();
+		JSONArray dirList = jsonStruc(file);
 		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");
 		treeMapLayout.setTop(countersTop);
 	}
@@ -65,6 +73,34 @@ public class TreeMapCounting {
 		}
 			
 		return constructed;
+	}
+	
+	public JSONArray jsonStruc(File file) {
+		File[] dirList = file.listFiles();
+		if (dirList == null) {
+			System.out.println("Error with Dirlist in " + file.getName());
+			return null;
+		} 
+
+		// Scan the folder
+		JSONArray tree = new JSONArray();
+		int index = 0;
+		try {
+			tree.put(index, file.getName());
+			for (File f : dirList) {
+				if (f.isHidden()) continue;
+				index++;
+				if (f.isDirectory()) {
+					JSONArray child = jsonStruc(f);		// recursion
+					tree.put(index,child);
+				} else {
+					tree.put(index, f.getName());
+				}
+			}
+		} catch (JSONException e) {
+			System.out.println("JSON error " + e.getMessage() + " with " + file.getName());
+		}
+		return tree;
 	}
 	
 	public JSONArray jsonStruc(DefaultMutableTreeNode node, String indent) {

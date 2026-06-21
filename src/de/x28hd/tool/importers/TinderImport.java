@@ -30,7 +30,13 @@ public class TinderImport {
 			
 	public TinderImport(Document inputXml, PresentationService controler) {
 			inputRoot = inputXml.getDocumentElement();
-		
+
+			String revision = inputRoot.getAttribute("revision");
+			if (Integer.decode(revision) > 12) {
+				controler.displayPopup("Sorry, this revision is not yet supported.");
+			return;
+		}
+
 		//	Extract nodes 
 		NodeList children = inputRoot.getElementsByTagName("item");		
 		Node child;
