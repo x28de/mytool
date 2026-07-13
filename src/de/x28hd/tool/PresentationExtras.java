@@ -521,7 +521,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 				
 			} else if (command == "layout") {
 				makeTree = new MakeTree(nodes, edges);
-				makeTree.changeColors(true, controler);
+				makeTree.changeLayout(controler);
 				graphPanel.repaint();
 				gui.menuItem51.setSelected(true);
 				

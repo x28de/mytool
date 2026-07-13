@@ -53,7 +53,6 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 	Hashtable<Integer, Color> nodesSavedColors = new Hashtable<Integer, Color>();
 	Hashtable<Integer, Color> edgesSavedColors = new Hashtable<Integer, Color>();
 	
-	boolean layout = false;
 	String[] colors = {
 			"#ff0000",
 			"#ffaa00",
@@ -81,7 +80,9 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 	Hashtable<Integer, GraphEdge> neighborIDs = new Hashtable<Integer, GraphEdge>();
 	Hashtable<GraphNode,Integer> nodesPos = new Hashtable<GraphNode,Integer>(); 
 	HashSet<GraphNode> leaves = new HashSet<GraphNode>();
-	
+	HashSet<String> uniqEdges = new HashSet<String>();
+	int treeEdgeID = 0;
+
 	
 	public MakeTree(Hashtable<Integer, GraphNode> nodes, 
 			Hashtable<Integer, GraphEdge> edges) {
@@ -94,25 +95,22 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 			GraphNode node = nodesEnum.nextElement();
 			Color originalColor = node.getColor();
 			nodesSavedColors.put(node.getID(), originalColor);
-			if (!layout) node.setColor("#c0c0c0");
 			Enumeration<GraphEdge> neighbors = node.getEdges();
 			int neighborCount = 0;
+			GraphEdge edge = null;
 			while (neighbors.hasMoreElements()) {
-				neighbors.nextElement();
+				edge = neighbors.nextElement();
 				neighborCount++;
 			}
-			if (neighborCount < 2) leaves.add(node);
+			if (neighborCount < 2) {
+				leaves.add(node);
+			}
 		}
+		// returning from constructor but stuff left for accessing via changeLayout() and treeLayout()
 	}
-
-	public void changeColors(boolean andLayout, PresentationService controler) {
-		layout = andLayout;
+	
+	public void changeLayout(PresentationService controler) {
 		this.controler = controler;
-		changeColors();
-	}
-
-	public void changeColors() {
-		HashSet<GraphEdge> nonTreeEdges = new HashSet<GraphEdge>();
 
 		// Save edge colors
 		Enumeration<GraphEdge> edgesEnum = edges.elements();
@@ -122,9 +120,14 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 			edgesSavedColors.put(edge.getID(), originalColor);
 		}
 
+		determineTree();
+	}
+		
 //		
 //		Call the Ranker program	
 		
+	public void determineTree() {
+		HashSet<GraphEdge> nonTreeEdges = new HashSet<GraphEdge>();
 		Brandes brandes = new Brandes(nodes, edges);
 		GraphNode [] array = brandes.getArray();
 		for (int i = 0; i < array.length; i++) {
@@ -153,9 +156,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		}
 		
 		int numPerColor = nonLeaves/6;
-		int treeEdgeID = 0;
 		
-		HashSet<String> uniqEdges = new HashSet<String>();
 		uniqEdges.clear();
 		HashSet<Integer> done = new HashSet<Integer>();
 		
@@ -165,7 +166,6 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 			GraphNode node = array[pos - 1];
 			
 			String colorString = "#d8d8d8";
-			if (!layout) {
 			if (pos < nonLeaves) colorString = "#b200b2";
 			if (pos < numPerColor * 5) colorString = "#0000ff";
 			if (pos < numPerColor * 4) colorString = "#00ff00";
@@ -173,14 +173,12 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 			if (pos < numPerColor * 2) colorString = "#ffaa00";
 			if (pos < numPerColor) colorString = "#ff0000";
 			node.setColor(colorString);
-			}
 			
 			// Color the Edges
 			Enumeration<GraphEdge> neighbors = node.getEdges();
 			neighborIDs.clear();
 			Double maxRank = .0;
 			int parentEdgeID = -1;
-			String parentUniq = "";
 			int i = 0;
 			
 			// Find best-ranked neighbor to color the Edge
@@ -201,14 +199,10 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 			GraphEdge parentEdge = neighborIDs.get(parentEdgeID);
 			if (parentEdgeID > -1) parentEdge.setColor(colorString); // TODO exotic case
 		}
-
-		if (!layout) return;
 		
 		TreeMap<Integer,Integer> eligible = new TreeMap<Integer,Integer>();
 		SortedMap<Integer,Integer> todoMap = (SortedMap<Integer,Integer>) eligible; 
 		SortedSet<Integer> todoSet = (SortedSet<Integer>) todoMap.keySet();
-
-		boolean annex = false;
 
 		int pos = 0;
 		TreeMap<Integer,Integer> treeTops = new TreeMap<Integer,Integer>();
@@ -242,7 +236,6 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 
 				// Find all neighbor to prepare the tree graph g2
 
-				annex = false;
 				while (neighbors.hasMoreElements()) {
 					i++;
 					GraphEdge edge = neighbors.nextElement();
@@ -272,7 +265,6 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 					done.add(otherEnd);
 					uniqEdges.add(parentUniq);
 					treeEdgeID++;
-					annex = false;
 				}
 				eligible.remove(ranksSorted[nodeID]);
 			}
@@ -335,11 +327,11 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
         
         treeLayout(g2);
 	}
+	
 	public void treeLayout(HashSet<GraphEdge> nonTreeEdges) {
 		treeLayout(nonTreeEdges, false);
 	}	
 	public void treeLayout(HashSet<GraphEdge> nonTreeEdges, boolean reverse) {
-//		this.nonTreeEdges = nonTreeEdges;
 		Enumeration<GraphEdge> edgesEnum = edges.elements();
 
 //		

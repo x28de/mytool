@@ -149,6 +149,7 @@ public class TreeMapCounting {
 
 		// Scan the folder
 		int len = dirList.length();
+		boolean first = true;	// first string is foldername, not leaf entry (and nested dolls are counted as 1)
 		for (int index = 0; index < len; index++) {		// iterator() from Javadoc did not work
 			Object f = null;
 			try {
@@ -167,7 +168,11 @@ public class TreeMapCounting {
 				while (bufferMap.containsKey(uniq)) uniq += disambig;
 				bufferMap.put(uniq, child);
 			} else {
-				leafCount++;
+				if (first) {
+					first = false;
+				} else {
+					leafCount++;
+				}
 			}
 		}
 
