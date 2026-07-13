@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -372,6 +373,9 @@ public final class PresentationService extends PresentationCore implements Actio
 		return assoc;
 	}
 	
+	public int newKey(Set<Integer> keySet) {
+		return super.newKey(keySet);			// (protected)
+	}
 	public void deleteNode(GraphNode topic) {
 		deleteNode(topic, false);
 	}

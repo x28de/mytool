@@ -23,6 +23,7 @@ import java.util.TreeMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -83,13 +84,20 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 	HashSet<String> uniqEdges = new HashSet<String>();
 	int treeEdgeID = 0;
 
+	int parentRole = 0;
+	boolean treeDiscovered = false;
+	HashSet<GraphNode> rootNodes = new HashSet<GraphNode>();
+	HashSet<Integer> doneNodes = new HashSet<Integer>();
+	GraphNode root = null;
+	Hashtable<GraphNode,Integer> roles = new Hashtable<GraphNode,Integer>();
+
 	
 	public MakeTree(Hashtable<Integer, GraphNode> nodes, 
 			Hashtable<Integer, GraphEdge> edges) {
 		this.nodes = nodes;
 		this.edges = edges;
 
-		// Save node colors and find leaves 
+		// Save node colors and find leaves and roots
 		Enumeration<GraphNode> nodesEnum = nodes.elements();
 		while (nodesEnum.hasMoreElements()) {
 			GraphNode node = nodesEnum.nextElement();
@@ -98,14 +106,42 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 			Enumeration<GraphEdge> neighbors = node.getEdges();
 			int neighborCount = 0;
 			GraphEdge edge = null;
+			int role = 0;
+			// test if same role for all neighbors
 			while (neighbors.hasMoreElements()) {
 				edge = neighbors.nextElement();
 				neighborCount++;
+				int testRole = node.equals(edge.getNode1()) ? 1 : 2;
+				if (role == 0) {				// first one
+					role = testRole;
+				} else if (testRole == role) {	// maybe
+					roles.put(node, role);
+				} else {						// no
+					roles.put(node, 0);
+					break;
+				}
 			}
 			if (neighborCount < 2) {
+				roles.put(node, - role);		// mark leaf
 				leaves.add(node);
 			}
 		}
+		// primitive heuristics to discover an inherent tree 
+		if (roles.contains(1) && !roles.contains(2)) {
+			parentRole = 1;
+		} else if (roles.contains(2) && !roles.contains(1)) {
+			parentRole = 2;
+		} else if (roles.contains(-1)) {
+			parentRole = 1;
+		} else { 
+			treeDiscovered = false;		// no tree or weird topology
+			return;
+		}
+		if (nodes.size() <= edges.size()) {
+			treeDiscovered = false;
+			return;
+		}
+		treeDiscovered = true;		
 		// returning from constructor but stuff left for accessing via changeLayout() and treeLayout()
 	}
 	
@@ -120,6 +156,18 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 			edgesSavedColors.put(edge.getID(), originalColor);
 		}
 
+		if (treeDiscovered) {
+			Object[] options =  {"No", "Yes"};
+			int	response = JOptionPane.showOptionDialog(null,
+					"Infer the tree from link directions?\n",
+					"Option", JOptionPane.YES_NO_OPTION, 
+					JOptionPane.QUESTION_MESSAGE, null, 
+					options, options[1]);
+			if (response == 1) {
+				discoveredTree(parentRole);
+				return;
+			}
+		}
 		determineTree();
 	}
 		
@@ -328,6 +376,85 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
         treeLayout(g2);
 	}
 	
+	public void discoveredTree(int parentRole) {
+		Enumeration<GraphNode> findRoots = nodes.elements();
+		while (findRoots.hasMoreElements()) {
+			GraphNode node = findRoots.nextElement();
+			if (roles.containsKey(node) && Math.abs(roles.get(node)) == parentRole) {
+				rootNodes.add(node);
+			}
+		}
+		if (rootNodes.size() > 1) {
+			int rootID = controler.newKey(nodes.keySet());
+			root = new GraphNode(rootID, new Point(40, 40), Color.GRAY, "ROOT", "");
+			nodes.put(rootID, root);
+		}
+		Iterator<GraphNode> iter = rootNodes.iterator();
+		while (iter.hasNext()) {
+			GraphNode node = iter.next();
+			if (root == null) {
+				root = node;
+				node.setLabel("ROOT");
+				continue;
+			}
+			GraphNode node1 = parentRole == 1 ? root : node;
+			GraphNode node2 = parentRole == 2 ? root : node;
+			int edgeID = controler.newKey(edges.keySet());
+			GraphEdge edge = new GraphEdge(edgeID, node1, node2, Color.BLACK, "");
+			edges.put(edgeID, edge);
+			node1.addEdge(edge);
+			node2.addEdge(edge);
+		}
+		new TreeMapCounting(nodes, edges, 3 - parentRole);
+		treeMapBox.setSelected(true);
+		constructTree(root.getID(), 0, "");
+	    treeLayout(g2);
+	}
+
+	public void constructTree(int nodeID, int level, String indent) {
+		GraphNode node = nodes.get(nodeID);
+        String colorString = colors[level % 6];
+		Enumeration<GraphEdge> neighbors = node.getEdges();
+		neighborIDs.clear();
+		String parentUniq = "";
+		int i = 0;
+
+		// Find all neighbors to prepare the tree graph g2
+
+		while (neighbors.hasMoreElements()) {
+			i++;
+			GraphEdge edge = neighbors.nextElement();
+			neighborIDs.put(i, edge);
+			int rel = node.relatedNode(edge).getID();
+			if (doneNodes.contains(rel)) continue;
+
+			//	Avoid duplicate edges with uci.jung
+			String uniqID = null;
+			if (nodeID < rel) {
+				uniqID = nodeID + "-" + rel;
+			} else {
+				uniqID = rel + "-" + nodeID;
+			}
+			if (uniqEdges.contains(uniqID)) {
+				continue;
+			}
+
+			parentUniq = uniqID;
+
+			int otherEnd = rel;
+
+			GraphNode otherNode = nodes.get(otherEnd);
+			otherNode.setColor(colorString);
+			g2.addEdge(treeEdgeID, nodeID, otherEnd, EdgeType.DIRECTED);
+			treeEdgeID++;
+			parents.put(otherEnd, nodeID);
+			doneNodes.add(otherEnd);
+			uniqEdges.add(parentUniq);
+			edge.setColor(colorString);
+			constructTree(otherEnd, level + 1, indent + "  ");		// recursion
+		}
+	}
+
 	public void treeLayout(HashSet<GraphEdge> nonTreeEdges) {
 		treeLayout(nonTreeEdges, false);
 	}	

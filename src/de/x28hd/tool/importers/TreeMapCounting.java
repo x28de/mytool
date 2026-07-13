@@ -38,7 +38,7 @@ public class TreeMapCounting {
 		treeMapLayout.setTop(countersTop);
 	}
 	
-	public TreeMapCounting(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges) {
+	public TreeMapCounting(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, int parentRole) {
 		this.nodes = nodes;
 		this.edges = edges;
 		GraphNode rootNode = null;
@@ -52,23 +52,24 @@ public class TreeMapCounting {
 				break;
 			}
 		}
+		System.out.println("root found ");
 		treeMapLayout = new TreeMapLayout();
-		DefaultMutableTreeNode jsonTop = collectNeighbors(rootNode, "");
+		DefaultMutableTreeNode jsonTop = collectNeighbors(rootNode, "", parentRole == 2);
 		JSONArray dirList = jsonStruc(jsonTop, "");
 		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");
 		treeMapLayout.setTop(countersTop);
 	}
 
-	public DefaultMutableTreeNode collectNeighbors(GraphNode node, String indent) {
+	public DefaultMutableTreeNode collectNeighbors(GraphNode node, String indent, boolean reverse) {
 		DefaultMutableTreeNode constructed = new DefaultMutableTreeNode(node.getLabel());
 		
 		Enumeration<GraphEdge> edgeList = edges.elements();
 		while (edgeList.hasMoreElements()) {
 			GraphEdge edge = edgeList.nextElement();
-			GraphNode n1 = edge.getNode1();
+			GraphNode n1 = reverse ? edge.getNode1() : edge.getNode2();
 			if (n1 != node) continue;
-			GraphNode n2 = edge.getNode2();
-			DefaultMutableTreeNode child = collectNeighbors(n2, indent + "  ");
+			GraphNode n2 = reverse ? edge.getNode2() : edge.getNode1();
+			DefaultMutableTreeNode child = collectNeighbors(n2, indent + "  ", reverse);
 			constructed.add(child);
 		}
 			
