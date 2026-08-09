@@ -481,6 +481,12 @@ public class Gui {
 		menuItem59.addActionListener(controlerExtras);
 		sub2.add(menuItem59);
 		
+		JMenuItem menuItem70 = new JMenuItem("DAG with Layers");
+		menuItem70.setActionCommand("daglayered");
+		menuItem70.setToolTipText("Directed Acyclic Graph with vertical layers");
+		menuItem70.addActionListener(controlerExtras);
+		sub2.add(menuItem70);
+		
 		JMenuItem menuItem48 = new JMenuItem("Check Overlap Need");
 		menuItem48.setActionCommand("planar");
 		menuItem48.setToolTipText("If the graph is planar, lines need not overlap");

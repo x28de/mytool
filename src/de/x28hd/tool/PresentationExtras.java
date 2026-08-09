@@ -68,6 +68,8 @@ import de.x28hd.tool.layouts.CentralityColoring;
 import de.x28hd.tool.layouts.CentralityColoring2;
 import de.x28hd.tool.layouts.CheckOverlaps;
 import de.x28hd.tool.layouts.DAG;
+import de.x28hd.tool.layouts.DagLayered;
+import de.x28hd.tool.layouts.DagLayered;
 import de.x28hd.tool.layouts.GraphPanelZoom;
 import de.x28hd.tool.layouts.MakeCircle;
 import de.x28hd.tool.layouts.MakeTree;
@@ -498,6 +500,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 				
 			} else if (command == "dag") {
 				new DAG(nodes, edges, controler);
+			} else if (command == "daglayered") {
+				new DagLayered(nodes, edges, controler);
 			} else if (command == "makecircle") {
 				new MakeCircle(nodes, edges, controler);
 			} else if (command == "planar") {
@@ -1063,6 +1067,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 		public void keyPressed(KeyEvent arg0) {
 			if (arg0.getKeyChar() == KeyEvent.VK_ENTER) {
 				GraphNode justUpdated = controler.getSelectedNode();
+				if (justUpdated.getID() == -1) return;
 				controler.graphSelected();
 				graphPanel.labelUpdateToggle(true);
 				controler.nodeSelected(justUpdated);
