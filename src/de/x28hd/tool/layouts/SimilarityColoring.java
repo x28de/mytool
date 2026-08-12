@@ -53,8 +53,13 @@ public class SimilarityColoring implements ActionListener {
 	JTextField numEdgesToRemoveBox;
 	int numEdgesToRemove = -1;
 	JCheckBox xByColor;
+	JCheckBox yByColor;
+	boolean sortByColor;
+	boolean hori;
 	int oldsum = 0;
 	int newsum = 0;
+	int xGap = 150;
+	int yGap = 120; 
 
 	public SimilarityColoring(Hashtable<Integer,GraphNode> nodes,
 			Hashtable<Integer,GraphEdge> edges, PresentationService controler) {
@@ -145,39 +150,43 @@ public class SimilarityColoring implements ActionListener {
 			// Inner loop, plus optional sorting
 			
 			Iterator<Integer> inner = set.iterator();
-			TreeMap<Integer,GraphNode> verticalMap = new TreeMap<Integer,GraphNode>(); 
+			TreeMap<Integer,GraphNode> orthogonalMap = new TreeMap<Integer,GraphNode>(); 
 			while (inner.hasNext()) {
 				int n = inner.next();
 				GraphNode node = nodes.get(n);
 				node.setColor(colorString);
 				nodesNewColors.put(node, colorId);
-				if (!xByColor.isSelected()) continue;
+				if (!sortByColor) continue;
 
 				Point xy = node.getXY();
-				verticalMap.put(xy.y, node);
+				int z = hori ? xy.x : xy.y;
+				orthogonalMap.put(z, node);
 			}
 
-			// Create columns by color
-			if (!xByColor.isSelected()) continue;
-			SortedMap<Integer,GraphNode> verticalList = (SortedMap<Integer,GraphNode>) verticalMap;
-			SortedSet<Integer> verticalSet = (SortedSet<Integer>) verticalList.keySet();
-			Iterator<Integer> iter = verticalSet.iterator();
-			int y = 40;
+			// Create lines (= hori ? columns : rows) by color
+			// (orthogonal = hori ? rows : columns)
+			if (!sortByColor) continue;
+			SortedMap<Integer,GraphNode> orthogonalList = (SortedMap<Integer,GraphNode>) orthogonalMap;
+			SortedSet<Integer> orthogonalSet = (SortedSet<Integer>) orthogonalList.keySet();
+			Iterator<Integer> iter = orthogonalSet.iterator();
+			int z = 40;
+			int increment = hori ? 40 : 200;
 			boolean first = true;
 			while (iter.hasNext()) {
-				int verticalRank = iter.next();
-				GraphNode node = verticalMap.get(verticalRank);
+				int orthogonalRank = iter.next();
+				GraphNode node = orthogonalMap.get(orthogonalRank);
 				Point xy = node.getXY();
-				if (first) {								// anchor column by top item
-					y = xy.y * colorCount/nodes.size();		// scaled by average column size
+				if (first) {								// anchor line by top item
+					int ortho = hori ? xy.y : xy.x;
+					z = ortho * colorCount/nodes.size();		// scaled by average line size
 					first  = false;
 				}
-				xy = new Point(150 * colorId, y);
+				xy = hori ? new Point(xGap * colorId, z) : new Point(z, yGap * colorId);
 				node.setXY(xy);
-				y += 40;
+				z += increment;
 			}
 		}
-		if (xByColor.isSelected()) arrangeColumns(colorCount);
+		if (sortByColor) arrangeLines(colorCount);
 	}
 
 	public void createSlider() {
@@ -189,7 +198,7 @@ public class SimilarityColoring implements ActionListener {
 				- nodes.size() + .0001)/edges.size() * 100)); 
 		
 		panel = new JDialog(controler.getMainWindow(), "Few or many groups?", true);
-		panel.setMinimumSize(new Dimension(200, 500));
+		panel.setMinimumSize(new Dimension(250, 500));
 		panel.setLocation(200, 200);
 		panel.setLayout(new BorderLayout());
 		slider.setLabelTable(slider.createStandardLabels(10));
@@ -207,6 +216,10 @@ public class SimilarityColoring implements ActionListener {
 		xByColor.setToolTipText("Arrange horizontally by Color");
 		xByColor.addActionListener(this);
 		advanced.add(xByColor);
+		yByColor = new JCheckBox("V");
+		yByColor.setToolTipText("Arrange vertically by Color");
+		yByColor.addActionListener(this);
+		advanced.add(yByColor);
 		bottom.add(advanced, "North");
 		paletteBox = new JCheckBox("Show palette");
 		paletteBox.setSelected(true);
@@ -219,11 +232,11 @@ public class SimilarityColoring implements ActionListener {
 		panel.setVisible(true);
 	}
 	
-	public void arrangeColumns(int colorCount) {
+	public void arrangeLines(int colorCount) {
 
 		// Find edges between two different colors
 		
-		if (!xByColor.isSelected()) return;
+		if (!sortByColor) return;
 		Enumeration<GraphEdge> edgeList = edges.elements();
 		while (edgeList.hasMoreElements()) {
 			GraphEdge edge = edgeList.nextElement();
@@ -266,7 +279,7 @@ public class SimilarityColoring implements ActionListener {
 					int target = targets.next();
 					if (source == target) continue;
 					if (Math.abs(positions.get(source) - positions.get(target)) > 1) continue;
-					if (swapColumns(source, target)) {
+					if (swapLines(source, target)) {
 //						System.out.println("Swapping " + positions.get(source) + " and " + positions.get(target));
 						success++;
 					}
@@ -276,13 +289,13 @@ public class SimilarityColoring implements ActionListener {
 		}
 	}
 
-	public boolean swapColumns(int first, int second) {
+	public boolean swapLines(int first, int second) {
 		int third = positions.get(first);
 		positions.put(first, positions.get(second));
 		positions.put(second, third);
 		newsum = calculateDistance();
 		if (oldsum - newsum >= 0) {
-			horizontalRearrange();
+			linesRearrange();
 			oldsum = newsum;
 			return true;
 		} else {
@@ -291,7 +304,7 @@ public class SimilarityColoring implements ActionListener {
 	}
 
 	public int calculateDistance() {
-		// Calculate sum of edges lengths between columns
+		// Calculate sum of edges lengths between lines
 		int sum = 0;
 		Iterator<Pair<Integer>> pairList2 = colorCombis.iterator();
 		while (pairList2.hasNext()) {
@@ -302,14 +315,15 @@ public class SimilarityColoring implements ActionListener {
 		return sum;
 	}
 	
-	public void horizontalRearrange() {
+	public void linesRearrange() {
 		Enumeration<GraphNode> nodesList = nodesNewColors.keys();
 		while (nodesList.hasMoreElements()) {
 			GraphNode node = nodesList.nextElement();
-			int column = nodesNewColors.get(node);
-			int xOrder = positions.get(column);
+			int line = nodesNewColors.get(node);
+			int sortOrder = positions.get(line);
 			Point xy = node.getXY();
-			xy = new Point(xOrder * 150, xy.y);
+			int ortho = hori ? xy.y : xy.x;
+			xy = hori ? new Point(sortOrder * xGap, ortho) : new Point(ortho, sortOrder * yGap);
 			node.setXY(xy);
 		}
 	}
@@ -331,7 +345,15 @@ public class SimilarityColoring implements ActionListener {
 
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getActionCommand() == "H") {
-			paletteBox.setSelected(!xByColor.isSelected());
+			sortByColor = true;
+			hori = true;
+			paletteBox.setSelected(false);
+			return;
+		}
+		if (arg0.getActionCommand() == "V") {
+			sortByColor = true;
+			hori = false;
+			paletteBox.setSelected(false);
 			return;
 		}
 		palette = paletteBox.isSelected();
