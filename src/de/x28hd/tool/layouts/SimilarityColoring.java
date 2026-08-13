@@ -20,12 +20,11 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.core.GraphEdge;
@@ -40,10 +39,14 @@ public class SimilarityColoring implements ActionListener {
 	Hashtable<Integer,GraphEdge> edges = new Hashtable<Integer,GraphEdge>();
 	PresentationService controler;
 	Hashtable<Integer, Color> nodesSavedColors = new Hashtable<Integer, Color>();
+	Hashtable<Integer, Color> edgesSavedColors = new Hashtable<Integer, Color>();
 	
 	Hashtable<GraphNode,Integer> nodesNewColors = new Hashtable<GraphNode,Integer>();
 	HashSet<Pair<Integer>> colorCombis = new HashSet<Pair<Integer>>();
 	Hashtable<Integer,Integer> positions = new Hashtable<Integer,Integer>();
+	Hashtable<Integer,Integer> sizes = new Hashtable<Integer,Integer>();
+	Hashtable<Integer,Integer> startPlaces = new Hashtable<Integer,Integer>();
+	Hashtable<Integer,Integer> spreads = new Hashtable<Integer,Integer>();
 	
 	JSlider slider;
 	JDialog panel;
@@ -99,13 +102,20 @@ public class SimilarityColoring implements ActionListener {
 			g.addEdge(edgeID, n1, n2, edgeType);
 		}
 		
-		// Record nodesSavedColors for reverting
+		// Record savedColors for reverting
 		Enumeration<GraphNode> nodeList  = nodes.elements();
 		while (nodeList.hasMoreElements()) {
 			GraphNode node = nodeList.nextElement();
 			Color oldColor = node.getColor();
 			int id = node.getID();
 			nodesSavedColors.put(id,oldColor);
+		}
+		Enumeration<GraphEdge> edgeList = edges.elements();
+		while (edgeList.hasMoreElements()) {
+			GraphEdge edge = edgeList.nextElement();
+			Color oldColor = edge.getColor();
+			int id = edge.getID();
+			edgesSavedColors.put(id,oldColor);
 		}
 		
 		Set<Set<Integer>> clusterSet = clusterer.transform(g);
@@ -142,6 +152,7 @@ public class SimilarityColoring implements ActionListener {
 				float [] hsbvalues = {0, 0, 0};
 				Color.RGBtoHSB(red,  green,  blue, hsbvalues);
 				colorId++;
+				sizes.put(colorId, set.size());
 				odd =  !odd;
 			} else {
 				colorString = "#ccdddd";
@@ -163,7 +174,7 @@ public class SimilarityColoring implements ActionListener {
 				orthogonalMap.put(z, node);
 			}
 
-			// Create lines (= hori ? columns : rows) by color
+			// Create line-ups (= hori ? columns : rows) by color
 			// (orthogonal = hori ? rows : columns)
 			if (!sortByColor) continue;
 			SortedMap<Integer,GraphNode> orthogonalList = (SortedMap<Integer,GraphNode>) orthogonalMap;
@@ -178,15 +189,17 @@ public class SimilarityColoring implements ActionListener {
 				Point xy = node.getXY();
 				if (first) {								// anchor line by top item
 					int ortho = hori ? xy.y : xy.x;
-					z = ortho * colorCount/nodes.size();		// scaled by average line size
+					if (hori) z = ortho * colorCount/nodes.size();		// scaled by average line size
 					first  = false;
 				}
+				// provisional placement for testing; only z is kept
 				xy = hori ? new Point(xGap * colorId, z) : new Point(z, yGap * colorId);
 				node.setXY(xy);
 				z += increment;
 			}
 		}
 		if (sortByColor) arrangeLines(colorCount);
+		if (!hori) new DagLayered(nodes, edges, controler, true);	// arrange by layers
 	}
 
 	public void createSlider() {
@@ -280,13 +293,17 @@ public class SimilarityColoring implements ActionListener {
 					if (source == target) continue;
 					if (Math.abs(positions.get(source) - positions.get(target)) > 1) continue;
 					if (swapLines(source, target)) {
-//						System.out.println("Swapping " + positions.get(source) + " and " + positions.get(target));
 						success++;
 					}
 				}
 			}
 			System.out.println("Iteration number " + iteration++ + " ...");
 		}
+		
+		if (hori) return;
+		groupPlaces();
+		nodePlacement();
+		colorGroups();
 	}
 
 	public boolean swapLines(int first, int second) {
@@ -328,9 +345,83 @@ public class SimilarityColoring implements ActionListener {
 		}
 	}
 	
+	public void groupPlaces() {
+		Hashtable<Integer,Integer> colorsByPosition = new Hashtable<Integer,Integer>(); 
+		Hashtable<Integer,Integer> sizesByPosition = new Hashtable<Integer,Integer>(); 
+		for (int colorId = 1; colorId <= positions.size(); colorId++) {
+			
+			colorsByPosition.put(positions.get(colorId), colorId);
+			sizesByPosition.put(positions.get(colorId), sizes.get(colorId));
+		}
+		int startPlace = 0;
+		for (int pos = 1; pos <= positions.size(); pos++) {
+			int colorId = colorsByPosition.get(pos);
+			startPlaces.put(colorId, startPlace);
+			startPlace += sizesByPosition.get(pos) * 15;
+			startPlace += 150;
+		}
+	}
+	
+	public void nodePlacement() {
+		Enumeration<GraphNode> nodesList = nodesNewColors.keys();
+		while (nodesList.hasMoreElements()) {
+			GraphNode node = nodesList.nextElement();
+			int line = nodesNewColors.get(node);
+			int spread = 0;
+			if (spreads.containsKey(line)) {
+				spread = spreads.get(line) + 15;
+			} 
+			spreads.put(line, spread);
+			Point xy = node.getXY();
+			xy = new Point(xy.x, startPlaces.get(line) + spread);
+			node.setXY(xy);
+		}
+	}
+	public void colorGroups() {
+		Enumeration<GraphEdge> edgeList = edges.elements();
+		while (edgeList.hasMoreElements()) {
+			GraphEdge edge = edgeList.nextElement();
+			GraphNode node1 = edge.getNode1();
+			GraphNode node2 = edge.getNode2();
+			Color color1 = node1.getColor();
+			Color color2 = node2.getColor();
+			if (!color1.equals(color2)) {
+                edge.setColor("#c0c0c0");
+ 			} else {
+				int r = color1.getRed();
+				int g = color1.getGreen();
+				int b = color1.getBlue();
+				String colorString1 = String.format("#%02x%02x%02x", r, g, b);
+				edge.setColor(colorString1);
+			}
+		}
+	}
+	
 	public void revertColors() {
 		Iterator<GraphNode> iter = paletteNodes.iterator();
 		while (iter.hasNext()) controler.deleteNode(iter.next(), true);
+		
+		int response = 1;
+		if (!hori) {
+			// suggestion, in particular for red/ green argument maps
+			Object[] options =  {"Yes, sounds good", "No, revert it all"};
+			response = JOptionPane.showOptionDialog(null,
+					"Should we keep the group colors with the nodes?",
+					"Suggestion", JOptionPane.YES_NO_OPTION, 
+					JOptionPane.QUESTION_MESSAGE, null, 
+					options, options[1]);
+
+			Enumeration<GraphEdge>edgesEnum = edges.elements();
+			while (edgesEnum.hasMoreElements()) {
+				GraphEdge edge = edgesEnum.nextElement();
+				Color originalColor = edgesSavedColors.get(edge.getID());
+				int r = originalColor.getRed();
+				int g = originalColor.getGreen();
+				int b = originalColor.getBlue();
+				edge.setColor(String.format("#%02x%02x%02x", r, g, b));
+			}
+		}
+		if (response == 0) return;
 		
 		Enumeration<GraphNode>nodesEnum = nodes.elements();
 		while (nodesEnum.hasMoreElements()) {
@@ -365,6 +456,4 @@ public class SimilarityColoring implements ActionListener {
 		panel.dispose();
 		mainPart();
 	}
-	
-	
 }

@@ -58,6 +58,7 @@ public class DagLayered implements ActionListener {
 	JFrame mainWindow;
 	boolean ask = true;
 	boolean autoOptimize = false;
+	boolean presorted = false;
 	int attempted;
 	int successes;
 	int errors = 0;
@@ -67,11 +68,14 @@ public class DagLayered implements ActionListener {
 	//Trying to follow the algorithm outlined in https://en.wikipedia.org/wiki/Layered_graph_drawing	
 	
 	public DagLayered(	Hashtable<Integer,GraphNode> n, Hashtable<Integer,GraphEdge> e,
-			PresentationService c) {
-		// expects nodes ordered by y
+			PresentationService c) 
+			{new DagLayered(n, e, c, false);}
+	public DagLayered(	Hashtable<Integer,GraphNode> n, Hashtable<Integer,GraphEdge> e,
+			PresentationService c, boolean presorted) {
 		nodes = n;
 		edges = e;
 		controler = c;
+		this.presorted = presorted;
 		graphPanel = controler.getGraphPanel();
 		bounds = controler.getControlerExtras().getBounds();
 		newHeight = 20 * nodes.size();
@@ -80,7 +84,7 @@ public class DagLayered implements ActionListener {
 			controler.displayPopup("Aborted with " + errors + " error(s)");
 			return;
 		};
-		placement();
+		if (!presorted) placement();
 		
 		// resize before modal popups
 		mainWindow = controler.getMainWindow();
@@ -88,6 +92,8 @@ public class DagLayered implements ActionListener {
 		int w = dim.width - 80;
 		int h = dim.height - 80;
 		mainWindow.setSize(new Dimension(w, h));
+		
+		if (!presorted) {
 		Object[] options =  {"No", "Yes"};
 		int	response = JOptionPane.showOptionDialog(null,
 				"Should we try to reduce crossings"
@@ -108,6 +114,7 @@ public class DagLayered implements ActionListener {
 		
 		for (int i = 0; i < layerSets.size(); i++) {
 			adjustToNeighbors(i);
+		}
 		}
 		
 		graphPanel.repaint();
@@ -142,37 +149,21 @@ public class DagLayered implements ActionListener {
 	}
 	
 	public boolean assignLayers() {
-		
 		TopologicalSorting topologicalSorting = new TopologicalSorting(nodes, edges, controler);
 		GraphNode[] array = topologicalSorting.getArray();
 		for (int i = 0; i < array.length; i++) {
 			GraphNode node = array[i];
-			node.setXY(new Point(40, i * 50));
-		}
-		// sort vertically from former to latter
-		TreeMap<Integer,GraphNode> yMap = new TreeMap<Integer,GraphNode>();
-		SortedMap<Integer,GraphNode> yList = (SortedMap<Integer,GraphNode>) yMap;
-		
-		Enumeration<GraphNode> nodeList2 = nodes.elements();
-		while (nodeList2.hasMoreElements()) {
-			GraphNode node = nodeList2.nextElement();
 			Point xy = node.getXY();
-			yMap.put(xy.y, node);
-			node.setXY(new Point(xy.y, xy.x));
+			int x = i * 50;
+			node.setXY(new Point(x, xy.y));
 		}
 		graphPanel.repaint();
-		SortedSet<Integer> ySet = (SortedSet<Integer>) yList.keySet();
 
 		String[] colors = { "#ffbbbb", "#ffe8aa", "#ffff99", "#bbffbb", "#bbbbff", "#d2bbd2", 
 							"#ff0000", "#ffc800", "#ffff00", "#00ff00", "#0000ff", "#b200b2"}; 
-
 		int layer = -1;
-		
-		// Vertically iterate through nodes
-		Iterator<Integer> iter = ySet.iterator();
-		while (iter.hasNext()) {
-			int nextY = iter.next();
-			GraphNode node = yMap.get(nextY);
+		for (int i = 0; i < array.length; i++) {
+			GraphNode node = array[i];
 			int maxLayer = Integer.MIN_VALUE;
 			Enumeration<GraphEdge> neighbors = node.getEdges();
 			int ancestors = 0;
@@ -195,14 +186,13 @@ public class DagLayered implements ActionListener {
 			maxLayer++;
 			layer = maxLayer;
 			layers.put(node, layer);
+			if (presorted) continue;
 			node.setColor(colors[layer % 12]);
 		}
 		
 		// Lower the source nodes and create layerSets
-		Iterator<Integer> iter3 = ySet.iterator();
-		while (iter3.hasNext()) {
-			int nextY = iter3.next();
-			GraphNode node = yMap.get(nextY);
+		for (int i = 0; i < array.length; i++) {
+			GraphNode node = array[i];
 			layer = layers.get(node);
 			
 			if (layer == 0) {
@@ -300,7 +290,6 @@ public class DagLayered implements ActionListener {
 		// Initial vertical placement: evenly distributed 
 		distributeEvenly();
 
-		
 		// Identify edges between adjacent layers i and i - 1
 		
 		for (int i = 1; i < layerSets.size(); i++) {
@@ -610,6 +599,7 @@ public class DagLayered implements ActionListener {
 	}
 	
 	public void prepareRedraw() {
+		if (presorted) return;		// for now optimizing within color groups
 		nextReady = new JDialog(controler.getMainWindow(), "Optimizing the sequence ...");
 		nextReady.setLayout(new BorderLayout());
 		nextReady.setLocation(800, 30);
