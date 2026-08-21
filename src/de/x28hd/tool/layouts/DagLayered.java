@@ -41,7 +41,7 @@ public class DagLayered implements ActionListener {
 	Rectangle bounds;
 	int newHeight;
 	int middle;
-	int horizontalDist = 180;
+	int horizontalDist = 200;
 	
 	Hashtable<GraphNode,Integer> layers = new Hashtable<GraphNode,Integer>();
 	Hashtable<Integer,Vector<GraphNode>> layerSets = new Hashtable<Integer,Vector<GraphNode>>();
@@ -78,19 +78,18 @@ public class DagLayered implements ActionListener {
 		this.presorted = presorted;
 		graphPanel = controler.getGraphPanel();
 		bounds = controler.getControlerExtras().getBounds();
-		newHeight = 20 * nodes.size();
+		newHeight = 15 * nodes.size();
 		
 		if (!assignLayers()) {
 			controler.displayPopup("Aborted with " + errors + " error(s)");
 			return;
 		};
-		if (!presorted) placement();
 		
 		// resize before modal popups
 		mainWindow = controler.getMainWindow();
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		int w = dim.width - 80;
-		int h = dim.height - 80;
+		int h = dim.height - 280;
 		mainWindow.setSize(new Dimension(w, h));
 		
 		if (!presorted) {
@@ -112,6 +111,8 @@ public class DagLayered implements ActionListener {
 			if (response3 != 0) addDummyNodes();
 		}
 		
+		placement();
+
 		for (int i = 0; i < layerSets.size(); i++) {
 			adjustToNeighbors(i);
 		}
@@ -300,10 +301,10 @@ public class DagLayered implements ActionListener {
 				GraphEdge edge = edgeList2.nextElement();
 				GraphNode node1 = edge.getNode1();
 				int layer1 = layers.get(node1);
-				if (layer1 > i + 1 || layer1 < i - 1) continue;
+				if (layer1 != i - 1) continue;
 				GraphNode node2 = edge.getNode2();
 				int layer2 = layers.get(node2);
-				if (layer2 > i + 1 || layer2 < i - 1) continue;
+				if (layer2 != i) continue;
 				edgeSet.add(edge);
 			}
 		}
@@ -404,85 +405,70 @@ public class DagLayered implements ActionListener {
 		edgeSet = edgeSets.get(i);
 		attempted = 0;
 		
-		permutation(a, n);
+		for (int j = 0; j < n - 1; j++) {
+			Vector<GraphNode> pair = new Vector<GraphNode>();
+			GraphNode one = varySet.get(j);
+			pair.add(one);
+			GraphNode two = varySet.get(j + 1);
+			pair.add(two);
+			attempt(pair);
+		}
 		
 		graphPanel.repaint();
 		return successes;
 	}
-    
-	public void permutation(Vector<Integer> a, int n) {
-		// Adapted from https://introcs.cs.princeton.edu/java/23recursion/Permutations.java.html
+	
+	public void attempt(Vector<GraphNode> pair) {
 		int diff = 0;
 		if (abort) return;
-		
-		if (n == 1) {				// final determination of the permutation
-			Vector<Point> oldXY = new Vector<Point>();			
-			Vector<Point> newXY = new Vector<Point>();			
-			
-			// Save old and new positions
-			for (int j = 0; j < varySet.size(); j++) {
-				GraphNode node = varySet.get(j);
-				oldXY.add(j, node.getXY());
-				int newIndex = a.get(j);
-				node = varySet.get(newIndex);
-				newXY.add(j, node.getXY());
-			}
-			
-			// Count crossings
-			int crossings = countCrossings(edgeSet);
-			int crossings2 = Integer.MAX_VALUE;
-			
-			// Move point
-			for (int j = 0; j < varySet.size(); j++) {
-				GraphNode node = varySet.get(j);
-				Point xy = newXY.get(j);
-				node.setXY(xy);
-			}
-			highLightSwap(a);		// visualize 
-			
-			// Count crossings again
-			crossings2 = countCrossings(edgeSet);
-			attempted++;
-			if (crossings2 >= crossings) {
-				// Reset
-				for (int j = 0; j < varySet.size(); j++) {
-					GraphNode node = varySet.get(j);
-					Point xy = oldXY.get(j);
-					node.setXY(xy);
+
+		// Count crossings
+		int crossings = countCrossings(edgeSet);
+		int crossings2 = Integer.MAX_VALUE;
+
+
+		// Move point
+		highLightSwap(pair);
+		swapNodes(pair);
+
+		// Count crossings again
+		crossings2 = countCrossings(edgeSet);
+		attempted++;
+		if (crossings2 >= crossings) {
+			// Reset
+//			System.out.println(crossings2 + " >= " + crossings + "; swap back '" + pair.get(0).getLabel() + "' and '" + pair.get(1).getLabel() + "'");
+
+			swapNodes(pair);
+			if (attempted % 1000 == 0) System.out.println(attempted + " attempts");
+			if (attempted % 10000 == 0) {
+				Object[] options2 =  {"Abort", "Continue"};
+				int	response2 = JOptionPane.showOptionDialog(null,
+						"<html><font color=\"red\">" + attempted + " attempts failed; continue?</font></html>",
+						"Option", JOptionPane.YES_NO_OPTION, 
+						JOptionPane.QUESTION_MESSAGE, null, 
+						options2, options2[1]);
+				if (response2 == 0) {
+					abort = true;
+					return;
 				}
-				if (attempted % 1000 == 0) System.out.println(attempted + " attempts");
-				if (attempted % 10000 == 0) {
-					Object[] options2 =  {"Abort", "Continue"};
-					int	response2 = JOptionPane.showOptionDialog(null,
-							"<html><font color=\"red\">" + attempted + " attempts failed; continue?</font></html>",
-							"Option", JOptionPane.YES_NO_OPTION, 
-							JOptionPane.QUESTION_MESSAGE, null, 
-							options2, options2[1]);
-					if (response2 == 0) {
-						abort = true;
-						return;
-					}
-				}
-			} else {
-				diff = crossings - crossings2;
-				successes += diff;
-				attempted = 0;
 			}
-			return;
+		} else {
+			diff = crossings - crossings2;
+			successes += diff;
+			attempted = 0;
 		}
-		for (int i = 0; i < n; i++) {
-			swap(a, i, n-1);
-			permutation(a, n-1);				// recursion
-			swap(a, i, n-1);
-		}
+		return;
 	}
 	
-    // swap the integers at indices i and j
-    private static void swap(Vector<Integer> a, int i, int j) {
-        int c = a.get(i);
-        a.set(i, a.get(j));
-        a.set(j, c);
-    }
+    public void swapNodes(Vector<GraphNode> pair) {
+		Vector<Point> oldXY = new Vector<Point>();
+		GraphNode one = pair.get(0);
+		oldXY.add(0, one.getXY());
+		GraphNode two = pair.get(1);
+		oldXY.add(1, two.getXY());
+		one.setXY(oldXY.get(1));
+		two.setXY(oldXY.get(0));
+	}
 	
 	public void restoreHiddenEdges() {
 		Iterator<GraphEdge> edgeIter = dummyEdges.iterator();
@@ -503,16 +489,15 @@ public class DagLayered implements ActionListener {
 		while (hiddenIter.hasNext()) {
 			GraphNode[] hiddenEdge = hiddenIter.next();
 			GraphEdge restoredEdge = createEdge(hiddenEdge[0], hiddenEdge[1]);
-			restoredEdge.setColor("#e8e8e8");
+			restoredEdge.setColor("#c0c0c0");
 		}
+		distributeEvenly();
 	}
 	
-	public void highLightSwap(Vector<Integer> a) {
+	public void highLightSwap(Vector<GraphNode> pair) {
 		if (!ask) return;
-		int a0 = a.get(0);
-		GraphNode first = varySet.get(a0);
-		int a1 = a.get(1);
-		GraphNode second = varySet.get(a1);
+		GraphNode first = pair.get(0);
+		GraphNode second = pair.get(1);
 		// for diagnosis, recolor
 		Color originalColor1 = first.getColor();
 		first.setColor("#000000");
@@ -564,6 +549,7 @@ public class DagLayered implements ActionListener {
 		GraphNode oneEnd = edgeOne.getNode2();
 		GraphNode twoStart = edgeTwo.getNode1();
 		GraphNode twoEnd = edgeTwo.getNode2();
+				
 		if (oneStart.equals(twoStart)) return false;
 		if (oneStart.equals(twoEnd)) return false;
 		if (oneEnd.equals(twoStart)) return false;
@@ -645,6 +631,7 @@ public class DagLayered implements ActionListener {
 				return;
 			}
 		}
+		distributeEvenly();
 		controler.getMainWindow().repaint();
 	}
 
