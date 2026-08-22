@@ -26,6 +26,7 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import de.x28hd.tool.GraphPanel;
 import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
@@ -47,6 +48,8 @@ public class SimilarityColoring implements ActionListener {
 	Hashtable<Integer,Integer> sizes = new Hashtable<Integer,Integer>();
 	Hashtable<Integer,Integer> startPlaces = new Hashtable<Integer,Integer>();
 	Hashtable<Integer,Integer> spreads = new Hashtable<Integer,Integer>();
+	Hashtable<Color,HashSet<GraphEdge>> groupEdgeSets = new Hashtable<Color,HashSet<GraphEdge>>();
+	HashSet<GraphEdge> groupEdgeSet = null;
 	
 	JSlider slider;
 	JDialog panel;
@@ -198,8 +201,27 @@ public class SimilarityColoring implements ActionListener {
 				z += increment;
 			}
 		}
+		
 		if (sortByColor) arrangeLines(colorCount);
-		if (!hori) new DagLayered(nodes, edges, controler, true);	// arrange by layers
+		if (hori) return; 
+		
+		new DagLayered(nodes, edges, controler, true, false);			// arrange by layers
+		
+		panel = new JDialog(controler.getMainWindow(), "Select an edge", false);
+		panel.setMinimumSize(new Dimension(250, 100));
+		panel.setLocation(200, 200);
+		panel.setLayout(new BorderLayout());
+		JPanel bottom = new JPanel();
+		bottom.setLayout(new BorderLayout());
+		bottom.setBorder(new EmptyBorder(10, 10, 10, 10));
+		JButton subgraph = new JButton("Continue");
+		subgraph.setActionCommand("Subgraph");
+		subgraph.addActionListener(this);
+		JLabel label = new JLabel("Show a subgraph ");
+		bottom.add(label, "West");
+		bottom.add(subgraph, "East");
+		panel.add(bottom, "South");
+		panel.setVisible(true);
 	}
 
 	public void createSlider() {
@@ -267,7 +289,7 @@ public class SimilarityColoring implements ActionListener {
 			colorCombis.add(pair);
 		}
 		
-		// Initialize column positions
+		// Initialize line positions
 		
 		for (int i = 1; i <= colorCount; i++) {
 			positions.put(i, i);
@@ -386,15 +408,79 @@ public class SimilarityColoring implements ActionListener {
 			Color color1 = node1.getColor();
 			Color color2 = node2.getColor();
 			if (!color1.equals(color2)) {
-                edge.setColor("#c0c0c0");
- 			} else {
+				edge.setColor("#c0c0c0");
+				continue;
+			} else {
 				int r = color1.getRed();
 				int g = color1.getGreen();
 				int b = color1.getBlue();
 				String colorString1 = String.format("#%02x%02x%02x", r, g, b);
 				edge.setColor(colorString1);
 			}
+			if (!groupEdgeSets.containsKey(color1)) {
+				groupEdgeSet = new HashSet<GraphEdge>();
+				groupEdgeSets.put(color1, groupEdgeSet);
+			} else {
+				groupEdgeSet = groupEdgeSets.get(color1);
+			}
+			groupEdgeSet.add(edge);
 		}
+	}
+	
+	public void drawGraph() {
+		GraphEdge selected = controler.getSelectedEdge();
+		Color color = selected.getColor();
+		if (color == null || Color.decode("#c0c0c0").equals(color)) {
+			controler.displayPopup("Select a colored edge");
+			return;
+		}
+		int test = 0;
+		HashSet<GraphEdge> groupEdgeSet = groupEdgeSets.get(color);
+		
+		// construct clip map
+		
+		Hashtable<Integer,GraphNode> clipNodes = new Hashtable<Integer,GraphNode>();
+		Hashtable<Integer,GraphEdge> clipEdges = new Hashtable<Integer,GraphEdge>();
+		
+		Enumeration<Integer> nodeList = nodes.keys();
+		while (nodeList.hasMoreElements()) {
+			int nodeId = nodeList.nextElement();
+			GraphNode node = nodes.get(nodeId);
+			Color testColor = node.getColor();
+			if (!color.equals(testColor)) continue;
+			Point xy = node.getXY();
+			GraphNode clipNode = new GraphNode(nodeId, xy, color, "", ""); 	// just xy and edges will be used
+			clipNodes.put(nodeId, clipNode);
+		}
+		Enumeration<Integer> edgeList = edges.keys();
+		while (edgeList.hasMoreElements()) {
+			int edgeId = edgeList.nextElement();
+			GraphEdge edge = edges.get(edgeId);
+			if (!groupEdgeSet.contains(edge)) continue;
+			int n1 = edge.getN1();
+			if (!clipNodes.containsKey(n1)) continue;
+			int n2 = edge.getN2();
+			if (!clipNodes.containsKey(n2)) continue;
+			GraphNode clipNode1 = clipNodes.get(n1);
+			GraphNode clipNode2 = clipNodes.get(n2);
+			GraphEdge clipEdge = new GraphEdge(edgeId, clipNode1, clipNode2, color, "");	//use just the nodes
+			clipEdges.put(edgeId, clipEdge);
+			clipNode1.addEdge(clipEdge);
+			clipNode2.addEdge(clipEdge);
+		}
+
+		
+		System.out.println("Calling the optimizer with " + clipNodes.size() + " nodes");
+		new DagLayered(clipNodes, clipEdges, controler, true, true);
+		Enumeration<GraphNode> clipList = clipNodes.elements();
+		while (clipList.hasMoreElements()) {
+			GraphNode clipNode = clipList.nextElement();
+			int id = clipNode.getID();
+			GraphNode realNode = nodes.get(id);
+			realNode.setXY(clipNode.getXY());
+		}
+		GraphPanel graphPanel = controler.getGraphPanel();
+		graphPanel.repaint();
 	}
 	
 	public void revertColors() {
@@ -445,6 +531,10 @@ public class SimilarityColoring implements ActionListener {
 			sortByColor = true;
 			hori = false;
 			paletteBox.setSelected(false);
+			return;
+		}
+		if (arg0.getActionCommand() == "Subgraph") {
+			drawGraph();
 			return;
 		}
 		palette = paletteBox.isSelected();
