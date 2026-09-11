@@ -38,8 +38,9 @@ public class DagLayered implements ActionListener {
 	PresentationService controler;
 	GraphPanel graphPanel;
 	
+	int clipHeight;
+	int clipStart; 
 	Rectangle bounds;
-	int newHeight;
 	int middle;
 	int horizontalDist = 200;
 	
@@ -58,64 +59,67 @@ public class DagLayered implements ActionListener {
 	JFrame mainWindow;
 	boolean ask = true;
 	boolean autoOptimize = false;
-	boolean presorted = false;
+	boolean modify = true;
 	int attempted;
 	int successes;
 	int errors = 0;
 	boolean abort = false;
+	JDialog panel;
 	JDialog nextReady;
-	
-	//Trying to follow the algorithm outlined in https://en.wikipedia.org/wiki/Layered_graph_drawing	
+	boolean subGraph;
 	
 	public DagLayered(	Hashtable<Integer,GraphNode> n, Hashtable<Integer,GraphEdge> e,
-			PresentationService c) 
-			{new DagLayered(n, e, c, false);}
-	public DagLayered(	Hashtable<Integer,GraphNode> n, Hashtable<Integer,GraphEdge> e,
-			PresentationService c, boolean presorted) {
+			PresentationService c, boolean modify, Color clipColor) 
+			{
 		nodes = n;
 		edges = e;
 		controler = c;
-		this.presorted = presorted;
+		this.modify = modify;
+		subGraph = clipColor != null;
 		graphPanel = controler.getGraphPanel();
 		bounds = controler.getControlerExtras().getBounds();
-		newHeight = 15 * nodes.size();
+		clipHeight = 15 * nodes.size();
+		clipStart = bounds.x;
 		
-		if (!assignLayers()) {
+		// assign layers
+		if (!assignLayers(clipColor)) {
 			controler.displayPopup("Aborted with " + errors + " error(s)");
 			return;
 		};
-		
+		if (subGraph) subGraphSpecs(clipColor);
+
+		System.out.println("After assignLayers, we have " + layerSets.size() + " layersets");
 		// resize before modal popups
 		mainWindow = controler.getMainWindow();
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		int w = dim.width - 80;
-		int h = dim.height - 280;
+		int h = dim.height - 180;
 		mainWindow.setSize(new Dimension(w, h));
 		
-		if (!presorted) {
-		Object[] options =  {"No", "Yes"};
-		int	response = JOptionPane.showOptionDialog(null,
-				"Should we try to reduce crossings"
-				+ "\n (probably disappointing) ?",
-				"Option", JOptionPane.YES_NO_OPTION, 
-				JOptionPane.QUESTION_MESSAGE, null, 
-				options, options[0]);
-		autoOptimize = (response != 0);
-		if (autoOptimize) {
-			Object[] options3 =  {"No", "Yes"};
-			int	response3 = JOptionPane.showOptionDialog(null,
-					"Add dummy nodes on the layers ?",
-					"Option", JOptionPane.YES_NO_OPTION, 
-					JOptionPane.QUESTION_MESSAGE, null, 
-					options3, options3[0]);
-			if (response3 != 0) addDummyNodes();
-		}
-		
-		placement();
+		if (modify) {
+			Object[] options =  {"No", "Yes"};
+			int	response = JOptionPane.showOptionDialog(null,
+					"Should we try to reduce crossings"
+							+ "\n (probably disappointing) ?",
+							"Option", JOptionPane.YES_NO_OPTION, 
+							JOptionPane.QUESTION_MESSAGE, null, 
+							options, options[0]);
+			autoOptimize = (response != 0);
+			if (autoOptimize) {
+				Object[] options3 =  {"No", "Yes"};
+				int	response3 = JOptionPane.showOptionDialog(null,
+						"Add dummy nodes on the layers ?",
+						"Option", JOptionPane.YES_NO_OPTION, 
+						JOptionPane.QUESTION_MESSAGE, null, 
+						options3, options3[0]);
+				if (response3 != 0) addDummyNodes(clipColor);
+			}
 
-		for (int i = 0; i < layerSets.size(); i++) {
-			adjustToNeighbors(i);
-		}
+			preparations(clipColor);
+
+			for (int i = 0; i < layerSets.size(); i++) {
+				adjustToNeighbors(i, clipColor);
+			}
 		}
 		
 		graphPanel.repaint();
@@ -124,6 +128,7 @@ public class DagLayered implements ActionListener {
 			return;
 		}
 		
+		// Trying to follow the algorithm outlined in https://en.wikipedia.org/wiki/Layered_graph_drawing	
 		boolean loop = true;
 		while (loop) {
 			int varyWin = 0;
@@ -142,15 +147,31 @@ public class DagLayered implements ActionListener {
 				}
 			} else loop = false;
 		}
-		restoreHiddenEdges();
+		restoreHiddenEdges(clipColor);
 		graphPanel.repaint();
-		controler.displayPopup("Finished with " + errors + " error(s)."
+		controler.displayPopup("Autolayout finished with " + errors + " error(s)."
 				+ "\nNow you can manually change the vertical sequence.");
 		prepareRedraw();
 	}
 	
-	public boolean assignLayers() {
-		TopologicalSorting topologicalSorting = new TopologicalSorting(nodes, edges, controler);
+	public void subGraphSpecs(Color clipColor) {
+		int minY = Integer.MAX_VALUE;
+		Enumeration<Integer> nodeList = nodes.keys();
+		int clipNodesCount = 0;
+		while (nodeList.hasMoreElements()) {
+			int nodeId = nodeList.nextElement();
+			GraphNode node = nodes.get(nodeId);
+			if (!node.getColor().equals(clipColor)) continue;
+			Point xy = node.getXY();
+			if (xy.y < minY) minY = xy.y;
+			clipNodesCount++;
+		}
+		clipHeight = 15 * clipNodesCount;
+		clipStart = minY;
+	}
+	
+	public boolean assignLayers(Color clipColor) {
+		TopologicalSorting topologicalSorting = new TopologicalSorting(nodes, edges, controler, clipColor);
 		GraphNode[] array = topologicalSorting.getArray();
 		for (int i = 0; i < array.length; i++) {
 			GraphNode node = array[i];
@@ -169,9 +190,10 @@ public class DagLayered implements ActionListener {
 			Enumeration<GraphEdge> neighbors = node.getEdges();
 			int ancestors = 0;
 
-			// Find highest layer among the above nodes
+			// Find highest layer among the neighbors on the left
 			while (neighbors.hasMoreElements()) {
 				GraphEdge edge = neighbors.nextElement();
+				if (subGraph && !edge.getColor().equals(clipColor)) continue;
 				GraphNode node2 = node.relatedNode(edge);
 				if (node2.getXY().x > node.getXY().x) continue;
 				ancestors++;
@@ -187,11 +209,13 @@ public class DagLayered implements ActionListener {
 			maxLayer++;
 			layer = maxLayer;
 			layers.put(node, layer);
-			if (presorted) continue;
+			if (subGraph || !modify) continue; 
+			// directly called from menu
 			node.setColor(colors[layer % 12]);
 		}
-		
-		// Lower the source nodes and create layerSets
+
+		// Move the source neighbors towards the right (TODO doesn't seem to work with subGraphs) 
+		// and create layerSets
 		for (int i = 0; i < array.length; i++) {
 			GraphNode node = array[i];
 			layer = layers.get(node);
@@ -200,9 +224,10 @@ public class DagLayered implements ActionListener {
 				int minLayer = Integer.MAX_VALUE;
 				Enumeration<GraphEdge> neighbors = node.getEdges();
 
-				// Find lowest layer among the below nodes
+				// Find lowest layer among the neighbors on the right
 				while (neighbors.hasMoreElements()) {
 					GraphEdge edge = neighbors.nextElement();
+					if (subGraph && !edge.getColor().equals(clipColor)) continue;
 					GraphNode node2 = node.relatedNode(edge);
 					if (node2.getXY().x < node.getXY().x) continue;
 					if (!layers.containsKey(node2)) {
@@ -231,13 +256,14 @@ public class DagLayered implements ActionListener {
 		return true;
 	}
 	
-	public void addDummyNodes() {
+	public void addDummyNodes(Color clipColor) {
 
 		// Insert dummy nodes
 		boolean alternate = true;
 		Enumeration<GraphEdge> edgeList = edges.elements();
 		while (edgeList.hasMoreElements()) {
 			GraphEdge edge = edgeList.nextElement();
+			if (!edge.getColor().equals(clipColor)) continue;
 			GraphNode node1 = edge.getNode1();
 			GraphNode node2 = edge.getNode2();
 			int layer1 = layers.get(node1);
@@ -286,7 +312,21 @@ public class DagLayered implements ActionListener {
 		}
 	}
 	
-	public void placement() {
+	public void preparations(Color clipColor) {
+		
+		// reduce layer sets to a clip if color given
+		for (int i = 0; i < layerSets.size(); i++) {
+			layerSet = layerSets.get(i);
+			Vector<GraphNode> clipLayerSet = new Vector<GraphNode>(); 
+			Iterator<GraphNode> layerNodes = layerSet.iterator();
+			while (layerNodes.hasNext()) {
+				GraphNode node = layerNodes.next();
+				Color nodeColor = node.getColor();
+				if (subGraph && !clipColor.equals(nodeColor)) continue;
+				clipLayerSet.add(node);
+			}
+			layerSets.put(i, clipLayerSet);
+		}
 		
 		// Initial vertical placement: evenly distributed 
 		distributeEvenly();
@@ -299,18 +339,24 @@ public class DagLayered implements ActionListener {
 			Enumeration<GraphEdge> edgeList2 = edges.elements();
 			while (edgeList2.hasMoreElements()) {
 				GraphEdge edge = edgeList2.nextElement();
+				if (subGraph && !edge.getColor().equals(clipColor)) continue;
 				GraphNode node1 = edge.getNode1();
+//				System.out.println("node1 = " + node1.getLabel() + ", its layer exists? " + layers.containsKey(node1));
 				int layer1 = layers.get(node1);
 				if (layer1 != i - 1) continue;
+				Color nodeColor = node1.getColor();
+				if (subGraph && !clipColor.equals(nodeColor)) continue;
 				GraphNode node2 = edge.getNode2();
 				int layer2 = layers.get(node2);
 				if (layer2 != i) continue;
+				nodeColor = node2.getColor();
+				if (subGraph && !clipColor.equals(nodeColor)) continue;
 				edgeSet.add(edge);
 			}
 		}
 	}
 		
-	public void adjustToNeighbors(int i) {	
+	public void adjustToNeighbors(int i, Color clipColor) {	
 		
 		// average y of node's neighbors in adjacent layers
 		
@@ -332,6 +378,7 @@ public class DagLayered implements ActionListener {
 			while (neighbors.hasMoreElements()) {
 				GraphEdge edge = neighbors.nextElement();
 				GraphNode other = node.relatedNode(edge);
+				if (subGraph && !other.getColor().equals(clipColor)) continue;
 				Point xy = (Point) other.getXY();
 				sumY += xy.y;
 				count++;
@@ -355,7 +402,7 @@ public class DagLayered implements ActionListener {
 			int x = node.getXY().x;
 			int y = middle;
 			if (vertiCount != 1) {
-				int distance = newHeight / (vertiCount - 1);
+				int distance = clipHeight / (vertiCount - 1);
 				y = bounds.y + index * distance;
 			}
 			node.setXY(new Point(x, y));
@@ -366,7 +413,7 @@ public class DagLayered implements ActionListener {
 	}
 	
 	public void distributeEvenly() {
-		middle = bounds.y + newHeight/2;
+		middle = clipStart + clipHeight/2;
 		for (int i = 0; i < layerSets.size(); i++) {
 			if (!layerSets.containsKey(i)) continue;
 			layerSet = layerSets.get(i);
@@ -376,12 +423,13 @@ public class DagLayered implements ActionListener {
 				int x = node.getXY().x;
 				int y = middle;
 				if (verti != 1) {
-					int distance = newHeight / (verti - 1);
-					y = bounds.y + n * distance;
+					int distance = clipHeight / (verti - 1);
+					y = clipStart + n * distance;
 				}
 				node.setXY(new Point(x, y));
 			}
 		}
+		graphPanel.repaint();
 	}
 	
 	public int variation(int i) {
@@ -470,7 +518,7 @@ public class DagLayered implements ActionListener {
 		two.setXY(oldXY.get(0));
 	}
 	
-	public void restoreHiddenEdges() {
+	public void restoreHiddenEdges(Color clipColor) {
 		Iterator<GraphEdge> edgeIter = dummyEdges.iterator();
 		while (edgeIter.hasNext()) {
 			GraphEdge nextEdge = edgeIter.next();
@@ -489,7 +537,16 @@ public class DagLayered implements ActionListener {
 		while (hiddenIter.hasNext()) {
 			GraphNode[] hiddenEdge = hiddenIter.next();
 			GraphEdge restoredEdge = createEdge(hiddenEdge[0], hiddenEdge[1]);
-			restoredEdge.setColor("#c0c0c0");
+			String colorString = "";
+			if (clipColor == null) {
+				colorString = "#c0c0c0";
+			} else {
+			int r = clipColor.getRed();
+			int g = clipColor.getGreen();
+			int b = clipColor.getBlue();
+			colorString = String.format("#%02x%02x%02x", r, g, b);
+			restoredEdge.setColor(colorString);
+			}
 		}
 		distributeEvenly();
 	}
@@ -506,7 +563,7 @@ public class DagLayered implements ActionListener {
 		graphPanel.repaint();
 		Object[] options =  {"No, skip", "Yes"};
 		int	response = JOptionPane.showOptionDialog(null,
-				"\nContinue watching?\n",
+				"\nContinue watching the swaps?\n",
 				"Option", JOptionPane.YES_NO_OPTION, 
 				JOptionPane.QUESTION_MESSAGE, null, 
 				options, options[1]);
@@ -585,8 +642,8 @@ public class DagLayered implements ActionListener {
 	}
 	
 	public void prepareRedraw() {
-		if (presorted) return;		// for now optimizing within color groups
-		nextReady = new JDialog(controler.getMainWindow(), "Optimizing the sequence ...");
+		if (!modify) return;
+		nextReady = new JDialog(controler.getMainWindow(), "Optimizing the vertical sequence ...");
 		nextReady.setLayout(new BorderLayout());
 		nextReady.setLocation(800, 30);
 		nextReady.setMinimumSize(new Dimension(300, 200));

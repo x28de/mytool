@@ -1,6 +1,6 @@
 package de.x28hd.tool.layouts;
 
-import java.awt.Point;
+import java.awt.Color;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -18,9 +18,13 @@ public class TopologicalSorting {
 	HashSet<GraphNode> s = new HashSet<GraphNode>();	// Set of all nodes with no incoming edge
 	GraphNode [] array;
 	HashSet<GraphEdge> removed = new HashSet<GraphEdge>();
+	Color color;
+	boolean subGraph;
 	
 	public TopologicalSorting(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges,
-			PresentationService controler) {
+			PresentationService controler, Color color) {
+		this.color = color;
+		subGraph = color != null; 
 		
 		// Topological Sorting after pseudo code (Kahn's algorithm) from Wikipedia
 		
@@ -28,6 +32,7 @@ public class TopologicalSorting {
 		Enumeration<GraphNode> nodesList = nodes.elements();
 		while (nodesList.hasMoreElements()) {
 			GraphNode node = nodesList.nextElement();
+			if (subGraph && !node.getColor().equals(color)) continue;
 			if (!hasIncomingEdges(node)) s.add(node);
 		}
 		
@@ -42,8 +47,10 @@ public class TopologicalSorting {
 				Enumeration<GraphEdge> neighbors = n.getEdges();
 				while (neighbors.hasMoreElements()) {
 					GraphEdge e = neighbors.nextElement();
+					if (subGraph && !e.getColor().equals(color)) continue;
 					if (removed.contains(e)) continue;
 					GraphNode m = n.relatedNode(e);
+					if (subGraph && !m.getColor().equals(color)) continue;
 					removed.add(e);			// don't touch the genuine edges HashTable
 
 					// check if m has no more incoming neighbors
@@ -54,7 +61,7 @@ public class TopologicalSorting {
 				break;		// just 1 element per iterator
 			}
 		}
-		if (edges.size() > removed.size()) controler.displayPopup("Cycles found");
+		if (!subGraph && edges.size() > removed.size()) controler.displayPopup("Cycles found");
 
 		array = new GraphNode [l.size()];
 		array = (GraphNode[]) getArray();
@@ -64,6 +71,7 @@ public class TopologicalSorting {
 		Enumeration<GraphEdge> neighbors = node.getEdges();
 		while (neighbors.hasMoreElements()) {
 			GraphEdge edge = neighbors.nextElement();
+			if (subGraph && !edge.getColor().equals(color)) continue;
 			if (removed.contains(edge)) continue;
 			GraphNode n2 = edge.getNode2();
 			if (n2.equals(node)) {

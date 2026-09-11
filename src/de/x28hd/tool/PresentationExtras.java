@@ -501,7 +501,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			} else if (command == "dag") {
 				new DAG(nodes, edges, controler);
 			} else if (command == "daglayered") {
-				new DagLayered(nodes, edges, controler);
+				new DagLayered(nodes, edges, controler, true, null);
 			} else if (command == "makecircle") {
 				new MakeCircle(nodes, edges, controler);
 			} else if (command == "planar") {
