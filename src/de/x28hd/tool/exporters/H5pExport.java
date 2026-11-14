@@ -250,7 +250,7 @@ public class H5pExport implements HyperlinkListener, ActionListener {
 		descr2.setBackground(Color.decode("#eeeeee"));
 		descr2.setMinimumSize(new Dimension(50, 20));;
         descr2.setText("<html><font face = \"Segoe UI\"> (download from "
-        		+ "<a href=\"http://www.x28.privat.t-online.de/h5p/H5P.GlossaryHotspots-1.0.zip\">http://www.x28.privat.t-online.de/h5p/</a>)");
+        		+ "<a href=\"http://mmelcher.de/h5p/H5P.GlossaryHotspots-1.0.zip\">http://mmelcher.de/h5p/</a>)");
         descriptionsPanel.add(descr2);
 		innerFrame.add(descriptionsPanel, BorderLayout.EAST);
 		

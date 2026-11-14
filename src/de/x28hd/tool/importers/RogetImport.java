@@ -396,6 +396,7 @@ public class RogetImport implements TreeSelectionListener, ActionListener, Hyper
 		deChapterTitles.put("09", "09 Wollen und Handeln");
 		deChapterTitles.put("10", "10 Fuehlen, Affekte, Charaktereigenschaften");
 		deChapterTitles.put("11", "11 Das Denken");
+		deChapterTitles.put("12", "12 Zeichen, Mitteilung, Sprache");
 		records = contentString.split("\\n");
 		System.out.println(records.length + " records read");
 		String previousSuperCat = "";
@@ -530,7 +531,7 @@ public class RogetImport implements TreeSelectionListener, ActionListener, Hyper
 				+ "<a href=\"http://www.gutenberg.org/files/10681/10681-h-body.htm\">http://www.gutenberg.org/files/10681/10681-h-body.htm</a> and"
 				+ "<br /><a href=\"http://www.gutenberg.org/files/10681/10681-h-index.htm\">http://www.gutenberg.org/files/10681/10681-h-index.htm</a>"
 				+ "<br /><br /><li>For the German samples:<br />"
-				+ "<a href=\"http://www.x28.privat.t-online.de/dornseiff-demo/\">http://www.x28.privat.t-online.de/dornseiff-demo/from-leipzig.txt</a>"
+				+ "<a href=\"http://mmelcher.de/dornseiff-demo/\">http://mmelcher.de/dornseiff-demo/from-leipzig2.txt</a>"
 				+ "</html>");
 		innerFrame.add(info, BorderLayout.NORTH);
 		

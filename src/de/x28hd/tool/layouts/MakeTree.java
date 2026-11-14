@@ -53,6 +53,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 	Hashtable<Integer, GraphEdge> edges;	
 	Hashtable<Integer, Color> nodesSavedColors = new Hashtable<Integer, Color>();
 	Hashtable<Integer, Color> edgesSavedColors = new Hashtable<Integer, Color>();
+	HashSet<GraphEdge> nonTreeEdges;
 	
 	String[] colors = {
 			"#ff0000",
@@ -132,13 +133,13 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		} else if (roles.contains(2) && !roles.contains(1)) {
 			parentRole = 2;
 		} else if (roles.contains(-1)) {
+			if (nodes.size() <= edges.size()) {
+				treeDiscovered = false;
+				return;
+			}
 			parentRole = 1;
 		} else { 
 			treeDiscovered = false;		// no tree or weird topology
-			return;
-		}
-		if (nodes.size() <= edges.size()) {
-			treeDiscovered = false;
 			return;
 		}
 		treeDiscovered = true;		
@@ -157,13 +158,19 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		}
 
 		if (treeDiscovered) {
-			Object[] options =  {"No", "Yes"};
+			Object[] options =  {"No", "Reverse", "Yes"};
+			String direction = (parentRole == 1) ? "leaves" : "root";
 			int	response = JOptionPane.showOptionDialog(null,
-					"Infer the tree from link directions?\n",
+					"Infer the tree from the link directions\n"
+					+ "(they seem to point to the " + direction + " ? )",
 					"Option", JOptionPane.YES_NO_OPTION, 
 					JOptionPane.QUESTION_MESSAGE, null, 
-					options, options[1]);
-			if (response == 1) {
+					options, options[2]);
+			if (response == 2) {
+				discoveredTree(parentRole);
+				return;
+			} else if (response == 1) {
+				parentRole = 3 - parentRole;
 				discoveredTree(parentRole);
 				return;
 			}
@@ -175,7 +182,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 //		Call the Ranker program	
 		
 	public void determineTree() {
-		HashSet<GraphEdge> nonTreeEdges = new HashSet<GraphEdge>();
+		nonTreeEdges = new HashSet<GraphEdge>();
 		Brandes brandes = new Brandes(nodes, edges);
 		GraphNode [] array = brandes.getArray();
 		for (int i = 0; i < array.length; i++) {
@@ -339,6 +346,10 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 	    createSelectionNodes(top);
 		}
 	    
+	    offerTheTree();
+	}
+	
+	public void offerTheTree() {
 	    DefaultTreeModel model = new DefaultTreeModel(topTop);
 	    PresentationExtras controlerExtras = controler.getControlerExtras();
 	    controlerExtras.setTreeModel(model);
@@ -405,14 +416,14 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 			node1.addEdge(edge);
 			node2.addEdge(edge);
 		}
-		new TreeMapCounting(nodes, edges, 3 - parentRole);
-		treeMapBox.setSelected(true);
-		constructTree(root.getID(), 0, "");
+		topTop = constructTree(root.getID(), 0, "");
 	    treeLayout(g2);
+		offerTheTree();
 	}
 
-	public void constructTree(int nodeID, int level, String indent) {
+	public DefaultMutableTreeNode constructTree(int nodeID, int level, String indent) {
 		GraphNode node = nodes.get(nodeID);
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode(new BranchInfo(nodeID, node.getLabel()));
         String colorString = colors[level % 6];
 		Enumeration<GraphEdge> neighbors = node.getEdges();
 		neighborIDs.clear();
@@ -451,8 +462,10 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 			doneNodes.add(otherEnd);
 			uniqEdges.add(parentUniq);
 			edge.setColor(colorString);
-			constructTree(otherEnd, level + 1, indent + "  ");		// recursion
+			DefaultMutableTreeNode branch = constructTree(otherEnd, level + 1, indent + "  ");		// recursion
+			top.add(branch);
 		}
+		return top;
 	}
 
 	public void treeLayout(HashSet<GraphEdge> nonTreeEdges) {
@@ -529,6 +542,9 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		
 		while (nodesEnum.hasMoreElements()) {
 			GraphNode node = nodesEnum.nextElement();
+			if (!nodesSavedColors.containsKey(node.getID())) {
+				continue;	// root
+			}
 			Color originalColor = nodesSavedColors.get(node.getID());
 			int r = originalColor.getRed();
 			int g = originalColor.getGreen();
@@ -537,6 +553,9 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		}
 		while (edgesEnum.hasMoreElements()) {
 			GraphEdge edge = edgesEnum.nextElement();
+			if (!edgesSavedColors.containsKey(edge.getID())) {
+				continue;	// from or to root
+			}
 			Color originalColor = edgesSavedColors.get(edge.getID());
 			int r = originalColor.getRed();
 			int g = originalColor.getGreen();
