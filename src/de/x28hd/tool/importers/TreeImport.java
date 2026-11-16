@@ -555,7 +555,7 @@ public class TreeImport implements ActionListener {
 			transit = false;
 		} else if (command == "Continue") {
 			transit = transitBox.isSelected();
-			if (treeMapBox.isSelected()) new TreeMapCounting(top);
+			if (treeMapBox.isSelected()) new TreeMapCounting(top, controler);
 
 			// Options interdependent
 		} else if (command == "transit"){

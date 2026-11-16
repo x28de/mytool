@@ -40,7 +40,8 @@ public class GraphPanelZoom extends JComponent implements ChangeListener, ItemLi
 	Hashtable<Integer,GraphEdge> edges;
 	private Point translation;
 	PresentationService controler;
-	int zoomFactor = 100;
+	int zoomFactor;
+	int savedFactor = 100;
 	int mX;
 	int mY;
 	Font font = new Font("monospace", Font.PLAIN, 12);
@@ -53,9 +54,11 @@ public class GraphPanelZoom extends JComponent implements ChangeListener, ItemLi
                         10.0f, dash1, 0.0f);
     JCheckBox markerBox;
 
-	public GraphPanelZoom(Point transl, PresentationService controler) {
+	public GraphPanelZoom(Point transl, PresentationService controler, int savedFactor) {
 		this.controler = controler;
 		translation = transl;
+		this.savedFactor = savedFactor;
+		zoomFactor = savedFactor;
 		
 		graphPanelZoom = new JComponent() {
 			public void paint(Graphics g) { 
@@ -181,17 +184,18 @@ public class GraphPanelZoom extends JComponent implements ChangeListener, ItemLi
 	
 	public JPanel createSlider() {
 		slider = new JSlider(JSlider.VERTICAL);
-		slider.setValue(slider.getMaximum());
+		slider.setMaximum(125);
+		slider.setValue(savedFactor);
 		slider.setPaintLabels(true);
 		slider.setPaintTicks(true);
-		slider.setMaximum(125);
 		slider.setMajorTickSpacing(10);
 		Hashtable<Integer,JComponent> labelDict = new Hashtable<Integer,JComponent>();
 		slider.createStandardLabels(125);
+		int boldLabel = (int) Math.round(savedFactor/ 10.) * 10; 
 		for (int i = 1; i < 13; i++) {
 			labelDict.put(i * 10, (JComponent) new JLabel(i * 10 + " %"));
 		}
-		labelDict.put(100, (JComponent) new JLabel("<html><b>100 %</b></html>"));
+		labelDict.put(boldLabel, (JComponent) new JLabel("<html><b>" + boldLabel + " %</b></html>"));
 		slider.setLabelTable((Dictionary<Integer,JComponent>) labelDict);
 		slider.addChangeListener(this);
 		slider.updateUI();
@@ -231,6 +235,7 @@ public class GraphPanelZoom extends JComponent implements ChangeListener, ItemLi
 	
 	public void stateChanged(ChangeEvent arg0) {
 		zoomFactor = slider.getValue();
+		savedFactor = zoomFactor;
 		font = new Font("monospace", Font.PLAIN, (12 * zoomFactor)/ 100);
 		repaint();
 	}
@@ -246,6 +251,9 @@ public class GraphPanelZoom extends JComponent implements ChangeListener, ItemLi
 			repaint();
 	}
 	
+	public int getFactor() {
+		return zoomFactor;
+	}
 	public void translateGraph(int x, int y) {
 		translation.x += (x * 100) / zoomFactor;
 		translation.y += (y * 100) / zoomFactor;

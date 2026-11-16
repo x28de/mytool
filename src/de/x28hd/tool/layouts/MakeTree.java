@@ -640,7 +640,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 
 	public void actionPerformed(ActionEvent arg0) {
 		frame.dispose();
-		if (treeMapBox.isSelected()) new TreeMapCounting(topTop);
+		if (treeMapBox.isSelected()) new TreeMapCounting(topTop, controler);
 		Utilities.displayLayoutWarning(controler, true);
 	}
 }

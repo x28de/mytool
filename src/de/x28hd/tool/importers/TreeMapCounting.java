@@ -14,6 +14,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.layouts.TreeMapLayout;
@@ -22,22 +23,24 @@ public class TreeMapCounting {
 	// temporary intermediate class with copies and detour via JSONArray
 	Hashtable<Integer,GraphNode> nodes;
 	Hashtable<Integer,GraphEdge> edges;
+	PresentationService controler;
 	TreeMapLayout treeMapLayout;
 	
-	public TreeMapCounting(DefaultMutableTreeNode jsonTop) {
-		treeMapLayout = new TreeMapLayout();
+	public TreeMapCounting(DefaultMutableTreeNode jsonTop, PresentationService controler) {
+		treeMapLayout = new TreeMapLayout(controler);
 		JSONArray dirList = jsonStruc(jsonTop, "");
 		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");
 		treeMapLayout.setTop(countersTop);
 	}
 	
-	public TreeMapCounting(File file) {
-		treeMapLayout = new TreeMapLayout();
+	public TreeMapCounting(File file, PresentationService controler) {
+		treeMapLayout = new TreeMapLayout(controler);
 		JSONArray dirList = jsonStruc(file);
 		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");
 		treeMapLayout.setTop(countersTop);
 	}
 	
+	// Should be unnecessary
 	public TreeMapCounting(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, int parentRole) {
 		this.nodes = nodes;
 		this.edges = edges;
@@ -53,7 +56,7 @@ public class TreeMapCounting {
 			}
 		}
 		System.out.println("root found ");
-		treeMapLayout = new TreeMapLayout();
+		treeMapLayout = new TreeMapLayout(controler);
 		DefaultMutableTreeNode jsonTop = collectNeighbors(rootNode, "", parentRole == 2);
 		JSONArray dirList = jsonStruc(jsonTop, "");
 		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");

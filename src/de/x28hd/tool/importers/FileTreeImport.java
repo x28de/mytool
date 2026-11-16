@@ -735,7 +735,7 @@ public class FileTreeImport implements ActionListener {
 		} else if (command == "Continue") {
 			transit = transitBox.isSelected();
 			System.out.println("ColorOpt: " + colorOpt + ", MessOpt: " + messOpt);
-			if (treeMapBox.isSelected()) new TreeMapCounting(file);
+			if (treeMapBox.isSelected()) new TreeMapCounting(file, controler);
 
 			// Options interdependent
 		} else if (command == "transit"){

@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -76,6 +77,7 @@ import de.x28hd.tool.layouts.MakeTree;
 import de.x28hd.tool.layouts.RandomMap;
 import de.x28hd.tool.layouts.SimilarityColoring;
 import de.x28hd.tool.layouts.SubtreeLayout;
+import de.x28hd.tool.layouts.TreeMapLayout;
 
 public class PresentationExtras implements ActionListener, MouseListener, KeyListener, PopupMenuListener{
 	PresentationService controler;
@@ -108,6 +110,9 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	boolean contextPasteAllowed = true;
 	boolean hyp = false;
 	boolean dragFake = false;
+	int savedFactor = 100;
+	String pastNav = "";
+	public TreeMapLayout pastTree = null;
 	
 	// Tree accessories
 	DefaultTreeModel treeModel;
@@ -195,6 +200,16 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	public void actionPerformed(ActionEvent arg0) {
 		stopHint();
 		String command = arg0.getActionCommand();
+		
+		// Extra Button
+		if (command == "zoomNavi") {
+			zoom(true);
+			return;
+		} else if (command == "treeMap") {
+			treeMap(true);
+			return;
+		}
+		
 		JMenuItem item = (JMenuItem) arg0.getSource();
 		JPopupMenu menu = (JPopupMenu) item.getParent();
 		String menuID = menu.getLabel();	// the menuID is stored in the menu's label
@@ -552,7 +567,10 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			} else if (command == "flipVerti") {
 				flipCluster(controler.getSelectedEdge(), false);
 				controler.graphSelected();
+			} else if (command == "naviTest") {
+				new Navi(nodes, edges, controler);
 			}
+
 	}
 	
 	public void openComposition() {
@@ -701,6 +719,30 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 		}
 	}
 	
+	public void findHashTst(GraphNode node) {
+		boolean found = false;
+//		findString = hash;
+		Enumeration<Integer> nodesEnum = nodes.keys();
+			String label = node.getLabel();
+			// Allow for B+ additions
+			label = label.trim();
+//			if (!hyp && label.contains(" ")) {
+//				int offset = label.indexOf(" ");
+//				label = label.substring(0, offset);
+//			} 
+//			if (label.equalsIgnoreCase(findString)) {	
+				Point xy = node.getXY();
+				Point transl = controler.getTranslation();
+				int dx = xy.x - controler.getMainWindow().getWidth()/2 + transl.x + 200;
+				int dy = xy.y - controler.getMainWindow().getHeight()/2 + transl.y;
+				panning = new Point(dx, dy);
+				graphPanel.nodeSelected(node);
+				animationTimer2.start();
+				found = true;
+//				break;
+//			} else continue;
+//		if (!found) controler.displayPopup(hash + " not found on this map.");
+	}
 	public void findHash(String hash) {
 		boolean found = false;
 		findString = hash;
@@ -978,7 +1020,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 		   dividerPos = splitPane.getDividerLocation();
 		   if (on) {
 			   Point transl = graphPanel.getTranslation();
-			   graphPanelZoom = new GraphPanelZoom(transl, controler);
+			   graphPanelZoom = new GraphPanelZoom(transl, controler, savedFactor);
 			   splitPane.setDividerLocation(dividerPos);
 			   splitPane.setRightComponent(graphPanelZoom.createSlider());
 			   graphPanelZoom.setModel(nodes, edges);
@@ -990,7 +1032,32 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			   splitPane.setDividerLocation(dividerPos);
 			   splitPane.setLeftComponent(graphPanel);
 			   splitPane.setRightComponent(rightPanel);
+			   controler.getGui().extraButton("zoomNavi");
 			   toggleClassicMenu();
+			   savedFactor = graphPanelZoom.getFactor();
+			   pastNav = "zoom";
+		   }
+		}
+	   public void treeMap(boolean on) {
+		   if (on) {
+//			   controler.displayPopup("resume treemap not yet implemented");
+			   System.out.println(pastTree);
+			   pastTree.wakeup();
+//			   Point transl = graphPanel.getTranslation();
+//			   graphPanelZoom = new GraphPanelZoom(transl, controler, savedFactor);
+//			   splitPane.setDividerLocation(dividerPos);
+//			   splitPane.setRightComponent(graphPanelZoom.createSlider());
+//			   graphPanelZoom.setModel(nodes, edges);
+//			   splitPane.setLeftComponent(graphPanelZoom);
+//			   toggleClassicMenu();
+		   } 
+		   if (!on) {
+			   controler.getGui().extraButton("treeMap");
+			   pastNav = "treeMap";
+//			   controler.getMainWindow().repaint();
+			   toggleClassicMenu();
+			   toggleClassicMenu();
+//				controler.getMainWindow().getContentPane().repaint();
 		   }
 		}
 		public void flipCluster(GraphEdge assoc, boolean horizontal) {

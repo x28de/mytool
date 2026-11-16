@@ -10,6 +10,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -23,6 +25,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -43,40 +46,47 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.json.JSONArray;
 
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.importers.TreeMapCounting;
 
-public class TreeMapLayout implements TreeSelectionListener, MouseListener {
+public class TreeMapLayout implements TreeSelectionListener, MouseListener, ActionListener {
 	TreePath selPath = null;
 
 	JFrame mainWindow;
+	PresentationService controler;
 	JComponent diagramPanel;
 	Rectangle highLight = null;
 	
 	DefaultMutableTreeNode countersTop;
 	TreeMapCounting caller;
 	JPanel treeFrame;
-	DefaultTreeModel treeModel;
+//	DefaultTreeModel treeModel;
 	JTree tree;
 	DefaultTreeCellRenderer renderer;
+	JButton jumpButton;
 
 	private WindowAdapter myWindowAdapter = new WindowAdapter() {
 		public void windowClosing(WindowEvent e) {
 		}
 	};
 		
-	public TreeMapLayout() {
+	public TreeMapLayout(PresentationService controler) {
+		this.controler = controler;
 	}
 
 	public void setTop (DefaultMutableTreeNode top) {
 		countersTop = top;
 		File file = null;
+		
 		mainPart(file);
 	}
 	
-	public TreeMapLayout(File file) {
+	public TreeMapLayout(File file, PresentationService controler) {
+		this.controler = controler;
 		mainPart(file);
 	}
 	public void mainPart(File file) {
+		controler.getControlerExtras().pastTree = this;
 		
 		// Tree diagram
 		
@@ -289,17 +299,29 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener {
 		UIManager.put("Tree.leafIcon", myLeaf);		// leaf entries here are folders, too
 		JPanel innerPanel = new JPanel();
 	    innerPanel.setBackground(Color.WHITE);
-	    innerPanel.setBorder(new EmptyBorder(35, 10, 10, 10));
+	    innerPanel.setBorder(new EmptyBorder(15, 10, 30, 10));
 	    innerPanel.setLayout(new BorderLayout());
+	    
+		jumpButton = new JButton("Jump");
+		jumpButton.setToolTipText("Jump to the selected node on the map");
+		jumpButton.addActionListener(this);
+		jumpButton.setEnabled(false);
+		JPanel topArea = new JPanel();
+	    topArea.setBackground(Color.WHITE);
+		topArea.setLayout(new BorderLayout());
+		topArea.add(jumpButton, "East");
+		innerPanel.add(topArea, "North");
 
 		DefaultTreeModel model = new DefaultTreeModel(top);
+		controler.getControlerExtras().setTreeModel(model);
 		tree = new JTree(model);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.addTreeSelectionListener(this);
-	    tree.setVisibleRowCount(55);
+	    tree.setVisibleRowCount(20);
 	    JScrollPane scrollPane = new JScrollPane(tree);
-		innerPanel.add(scrollPane, "North");
-		treeFrame.add(innerPanel);
+		innerPanel.add(scrollPane);
+		treeFrame.add(innerPanel, "Center");
+
 		return treeFrame;
 	}
 	
@@ -355,5 +377,14 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener {
 	public void mousePressed(MouseEvent arg0) {
 	}
 	public void mouseReleased(MouseEvent arg0) {
+	}
+
+	public void wakeup() {
+		mainWindow.setVisible(true);
+	}
+	
+	public void actionPerformed(ActionEvent arg0) {
+		controler.getControlerExtras().treeMap(false);
+		mainWindow.setVisible(false);
 	}
 }
