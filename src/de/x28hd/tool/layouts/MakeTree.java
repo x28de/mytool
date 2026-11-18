@@ -332,7 +332,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		SortedMap<Integer,Integer> treeTopsSorted = (SortedMap<Integer,Integer>) treeTops;
 		SortedSet<Integer> treeTopsSet = (SortedSet<Integer>) treeTopsSorted.keySet();
 		Iterator<Integer> ttix = treeTopsSet.iterator();
-	    topTop = new DefaultMutableTreeNode(new BranchInfo(-1, " "));
+	    topTop = new DefaultMutableTreeNode(new BranchInfo(-1, "-1"));
 	    
 		while (ttix.hasNext()) {
 		int treeTopIndex = ttix.next();
@@ -341,7 +341,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		
 		//	Show tree
 	    DefaultMutableTreeNode top = 
-	    		new DefaultMutableTreeNode(new BranchInfo(topID, nodes.get(topID).getLabel()));
+	    		new DefaultMutableTreeNode(new BranchInfo(topID, topID + ""));
 	    topTop.add(top);
 	    createSelectionNodes(top);
 		}
@@ -423,7 +423,8 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 
 	public DefaultMutableTreeNode constructTree(int nodeID, int level, String indent) {
 		GraphNode node = nodes.get(nodeID);
-		DefaultMutableTreeNode top = new DefaultMutableTreeNode(new BranchInfo(nodeID, node.getLabel()));
+//		DefaultMutableTreeNode top = new DefaultMutableTreeNode(new BranchInfo(nodeID, "Y " + node.getLabel()));
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode(new BranchInfo(nodeID, nodeID + ""));
         String colorString = colors[level % 6];
 		Enumeration<GraphEdge> neighbors = node.getEdges();
 		neighborIDs.clear();
@@ -596,7 +597,8 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
                 node = nodes.get(childKey);
         		branchLabel = node.getLabel();
     			if (branchLabel.length() > 25) branchLabel = branchLabel.substring(0, 25) + " ..."; 
-                branch = new DefaultMutableTreeNode(new BranchInfo(childKey, branchLabel));
+                branch = new DefaultMutableTreeNode(new BranchInfo(childKey, childKey + ""));
+                System.out.println(branchLabel + " " + childKey);
                 top.add(branch);
                 
                 createSelectionNodes(branch);	// recursive
@@ -641,7 +643,8 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 		frame.dispose();
 		if (treeMapBox.isSelected()) new TreeMapCounting(topTop, controler);
-		Utilities.displayLayoutWarning(controler, true);
+//		if (treeMapBox.isSelected()) new TreeMapCounting(nodes, edges, controler, 3 - parentRole);
+//		Utilities.displayLayoutWarning(controler, true);
 	}
 }
 

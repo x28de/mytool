@@ -27,23 +27,29 @@ public class TreeMapCounting {
 	TreeMapLayout treeMapLayout;
 	
 	public TreeMapCounting(DefaultMutableTreeNode jsonTop, PresentationService controler) {
-		treeMapLayout = new TreeMapLayout(controler);
+		nodes = controler.getNodes();
+		treeMapLayout = new TreeMapLayout(nodes, edges, controler);
 		JSONArray dirList = jsonStruc(jsonTop, "");
+		System.out.println("H?");
+		System.out.println(dirList);
 		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");
 		treeMapLayout.setTop(countersTop);
 	}
 	
 	public TreeMapCounting(File file, PresentationService controler) {
-		treeMapLayout = new TreeMapLayout(controler);
+//		treeMapLayout = new TreeMapLayout(nodes, edges, controler);
+		treeMapLayout = new TreeMapLayout(file, controler);
 		JSONArray dirList = jsonStruc(file);
 		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");
 		treeMapLayout.setTop(countersTop);
 	}
 	
 	// Should be unnecessary
-	public TreeMapCounting(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, int parentRole) {
+	public TreeMapCounting(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
+			PresentationService controler, int parentRole) {
 		this.nodes = nodes;
 		this.edges = edges;
+		this.controler = controler;
 		GraphNode rootNode = null;
 		Enumeration<GraphNode> nodeList = nodes.elements();
 		while (nodeList.hasMoreElements()) {
@@ -56,15 +62,16 @@ public class TreeMapCounting {
 			}
 		}
 		System.out.println("root found ");
-		treeMapLayout = new TreeMapLayout(controler);
+		treeMapLayout = new TreeMapLayout(nodes, edges, controler);
 		DefaultMutableTreeNode jsonTop = collectNeighbors(rootNode, "", parentRole == 2);
 		JSONArray dirList = jsonStruc(jsonTop, "");
+		System.out.println(dirList);
 		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");
 		treeMapLayout.setTop(countersTop);
 	}
 
 	public DefaultMutableTreeNode collectNeighbors(GraphNode node, String indent, boolean reverse) {
-		DefaultMutableTreeNode constructed = new DefaultMutableTreeNode(node.getLabel());
+		DefaultMutableTreeNode constructed = new DefaultMutableTreeNode(node.getID());
 		
 		Enumeration<GraphEdge> edgeList = edges.elements();
 		while (edgeList.hasMoreElements()) {
@@ -140,6 +147,15 @@ public class TreeMapCounting {
 		} catch (JSONException e) {
 			System.out.println("Error TMC02 " + e.getMessage() + " with " + dirList.toString());
 		}
+		int nodeID = 100;
+		if (nodes != null) { 
+			nodeID = Integer.valueOf(itemName);
+			if (nodes.containsKey(nodeID)) {
+				itemName = nodes.get(nodeID).getLabel();
+			}
+		} else {
+			System.out.println("no nodes found");
+		}
 		DefaultMutableTreeNode constructed = null;
 
 		// Buffers for sorting
@@ -185,11 +201,11 @@ public class TreeMapCounting {
 			if (folderCount > 0) {
 				double uniq = leafCount + .0;
 				while (bufferMap.containsKey(uniq)) uniq += disambig;
-				TreeMapLayout.MyBranchInfo myBranchInfo = treeMapLayout.new MyBranchInfo(leafCount, itemName + " items");
+				TreeMapLayout.MyBranchInfo myBranchInfo = treeMapLayout.new MyBranchInfo(nodeID, leafCount, itemName + " items");
 				DefaultMutableTreeNode pseudoFolder = new DefaultMutableTreeNode(myBranchInfo);
 				bufferMap.put(uniq, pseudoFolder);
 			} else {
-				TreeMapLayout.MyBranchInfo myBranchInfo = treeMapLayout.new MyBranchInfo(leafCount, itemName);
+				TreeMapLayout.MyBranchInfo myBranchInfo = treeMapLayout.new MyBranchInfo(nodeID, leafCount, itemName);
 				DefaultMutableTreeNode pseudoFolder = new DefaultMutableTreeNode(myBranchInfo);
 				return pseudoFolder;
 			}
@@ -200,7 +216,7 @@ public class TreeMapCounting {
 		Iterator<Double> iter = bufferSet.iterator();
 
 		// add child nodes
-		TreeMapLayout.MyBranchInfo constructedInfo = treeMapLayout.new MyBranchInfo(sum + leafCount, itemName);
+		TreeMapLayout.MyBranchInfo constructedInfo = treeMapLayout.new MyBranchInfo(nodeID, sum + leafCount, itemName);
 		constructed = new DefaultMutableTreeNode(constructedInfo);
 		while (iter.hasNext()) {
 			double sortedNode = iter.next();

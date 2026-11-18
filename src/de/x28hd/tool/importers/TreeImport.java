@@ -51,6 +51,7 @@ import de.x28hd.tool.exporters.TopicMapStorer;
 import de.x28hd.tool.inputs.Importer;
 import de.x28hd.tool.inputs.TopicMapLoader;
 import de.x28hd.tool.layouts.CentralityColoring;
+import de.x28hd.tool.layouts.MakeTree;
 
 public class TreeImport implements ActionListener {
 
@@ -151,7 +152,7 @@ public class TreeImport implements ActionListener {
 			inputItems.put(topNode, "ROOT");
 			addNode(topNode, "");
 			int idForJTree = inputID2num.get(topNode);
-			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, " "));
+			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, idForJTree + ""));
 
 			if (graphContainer.getLength() <= 0) return;
 			for (int i = 0; i < graphContainer.getLength(); i++) {
@@ -209,7 +210,10 @@ public class TreeImport implements ActionListener {
 			Element graph = (Element) graphContainer.item(0);
 
 			int idForJTree = inputID2num.get(topNode);
-			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, " "));
+			
+			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, idForJTree + ""));
+			GraphNode nodetop = nodes.get(idForJTree);
+			System.out.println("adding node " + nodetop.getLabel() + " " + nodetop.getID() + " (" + idForJTree + ")");
 
 			//	Collect nested nodes
 			nest(graph, topNode, top, 0);
@@ -355,7 +359,9 @@ public class TreeImport implements ActionListener {
 		} else {
 			if (layoutOpt) {
 
-				CentralityColoring centralityColoring = new CentralityColoring(nodes, edges);
+//				CentralityColoring centralityColoring = new CentralityColoring(nodes, edges);
+//				centralityColoring.treeLayout(nonTreeEdges, this.knownFormat == Importer.x28tree);
+				MakeTree centralityColoring = new MakeTree(nodes, edges);
 				centralityColoring.treeLayout(nonTreeEdges, this.knownFormat == Importer.x28tree);
 				//	Recolor 
 				Enumeration<Integer> edgeColEnum = edgeColors.keys();
@@ -452,8 +458,11 @@ public class TreeImport implements ActionListener {
 			//	add node
 			inputItems.put(id, label);
 			addNode(id, detail);
+			GraphNode node = nodes.get(inputID2num.get(id));
+			System.out.println("adding node " + node.getLabel() + " " + node.getID() + " (" + inputID2num.get(id) + ")");
 			DefaultMutableTreeNode branch = 
-					new DefaultMutableTreeNode(new BranchInfo(inputID2num.get(id), label));
+					new DefaultMutableTreeNode(new BranchInfo(inputID2num.get(id), inputID2num.get(id) + ""));
+//					new DefaultMutableTreeNode(new BranchInfo(inputID2num.get(id), "Z " + label));
 			parentInTree.add(branch);
 
 			//	recurse

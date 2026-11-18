@@ -111,7 +111,6 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	boolean hyp = false;
 	boolean dragFake = false;
 	int savedFactor = 100;
-	String pastNav = "";
 	public TreeMapLayout pastTree = null;
 	
 	// Tree accessories
@@ -206,7 +205,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			zoom(true);
 			return;
 		} else if (command == "treeMap") {
-			treeMap(true);
+			treeMap(true, null);
 			return;
 		}
 		
@@ -567,8 +566,6 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			} else if (command == "flipVerti") {
 				flipCluster(controler.getSelectedEdge(), false);
 				controler.graphSelected();
-			} else if (command == "naviTest") {
-				new Navi(nodes, edges, controler);
 			}
 
 	}
@@ -719,30 +716,6 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 		}
 	}
 	
-	public void findHashTst(GraphNode node) {
-		boolean found = false;
-//		findString = hash;
-		Enumeration<Integer> nodesEnum = nodes.keys();
-			String label = node.getLabel();
-			// Allow for B+ additions
-			label = label.trim();
-//			if (!hyp && label.contains(" ")) {
-//				int offset = label.indexOf(" ");
-//				label = label.substring(0, offset);
-//			} 
-//			if (label.equalsIgnoreCase(findString)) {	
-				Point xy = node.getXY();
-				Point transl = controler.getTranslation();
-				int dx = xy.x - controler.getMainWindow().getWidth()/2 + transl.x + 200;
-				int dy = xy.y - controler.getMainWindow().getHeight()/2 + transl.y;
-				panning = new Point(dx, dy);
-				graphPanel.nodeSelected(node);
-				animationTimer2.start();
-				found = true;
-//				break;
-//			} else continue;
-//		if (!found) controler.displayPopup(hash + " not found on this map.");
-	}
 	public void findHash(String hash) {
 		boolean found = false;
 		findString = hash;
@@ -1035,29 +1008,28 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			   controler.getGui().extraButton("zoomNavi");
 			   toggleClassicMenu();
 			   savedFactor = graphPanelZoom.getFactor();
-			   pastNav = "zoom";
 		   }
 		}
-	   public void treeMap(boolean on) {
+	   public void treeMap(boolean on, GraphNode jumpNode) {
 		   if (on) {
-//			   controler.displayPopup("resume treemap not yet implemented");
-			   System.out.println(pastTree);
 			   pastTree.wakeup();
-//			   Point transl = graphPanel.getTranslation();
-//			   graphPanelZoom = new GraphPanelZoom(transl, controler, savedFactor);
-//			   splitPane.setDividerLocation(dividerPos);
-//			   splitPane.setRightComponent(graphPanelZoom.createSlider());
-//			   graphPanelZoom.setModel(nodes, edges);
-//			   splitPane.setLeftComponent(graphPanelZoom);
-//			   toggleClassicMenu();
 		   } 
 		   if (!on) {
 			   controler.getGui().extraButton("treeMap");
-			   pastNav = "treeMap";
-//			   controler.getMainWindow().repaint();
-			   toggleClassicMenu();
-			   toggleClassicMenu();
-//				controler.getMainWindow().getContentPane().repaint();
+			   controler.getMainWindow().validate();
+			   graphPanel.nodeSelected(jumpNode);
+			   System.out.println(jumpNode);
+			   System.out.println(jumpNode.getLabel());
+			   
+			   Point xy = controler.getSelectedNode().getXY();
+			   Point transl = controler.getTranslation();
+			   System.out.println(controler.getSelectedNode().getLabel());
+			   System.out.println(controler.getMainWindow().getWidth());
+			   
+			   int dx = xy.x - controler.getMainWindow().getWidth()/2 + transl.x + 200;
+			   int dy = xy.y - controler.getMainWindow().getHeight()/2 + transl.y;
+			   panning = new Point(dx, dy);
+			   animationTimer2.start();
 		   }
 		}
 		public void flipCluster(GraphEdge assoc, boolean horizontal) {

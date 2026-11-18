@@ -673,12 +673,6 @@ public class Gui {
 		sub6.add(menuItem66);
 		
 		menu5.add(sub6);
-
-		JMenuItem menuItem67 = new JMenuItem("Navi test");
-		menuItem67.setActionCommand("naviTest");
-		menuItem67.setToolTipText("Experimental, do not use");
-		menuItem67.addActionListener(controlerExtras);
-		menu5.add(menuItem67);
 		
 		menuBar.add(menu5);
 	}
@@ -716,7 +710,10 @@ public class Gui {
 			navButton.setToolTipText("<html>Shortcut to <b>Advanced > Zoom the map...</b> with previous zoom factor");
 		} else if (command == "treeMap") {
 			navButton.setText("   Resume TreeMap Navigation");
-			navButton.setToolTipText("<html>Show again the TreeMap, hopefully with previous selection");
+			navButton.setToolTipText("<html>Show again the TreeMap, with previous selection");
+		} else if (command == "exit") {
+			menuBar.remove(navButton);
+			return;
 		}
 		navButton.setActionCommand(command);
 		navButton.addActionListener(controlerExtras);

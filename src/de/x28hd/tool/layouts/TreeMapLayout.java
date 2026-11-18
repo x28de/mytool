@@ -19,6 +19,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -47,12 +48,16 @@ import javax.swing.tree.TreeSelectionModel;
 import org.json.JSONArray;
 
 import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.importers.TreeMapCounting;
 
 public class TreeMapLayout implements TreeSelectionListener, MouseListener, ActionListener {
 	TreePath selPath = null;
 
 	JFrame mainWindow;
+	Hashtable<Integer, GraphNode> nodes; 
+	Hashtable<Integer, GraphEdge> edges;	
 	PresentationService controler;
 	JComponent diagramPanel;
 	Rectangle highLight = null;
@@ -64,14 +69,18 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener, Acti
 	JTree tree;
 	DefaultTreeCellRenderer renderer;
 	JButton jumpButton;
+	GraphNode jumpNode = null;
 
 	private WindowAdapter myWindowAdapter = new WindowAdapter() {
 		public void windowClosing(WindowEvent e) {
+			controler.getGui().extraButton("exit");
 		}
 	};
 		
-	public TreeMapLayout(PresentationService controler) {
-		this.controler = controler;
+	public TreeMapLayout(Hashtable<Integer, GraphNode> n, Hashtable<Integer, GraphEdge> e, PresentationService c) {
+		nodes = n;
+		edges = e;
+		controler = c;
 	}
 
 	public void setTop (DefaultMutableTreeNode top) {
@@ -132,14 +141,17 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener, Acti
 	}
 	
 	public class MyBranchInfo {
+		int key;
 		int total;
 		String label;
 		Rectangle rectangle;
-		public MyBranchInfo(int t, String l) {
+		public MyBranchInfo(int k, int t, String l) {
+			key = k;
 			total = t;
 			label = l + "     " + t;
 		}
 		public int getTotal() {return this.total;}
+		public int getKey() {return this.key;}
 		public String toString() {
 			return this.label;
 		}
@@ -193,11 +205,11 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener, Acti
 			if (folderCount > 0) {
 				double uniq = leafCount + .0;
 				while (bufferMap.containsKey(uniq)) uniq += disambig;
-				MyBranchInfo myBranchInfo = new MyBranchInfo(leafCount, file.getName() + " files");
+				MyBranchInfo myBranchInfo = new MyBranchInfo(-1, leafCount, file.getName() + " files");
 				DefaultMutableTreeNode pseudoFolder = new DefaultMutableTreeNode(myBranchInfo);
 				bufferMap.put(uniq, pseudoFolder);
 			} else {
-				MyBranchInfo myBranchInfo = new MyBranchInfo(leafCount, file.getName());
+				MyBranchInfo myBranchInfo = new MyBranchInfo(-1, leafCount, file.getName());
 				DefaultMutableTreeNode pseudoFolder = new DefaultMutableTreeNode(myBranchInfo);
 				return pseudoFolder;
 			}
@@ -208,7 +220,7 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener, Acti
 		Iterator<Double> iter = bufferSet.iterator();
 
 		// add child nodes
-		MyBranchInfo constructedInfo = new MyBranchInfo(sum + leafCount, file.getName());
+		MyBranchInfo constructedInfo = new MyBranchInfo(-1, sum + leafCount, file.getName());
 		constructed = new DefaultMutableTreeNode(constructedInfo);
 		while (iter.hasNext()) {
 			double sortedNode = iter.next();
@@ -362,6 +374,12 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener, Acti
 		Object o = selectedPath.getLastPathComponent();
 		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) o;
 		MyBranchInfo info = (MyBranchInfo) selectedNode.getUserObject();
+		
+		if (nodes != null) {
+			int id = info.getKey();
+			jumpNode = nodes.get(id);
+			jumpButton.setEnabled(true);
+		}
 		Rectangle r = info.getRectangle();
 		highLight = r;
 		diagramPanel.repaint();
@@ -384,7 +402,7 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener, Acti
 	}
 	
 	public void actionPerformed(ActionEvent arg0) {
-		controler.getControlerExtras().treeMap(false);
+		controler.getControlerExtras().treeMap(false, jumpNode);
 		mainWindow.setVisible(false);
 	}
 }
