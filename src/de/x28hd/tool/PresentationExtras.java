@@ -1018,13 +1018,9 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			   controler.getGui().extraButton("treeMap");
 			   controler.getMainWindow().validate();
 			   graphPanel.nodeSelected(jumpNode);
-			   System.out.println(jumpNode);
-			   System.out.println(jumpNode.getLabel());
 			   
 			   Point xy = controler.getSelectedNode().getXY();
 			   Point transl = controler.getTranslation();
-			   System.out.println(controler.getSelectedNode().getLabel());
-			   System.out.println(controler.getMainWindow().getWidth());
 			   
 			   int dx = xy.x - controler.getMainWindow().getWidth()/2 + transl.x + 200;
 			   int dy = xy.y - controler.getMainWindow().getHeight()/2 + transl.y;

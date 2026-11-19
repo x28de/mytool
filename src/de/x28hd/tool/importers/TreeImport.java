@@ -152,7 +152,7 @@ public class TreeImport implements ActionListener {
 			inputItems.put(topNode, "ROOT");
 			addNode(topNode, "");
 			int idForJTree = inputID2num.get(topNode);
-			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, idForJTree + ""));
+			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, "ROOT"));
 
 			if (graphContainer.getLength() <= 0) return;
 			for (int i = 0; i < graphContainer.getLength(); i++) {
@@ -211,9 +211,7 @@ public class TreeImport implements ActionListener {
 
 			int idForJTree = inputID2num.get(topNode);
 			
-			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, idForJTree + ""));
-			GraphNode nodetop = nodes.get(idForJTree);
-			System.out.println("adding node " + nodetop.getLabel() + " " + nodetop.getID() + " (" + idForJTree + ")");
+			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, "ROOT"));
 
 			//	Collect nested nodes
 			nest(graph, topNode, top, 0);
@@ -359,8 +357,6 @@ public class TreeImport implements ActionListener {
 		} else {
 			if (layoutOpt) {
 
-//				CentralityColoring centralityColoring = new CentralityColoring(nodes, edges);
-//				centralityColoring.treeLayout(nonTreeEdges, this.knownFormat == Importer.x28tree);
 				MakeTree centralityColoring = new MakeTree(nodes, edges);
 				centralityColoring.treeLayout(nonTreeEdges, this.knownFormat == Importer.x28tree);
 				//	Recolor 
@@ -458,11 +454,8 @@ public class TreeImport implements ActionListener {
 			//	add node
 			inputItems.put(id, label);
 			addNode(id, detail);
-			GraphNode node = nodes.get(inputID2num.get(id));
-			System.out.println("adding node " + node.getLabel() + " " + node.getID() + " (" + inputID2num.get(id) + ")");
 			DefaultMutableTreeNode branch = 
-					new DefaultMutableTreeNode(new BranchInfo(inputID2num.get(id), inputID2num.get(id) + ""));
-//					new DefaultMutableTreeNode(new BranchInfo(inputID2num.get(id), "Z " + label));
+					new DefaultMutableTreeNode(new BranchInfo(inputID2num.get(id), label));
 			parentInTree.add(branch);
 
 			//	recurse
@@ -564,7 +557,11 @@ public class TreeImport implements ActionListener {
 			transit = false;
 		} else if (command == "Continue") {
 			transit = transitBox.isSelected();
-			if (treeMapBox.isSelected()) new TreeMapCounting(top, controler);
+			finish();
+			nodes = controler.getNodes();
+			edges = controler.getEdges();
+			if (treeMapBox.isSelected()) new TreeMapCounting(nodes, edges, controler, 2);
+//			if (treeMapBox.isSelected()) new TreeMapCounting(top, controler);
 
 			// Options interdependent
 		} else if (command == "transit"){
@@ -578,7 +575,6 @@ public class TreeImport implements ActionListener {
 		}
 		frame.setVisible(false);
 		frame.dispose();
-		finish();
 		if (knownFormat == Importer.Sitemap) controler.getControlerExtras().toggleHyp(1, true);
 	}
 }

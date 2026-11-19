@@ -68,6 +68,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 	PresentationService controler;
 	JCheckBox treeMapBox = new JCheckBox("Show treemap?");
 	DefaultMutableTreeNode topTop;
+	boolean determined = false;	
 	
 	private WindowAdapter myWindowAdapter = new WindowAdapter() {
 		public void windowClosing(WindowEvent e) {
@@ -92,6 +93,9 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 	GraphNode root = null;
 	Hashtable<GraphNode,Integer> roles = new Hashtable<GraphNode,Integer>();
 
+	// We try to discover a tree or determine a tree from centrality
+	// Four cases: discovered tree (1) upwards, or (2) downwards, or rejected (3), or none found (4)
+	// (1) & (2) determined = false, (3) & (4) determined = true
 	
 	public MakeTree(Hashtable<Integer, GraphNode> nodes, 
 			Hashtable<Integer, GraphEdge> edges) {
@@ -168,13 +172,16 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 					options, options[2]);
 			if (response == 2) {
 				discoveredTree(parentRole);
-				return;
+				return;		// determined = false
 			} else if (response == 1) {
 				parentRole = 3 - parentRole;
 				discoveredTree(parentRole);
-				return;
+				return;		// determined = false
 			}
+			// response is no, determined = true
 		}
+		// treeDiscovered = false,  => determined
+		determined = true;
 		determineTree();
 	}
 		
@@ -342,6 +349,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		//	Show tree
 	    DefaultMutableTreeNode top = 
 	    		new DefaultMutableTreeNode(new BranchInfo(topID, topID + ""));
+//	    		new DefaultMutableTreeNode(new BranchInfo(topID, nodes.get(topID).getLabel()));
 	    topTop.add(top);
 	    createSelectionNodes(top);
 		}
@@ -423,7 +431,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 
 	public DefaultMutableTreeNode constructTree(int nodeID, int level, String indent) {
 		GraphNode node = nodes.get(nodeID);
-//		DefaultMutableTreeNode top = new DefaultMutableTreeNode(new BranchInfo(nodeID, "Y " + node.getLabel()));
+//		DefaultMutableTreeNode top = new DefaultMutableTreeNode(new BranchInfo(nodeID, node.getLabel()));
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode(new BranchInfo(nodeID, nodeID + ""));
         String colorString = colors[level % 6];
 		Enumeration<GraphEdge> neighbors = node.getEdges();
@@ -597,6 +605,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
                 node = nodes.get(childKey);
         		branchLabel = node.getLabel();
     			if (branchLabel.length() > 25) branchLabel = branchLabel.substring(0, 25) + " ..."; 
+//                branch = new DefaultMutableTreeNode(new BranchInfo(childKey, branchLabel));
                 branch = new DefaultMutableTreeNode(new BranchInfo(childKey, childKey + ""));
                 System.out.println(branchLabel + " " + childKey);
                 top.add(branch);
@@ -642,9 +651,13 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 
 	public void actionPerformed(ActionEvent arg0) {
 		frame.dispose();
-		if (treeMapBox.isSelected()) new TreeMapCounting(topTop, controler);
-//		if (treeMapBox.isSelected()) new TreeMapCounting(nodes, edges, controler, 3 - parentRole);
-//		Utilities.displayLayoutWarning(controler, true);
+		if (treeMapBox.isSelected()) {
+			if (determined) {
+				new TreeMapCounting(topTop, controler);
+			} else {
+				new TreeMapCounting(nodes, edges, controler, 3 - parentRole);
+			}
+		}
 	}
 }
 

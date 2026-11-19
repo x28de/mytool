@@ -3,6 +3,7 @@ package de.x28hd.tool.importers;
 import java.io.File;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.SortedMap;
@@ -25,6 +26,7 @@ public class TreeMapCounting {
 	Hashtable<Integer,GraphEdge> edges;
 	PresentationService controler;
 	TreeMapLayout treeMapLayout;
+	HashSet<GraphEdge> done = new HashSet<GraphEdge>();
 	
 	public TreeMapCounting(DefaultMutableTreeNode jsonTop, PresentationService controler) {
 		nodes = controler.getNodes();
@@ -61,7 +63,7 @@ public class TreeMapCounting {
 				break;
 			}
 		}
-		System.out.println("root found ");
+		System.out.println("Rootnode found ? " + ( rootNode != null));	// TODO eliminate need
 		treeMapLayout = new TreeMapLayout(nodes, edges, controler);
 		DefaultMutableTreeNode jsonTop = collectNeighbors(rootNode, "", parentRole == 2);
 		JSONArray dirList = jsonStruc(jsonTop, "");
@@ -78,6 +80,8 @@ public class TreeMapCounting {
 			GraphEdge edge = edgeList.nextElement();
 			GraphNode n1 = reverse ? edge.getNode1() : edge.getNode2();
 			if (n1 != node) continue;
+			if (done.contains(edge)) continue;		// avoid loops
+			done.add(edge);
 			GraphNode n2 = reverse ? edge.getNode2() : edge.getNode1();
 			DefaultMutableTreeNode child = collectNeighbors(n2, indent + "  ", reverse);
 			constructed.add(child);
