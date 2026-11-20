@@ -180,6 +180,7 @@ public class FileTreeImport implements ActionListener {
 				"</a>" + "<br />" + content2 + "<br /></body></html>";
 		GraphNode node = nodes.get(topNum);
 		node.setDetail(moreDetail);
+		node.setLabel("ROOT");
 
 		progressFrame.dispose();
 		commonPart();	
@@ -735,7 +736,11 @@ public class FileTreeImport implements ActionListener {
 		} else if (command == "Continue") {
 			transit = transitBox.isSelected();
 			System.out.println("ColorOpt: " + colorOpt + ", MessOpt: " + messOpt);
-			if (treeMapBox.isSelected()) new TreeMapCounting(file);
+			// was crucial
+			finish();
+			nodes = controler.getNodes();
+			edges = controler.getEdges();
+			if (treeMapBox.isSelected()) new TreeMapCounting(nodes, edges, controler, 2);
 
 			// Options interdependent
 		} else if (command == "transit"){
@@ -773,7 +778,6 @@ public class FileTreeImport implements ActionListener {
 		Icon myLeaf = renderer.getLeafIcon();
 		UIManager.put("Tree.leafIcon", myLeaf);		// leaf entries here are folders, too
 		frame.dispose();
-		finish();
 		if (hypOpt) controler.getControlerExtras().toggleHyp(1, true);
 	}
 }

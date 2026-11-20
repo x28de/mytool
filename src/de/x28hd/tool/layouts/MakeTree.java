@@ -67,7 +67,9 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 	JFrame frame;
 	PresentationService controler;
 	JCheckBox treeMapBox = new JCheckBox("Show treemap?");
+	JCheckBox layoutBox;
 	DefaultMutableTreeNode topTop;
+	boolean determined = false;	
 	
 	private WindowAdapter myWindowAdapter = new WindowAdapter() {
 		public void windowClosing(WindowEvent e) {
@@ -92,6 +94,9 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 	GraphNode root = null;
 	Hashtable<GraphNode,Integer> roles = new Hashtable<GraphNode,Integer>();
 
+	// We try to discover a tree or determine a tree from centrality
+	// Four cases: discovered tree (1) upwards, or (2) downwards, or rejected (3), or none found (4)
+	// (1) & (2) determined = false, (3) & (4) determined = true
 	
 	public MakeTree(Hashtable<Integer, GraphNode> nodes, 
 			Hashtable<Integer, GraphEdge> edges) {
@@ -168,13 +173,16 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 					options, options[2]);
 			if (response == 2) {
 				discoveredTree(parentRole);
-				return;
+				return;		// determined = false
 			} else if (response == 1) {
 				parentRole = 3 - parentRole;
 				discoveredTree(parentRole);
-				return;
+				return;		// determined = false
 			}
+			// response is no, determined = true
 		}
+		// treeDiscovered = false,  => determined
+		determined = true;
 		determineTree();
 	}
 		
@@ -332,7 +340,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		SortedMap<Integer,Integer> treeTopsSorted = (SortedMap<Integer,Integer>) treeTops;
 		SortedSet<Integer> treeTopsSet = (SortedSet<Integer>) treeTopsSorted.keySet();
 		Iterator<Integer> ttix = treeTopsSet.iterator();
-	    topTop = new DefaultMutableTreeNode(new BranchInfo(-1, " "));
+	    topTop = new DefaultMutableTreeNode(new BranchInfo(-1, "ROOT"));
 	    
 		while (ttix.hasNext()) {
 		int treeTopIndex = ttix.next();
@@ -371,8 +379,11 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		JPanel toolbar = new JPanel();
 		toolbar.setLayout(new BorderLayout());
 		toolbar.setBorder(new EmptyBorder(10, 10, 10, 10));
+		layoutBox = new JCheckBox ("Tree layout", true);
+		layoutBox.addActionListener(this);
+		toolbar.add(layoutBox, "West");
 		treeMapBox.setToolTipText("for node counts, like WinDirStat but without cushion shading and tiling algorithm)");
-		toolbar.add(treeMapBox, "West");
+		toolbar.add(treeMapBox);
 		JButton continueButton = new JButton("Continue");
 		continueButton.addActionListener(this);
 		toolbar.add(continueButton, "East");
@@ -383,8 +394,6 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		frame.setLocation(dim.width/2 - 298, dim.height/2 - 209);		
         frame.setMinimumSize(new Dimension(596, 418));
         frame.setVisible(true);
-        
-        treeLayout(g2);
 	}
 	
 	public void discoveredTree(int parentRole) {
@@ -417,7 +426,6 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 			node2.addEdge(edge);
 		}
 		topTop = constructTree(root.getID(), 0, "");
-	    treeLayout(g2);
 		offerTheTree();
 	}
 
@@ -638,10 +646,38 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		}
 	}
 
+	public DefaultMutableTreeNode transformTree(DefaultMutableTreeNode in) {
+		DefaultMutableTreeNode out = null;
+		BranchInfo infoIn = (BranchInfo) in.getUserObject();
+		BranchInfo infoOut = new BranchInfo(infoIn.getKey(), infoIn.getKey() + "");
+		out = new DefaultMutableTreeNode(infoOut);
+		Enumeration<DefaultMutableTreeNode> children = in.children();
+		while (children.hasMoreElements()) {
+			DefaultMutableTreeNode child = children.nextElement();
+			out.add(transformTree(child));								// recursion
+		}
+		return out;
+	}
+	
 	public void actionPerformed(ActionEvent arg0) {
+		String command = arg0.getActionCommand();
+		if (command == "Tree layout") {
+	        if (layoutBox.isSelected()) {
+	        	treeLayout(g2);
+	        } else {
+	        	revertColors();
+	        }
+	        controler.getMainWindow().repaint();
+			return;
+		}
 		frame.dispose();
-		if (treeMapBox.isSelected()) new TreeMapCounting(topTop);
-		Utilities.displayLayoutWarning(controler, true);
+		if (treeMapBox.isSelected()) {
+			if (determined) {
+				new TreeMapCounting(transformTree(topTop), controler);
+			} else {
+				new TreeMapCounting(nodes, edges, controler, 3 - parentRole);
+			}
+		}
 	}
 }
 

@@ -3,6 +3,7 @@ package de.x28hd.tool.importers;
 import java.io.File;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.SortedMap;
@@ -14,6 +15,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import de.x28hd.tool.PresentationService;
 import de.x28hd.tool.core.GraphEdge;
 import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.layouts.TreeMapLayout;
@@ -22,25 +24,32 @@ public class TreeMapCounting {
 	// temporary intermediate class with copies and detour via JSONArray
 	Hashtable<Integer,GraphNode> nodes;
 	Hashtable<Integer,GraphEdge> edges;
+	PresentationService controler;
 	TreeMapLayout treeMapLayout;
+	HashSet<GraphEdge> done = new HashSet<GraphEdge>();
 	
-	public TreeMapCounting(DefaultMutableTreeNode jsonTop) {
-		treeMapLayout = new TreeMapLayout();
+	public TreeMapCounting(DefaultMutableTreeNode jsonTop, PresentationService controler) {
+		nodes = controler.getNodes();
+		treeMapLayout = new TreeMapLayout(nodes, edges, controler);
 		JSONArray dirList = jsonStruc(jsonTop, "");
 		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");
 		treeMapLayout.setTop(countersTop);
 	}
 	
-	public TreeMapCounting(File file) {
-		treeMapLayout = new TreeMapLayout();
+	public TreeMapCounting(File file, PresentationService controler) {
+//		treeMapLayout = new TreeMapLayout(nodes, edges, controler);
+		treeMapLayout = new TreeMapLayout(file, controler);
 		JSONArray dirList = jsonStruc(file);
 		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");
 		treeMapLayout.setTop(countersTop);
 	}
 	
-	public TreeMapCounting(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, int parentRole) {
+	// Should be unnecessary
+	public TreeMapCounting(Hashtable<Integer,GraphNode> nodes, Hashtable<Integer,GraphEdge> edges, 
+			PresentationService controler, int parentRole) {
 		this.nodes = nodes;
 		this.edges = edges;
+		this.controler = controler;
 		GraphNode rootNode = null;
 		Enumeration<GraphNode> nodeList = nodes.elements();
 		while (nodeList.hasMoreElements()) {
@@ -52,8 +61,8 @@ public class TreeMapCounting {
 				break;
 			}
 		}
-		System.out.println("root found ");
-		treeMapLayout = new TreeMapLayout();
+		System.out.println("Rootnode found ? " + ( rootNode != null));	// TODO eliminate need
+		treeMapLayout = new TreeMapLayout(nodes, edges, controler);
 		DefaultMutableTreeNode jsonTop = collectNeighbors(rootNode, "", parentRole == 2);
 		JSONArray dirList = jsonStruc(jsonTop, "");
 		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");
@@ -61,13 +70,15 @@ public class TreeMapCounting {
 	}
 
 	public DefaultMutableTreeNode collectNeighbors(GraphNode node, String indent, boolean reverse) {
-		DefaultMutableTreeNode constructed = new DefaultMutableTreeNode(node.getLabel());
+		DefaultMutableTreeNode constructed = new DefaultMutableTreeNode(node.getID());
 		
 		Enumeration<GraphEdge> edgeList = edges.elements();
 		while (edgeList.hasMoreElements()) {
 			GraphEdge edge = edgeList.nextElement();
 			GraphNode n1 = reverse ? edge.getNode1() : edge.getNode2();
 			if (n1 != node) continue;
+			if (done.contains(edge)) continue;		// avoid loops
+			done.add(edge);
 			GraphNode n2 = reverse ? edge.getNode2() : edge.getNode1();
 			DefaultMutableTreeNode child = collectNeighbors(n2, indent + "  ", reverse);
 			constructed.add(child);
@@ -111,6 +122,7 @@ public class TreeMapCounting {
 		String nodeName = "";
 		try {
 			nodeName = (String) node.getUserObject().toString(); 
+			if (nodeName.equals("-1")) nodeName = "ROOT";
 			tree.put(index, nodeName);
 			Enumeration children = node.children();
 			while (children.hasMoreElements()) {
@@ -136,6 +148,19 @@ public class TreeMapCounting {
 			itemName = dirList.getString(0);
 		} catch (JSONException e) {
 			System.out.println("Error TMC02 " + e.getMessage() + " with " + dirList.toString());
+		}
+		int nodeID = 100;
+		if (nodes != null) { 
+			try {
+				nodeID = Integer.valueOf(itemName);
+			} catch (NumberFormatException e) {
+				// probably root, caught later
+			}
+			if (nodes.containsKey(nodeID)) {
+				itemName = nodes.get(nodeID).getLabel();
+			}
+		} else {
+			System.out.println("no nodes found");
 		}
 		DefaultMutableTreeNode constructed = null;
 
@@ -182,11 +207,11 @@ public class TreeMapCounting {
 			if (folderCount > 0) {
 				double uniq = leafCount + .0;
 				while (bufferMap.containsKey(uniq)) uniq += disambig;
-				TreeMapLayout.MyBranchInfo myBranchInfo = treeMapLayout.new MyBranchInfo(leafCount, itemName + " items");
+				TreeMapLayout.MyBranchInfo myBranchInfo = treeMapLayout.new MyBranchInfo(nodeID, leafCount, itemName + " items");
 				DefaultMutableTreeNode pseudoFolder = new DefaultMutableTreeNode(myBranchInfo);
 				bufferMap.put(uniq, pseudoFolder);
 			} else {
-				TreeMapLayout.MyBranchInfo myBranchInfo = treeMapLayout.new MyBranchInfo(leafCount, itemName);
+				TreeMapLayout.MyBranchInfo myBranchInfo = treeMapLayout.new MyBranchInfo(nodeID, leafCount, itemName);
 				DefaultMutableTreeNode pseudoFolder = new DefaultMutableTreeNode(myBranchInfo);
 				return pseudoFolder;
 			}
@@ -197,7 +222,7 @@ public class TreeMapCounting {
 		Iterator<Double> iter = bufferSet.iterator();
 
 		// add child nodes
-		TreeMapLayout.MyBranchInfo constructedInfo = treeMapLayout.new MyBranchInfo(sum + leafCount, itemName);
+		TreeMapLayout.MyBranchInfo constructedInfo = treeMapLayout.new MyBranchInfo(nodeID, sum + leafCount, itemName);
 		constructed = new DefaultMutableTreeNode(constructedInfo);
 		while (iter.hasNext()) {
 			double sortedNode = iter.next();

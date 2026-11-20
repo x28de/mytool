@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -76,6 +77,7 @@ import de.x28hd.tool.layouts.MakeTree;
 import de.x28hd.tool.layouts.RandomMap;
 import de.x28hd.tool.layouts.SimilarityColoring;
 import de.x28hd.tool.layouts.SubtreeLayout;
+import de.x28hd.tool.layouts.TreeMapLayout;
 
 public class PresentationExtras implements ActionListener, MouseListener, KeyListener, PopupMenuListener{
 	PresentationService controler;
@@ -108,6 +110,8 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	boolean contextPasteAllowed = true;
 	boolean hyp = false;
 	boolean dragFake = false;
+	int savedFactor = 100;
+	public TreeMapLayout pastTree = null;
 	
 	// Tree accessories
 	DefaultTreeModel treeModel;
@@ -195,6 +199,16 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 	public void actionPerformed(ActionEvent arg0) {
 		stopHint();
 		String command = arg0.getActionCommand();
+		
+		// Extra Button
+		if (command == "zoomNavi") {
+			zoom(true);
+			return;
+		} else if (command == "treeMap") {
+			treeMap(true, null);
+			return;
+		}
+		
 		JMenuItem item = (JMenuItem) arg0.getSource();
 		JPopupMenu menu = (JPopupMenu) item.getParent();
 		String menuID = menu.getLabel();	// the menuID is stored in the menu's label
@@ -553,6 +567,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 				flipCluster(controler.getSelectedEdge(), false);
 				controler.graphSelected();
 			}
+
 	}
 	
 	public void openComposition() {
@@ -978,7 +993,7 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 		   dividerPos = splitPane.getDividerLocation();
 		   if (on) {
 			   Point transl = graphPanel.getTranslation();
-			   graphPanelZoom = new GraphPanelZoom(transl, controler);
+			   graphPanelZoom = new GraphPanelZoom(transl, controler, savedFactor);
 			   splitPane.setDividerLocation(dividerPos);
 			   splitPane.setRightComponent(graphPanelZoom.createSlider());
 			   graphPanelZoom.setModel(nodes, edges);
@@ -990,7 +1005,27 @@ public class PresentationExtras implements ActionListener, MouseListener, KeyLis
 			   splitPane.setDividerLocation(dividerPos);
 			   splitPane.setLeftComponent(graphPanel);
 			   splitPane.setRightComponent(rightPanel);
+			   controler.getGui().extraButton("zoomNavi");
 			   toggleClassicMenu();
+			   savedFactor = graphPanelZoom.getFactor();
+		   }
+		}
+	   public void treeMap(boolean on, GraphNode jumpNode) {
+		   if (on) {
+			   pastTree.wakeup();
+		   } 
+		   if (!on) {
+			   controler.getGui().extraButton("treeMap");
+			   controler.getMainWindow().validate();
+			   graphPanel.nodeSelected(jumpNode);
+			   
+			   Point xy = controler.getSelectedNode().getXY();
+			   Point transl = controler.getTranslation();
+			   
+			   int dx = xy.x - controler.getMainWindow().getWidth()/2 + transl.x + 200;
+			   int dy = xy.y - controler.getMainWindow().getHeight()/2 + transl.y;
+			   panning = new Point(dx, dy);
+			   animationTimer2.start();
 		   }
 		}
 		public void flipCluster(GraphEdge assoc, boolean horizontal) {

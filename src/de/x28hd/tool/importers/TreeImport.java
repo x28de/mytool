@@ -51,6 +51,7 @@ import de.x28hd.tool.exporters.TopicMapStorer;
 import de.x28hd.tool.inputs.Importer;
 import de.x28hd.tool.inputs.TopicMapLoader;
 import de.x28hd.tool.layouts.CentralityColoring;
+import de.x28hd.tool.layouts.MakeTree;
 
 public class TreeImport implements ActionListener {
 
@@ -151,7 +152,7 @@ public class TreeImport implements ActionListener {
 			inputItems.put(topNode, "ROOT");
 			addNode(topNode, "");
 			int idForJTree = inputID2num.get(topNode);
-			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, " "));
+			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, "ROOT"));
 
 			if (graphContainer.getLength() <= 0) return;
 			for (int i = 0; i < graphContainer.getLength(); i++) {
@@ -209,7 +210,8 @@ public class TreeImport implements ActionListener {
 			Element graph = (Element) graphContainer.item(0);
 
 			int idForJTree = inputID2num.get(topNode);
-			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, " "));
+			
+			top = new DefaultMutableTreeNode(new BranchInfo(idForJTree, "ROOT"));
 
 			//	Collect nested nodes
 			nest(graph, topNode, top, 0);
@@ -355,7 +357,7 @@ public class TreeImport implements ActionListener {
 		} else {
 			if (layoutOpt) {
 
-				CentralityColoring centralityColoring = new CentralityColoring(nodes, edges);
+				MakeTree centralityColoring = new MakeTree(nodes, edges);
 				centralityColoring.treeLayout(nonTreeEdges, this.knownFormat == Importer.x28tree);
 				//	Recolor 
 				Enumeration<Integer> edgeColEnum = edgeColors.keys();
@@ -555,7 +557,11 @@ public class TreeImport implements ActionListener {
 			transit = false;
 		} else if (command == "Continue") {
 			transit = transitBox.isSelected();
-			if (treeMapBox.isSelected()) new TreeMapCounting(top);
+			finish();
+			nodes = controler.getNodes();
+			edges = controler.getEdges();
+			if (treeMapBox.isSelected()) new TreeMapCounting(nodes, edges, controler, 2);
+//			if (treeMapBox.isSelected()) new TreeMapCounting(top, controler);
 
 			// Options interdependent
 		} else if (command == "transit"){
@@ -569,7 +575,6 @@ public class TreeImport implements ActionListener {
 		}
 		frame.setVisible(false);
 		frame.dispose();
-		finish();
 		if (knownFormat == Importer.Sitemap) controler.getControlerExtras().toggleHyp(1, true);
 	}
 }

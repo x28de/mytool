@@ -9,6 +9,7 @@ import java.util.Locale;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -35,6 +36,7 @@ public class Gui {
 	private Image saveImage;
 	private Image pasteImage;
 	private Image wizardImage;
+	private Image wheelImage;
 
 	int shortcutMask;
 	JMenuItem menuItem21 = null;
@@ -64,6 +66,7 @@ public class Gui {
 	JCheckBoxMenuItem menuItem55 = null;
 	JCheckBoxMenuItem menuItem58 = null;
 	JCheckBoxMenuItem menuItem63 = null;
+	JButton navButton = null;
 	String [] tooltip22 = { 
 			"Click to disable editing in the detail pane but enable hyperlinks",
 			"Click to enable editing in the detail pane but disable hyperlinks"};
@@ -112,6 +115,7 @@ public class Gui {
 		saveImage = getImage("save.gif");
 		pasteImage = getImage("paste.gif");
 		wizardImage = getImage("wizard.gif");
+		wheelImage = getImage("wheel.gif");
 		
 		menuBar = new JMenuBar();
 		
@@ -669,14 +673,14 @@ public class Gui {
 		sub6.add(menuItem66);
 		
 		menu5.add(sub6);
-
+		
 		menuBar.add(menu5);
 	}
 
 	public void helpMenu() {
 
 		JMenu menu6;
-		menu6 = new JMenu("?");
+		menu6 = new JMenu("?   ");
 		menu6.setToolTipText("Help");
 
 		JMenuItem menuItem61 = new JMenuItem("Help");
@@ -698,6 +702,22 @@ public class Gui {
 		menu6.add(menuItem62);
 
 		menuBar.add(menu6);
+	}
+	public void extraButton(String command) {
+		if (navButton == null) navButton = new JButton(new ImageIcon(wheelImage));
+		if (command == "zoomNavi") {
+			navButton.setText("   Resume Zoomed Navigation");
+			navButton.setToolTipText("<html>Shortcut to <b>Advanced > Zoom the map...</b> with previous zoom factor");
+		} else if (command == "treeMap") {
+			navButton.setText("   Resume TreeMap Navigation");
+			navButton.setToolTipText("<html>Show again the TreeMap, with previous selection");
+		} else if (command == "exit") {
+			menuBar.remove(navButton);
+			return;
+		}
+		navButton.setActionCommand(command);
+		navButton.addActionListener(controlerExtras);
+		menuBar.add(navButton);
 	}
 	public void displayHelp() {
 		controler.displayPopup("<html>" +

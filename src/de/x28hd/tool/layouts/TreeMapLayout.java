@@ -10,6 +10,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -17,12 +19,14 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -43,40 +47,55 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.json.JSONArray;
 
+import de.x28hd.tool.PresentationService;
+import de.x28hd.tool.core.GraphEdge;
+import de.x28hd.tool.core.GraphNode;
 import de.x28hd.tool.importers.TreeMapCounting;
 
-public class TreeMapLayout implements TreeSelectionListener, MouseListener {
+public class TreeMapLayout implements TreeSelectionListener, MouseListener, ActionListener {
 	TreePath selPath = null;
 
 	JFrame mainWindow;
+	Hashtable<Integer, GraphNode> nodes; 
+	Hashtable<Integer, GraphEdge> edges;	
+	PresentationService controler;
 	JComponent diagramPanel;
 	Rectangle highLight = null;
 	
 	DefaultMutableTreeNode countersTop;
 	TreeMapCounting caller;
 	JPanel treeFrame;
-	DefaultTreeModel treeModel;
+//	DefaultTreeModel treeModel;
 	JTree tree;
 	DefaultTreeCellRenderer renderer;
+	JButton jumpButton;
+	GraphNode jumpNode = null;
 
 	private WindowAdapter myWindowAdapter = new WindowAdapter() {
 		public void windowClosing(WindowEvent e) {
+			controler.getGui().extraButton("exit");
 		}
 	};
 		
-	public TreeMapLayout() {
+	public TreeMapLayout(Hashtable<Integer, GraphNode> n, Hashtable<Integer, GraphEdge> e, PresentationService c) {
+		nodes = n;
+		edges = e;
+		controler = c;
 	}
 
 	public void setTop (DefaultMutableTreeNode top) {
 		countersTop = top;
 		File file = null;
+		
 		mainPart(file);
 	}
 	
-	public TreeMapLayout(File file) {
+	public TreeMapLayout(File file, PresentationService controler) {
+		this.controler = controler;
 		mainPart(file);
 	}
 	public void mainPart(File file) {
+		controler.getControlerExtras().pastTree = this;
 		
 		// Tree diagram
 		
@@ -122,14 +141,17 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener {
 	}
 	
 	public class MyBranchInfo {
+		int key;
 		int total;
 		String label;
 		Rectangle rectangle;
-		public MyBranchInfo(int t, String l) {
+		public MyBranchInfo(int k, int t, String l) {
+			key = k;
 			total = t;
 			label = l + "     " + t;
 		}
 		public int getTotal() {return this.total;}
+		public int getKey() {return this.key;}
 		public String toString() {
 			return this.label;
 		}
@@ -183,11 +205,11 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener {
 			if (folderCount > 0) {
 				double uniq = leafCount + .0;
 				while (bufferMap.containsKey(uniq)) uniq += disambig;
-				MyBranchInfo myBranchInfo = new MyBranchInfo(leafCount, file.getName() + " files");
+				MyBranchInfo myBranchInfo = new MyBranchInfo(-1, leafCount, file.getName() + " files");
 				DefaultMutableTreeNode pseudoFolder = new DefaultMutableTreeNode(myBranchInfo);
 				bufferMap.put(uniq, pseudoFolder);
 			} else {
-				MyBranchInfo myBranchInfo = new MyBranchInfo(leafCount, file.getName());
+				MyBranchInfo myBranchInfo = new MyBranchInfo(-1, leafCount, file.getName());
 				DefaultMutableTreeNode pseudoFolder = new DefaultMutableTreeNode(myBranchInfo);
 				return pseudoFolder;
 			}
@@ -198,7 +220,7 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener {
 		Iterator<Double> iter = bufferSet.iterator();
 
 		// add child nodes
-		MyBranchInfo constructedInfo = new MyBranchInfo(sum + leafCount, file.getName());
+		MyBranchInfo constructedInfo = new MyBranchInfo(-1, sum + leafCount, file.getName());
 		constructed = new DefaultMutableTreeNode(constructedInfo);
 		while (iter.hasNext()) {
 			double sortedNode = iter.next();
@@ -289,17 +311,30 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener {
 		UIManager.put("Tree.leafIcon", myLeaf);		// leaf entries here are folders, too
 		JPanel innerPanel = new JPanel();
 	    innerPanel.setBackground(Color.WHITE);
-	    innerPanel.setBorder(new EmptyBorder(35, 10, 10, 10));
+	    innerPanel.setBorder(new EmptyBorder(15, 10, 30, 10));
 	    innerPanel.setLayout(new BorderLayout());
+	    
+		jumpButton = new JButton("Jump");
+		jumpButton.setToolTipText("Jump to the selected node on the map");
+		jumpButton.addActionListener(this);
+		jumpButton.setSelected(true);
+		jumpButton.setEnabled(false);
+		JPanel topArea = new JPanel();
+	    topArea.setBackground(Color.WHITE);
+		topArea.setLayout(new BorderLayout());
+		topArea.add(jumpButton, "East");
+		innerPanel.add(topArea, "North");
 
 		DefaultTreeModel model = new DefaultTreeModel(top);
+		controler.getControlerExtras().setTreeModel(model);
 		tree = new JTree(model);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.addTreeSelectionListener(this);
-	    tree.setVisibleRowCount(55);
+	    tree.setVisibleRowCount(20);
 	    JScrollPane scrollPane = new JScrollPane(tree);
-		innerPanel.add(scrollPane, "North");
-		treeFrame.add(innerPanel);
+		innerPanel.add(scrollPane);
+		treeFrame.add(innerPanel, "Center");
+
 		return treeFrame;
 	}
 	
@@ -340,6 +375,12 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener {
 		Object o = selectedPath.getLastPathComponent();
 		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) o;
 		MyBranchInfo info = (MyBranchInfo) selectedNode.getUserObject();
+		
+		if (nodes != null) {
+			int id = info.getKey();
+			jumpNode = nodes.get(id);
+			jumpButton.setEnabled(jumpNode != null);
+		}
 		Rectangle r = info.getRectangle();
 		highLight = r;
 		diagramPanel.repaint();
@@ -355,5 +396,14 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener {
 	public void mousePressed(MouseEvent arg0) {
 	}
 	public void mouseReleased(MouseEvent arg0) {
+	}
+
+	public void wakeup() {
+		mainWindow.setVisible(true);
+	}
+	
+	public void actionPerformed(ActionEvent arg0) {
+		controler.getControlerExtras().treeMap(false, jumpNode);
+		mainWindow.setVisible(false);
 	}
 }
