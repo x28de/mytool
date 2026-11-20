@@ -317,6 +317,7 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener, Acti
 		jumpButton = new JButton("Jump");
 		jumpButton.setToolTipText("Jump to the selected node on the map");
 		jumpButton.addActionListener(this);
+		jumpButton.setSelected(true);
 		jumpButton.setEnabled(false);
 		JPanel topArea = new JPanel();
 	    topArea.setBackground(Color.WHITE);
@@ -378,7 +379,7 @@ public class TreeMapLayout implements TreeSelectionListener, MouseListener, Acti
 		if (nodes != null) {
 			int id = info.getKey();
 			jumpNode = nodes.get(id);
-			jumpButton.setEnabled(true);
+			jumpButton.setEnabled(jumpNode != null);
 		}
 		Rectangle r = info.getRectangle();
 		highLight = r;

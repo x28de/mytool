@@ -32,8 +32,6 @@ public class TreeMapCounting {
 		nodes = controler.getNodes();
 		treeMapLayout = new TreeMapLayout(nodes, edges, controler);
 		JSONArray dirList = jsonStruc(jsonTop, "");
-		System.out.println("H?");
-		System.out.println(dirList);
 		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");
 		treeMapLayout.setTop(countersTop);
 	}
@@ -67,7 +65,6 @@ public class TreeMapCounting {
 		treeMapLayout = new TreeMapLayout(nodes, edges, controler);
 		DefaultMutableTreeNode jsonTop = collectNeighbors(rootNode, "", parentRole == 2);
 		JSONArray dirList = jsonStruc(jsonTop, "");
-		System.out.println(dirList);
 		DefaultMutableTreeNode countersTop = collectJSON(dirList, "");
 		treeMapLayout.setTop(countersTop);
 	}
@@ -125,6 +122,7 @@ public class TreeMapCounting {
 		String nodeName = "";
 		try {
 			nodeName = (String) node.getUserObject().toString(); 
+			if (nodeName.equals("-1")) nodeName = "ROOT";
 			tree.put(index, nodeName);
 			Enumeration children = node.children();
 			while (children.hasMoreElements()) {
@@ -153,7 +151,11 @@ public class TreeMapCounting {
 		}
 		int nodeID = 100;
 		if (nodes != null) { 
-			nodeID = Integer.valueOf(itemName);
+			try {
+				nodeID = Integer.valueOf(itemName);
+			} catch (NumberFormatException e) {
+				// probably root, caught later
+			}
 			if (nodes.containsKey(nodeID)) {
 				itemName = nodes.get(nodeID).getLabel();
 			}

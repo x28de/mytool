@@ -67,6 +67,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 	JFrame frame;
 	PresentationService controler;
 	JCheckBox treeMapBox = new JCheckBox("Show treemap?");
+	JCheckBox layoutBox;
 	DefaultMutableTreeNode topTop;
 	boolean determined = false;	
 	
@@ -339,7 +340,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		SortedMap<Integer,Integer> treeTopsSorted = (SortedMap<Integer,Integer>) treeTops;
 		SortedSet<Integer> treeTopsSet = (SortedSet<Integer>) treeTopsSorted.keySet();
 		Iterator<Integer> ttix = treeTopsSet.iterator();
-	    topTop = new DefaultMutableTreeNode(new BranchInfo(-1, "-1"));
+	    topTop = new DefaultMutableTreeNode(new BranchInfo(-1, "ROOT"));
 	    
 		while (ttix.hasNext()) {
 		int treeTopIndex = ttix.next();
@@ -348,8 +349,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		
 		//	Show tree
 	    DefaultMutableTreeNode top = 
-	    		new DefaultMutableTreeNode(new BranchInfo(topID, topID + ""));
-//	    		new DefaultMutableTreeNode(new BranchInfo(topID, nodes.get(topID).getLabel()));
+	    		new DefaultMutableTreeNode(new BranchInfo(topID, nodes.get(topID).getLabel()));
 	    topTop.add(top);
 	    createSelectionNodes(top);
 		}
@@ -379,8 +379,11 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		JPanel toolbar = new JPanel();
 		toolbar.setLayout(new BorderLayout());
 		toolbar.setBorder(new EmptyBorder(10, 10, 10, 10));
+		layoutBox = new JCheckBox ("Tree layout", true);
+		layoutBox.addActionListener(this);
+		toolbar.add(layoutBox, "West");
 		treeMapBox.setToolTipText("for node counts, like WinDirStat but without cushion shading and tiling algorithm)");
-		toolbar.add(treeMapBox, "West");
+		toolbar.add(treeMapBox);
 		JButton continueButton = new JButton("Continue");
 		continueButton.addActionListener(this);
 		toolbar.add(continueButton, "East");
@@ -391,8 +394,6 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		frame.setLocation(dim.width/2 - 298, dim.height/2 - 209);		
         frame.setMinimumSize(new Dimension(596, 418));
         frame.setVisible(true);
-        
-        treeLayout(g2);
 	}
 	
 	public void discoveredTree(int parentRole) {
@@ -425,14 +426,12 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 			node2.addEdge(edge);
 		}
 		topTop = constructTree(root.getID(), 0, "");
-	    treeLayout(g2);
 		offerTheTree();
 	}
 
 	public DefaultMutableTreeNode constructTree(int nodeID, int level, String indent) {
 		GraphNode node = nodes.get(nodeID);
-//		DefaultMutableTreeNode top = new DefaultMutableTreeNode(new BranchInfo(nodeID, node.getLabel()));
-		DefaultMutableTreeNode top = new DefaultMutableTreeNode(new BranchInfo(nodeID, nodeID + ""));
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode(new BranchInfo(nodeID, node.getLabel()));
         String colorString = colors[level % 6];
 		Enumeration<GraphEdge> neighbors = node.getEdges();
 		neighborIDs.clear();
@@ -605,9 +604,7 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
                 node = nodes.get(childKey);
         		branchLabel = node.getLabel();
     			if (branchLabel.length() > 25) branchLabel = branchLabel.substring(0, 25) + " ..."; 
-//                branch = new DefaultMutableTreeNode(new BranchInfo(childKey, branchLabel));
-                branch = new DefaultMutableTreeNode(new BranchInfo(childKey, childKey + ""));
-                System.out.println(branchLabel + " " + childKey);
+                branch = new DefaultMutableTreeNode(new BranchInfo(childKey, branchLabel));
                 top.add(branch);
                 
                 createSelectionNodes(branch);	// recursive
@@ -649,11 +646,34 @@ public class MakeTree implements TreeSelectionListener, ActionListener {
 		}
 	}
 
+	public DefaultMutableTreeNode transformTree(DefaultMutableTreeNode in) {
+		DefaultMutableTreeNode out = null;
+		BranchInfo infoIn = (BranchInfo) in.getUserObject();
+		BranchInfo infoOut = new BranchInfo(infoIn.getKey(), infoIn.getKey() + "");
+		out = new DefaultMutableTreeNode(infoOut);
+		Enumeration<DefaultMutableTreeNode> children = in.children();
+		while (children.hasMoreElements()) {
+			DefaultMutableTreeNode child = children.nextElement();
+			out.add(transformTree(child));								// recursion
+		}
+		return out;
+	}
+	
 	public void actionPerformed(ActionEvent arg0) {
+		String command = arg0.getActionCommand();
+		if (command == "Tree layout") {
+	        if (layoutBox.isSelected()) {
+	        	treeLayout(g2);
+	        } else {
+	        	revertColors();
+	        }
+	        controler.getMainWindow().repaint();
+			return;
+		}
 		frame.dispose();
 		if (treeMapBox.isSelected()) {
 			if (determined) {
-				new TreeMapCounting(topTop, controler);
+				new TreeMapCounting(transformTree(topTop), controler);
 			} else {
 				new TreeMapCounting(nodes, edges, controler, 3 - parentRole);
 			}
